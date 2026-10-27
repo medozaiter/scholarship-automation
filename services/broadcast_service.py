@@ -1,6 +1,7 @@
 import os
 import logging
 from typing import List, Dict, Any
+from dotenv import load_dotenv
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.constants import ParseMode
 from telegram.ext import ContextTypes
@@ -9,10 +10,18 @@ from database import db
 from services.search_service import SearchService
 from services.gemini_service import GeminiService
 
+load_dotenv()
+
 logger = logging.getLogger(__name__)
 
 search_service = SearchService(max_results=8)
-gemini_service = GeminiService()
+gemini_service: GeminiService | None = None
+
+def get_gemini_service() -> GeminiService:
+    global gemini_service
+    if gemini_service is None:
+        gemini_service = GeminiService()
+    return gemini_service
 
 CORE_TRACKS = [
     {"degree": "Undergraduate", "majors": ["Cybersecurity", "Software Engineering"], "country": "Palestine"},
@@ -95,7 +104,7 @@ async def daily_scholarship_indexing_job(context: ContextTypes.DEFAULT_TYPE) -> 
                 continue
 
             # Analyze and cache report
-            report_html = await gemini_service.analyze_and_format_scholarships(
+            report_html = await get_gemini_service().analyze_and_format_scholarships(
                 search_results=results,
                 degree=degree,
                 majors=majors,

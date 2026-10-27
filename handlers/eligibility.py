@@ -169,4 +169,5 @@ def get_eligibility_handler() -> ConversationHandler:
             CallbackQueryHandler(cancel_eligibility, pattern="^eligibility:cancel$"),
         ],
         allow_reentry=True,
+        per_message=False,
     )

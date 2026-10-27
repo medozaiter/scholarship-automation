@@ -2,7 +2,10 @@ import os
 import json
 import logging
 from typing import List, Dict, Any, Optional
+from dotenv import load_dotenv
 from google import genai
+
+load_dotenv()
 
 logger = logging.getLogger(__name__)
 

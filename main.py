@@ -3,6 +3,7 @@ import logging
 from dotenv import load_dotenv
 from telegram import Update
 from telegram.constants import ParseMode
+from telegram.request import HTTPXRequest
 from telegram.ext import (
     ApplicationBuilder,
     CommandHandler,
@@ -93,9 +94,17 @@ def main() -> None:
 
     logger.info("Building Telegram Application with asynchronous JobQueue...")
 
+    request = HTTPXRequest(
+        connect_timeout=30.0,
+        read_timeout=30.0,
+        write_timeout=30.0,
+        pool_timeout=30.0,
+    )
+
     application = (
         ApplicationBuilder()
         .token(telegram_token)
+        .request(request)
         .post_init(on_startup)
         .build()
     )
@@ -120,7 +129,11 @@ def main() -> None:
     application.add_error_handler(error_handler)
 
     logger.info("Bot is fully operational and listening for events...")
-    application.run_polling(drop_pending_updates=True)
+    application.run_polling(
+        drop_pending_updates=True,
+        bootstrap_retries=5,
+        timeout=30
+    )
 
 
 if __name__ == "__main__":

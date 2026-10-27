@@ -450,6 +450,39 @@ async def execute_scholarship_search(update: Update, context: ContextTypes.DEFAU
     return ConversationHandler.END
 
 
+async def subscribe_alert_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Subscribes the user to real-time alerts for the chosen track."""
+    query = update.callback_query
+    if query:
+        await query.answer()
+        chat_id = update.effective_chat.id
+        degree = context.user_data.get("degree", "Undergraduate")
+        majors = context.user_data.get("majors_display", ["Computer Science"])
+        country = context.user_data.get("country", "Palestine")
+
+        primary_major = majors[0] if majors else "General IT"
+
+        success = await db.add_subscription(
+            chat_id=chat_id,
+            degree=degree,
+            major=primary_major,
+            country=country
+        )
+
+        if success:
+            await query.message.reply_text(
+                "🔔 <b>تم تفعيل تنبيهات المنح بنجاح!</b> ✅\n\n"
+                f"سنرسل لك إشعاراً فورياً على هذا الحساب عند اكتشاف أي منحة جديدة مطابقة لمعاييرك:\n"
+                f"• <b>الدرجة:</b> {degree}\n"
+                f"• <b>التخصص:</b> {primary_major}\n"
+                f"• <b>الدولة:</b> {country}\n\n"
+                "<i>يقوم النظام بفحص المنح بشكل آلي ومستمر يومياً.</i>",
+                parse_mode=ParseMode.HTML
+            )
+        else:
+            await query.message.reply_text("⚠️ حدث خطأ أثناء تفعيل التنبيه، يرجى المحاولة لاحقاً.")
+
+
 async def cancel_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Cancels conversation and restores standard menu keyboard."""
     context.user_data.clear()
