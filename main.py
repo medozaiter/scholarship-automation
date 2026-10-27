@@ -131,7 +131,7 @@ def main() -> None:
     logger.info("Bot is fully operational and listening for events...")
     application.run_polling(
         drop_pending_updates=True,
-        bootstrap_retries=5,
+        bootstrap_retries=-1,
         timeout=30
     )
 
