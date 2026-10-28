@@ -14,7 +14,7 @@ from services.scholarship_engine import ScholarshipEngine
 from services.advisor_service import AdvisorService
 from services.auth_service import AuthService
 from services.automation_service import AutomationService, start_automation_daemon
-from services.db import init_db_and_migrate, is_db_available
+from services.db import init_db_and_migrate, is_db_available, get_notification_history
 from services.email_service import get_email_provider_info, dispatch_email, get_last_dispatch_meta
 from services.security_utils import (
     validate_email,
@@ -696,6 +696,51 @@ async def get_live_scholarships():
     except Exception as e:
         logger.error(f"Live scholarships error: {e}")
         return {"success": False, "count": 0, "scholarships": []}
+
+
+@app.get("/api/automation/status")
+async def get_automation_telemetry():
+    """Returns autonomous engine status, monitored scholarship counts, student reach, and notification logs."""
+    try:
+        return automation_service.get_automation_status()
+    except Exception as e:
+        logger.error(f"Error fetching automation status: {e}")
+        return {"status": "error", "detail": str(e)}
+
+
+@app.get("/api/automation/history")
+async def get_notifications_history_endpoint(limit: int = 50):
+    """Returns persistent audit log of sent digests, match alerts, and deadline reminders."""
+    try:
+        history = get_notification_history(limit=min(limit, 100))
+        return {
+            "success": True,
+            "count": len(history),
+            "history": history
+        }
+    except Exception as e:
+        logger.error(f"Error fetching notification history: {e}")
+        return {"success": False, "count": 0, "history": []}
+
+
+@app.post("/api/automation/trigger-cycle")
+async def trigger_full_automation_cycle(background_tasks: BackgroundTasks):
+    """Manually triggers an immediate autonomous cycle: Discovery, Matching, Deadlines & Digests."""
+    async def _run_cycle():
+        try:
+            logger.info("Manual trigger: Starting full autonomous cycle...")
+            await automation_service.auto_refresh_scholarships_from_web()
+            await automation_service.auto_dispatch_deadline_reminders()
+            await automation_service.auto_dispatch_weekly_digests()
+            logger.info("Manual trigger: Full autonomous cycle complete.")
+        except Exception as err:
+            logger.error(f"Error in manually triggered automation cycle: {err}")
+
+    background_tasks.add_task(_run_cycle)
+    return {
+        "success": True,
+        "message": "تم بدء دورة الأتمتة الكاملة (استكشاف المنح، مطابقة الطلاب، التذكيرات، والتقارير الأسبوعية) بنجاح في الخلفية."
+    }
 
 
 @app.post("/api/advisor/chat")

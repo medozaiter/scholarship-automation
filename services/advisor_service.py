@@ -688,8 +688,10 @@ class AdvisorService:
             "university": target_sch.get("institution", ""),
             "country": target_sch.get("country", ""),
             "acceptance_probability": f"{score}%",
+            "chance_percentage": f"{score}%",
             "confidence": confidence,
             "competitive_level": competitive_level,
+            "competitiveness": competitive_level,
             "strengths": match_data["strengths"],
             "weaknesses": match_data["weaknesses"],
             "recommendation": match_data["recommendation"],
@@ -771,6 +773,7 @@ class AdvisorService:
             "success": True,
             "compared_count": len(matched_items),
             "scholarships": matched_items,
+            "comparison_table": matched_items,
             "table_headers": headers,
             "table_rows": table_rows,
             "verdict": verdict
@@ -884,7 +887,12 @@ Format your response in structured Markdown with these exact sections:
         return {
             "success": True,
             "cv_score": min(98, max(50, final_score)),
-            "analysis": ai_review
+            "analysis": ai_review,
+            "recommendations": [
+                "اعتماد تنسيق Europass المعياري الدولي المفضل في لجان التقييم الأوروبية.",
+                "تدعيم كل إنجاز ومسؤولية وظيفية بأرقام وإحصائيات دالة على التأثير (Quantifiable metrics).",
+                "إبراز المشاريع البحثية والأنشطة اللامنهجية ذات الصلة بأهداف المنحة المستهدفة."
+            ]
         }
 
     # ==========================================================================
@@ -996,7 +1004,11 @@ Format your output in clean Markdown with these sections:
         return {
             "success": True,
             "letter_score": min(98, max(50, final_score)),
-            "analysis": ai_review
+            "analysis": ai_review,
+            "missing_sections": [
+                "الربط المباشر بين خبراتك الأكاديمية السابقة والمناهج المتخصصة في الجامعة.",
+                "خطة العودة وإحداث الأثر الإيجابي المستقبلي في وطنك أو مجتمعك المحلي."
+            ]
         }
 
     # ==========================================================================
@@ -1082,6 +1094,7 @@ Format your output in clean Markdown with these sections:
             "deadline": dl_str,
             "days_remaining": days_left,
             "total_weeks": weeks,
+            "weeks": roadmap,
             "roadmap": roadmap,
             "checklist": checklist
         }
@@ -1262,7 +1275,8 @@ Student in {major}
             "success": True,
             "closing_this_week": closing_this_week,
             "closing_in_30_days": closing_in_30_days,
-            "total_monitored": len(self.catalog)
+            "total_monitored": len(self.catalog),
+            "total_active": len(self.catalog)
         }
 
     # ==========================================================================

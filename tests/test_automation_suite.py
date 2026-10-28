@@ -35,7 +35,7 @@ def test_security_input_filters():
         pass
 
     # Validate Name
-    assert validate_name("مصطفى زعيتر") == "مصطفى زعيتر"
+    assert validate_name("أحمد محمود") == "أحمد محمود"
     try:
         validate_name("Student<script>")
         assert False, "Should reject script in name"

@@ -278,13 +278,13 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">
-                                الاسم الكامل
+                                الاسم الكامل كما في الوثائق الرسمية <span class="text-rose-500">*</span>
                             </label>
                             <div class="relative">
                                 <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
                                     <i data-lucide="user" class="w-4 h-4"></i>
                                 </span>
-                                <input type="text" id="fullName" required minlength="2" maxlength="60" placeholder="مثلاً: مصطفى زعيتر"
+                                <input type="text" id="fullName" required minlength="2" maxlength="60" placeholder="أدخل اسمك الكامل كما في جواز السفر أو الشهادة"
                                     oninput="this.value = this.value.replace(/[^a-zA-Z\u0600-\u06FF\s.\-']/g, '')"
                                     class="sp-input pr-9">
                             </div>
@@ -292,13 +292,13 @@
 
                         <div>
                             <label class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">
-                                البريد الإلكتروني (الذي ستصلك عليه المنح أسبوعياً) <span class="text-rose-500">*</span>
+                                البريد الإلكتروني الرسمي <span class="text-rose-500">*</span>
                             </label>
                             <div class="relative">
                                 <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
                                     <i data-lucide="mail" class="w-4 h-4"></i>
                                 </span>
-                                <input type="email" id="email" required maxlength="100" placeholder="student@example.com"
+                                <input type="email" id="email" required maxlength="100" placeholder="name@example.com (البريد الأكاديمي أو الشخصي المعتمد)"
                                     oninput="this.value = this.value.replace(/[^a-zA-Z0-9@._-]/g, '')"
                                     class="sp-input pr-9 font-latin">
                             </div>
@@ -308,9 +308,13 @@
                     <!-- Degree Level -->
                     <div>
                         <label class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-2">
-                            المرحلة الدراسية المطلوبة <span class="text-rose-500">*</span>
+                            المستوى العلمي (المرحلة الدراسية المطلوبة) <span class="text-rose-500">*</span>
                         </label>
-                        <div class="grid grid-cols-3 gap-2.5">
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                            <button type="button" data-val="ثانوية عامة (High School)" class="degree-btn p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-bold text-xs flex items-center justify-center gap-1.5 transition">
+                                <i data-lucide="book-open" class="w-4 h-4"></i>
+                                <span>ثانوية عامة</span>
+                            </button>
                             <button type="button" data-val="Undergraduate (Bachelor's)" class="degree-btn p-3 rounded-xl border border-blue-500 bg-blue-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition">
                                 <i data-lucide="graduation-cap" class="w-4 h-4"></i>
                                 <span>بكالوريوس</span>
@@ -336,12 +340,12 @@
                                 <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
                                     <i data-lucide="award" class="w-4 h-4"></i>
                                 </span>
-                                <input type="text" id="gpaInput" required maxlength="15" placeholder="88% أو 3.7"
+                                <input type="text" id="gpaInput" required maxlength="15" placeholder="مثال: 90% أو 3.8 من 4.00"
                                     onkeypress="return /[0-9.%/]/.test(event.key)"
                                     oninput="this.value = this.value.replace(/[^0-9.%/]/g, '')"
                                     class="sp-input pr-9 font-latin tabular-nums">
                             </div>
-                            <span class="text-[11px] text-slate-400 mt-1 block">يقبل النسبة المئوية أو المعدل من 4</span>
+                            <span class="text-[11px] text-slate-400 mt-1 block">يقبل النسبة المئوية أو المعدل التراكمي من 4.00 أو 5.00</span>
                         </div>
 
                         <div>
@@ -365,24 +369,8 @@
                         </div>
                     </div>
 
-                    <!-- Talents & Extracurriculars -->
-                    <div>
-                        <div class="flex justify-between items-center mb-1.5">
-                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-200">
-                                المواهب، الخبرات والأنشطة اللامنهجية
-                            </label>
-                            <button type="button" onclick="calculateInstantProbability()" class="text-xs text-blue-600 dark:text-blue-400 font-bold hover:underline flex items-center gap-1">
-                                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-                                <span>احسب نسبة القبول الآن</span>
-                            </button>
-                        </div>
-                        <textarea id="talentsInput" rows="2" maxlength="300"
-                            oninput="this.value = this.value.replace(/[<>{}\`$]/g, '')"
-                            placeholder="مثلاً: هاكاثونات تقنية، تدريب عملي، تطوع في الإغاثة، نشر أبحاث، قيادة فريق..."
-                            class="sp-input text-xs sm:text-sm"></textarea>
-
-                        <!-- Instant Probability Result Box -->
-                        <div id="probabilityBox" class="hidden mt-3 p-4 rounded-xl sp-badge-success space-y-1 block w-full text-right">
+                    <!-- Hidden Talents Field (Preserving backwards compatibility) -->
+                    <input type="hidden" id="talentsInput" value="">
                             <div class="flex items-center justify-between font-bold">
                                 <span id="probScore" class="text-xs">احتمالية القبول التقديرية: 88%</span>
                                 <span id="matchPercent" class="font-latin text-xs">نسبة التوافق: 94%</span>
@@ -514,52 +502,170 @@
                 <div>
                     <div class="flex items-center justify-between mb-2">
                         <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                            <i data-lucide="wrench" class="w-3 h-3 text-blue-500"></i>
+                            <i data-lucide="wrench" class="w-3.5 h-3.5 text-blue-500"></i>
                             <span>شريط الأدوات الأكاديمية السريعة (AI Toolbar)</span>
                         </span>
-                        <span class="text-[10px] text-slate-400">اختر أداة لتطبيقها فوراً</span>
+                        <span class="text-[10px] text-slate-400 font-medium">10 أدوات أكاديمية متخصصة</span>
                     </div>
 
                     <div class="ai-toolbar-scroll">
+                        <button type="button" onclick="triggerTool('recommendations')" class="ai-toolbar-btn">
+                            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-blue-500"></i>
+                            <span>توصيات مخصصة لملفي (Personalized)</span>
+                        </button>
                         <button type="button" onclick="triggerTool('find')" class="ai-toolbar-btn">
                             <i data-lucide="search" class="w-3.5 h-3.5 text-blue-500"></i>
-                            <span>بحث عن منح</span>
+                            <span>بحث عن منح (Find Scholarships)</span>
                         </button>
                         <button type="button" onclick="triggerTool('eligibility')" class="ai-toolbar-btn">
                             <i data-lucide="target" class="w-3.5 h-3.5 text-emerald-500"></i>
-                            <span>فحص الأهلية</span>
+                            <span>فحص الأهلية (Check Eligibility)</span>
                         </button>
                         <button type="button" onclick="triggerTool('chances')" class="ai-toolbar-btn">
                             <i data-lucide="bar-chart-2" class="w-3.5 h-3.5 text-indigo-500"></i>
-                            <span>ما هي فرص قبولي؟</span>
+                            <span>تقدير فرص قبولي (Estimate Chances)</span>
                         </button>
                         <button type="button" onclick="openModal('cvModal')" class="ai-toolbar-btn">
                             <i data-lucide="file-text" class="w-3.5 h-3.5 text-purple-500"></i>
-                            <span>مراجعة السيرة الذاتية (CV)</span>
+                            <span>مراجعة السيرة الذاتية (Review CV)</span>
                         </button>
                         <button type="button" onclick="openModal('letterModal')" class="ai-toolbar-btn">
                             <i data-lucide="pen-tool" class="w-3.5 h-3.5 text-rose-500"></i>
-                            <span>تدقيق رسالة الدافع</span>
+                            <span>تدقيق رسالة الدافع (Review SOP)</span>
                         </button>
                         <button type="button" onclick="openModal('compareModal')" class="ai-toolbar-btn">
                             <i data-lucide="scale" class="w-3.5 h-3.5 text-amber-500"></i>
-                            <span>مقارنة المنح</span>
+                            <span>مقارنة المنح (Compare Scholarships)</span>
                         </button>
                         <button type="button" onclick="openModal('roadmapModal')" class="ai-toolbar-btn">
                             <i data-lucide="calendar" class="w-3.5 h-3.5 text-teal-500"></i>
-                            <span>خطة التقديم والجدول</span>
+                            <span>بناء خطة التقديم (Build Roadmap)</span>
                         </button>
                         <button type="button" onclick="triggerTool('deadlines')" class="ai-toolbar-btn">
                             <i data-lucide="clock" class="w-3.5 h-3.5 text-red-500"></i>
-                            <span>مواعيد الإغلاق القادمة</span>
+                            <span>مواعيد الإغلاق القريبة (Upcoming Deadlines)</span>
                         </button>
                         <button type="button" onclick="openModal('emailModal')" class="ai-toolbar-btn">
                             <i data-lucide="mail" class="w-3.5 h-3.5 text-blue-600"></i>
-                            <span>صياغة إيميل رسمي</span>
+                            <span>مساعد صياغة الإيميل (Email Assistant)</span>
                         </button>
-                        <button type="button" onclick="triggerTool('saved')" class="ai-toolbar-btn">
-                            <i data-lucide="bookmark" class="w-3.5 h-3.5 text-amber-600"></i>
-                            <span>منحي المحفوظة</span>
+                    </div>
+                </div>
+
+                <!-- ==================== SUGGESTED PROMPTS LIBRARY (25+ CURATED ACADEMIC QUESTIONS) ==================== -->
+                <div class="sp-subcard p-3 rounded-2xl border border-slate-200/80 dark:border-slate-800 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-blue-500 animate-ping"></span>
+                            <span class="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                                <i data-lucide="help-circle" class="w-3.5 h-3.5 text-blue-500"></i>
+                                <span>بنك الأسئلة الأكاديمية المقترحة (26 استفسار ذكي)</span>
+                            </span>
+                        </div>
+                        <button type="button" onclick="togglePromptLibrary()" id="togglePromptLibBtn" class="text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
+                            <span id="promptLibToggleText">عرض كافة الاستفسارات</span>
+                            <i data-lucide="chevron-down" id="promptLibToggleIcon" class="w-3 h-3 transition-transform"></i>
+                        </button>
+                    </div>
+
+                    <!-- Category Pills -->
+                    <div class="flex items-center gap-1 overflow-x-auto pb-1 text-xs no-scrollbar">
+                        <button type="button" onclick="filterPromptCategory('all', this)" class="prompt-tab-btn active px-2.5 py-1 rounded-lg text-[11px] font-bold bg-blue-600 text-white transition">الكل (26)</button>
+                        <button type="button" onclick="filterPromptCategory('matching', this)" class="prompt-tab-btn px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition">🎯 المطابقة والفرص</button>
+                        <button type="button" onclick="filterPromptCategory('destinations', this)" class="prompt-tab-btn px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition">🌍 الوجهات الكبرى</button>
+                        <button type="button" onclick="filterPromptCategory('majors', this)" class="prompt-tab-btn px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition">🔬 التخصصات والمجالات</button>
+                        <button type="button" onclick="filterPromptCategory('documents', this)" class="prompt-tab-btn px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition">📄 مراجعة الوثائق والـ CV</button>
+                        <button type="button" onclick="filterPromptCategory('deadlines', this)" class="prompt-tab-btn px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition">⏳ المواعيد والخطط</button>
+                    </div>
+
+                    <!-- Prompt Chips Grid -->
+                    <div id="promptsContainer" class="flex flex-wrap gap-1.5 pt-1 transition-all max-h-24 overflow-y-auto">
+                        <!-- Group 1: Matching & Profile (5 items) -->
+                        <button type="button" data-cat="matching" onclick="sendPresetMessage('ما هي المنح الأكثر توافقاً مع مؤهلاتي ومعدلي الأكاديمي حالياً؟')" class="prompt-chip px-2.5 py-1 rounded-lg text-[11px] sp-subcard hover:border-blue-500 text-slate-700 dark:text-slate-200 transition font-medium flex items-center gap-1.5">
+                            <span>🎯 ما هي المنح الأكثر توافقاً مع مؤهلاتي ومعدلي؟</span>
+                        </button>
+                        <button type="button" data-cat="matching" onclick="triggerTool('chances')" class="prompt-chip px-2.5 py-1 rounded-lg text-[11px] sp-subcard hover:border-blue-500 text-slate-700 dark:text-slate-200 transition font-medium flex items-center gap-1.5">
+                            <span>📊 احسب لي نسبة قبولي التقديرية بناءً على ملفي</span>
+                        </button>
+                        <button type="button" data-cat="matching" onclick="sendPresetMessage('ما هي المنح التي توفر تمويلاً كاملاً 100% يشمل المعيشة والسكن وتذاكر السفر؟')" class="prompt-chip px-2.5 py-1 rounded-lg text-[11px] sp-subcard hover:border-blue-500 text-slate-700 dark:text-slate-200 transition font-medium flex items-center gap-1.5">
+                            <span>💎 ما هي المنح ذات التمويل الكامل 100% مع راتب شهري؟</span>
+                        </button>
+                        <button type="button" data-cat="matching" onclick="sendPresetMessage('كيف يمكنني تحسين وتدعيم ملفي الأكاديمي لرفع حظوظ قبولي التنافسية؟')" class="prompt-chip px-2.5 py-1 rounded-lg text-[11px] sp-subcard hover:border-blue-500 text-slate-700 dark:text-slate-200 transition font-medium flex items-center gap-1.5">
+                            <span>🚀 كيف أحسن ملفي وأرفع فرصة قبولي التنافسية؟</span>
+                        </button>
+                        <button type="button" data-cat="matching" onclick="sendPresetMessage('هل توجد كوتا سنوية مخصصة أو أولوية قبول للطلاب من فلسطين والمنطقة العربية؟')" class="prompt-chip px-2.5 py-1 rounded-lg text-[11px] sp-subcard hover:border-blue-500 text-slate-700 dark:text-slate-200 transition font-medium flex items-center gap-1.5">
+                            <span>🇵🇸 ما هي المنح التي توفر كوتا خاصة للطلاب من منطقتنا؟</span>
+                        </button>
+
+                        <!-- Group 2: Global Destinations (6 items) -->
+                        <button type="button" data-cat="destinations" onclick="sendPresetMessage('قارن بين منحة DAAD الألمانية ومنحة Erasmus Mundus الأوروبية من حيث المزايا والشروط')" class="prompt-chip px-2.5 py-1 rounded-lg text-[11px] sp-subcard hover:border-blue-500 text-slate-700 dark:text-slate-200 transition font-medium flex items-center gap-1.5">
+                            <span>⚖️ قارن بين منحة DAAD ومنحة Erasmus Mundus</span>
+                        </button>
+                        <button type="button" data-cat="destinations" onclick="sendPresetMessage('ما هي أفضل المنح الحكومية المتاحة في ألمانيا لعام 2026/2027 وشروط اللغة؟')" class="prompt-chip px-2.5 py-1 rounded-lg text-[11px] sp-subcard hover:border-blue-500 text-slate-700 dark:text-slate-200 transition font-medium flex items-center gap-1.5">
+                            <span>🇩🇪 أفضل المنح الحكومية المتاحة في ألمانيا وشروطها</span>
+                        </button>
+                        <button type="button" data-cat="destinations" onclick="sendPresetMessage('منحة ليستر بي بيرسون (Lester B. Pearson) في كندا: ما هي آلية الترشيح والتقديم؟')" class="prompt-chip px-2.5 py-1 rounded-lg text-[11px] sp-subcard hover:border-blue-500 text-slate-700 dark:text-slate-200 transition font-medium flex items-center gap-1.5">
+                            <span>🇨🇦 منحة بيرسون في كندا (جامعة تورنتو): كيف أترشح لها؟</span>
+                        </button>
+                        <button type="button" data-cat="destinations" onclick="sendPresetMessage('منحة الحكومة التركية (Türkiye Bursları): متى تفتح وما هي المزايا والرواتب الشهرية؟')" class="prompt-chip px-2.5 py-1 rounded-lg text-[11px] sp-subcard hover:border-blue-500 text-slate-700 dark:text-slate-200 transition font-medium flex items-center gap-1.5">
+                            <span>🇹🇷 منحة الحكومة التركية: مواعيد الفتح والمزايا</span>
+                        </button>
+                        <button type="button" data-cat="destinations" onclick="sendPresetMessage('منحة الحكومة المجرية (Stipendium Hungaricum): ما هي الأوراق ومراحل التقديم؟')" class="prompt-chip px-2.5 py-1 rounded-lg text-[11px] sp-subcard hover:border-blue-500 text-slate-700 dark:text-slate-200 transition font-medium flex items-center gap-1.5">
+                            <span>🇭🇺 منحة الحكومة المجرية: شروط التقديم والأوراق المطلوبة</span>
+                        </button>
+                        <button type="button" data-cat="destinations" onclick="sendPresetMessage('ما هي المنح الدراسية المتاحة في بريطانيا وكوريا الجنوبية (مثل Chevening و GKS)؟')" class="prompt-chip px-2.5 py-1 rounded-lg text-[11px] sp-subcard hover:border-blue-500 text-slate-700 dark:text-slate-200 transition font-medium flex items-center gap-1.5">
+                            <span>🇬🇧🇰🇷 منح بريطانيا (تشيفنينج) ومنح كوريا (GKS)</span>
+                        </button>
+
+                        <!-- Group 3: Majors & Fields (5 items) -->
+                        <button type="button" data-cat="majors" onclick="sendPresetMessage('ما هي أفضل المنح المتاحة لدراسة هندسة البرمجيات والذكاء الاصطناعي وعلوم البيانات؟')" class="prompt-chip px-2.5 py-1 rounded-lg text-[11px] sp-subcard hover:border-blue-500 text-slate-700 dark:text-slate-200 transition font-medium flex items-center gap-1.5">
+                            <span>💻 منح تخصصات هندسة البرمجيات والذكاء الاصطناعي</span>
+                        </button>
+                        <button type="button" data-cat="majors" onclick="sendPresetMessage('ما هي المنح الدولية المخصصة للتخصصات الطبية والصيدلة والعلوم الحياتية؟')" class="prompt-chip px-2.5 py-1 rounded-lg text-[11px] sp-subcard hover:border-blue-500 text-slate-700 dark:text-slate-200 transition font-medium flex items-center gap-1.5">
+                            <span>🩺 منح التخصصات الطبية والصحية والعلوم الحياتية</span>
+                        </button>
+                        <button type="button" data-cat="majors" onclick="sendPresetMessage('ما هي المنح الدراسية لمجالات إدارة الأعمال، الاقتصاد، والسياسات العامة؟')" class="prompt-chip px-2.5 py-1 rounded-lg text-[11px] sp-subcard hover:border-blue-500 text-slate-700 dark:text-slate-200 transition font-medium flex items-center gap-1.5">
+                            <span>📈 منح إدارة الأعمال، الاقتصاد، والسياسات الدولية</span>
+                        </button>
+                        <button type="button" data-cat="majors" onclick="sendPresetMessage('ما هي المنح المتاحة لمجالات الهندسة الميكانيكية، المدنية، والطاقة المتجددة؟')" class="prompt-chip px-2.5 py-1 rounded-lg text-[11px] sp-subcard hover:border-blue-500 text-slate-700 dark:text-slate-200 transition font-medium flex items-center gap-1.5">
+                            <span>⚙️ منح الهندسة الميكانيكية والمدنية والطاقة المتجددة</span>
+                        </button>
+                        <button type="button" data-cat="majors" onclick="sendPresetMessage('هل يمكنني تغيير تخصصي في مرحلة الماجستير عند التقديم على المنح الدولية؟')" class="prompt-chip px-2.5 py-1 rounded-lg text-[11px] sp-subcard hover:border-blue-500 text-slate-700 dark:text-slate-200 transition font-medium flex items-center gap-1.5">
+                            <span>🔄 هل تقبل المنح تغيير التخصص في الماجستير؟</span>
+                        </button>
+
+                        <!-- Group 4: Documents & Reviews (5 items) -->
+                        <button type="button" data-cat="documents" onclick="openModal('cvModal')" class="prompt-chip px-2.5 py-1 rounded-lg text-[11px] sp-subcard hover:border-blue-500 text-slate-700 dark:text-slate-200 transition font-medium flex items-center gap-1.5">
+                            <span>📄 راجع سيرتي الذاتية (CV) وقيمها وفق معايير Europass</span>
+                        </button>
+                        <button type="button" data-cat="documents" onclick="openModal('letterModal')" class="prompt-chip px-2.5 py-1 rounded-lg text-[11px] sp-subcard hover:border-blue-500 text-slate-700 dark:text-slate-200 transition font-medium flex items-center gap-1.5">
+                            <span>✍️ دقق رسالة الدافع (Motivation Letter) واقترح تحسينات</span>
+                        </button>
+                        <button type="button" data-cat="documents" onclick="sendPresetMessage('ما هي المستندات والوثائق الأساسية الإلزامية للتقديم على أي منحة دولية؟')" class="prompt-chip px-2.5 py-1 rounded-lg text-[11px] sp-subcard hover:border-blue-500 text-slate-700 dark:text-slate-200 transition font-medium flex items-center gap-1.5">
+                            <span>📋 ما هي قائمة الوثائق والمستندات المطلوبة للتقديم؟</span>
+                        </button>
+                        <button type="button" data-cat="documents" onclick="openModal('emailModal')" class="prompt-chip px-2.5 py-1 rounded-lg text-[11px] sp-subcard hover:border-blue-500 text-slate-700 dark:text-slate-200 transition font-medium flex items-center gap-1.5">
+                            <span>✉️ صيغ لي إيميل رسمي لمراسلة دكتور لطلب الإشراف الأكاديمي</span>
+                        </button>
+                        <button type="button" data-cat="documents" onclick="sendPresetMessage('كيف أحصل على خطابات توصية أكاديمية (Letters of Recommendation) قوية ومؤثرة؟')" class="prompt-chip px-2.5 py-1 rounded-lg text-[11px] sp-subcard hover:border-blue-500 text-slate-700 dark:text-slate-200 transition font-medium flex items-center gap-1.5">
+                            <span>🎖️ كيف أحصل على خطابات توصية أكاديمية ممتازة؟</span>
+                        </button>
+
+                        <!-- Group 5: Deadlines & Roadmaps (5 items) -->
+                        <button type="button" data-cat="deadlines" onclick="triggerTool('deadlines')" class="prompt-chip px-2.5 py-1 rounded-lg text-[11px] sp-subcard hover:border-blue-500 text-slate-700 dark:text-slate-200 transition font-medium flex items-center gap-1.5">
+                            <span>⏰ ما هي المنح التي توشك على الإغلاق هذا الشهر؟</span>
+                        </button>
+                        <button type="button" data-cat="deadlines" onclick="openModal('roadmapModal')" class="prompt-chip px-2.5 py-1 rounded-lg text-[11px] sp-subcard hover:border-blue-500 text-slate-700 dark:text-slate-200 transition font-medium flex items-center gap-1.5">
+                            <span>🗺️ أعد لي خطة عمل أسبوعية (Application Roadmap) للتقديم</span>
+                        </button>
+                        <button type="button" data-cat="deadlines" onclick="sendPresetMessage('ما هي متطلبات واختبارات اللغة (IELTS / TOEFL / Duolingo) المعترف بها في المنح الكبرى؟')" class="prompt-chip px-2.5 py-1 rounded-lg text-[11px] sp-subcard hover:border-blue-500 text-slate-700 dark:text-slate-200 transition font-medium flex items-center gap-1.5">
+                            <span>🗣️ شروط واختبارات اللغة المطلوبة وإمكانية الإعفاء</span>
+                        </button>
+                        <button type="button" data-cat="deadlines" onclick="sendPresetMessage('كيف أستعد لمقابلة القبول الشخصية للمنح الدراسية وما هي الأسئلة المتوقعة؟')" class="prompt-chip px-2.5 py-1 rounded-lg text-[11px] sp-subcard hover:border-blue-500 text-slate-700 dark:text-slate-200 transition font-medium flex items-center gap-1.5">
+                            <span>🎤 كيف أستعد لمقابلة القبول الشخصية وأسئلتها الشائعة؟</span>
+                        </button>
+                        <button type="button" data-cat="deadlines" onclick="sendPresetMessage('ما هي الأخطاء القاتلة والشائعة التي تؤدي لرفض طلبات المنح الدراسية وكيف أتجنبها؟')" class="prompt-chip px-2.5 py-1 rounded-lg text-[11px] sp-subcard hover:border-blue-500 text-slate-700 dark:text-slate-200 transition font-medium flex items-center gap-1.5">
+                            <span>⚠️ أبرز الأخطاء الشائعة المسببة لرفض الطلبات وتفاديها</span>
                         </button>
                     </div>
                 </div>
@@ -571,10 +677,10 @@
                             AI
                         </div>
                         <div class="chat-bubble-advisor p-4 max-w-[88%] leading-relaxed space-y-2">
-                            <p class="font-bold text-sm text-slate-900 dark:text-white">
+                            <p class="font-bold text-sm text-slate-900 dark:text-white" id="advisorWelcomeHeading">
                                 مرحباً بك! أنا مستشارك الأكاديمي المخصص لمنصة ScholarPilot AI.
                             </p>
-                            <p class="text-slate-600 dark:text-slate-300">
+                            <p class="text-slate-600 dark:text-slate-300" id="advisorWelcomeBody">
                                 أنا على دراية تامة بمؤهلاتك الأكاديمية المسجلة، وبمعايير المنح العالمية المعتمدة لعامي 2026/2027. كيف ترغب أن نبدأ؟
                             </p>
                             <div class="pt-2 flex flex-wrap gap-2" id="initialPromptChips">
@@ -596,10 +702,10 @@
                 <div class="space-y-2">
                     <div class="flex items-center gap-2">
                         <div class="relative flex-1">
-                            <input type="text" id="chatInputText" maxlength="500" placeholder="اكتب سؤالك الأكاديمي، أو اطلب مقارنة، أو استفسر عن أي منحة..."
+                            <input type="text" id="chatInputText" maxlength="500" placeholder="اكتب سؤالك الأكاديمي، أو اختر أحد الاستفسارات المقترحة أعلاه..."
                                 onkeydown="if(event.key === 'Enter') sendChatMessage()"
                                 class="sp-input text-xs sm:text-sm py-3 pr-4 pl-12">
-                            <button type="button" onclick="openModal('cvModal')" title="رفع سيرة ذاتية أو مستند" class="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-500 p-1 rounded-lg transition">
+                            <button type="button" onclick="openModal('cvModal')" title="رفع سيرة ذاتية أو مستند للتدقيق" class="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-500 p-1 rounded-lg transition">
                                 <i data-lucide="paperclip" class="w-4 h-4"></i>
                             </button>
                         </div>
@@ -1090,6 +1196,44 @@
 
         // --- PRODUCTION-GRADE AI SCHOLARSHIP ADVISOR CLIENT SUITE ---
         let chatHistory = [];
+        let isPromptLibOpen = false;
+
+        function togglePromptLibrary() {
+            const container = document.getElementById('promptsContainer');
+            const toggleText = document.getElementById('promptLibToggleText');
+            const toggleIcon = document.getElementById('promptLibToggleIcon');
+            isPromptLibOpen = !isPromptLibOpen;
+            if (isPromptLibOpen) {
+                container.classList.remove('max-h-24');
+                container.classList.add('max-h-96');
+                if (toggleText) toggleText.textContent = "طي الاستفسارات";
+                if (toggleIcon) toggleIcon.classList.add('rotate-180');
+            } else {
+                container.classList.remove('max-h-96');
+                container.classList.add('max-h-24');
+                if (toggleText) toggleText.textContent = "عرض كافة الاستفسارات (26)";
+                if (toggleIcon) toggleIcon.classList.remove('rotate-180');
+            }
+        }
+
+        function filterPromptCategory(cat, btn) {
+            document.querySelectorAll('.prompt-tab-btn').forEach(b => {
+                b.classList.remove('active', 'bg-blue-600', 'text-white');
+                b.classList.add('bg-slate-100', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-300');
+            });
+            if (btn) {
+                btn.classList.add('active', 'bg-blue-600', 'text-white');
+                btn.classList.remove('bg-slate-100', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-300');
+            }
+            const chips = document.querySelectorAll('.prompt-chip');
+            chips.forEach(chip => {
+                if (cat === 'all' || chip.getAttribute('data-cat') === cat) {
+                    chip.style.display = 'flex';
+                } else {
+                    chip.style.display = 'none';
+                }
+            });
+        }
 
         function updateAdvisorProfileSync() {
             let name = "طالب مبادر";
@@ -1114,6 +1258,15 @@
             const badge = document.getElementById('advisorProfileSummary');
             if (badge) {
                 badge.textContent = `الملف النشط: ${name} (${major} • ${gpa})`;
+            }
+
+            const welcomeHeading = document.getElementById('advisorWelcomeHeading');
+            const welcomeBody = document.getElementById('advisorWelcomeBody');
+            if (welcomeHeading && savedUser) {
+                welcomeHeading.textContent = `مرحباً بك يا ${name}! أنا مستشارك الأكاديمي المخصص.`;
+                if (welcomeBody) {
+                    welcomeBody.textContent = `أنا على دراية تامة بمؤهلاتك المسجلة (معدل ${gpa} في ${major})، وبمعايير المنح العالمية المعتمدة لعامي 2026/2027. اختر إحدى الأدوات أو الاستفسارات المقترحة للبدء فوراً!`;
+                }
             }
         }
 
@@ -1363,6 +1516,9 @@ ${weaknesses}
                 } catch(e) {
                     appendAdvisorResponse("تعذر استرجاع مواعيد الإغلاق حالياً: " + e.message);
                 }
+
+            } else if (toolName === 'recommendations') {
+                sendPresetMessage("أريد توصيات شخصية دقيقة ومخصصة للمنح الدراسية الأنسب لملفي الأكاديمي، مع توضيح سبب اختيار كل منحة ونسب القبول المقدرة ومواعيد التقديم.");
 
             } else if (toolName === 'find' || toolName === 'eligibility') {
                 const prompt = toolName === 'find' 

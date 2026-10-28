@@ -62,7 +62,7 @@ assert r4.status_code == 400, "Should reject SQL injection email format"
 
 print("\n--- Test 5: Valid Registration & PBKDF2 Token Issuance ---")
 r5 = client.post('/api/auth/register', json={
-    'full_name': 'مصطفى زعيتر',
+    'full_name': 'أحمد محمود',
     'email': test_email,
     'password': 'SafePassword123!',
     'degree': "Master's Degree",

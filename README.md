@@ -130,7 +130,7 @@
 
 ## 🛡️ درع الحماية والأمان السيبراني (DevSecOps & Hardening)
 
-اجتاز النظام مراجعة أمنية واختبار اختراق متقدماً يتضمن **22 اختبار تدقيق أمني تلقائي** ([`tests/test_security_suite.py`](file:///c:/Users/مصطفى%20زعيتر/.gemini/antigravity/scratch/Scholarship/tests/test_security_suite.py)):
+اجتاز النظام مراجعة أمنية واختبار اختراق متقدماً يتضمن **22 اختبار تدقيق أمني تلقائي** ([`tests/test_security_suite.py`](tests/test_security_suite.py)):
 
 - **الحماية ضد حقن موجهات الذكاء الاصطناعي (Prompt Injection Defense)**: فك وإبطال تعليمات كسر الحماية (Jailbreaks) وتسريب التوجيهات (Prompt Leakage) وتطهير مخرجات الذكاء الاصطناعي من أي أكواد خبيثة.
 - **تشفير كلمات المرور وحماية التوقيت (PBKDF2-HMAC-SHA256)**: تشفير بـ 100,000 جولة، مع توقيت تحقق ثابت (**Constant-Time Execution**) عبر حسابات وهمية لمنع هجمات التوقيت الجانبية (**Timing Side-Channel Attacks**).

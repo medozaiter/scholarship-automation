@@ -32,6 +32,7 @@ SessionLocal = None
 UserDB = None
 SubscriberDB = None
 LiveScholarshipDB = None
+NotificationHistoryDB = None
 
 try:
     from sqlalchemy import (
@@ -151,6 +152,30 @@ try:
                 "requirements": self.requirements,
                 "link": self.link,
                 "is_active": self.is_active
+            }
+
+    class NotificationHistoryDB(Base):
+        __tablename__ = "notification_history"
+
+        id = Column(Integer, primary_key=True, autoincrement=True)
+        recipient = Column(String(120), index=True, nullable=False)
+        notification_type = Column(String(50), index=True, nullable=False)  # weekly_digest, new_scholarship_alert, deadline_reminder
+        target_id = Column(String(200), index=True, nullable=False)        # unique key for idempotency e.g. "deadline_7d_hungaricum"
+        subject = Column(String(255))
+        sent_at = Column(String(50), default=lambda: datetime.now().isoformat())
+        status = Column(String(50), default="sent")
+        details = Column(JSON, default=dict)
+
+        def to_dict(self) -> Dict[str, Any]:
+            return {
+                "id": self.id,
+                "recipient": self.recipient,
+                "notification_type": self.notification_type,
+                "target_id": self.target_id,
+                "subject": self.subject,
+                "sent_at": self.sent_at,
+                "status": self.status,
+                "details": self.details or {}
             }
 
     # Connect to PostgreSQL (Neon) or fallback to SQLite
@@ -327,3 +352,128 @@ def init_db_and_migrate():
     except Exception as e:
         logger.error(f"Error during database initialization/migration: {e}")
         return False
+
+
+NOTIFICATION_HISTORY_JSON = os.path.join(DATA_DIR, "notification_history.json")
+
+
+def is_notification_sent(recipient: str, notification_type: str, target_id: str) -> bool:
+    """Checks whether a specific notification was already sent to avoid duplicate dispatches."""
+    clean_rec = recipient.strip().lower()
+    clean_type = notification_type.strip()
+    clean_target = target_id.strip()
+
+    if is_db_available() and NotificationHistoryDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    found = db.query(NotificationHistoryDB).filter(
+                        NotificationHistoryDB.recipient == clean_rec,
+                        NotificationHistoryDB.notification_type == clean_type,
+                        NotificationHistoryDB.target_id == clean_target,
+                        NotificationHistoryDB.status == "sent"
+                    ).first()
+                    if found:
+                        return True
+        except Exception as e:
+            logger.debug(f"DB check notification history error: {e}")
+
+    # Fallback to local JSON
+    if os.path.exists(NOTIFICATION_HISTORY_JSON):
+        try:
+            with open(NOTIFICATION_HISTORY_JSON, "r", encoding="utf-8") as f:
+                logs = json.load(f)
+                return any(
+                    l.get("recipient", "").lower() == clean_rec
+                    and l.get("notification_type") == clean_type
+                    and l.get("target_id") == clean_target
+                    and l.get("status") == "sent"
+                    for l in logs
+                )
+        except Exception:
+            pass
+
+    return False
+
+
+def record_notification(
+    recipient: str,
+    notification_type: str,
+    target_id: str,
+    subject: str,
+    status: str = "sent",
+    details: Optional[Dict[str, Any]] = None
+):
+    """Persists a notification event to both Database and local JSON store."""
+    clean_rec = recipient.strip().lower()
+    clean_type = notification_type.strip()
+    clean_target = target_id.strip()
+    now_iso = datetime.now().isoformat()
+    record_dict = {
+        "recipient": clean_rec,
+        "notification_type": clean_type,
+        "target_id": clean_target,
+        "subject": subject,
+        "sent_at": now_iso,
+        "status": status,
+        "details": details or {}
+    }
+
+    if is_db_available() and NotificationHistoryDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    db.add(NotificationHistoryDB(
+                        recipient=clean_rec,
+                        notification_type=clean_type,
+                        target_id=clean_target,
+                        subject=subject,
+                        sent_at=now_iso,
+                        status=status,
+                        details=details or {}
+                    ))
+        except Exception as e:
+            logger.error(f"Error persisting notification to DB: {e}")
+
+    # Always mirror to atomic JSON for persistence across local restarts
+    try:
+        os.makedirs(DATA_DIR, exist_ok=True)
+        logs = []
+        if os.path.exists(NOTIFICATION_HISTORY_JSON):
+            try:
+                with open(NOTIFICATION_HISTORY_JSON, "r", encoding="utf-8") as f:
+                    logs = json.load(f)
+            except Exception:
+                logs = []
+        logs.insert(0, record_dict)
+        if len(logs) > 500:
+            logs = logs[:500]
+        temp_file = NOTIFICATION_HISTORY_JSON + ".tmp"
+        with open(temp_file, "w", encoding="utf-8") as f:
+            json.dump(logs, f, ensure_ascii=False, indent=2)
+        os.replace(temp_file, NOTIFICATION_HISTORY_JSON)
+    except Exception as je:
+        logger.error(f"Error writing notification history JSON: {je}")
+
+
+def get_notification_history(limit: int = 50) -> List[Dict[str, Any]]:
+    """Returns the most recent notification dispatches."""
+    if is_db_available() and NotificationHistoryDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    db_items = db.query(NotificationHistoryDB).order_by(NotificationHistoryDB.id.desc()).limit(limit).all()
+                    if db_items:
+                        return [item.to_dict() for item in db_items]
+        except Exception as e:
+            logger.debug(f"DB load notification history error: {e}")
+
+    if os.path.exists(NOTIFICATION_HISTORY_JSON):
+        try:
+            with open(NOTIFICATION_HISTORY_JSON, "r", encoding="utf-8") as f:
+                logs = json.load(f)
+                return logs[:limit]
+        except Exception:
+            pass
+
+    return []

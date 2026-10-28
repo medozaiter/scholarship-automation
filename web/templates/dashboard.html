@@ -135,7 +135,7 @@
                             <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
                                 <i data-lucide="mail" class="w-4 h-4"></i>
                             </span>
-                            <input type="email" id="loginEmail" required maxlength="100" placeholder="student@example.com"
+                            <input type="email" id="loginEmail" required maxlength="100" placeholder="name@example.com (بريدك المسجل)"
                                 oninput="this.value = this.value.replace(/[^a-zA-Z0-9@._-]/g, '')"
                                 class="sp-input pr-9 font-latin">
                         </div>
@@ -147,7 +147,7 @@
                             <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
                                 <i data-lucide="lock" class="w-4 h-4"></i>
                             </span>
-                            <input type="password" id="loginPassword" required minlength="6" maxlength="128" placeholder="••••••••"
+                            <input type="password" id="loginPassword" required minlength="6" maxlength="128" placeholder="•••••••••••• (كلمة المرور المسجلة)"
                                 class="sp-input pr-9 font-latin">
                         </div>
                     </div>
@@ -161,24 +161,24 @@
                 <!-- REGISTER FORM -->
                 <form id="regForm" class="hidden space-y-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">الاسم الكامل</label>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">الاسم الكامل كما في الوثائق الرسمية</label>
                         <div class="relative">
                             <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
                                 <i data-lucide="user" class="w-4 h-4"></i>
                             </span>
-                            <input type="text" id="regName" required minlength="2" maxlength="60" placeholder="مثلاً: مصطفى زعيتر"
+                            <input type="text" id="regName" required minlength="2" maxlength="60" placeholder="أدخل اسمك الكامل كما في جواز السفر أو الشهادة"
                                 oninput="this.value = this.value.replace(/[^a-zA-Z\u0600-\u06FF\s.\-']/g, '')"
                                 class="sp-input pr-9">
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">البريد الإلكتروني</label>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">البريد الإلكتروني الرسمي</label>
                         <div class="relative">
                             <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
                                 <i data-lucide="mail" class="w-4 h-4"></i>
                             </span>
-                            <input type="email" id="regEmail" required maxlength="100" placeholder="student@example.com"
+                            <input type="email" id="regEmail" required maxlength="100" placeholder="name@example.com (البريد الأكاديمي أو الشخصي)"
                                 oninput="this.value = this.value.replace(/[^a-zA-Z0-9@._-]/g, '')"
                                 class="sp-input pr-9 font-latin">
                         </div>
@@ -190,7 +190,7 @@
                             <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
                                 <i data-lucide="lock" class="w-4 h-4"></i>
                             </span>
-                            <input type="password" id="regPassword" required minlength="6" maxlength="128" placeholder="••••••••"
+                            <input type="password" id="regPassword" required minlength="6" maxlength="128" placeholder="•••••••••••• (كلمة مرور قوية)"
                                 class="sp-input pr-9 font-latin">
                         </div>
                     </div>
@@ -217,7 +217,7 @@
                                 <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
                                     <i data-lucide="percent" class="w-4 h-4"></i>
                                 </span>
-                                <input type="text" id="regGpa" maxlength="15" placeholder="مثال: 90% أو 3.8"
+                                <input type="text" id="regGpa" maxlength="15" placeholder="مثال: 92% أو 3.85 من 4.00"
                                     onkeypress="return /[0-9.%/]/.test(event.key)"
                                     oninput="this.value = this.value.replace(/[^0-9.%/]/g, '')"
                                     class="sp-input pr-9 text-xs font-latin tabular-nums">
@@ -367,7 +367,7 @@
                             <i data-lucide="bell" class="w-4 h-4 text-emerald-500"></i>
                             <span>قائمة متابعة المنح وتنبيهات المواعيد</span>
                         </h2>
-                        <p class="text-xs text-slate-400 mt-0.5">المنح المحفوظة لتلقي إشعارات قبل الموعد النهائي بشهر، أسبوعين، أسبوع، ويومين.</p>
+                        <p class="text-xs text-slate-400 mt-0.5">المنح المحفوظة لتلقي تنبيهات بريدية آلية ذكية عند 30، 14، 7، 3، و 1 يوم قبل الموعد النهائي رسمياً.</p>
                     </div>
 
                     <a href="/#radarSection" class="sp-btn-secondary px-3 py-1.5 text-xs font-semibold self-start sm:self-auto flex items-center gap-1.5">
@@ -544,8 +544,16 @@
             const countryElem = document.getElementById('userDisplayCountryText');
             if (countryElem) countryElem.textContent = user.country || "Palestine";
 
-            const rawDegree = user.degree || "Undergraduate (Bachelor's)";
-            const cleanDegree = rawDegree.replace(/&#x27;/g, "'").replace(/&amp;/g, '&');
+            function decodeHtmlEntities(str) {
+                if (!str) return "";
+                const txt = document.createElement("textarea");
+                txt.innerHTML = str;
+                const firstPass = txt.value;
+                txt.innerHTML = firstPass;
+                return txt.value;
+            }
+
+            const cleanDegree = decodeHtmlEntities(user.degree || "بكالوريوس (Bachelor's)");
             document.getElementById('statDegree').textContent = cleanDegree;
             document.getElementById('statGpa').textContent = user.gpa || "-";
             document.getElementById('statMajor').textContent = (user.majors && user.majors[0]) || cleanDegree;
@@ -556,10 +564,56 @@
             const list = document.getElementById('savedScholarshipsList');
             if (saved.length === 0) {
                 list.innerHTML = `
-                    <div class="text-center p-8 text-xs text-slate-400 sp-subcard">
-                        <i data-lucide="bookmark" class="w-8 h-8 text-slate-400 mx-auto mb-2 opacity-50"></i>
-                        <p class="font-semibold text-slate-600 dark:text-slate-300 mb-1">لم تقم بحفظ أي منح للمتابعة بعد</p>
-                        <p>يمكنك استعراض <a href="/#radarSection" class="text-blue-500 font-bold hover:underline">رادار المنح المفتوحة</a> والضغط على "تفعيل تذكير الموعد".</p>
+                    <div class="p-6 rounded-2xl sp-subcard border border-blue-500/20 bg-gradient-to-br from-blue-500/5 via-transparent to-transparent space-y-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center font-bold shrink-0">
+                                <i data-lucide="compass" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-bold text-slate-900 dark:text-white">دليل البدء السريع: كيف تفعل تتبع المنح والتنبيهات؟</h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">اتبع هذه الخطوات البسيطة لتفعيل التنبيهات المخصصة وضمان عدم تفويت أي فرصة</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800 space-y-1.5">
+                                <div class="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-bold text-xs">
+                                    <span class="w-5 h-5 rounded-full bg-blue-500/10 flex items-center justify-center text-[11px] font-latin">1</span>
+                                    <span>استكشف رادار المنح</span>
+                                </div>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                                    تصفح الفرص المفتوحة والممولة بالكامل التي تناسب تخصصك ومعدلك في رادار المنح المعتمدة.
+                                </p>
+                            </div>
+
+                            <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800 space-y-1.5">
+                                <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-xs">
+                                    <span class="w-5 h-5 rounded-full bg-emerald-500/10 flex items-center justify-center text-[11px] font-latin">2</span>
+                                    <span>احفظ الفرص المهتم بها</span>
+                                </div>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                                    اضغط على زر "تفعيل تذكير الموعد" لحفظ المنحة في قائمتك وتفعيل تتبع المواعيد لها.
+                                </p>
+                            </div>
+
+                            <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800 space-y-1.5">
+                                <div class="flex items-center gap-2 text-purple-600 dark:text-purple-400 font-bold text-xs">
+                                    <span class="w-5 h-5 rounded-full bg-purple-500/10 flex items-center justify-center text-[11px] font-latin">3</span>
+                                    <span>استلم التنبيهات الدورية</span>
+                                </div>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                                    يقوم النظام بإرسال تنبيهات بريدية ذكية قبل الموعد النهائي عند 30، 14، 7، 3، و 1 يوم.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-3 border-t border-slate-200/60 dark:border-slate-800">
+                            <span class="text-xs text-slate-500 dark:text-slate-400">ابدأ الآن بإضافة أول منحة متوافقة إلى قائمتك:</span>
+                            <a href="/#radarSection" class="sp-btn-primary px-4 py-2 text-xs font-bold flex items-center gap-2">
+                                <i data-lucide="radar" class="w-3.5 h-3.5"></i>
+                                <span>استعراض رادار المنح المتاحة الآن</span>
+                            </a>
+                        </div>
                     </div>
                 `;
             } else {

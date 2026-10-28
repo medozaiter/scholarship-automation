@@ -1,0 +1,11 @@
+[
+  {
+    "recipient": "test@example.com",
+    "notification_type": "test_type",
+    "target_id": "test_key_1",
+    "subject": "Test Subject",
+    "sent_at": "2026-10-29T01:26:18.802870",
+    "status": "sent",
+    "details": {}
+  }
+]
