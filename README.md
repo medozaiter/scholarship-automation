@@ -131,8 +131,8 @@ flowchart LR
 ### خطوات التثبيت والتشغيل
 1. **استنساخ المستودع:**
    ```bash
-   git clone https://github.com/medozaiter/scholarship-telegram-bot.git
-   cd scholarship-telegram-bot
+   git clone https://github.com/medozaiter/scholarship-automation.git
+   cd scholarship-automation
    ```
 
 2. **إنشاء البيئة الافتراضية وتفعيلها:**
@@ -160,7 +160,7 @@ flowchart LR
    ثم افتح `.env` وضع بياناتك:
    ```env
    SENDER_EMAIL=your_email@gmail.com
-   GMAIL_APP_PASSWORD=vcczfuwnydnqkqbd
+   GMAIL_APP_PASSWORD=xxxx-xxxx-xxxx-xxxx
    RECIPIENT_EMAIL=your_email@gmail.com
    GEMINI_API_KEY=your_gemini_api_key
    GEMINI_MODEL=gemini-3.5-flash-lite
