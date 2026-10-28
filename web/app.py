@@ -11,17 +11,19 @@ from pydantic import BaseModel, field_validator
 from services.subscriber_service import SubscriberService
 from services.scholarship_engine import ScholarshipEngine
 from services.advisor_service import AdvisorService
+from services.auth_service import AuthService
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "templates")
 INDEX_HTML_PATH = os.path.join(TEMPLATES_DIR, "index.html")
+DASHBOARD_HTML_PATH = os.path.join(TEMPLATES_DIR, "dashboard.html")
 
 app = FastAPI(
     title="MinhaTech AI - Global Scholarship Automation Engine",
-    description="Automated Scholarship Discovery, Verification, AI Advisor & Document Generator",
-    version="2.2.0"
+    description="Automated Scholarship Discovery, Verification, AI Advisor, Documents & User Portal",
+    version="2.3.0"
 )
 
 app.add_middleware(
@@ -35,6 +37,7 @@ app.add_middleware(
 sub_service = SubscriberService()
 engine = ScholarshipEngine()
 advisor_service = AdvisorService()
+auth_service = AuthService()
 
 
 class SubscriptionRequest(BaseModel):
@@ -55,6 +58,22 @@ class SubscriptionRequest(BaseModel):
         if not re.match(r"^[^@]+@[^@]+\.[^@]+$", clean):
             raise ValueError("صيغة البريد الإلكتروني غير صحيحة")
         return clean
+
+
+class RegisterRequest(BaseModel):
+    email: str
+    password: str
+    full_name: str
+    degree: Optional[str] = "Undergraduate (Bachelor's)"
+    majors: Optional[List[str]] = None
+    gpa: Optional[str] = "85%"
+    english_level: Optional[str] = "Intermediate"
+    country: Optional[str] = "Palestine"
+
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
 
 
 class AdvisorChatRequest(BaseModel):
@@ -111,6 +130,52 @@ async def serve_landing_page():
         with open(INDEX_HTML_PATH, "r", encoding="utf-8") as f:
             return HTMLResponse(content=f.read())
     return HTMLResponse(content="<h1>منحة تك AI - مرحباً بك</h1>")
+
+
+@app.get("/dashboard", response_class=HTMLResponse)
+async def serve_dashboard():
+    """Serves the user account portal & admin control panel."""
+    if os.path.exists(DASHBOARD_HTML_PATH):
+        with open(DASHBOARD_HTML_PATH, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    return HTMLResponse(content="<h1>لوحة التحكم</h1>")
+
+
+@app.post("/api/auth/register")
+async def register_account(req: RegisterRequest):
+    """Creates a new student account and registers them for automated alerts."""
+    try:
+        user = auth_service.register(
+            email=req.email,
+            password=req.password,
+            full_name=req.full_name,
+            degree=req.degree or "Undergraduate (Bachelor's)",
+            majors=req.majors or ["Software Engineering"],
+            gpa=req.gpa or "85%",
+            english_level=req.english_level or "Intermediate",
+            country=req.country or "Palestine"
+        )
+        sub_service.add_or_update(
+            email=req.email,
+            full_name=req.full_name,
+            degree=req.degree or "Undergraduate (Bachelor's)",
+            majors=req.majors or ["Software Engineering"],
+            gpa=req.gpa or "85%",
+            english_level=req.english_level or "Intermediate",
+            country=req.country or "Palestine"
+        )
+        return {"success": True, "user": user, "message": "تم إنشاء حسابك وتفعيل التتبع بنجاح!"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.post("/api/auth/login")
+async def login_account(req: LoginRequest):
+    """Authenticates student or administrator."""
+    user = auth_service.login(req.email, req.password)
+    if not user:
+        raise HTTPException(status_code=401, detail="البريد الإلكتروني أو كلمة المرور غير صحيحة")
+    return {"success": True, "user": user}
 
 
 @app.post("/api/subscribe")
@@ -212,6 +277,21 @@ async def save_scholarship(req: SaveScholarshipRequest):
         return {"success": True, **result}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.get("/api/admin/subscribers")
+async def get_admin_subscribers():
+    """Lists subscribers for Admin Control Panel."""
+    subs = sub_service.get_all(active_only=False)
+    return {"success": True, "count": len(subs), "subscribers": subs}
+
+
+@app.post("/api/admin/dispatch-now")
+async def admin_dispatch_now(background_tasks: BackgroundTasks):
+    """Admin action to trigger manual weekly dispatch to all subscribers immediately."""
+    from dispatch_weekly_subscribers import dispatch_all
+    background_tasks.add_task(dispatch_all)
+    return {"success": True, "message": "تم إطلاق سير عمل الإرسال الأسبوعي لكافة الطلاب في الخلفية بنجاح!"}
 
 
 @app.get("/api/stats")
