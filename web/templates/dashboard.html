@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ScholarPilot AI | Student Portal & Intelligence Dashboard</title>
     <meta name="description" content="ScholarPilot AI Student Workspace - Autonomous Scholarship Tracking, Admission Odds & Automated Weekly Digests.">
+    <!-- SVG Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%232563eb'/><stop offset='50%' stop-color='%234f46e5'/><stop offset='100%' stop-color='%2306b6d4'/></linearGradient></defs><rect width='100' height='100' rx='24' fill='url(%23g)'/><path d='M50 20 L82 36 L50 52 L18 36 Z' fill='%23ffffff'/><path d='M26 44 L26 62 Q50 78 74 62 L74 44 L50 56 Z' fill='%23e0e7ff'/><circle cx='82' cy='42' r='4' fill='%2338bdf8'/><path d='M82 46 L82 66' stroke='%2338bdf8' stroke-width='3' stroke-linecap='round'/></svg>">
 
     <!-- Tailwind CSS with Dark Mode -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -51,7 +53,10 @@
         }
     </script>
 </head>
-<body class="min-h-screen selection:bg-blue-600 selection:text-white flex flex-col">
+<body class="min-h-screen selection:bg-blue-600 selection:text-white flex flex-col relative">
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed top-5 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none flex flex-col items-center gap-2 max-w-md w-full px-4"></div>
 
     <!-- ==================== TOP NAVIGATION ==================== -->
     <header class="sticky top-0 z-50 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 bg-white/85 dark:bg-slate-950/85 transition-colors">
@@ -59,13 +64,16 @@
             
             <!-- Brand Logo -->
             <div class="flex items-center gap-3">
-                <a href="/" class="flex items-center gap-2.5 group">
-                    <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-sm shadow-blue-600/30 group-hover:bg-blue-700 transition">
-                        <i data-lucide="compass" class="w-5 h-5 text-white"></i>
+                <a href="/" class="flex items-center gap-3 group">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 flex items-center justify-center text-white shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform shrink-0">
+                        <svg class="w-6 h-6 text-white drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                            <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                        </svg>
                     </div>
                     <div class="flex flex-col">
-                        <span class="text-base font-extrabold tracking-tight text-slate-900 dark:text-white leading-none">ScholarPilot AI</span>
-                        <span class="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-1">Student Portal</span>
+                        <span class="text-base font-black tracking-tight text-slate-900 dark:text-white leading-none">ScholarPilot <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 dark:from-blue-400 dark:to-cyan-400">AI</span></span>
+                        <span class="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-1">Student Portal • بوابة الطالب</span>
                     </div>
                 </a>
             </div>
@@ -183,36 +191,34 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المرحلة</label>
-                            <select id="regDegree" class="sp-input text-xs">
-                                <option value="Undergraduate (Bachelor's)">بكالوريوس</option>
-                                <option value="Master's Degree">ماجستير</option>
-                                <option value="PhD / Doctorate">دكتوراه</option>
-                            </select>
+                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المستوى العلمي (المرحلة الدراسية)</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
+                                    <i data-lucide="graduation-cap" class="w-4 h-4"></i>
+                                </span>
+                                <select id="regDegree" class="sp-input pr-9 text-xs">
+                                    <option value="ثانوية عامة (High School)">ثانوية عامة (High School)</option>
+                                    <option value="Undergraduate (Bachelor's)" selected>بكالوريوس (Bachelor's)</option>
+                                    <option value="Master's Degree">ماجستير (Master's)</option>
+                                    <option value="PhD / Doctorate">دكتوراه (PhD / Doctorate)</option>
+                                </select>
+                            </div>
                         </div>
+
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المعدل (أرقام فقط)</label>
-                            <input type="text" id="regGpa" maxlength="15" placeholder="88% أو 3.7"
-                                onkeypress="return /[0-9.%/]/.test(event.key)"
-                                oninput="this.value = this.value.replace(/[^0-9.%/]/g, '')"
-                                class="sp-input text-xs font-latin tabular-nums">
+                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المعدل الأكاديمي (أرقام فقط)</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
+                                    <i data-lucide="percent" class="w-4 h-4"></i>
+                                </span>
+                                <input type="text" id="regGpa" maxlength="15" placeholder="مثال: 90% أو 3.8"
+                                    onkeypress="return /[0-9.%/]/.test(event.key)"
+                                    oninput="this.value = this.value.replace(/[^0-9.%/]/g, '')"
+                                    class="sp-input pr-9 text-xs font-latin tabular-nums">
+                            </div>
                         </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">التخصص الأكاديمي</label>
-                        <input type="text" id="regMajor" maxlength="80" placeholder="هندسة برمجيات، أمن سيبراني..."
-                            oninput="this.value = this.value.replace(/[<>{}\`$]/g, '')"
-                            class="sp-input text-xs">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المواهب والخبرات السابقة</label>
-                        <input type="text" id="regTalents" maxlength="200" placeholder="مشاريع، هاكاثونات، تطوع..."
-                            oninput="this.value = this.value.replace(/[<>{}\`$]/g, '')"
-                            class="sp-input text-xs">
                     </div>
 
                     <button type="submit" class="sp-btn-primary w-full py-3 text-xs sm:text-sm font-bold flex items-center justify-center gap-2">
@@ -240,10 +246,21 @@
                         </span>
                     </div>
 
-                    <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-                        مرحباً بك، <span id="userDisplayName">...</span>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex flex-wrap items-center gap-2">
+                        <span>مرحباً بك،</span>
+                        <span id="userDisplayName">...</span>
                     </h1>
-                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1" id="userSubText">
+                    <div class="flex flex-wrap items-center gap-2 mt-2">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-blue-500/10 border border-blue-500/20 text-xs font-bold text-blue-600 dark:text-blue-400 font-latin shadow-sm">
+                            <i data-lucide="mail" class="w-3.5 h-3.5 text-blue-500"></i>
+                            <span id="userDisplayEmail">user@example.com</span>
+                        </span>
+                        <span id="userDisplayCountryBadge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 text-xs text-slate-600 dark:text-slate-300">
+                            <i data-lucide="map-pin" class="w-3 h-3 text-slate-400"></i>
+                            <span id="userDisplayCountryText">Palestine</span>
+                        </span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-2" id="userSubText">
                         ملفك الأكاديمي مسجل ويقوم المحرك بفحص المنح الجديدة المطابقة لك دورياً دون أي تدخل يدوي.
                     </p>
                 </div>
@@ -468,14 +485,17 @@
             const alertBox = document.getElementById('authAlert');
             alertBox.classList.add('hidden');
 
+            const degreeVal = document.getElementById('regDegree').value;
+            const gpaVal = document.getElementById('regGpa').value.trim() || "85%";
+
             const payload = {
                 full_name: document.getElementById('regName').value.trim(),
                 email: document.getElementById('regEmail').value.trim(),
                 password: document.getElementById('regPassword').value.trim(),
-                degree: document.getElementById('regDegree').value,
-                gpa: document.getElementById('regGpa').value.trim() || "85%",
-                majors: [document.getElementById('regMajor').value.trim() || "Software Engineering"],
-                talents_experience: document.getElementById('regTalents').value.trim()
+                degree: degreeVal,
+                gpa: gpaVal,
+                majors: [degreeVal],
+                talents_experience: ""
             };
 
             try {
@@ -490,6 +510,7 @@
                     localStorage.setItem('minha_user', JSON.stringify(currentUser));
                     if (data.token) localStorage.setItem('minha_token', data.token);
                     renderDashboard(currentUser);
+                    showToast("success", "تم إنشاء الحساب بنجاح! 🎉", "أهلاً بك في منصة ScholarPilot AI، تم تفعيل تتبع المنح المتوافقة مع ملفك فوراً.");
                     confetti({ particleCount: 80, spread: 60 });
                 } else {
                     alertBox.className = "mt-4 p-3 rounded-xl text-xs font-bold sp-badge-danger block";
@@ -509,9 +530,18 @@
             document.getElementById('userNavActions').classList.remove('hidden');
 
             document.getElementById('userDisplayName').textContent = user.full_name || "Student";
-            document.getElementById('statDegree').textContent = user.degree || "-";
+            
+            const emailElem = document.getElementById('userDisplayEmail');
+            if (emailElem) emailElem.textContent = user.email || "";
+            
+            const countryElem = document.getElementById('userDisplayCountryText');
+            if (countryElem) countryElem.textContent = user.country || "Palestine";
+
+            const rawDegree = user.degree || "Undergraduate (Bachelor's)";
+            const cleanDegree = rawDegree.replace(/&#x27;/g, "'").replace(/&amp;/g, '&');
+            document.getElementById('statDegree').textContent = cleanDegree;
             document.getElementById('statGpa').textContent = user.gpa || "-";
-            document.getElementById('statMajor').textContent = (user.majors && user.majors[0]) || "هندسة برمجيات";
+            document.getElementById('statMajor').textContent = (user.majors && user.majors[0]) || cleanDegree;
 
             const saved = user.saved_scholarships || [];
             document.getElementById('statSavedCount').textContent = `${saved.length} منح`;
@@ -543,9 +573,60 @@
             if (window.lucide) lucide.createIcons();
         }
 
+        // Modern Glassmorphism Animated Toast
+        function showToast(type, title, message, duration = 4500) {
+            const container = document.getElementById('toastContainer');
+            if (!container) return null;
+
+            const toast = document.createElement('div');
+            toast.className = `pointer-events-auto w-full p-4 rounded-2xl shadow-2xl border backdrop-blur-xl flex items-start gap-3.5 transform transition-all duration-300 ease-out translate-y-[-20px] opacity-0 ${
+                type === 'success' 
+                    ? 'bg-slate-900/95 dark:bg-slate-900/95 border-emerald-500/40 text-white shadow-emerald-500/10' 
+                    : type === 'error'
+                    ? 'bg-slate-900/95 dark:bg-slate-900/95 border-rose-500/40 text-white shadow-rose-500/10'
+                    : 'bg-slate-900/95 dark:bg-slate-900/95 border-blue-500/40 text-white shadow-blue-500/10'
+            }`;
+
+            const iconSvg = type === 'success'
+                ? `<div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/30">
+                     <svg class="w-5 h-5 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                   </div>`
+                : type === 'loading'
+                ? `<div class="w-9 h-9 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0 border border-blue-500/30">
+                     <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                   </div>`
+                : `<div class="w-9 h-9 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0 border border-rose-500/30">
+                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"></circle><line x1="12" y1="8" x2="12" y2="12" stroke-width="2"></line><line x1="12" y1="16" x2="12.01" y2="16" stroke-width="2"></line></svg>
+                   </div>`;
+
+            toast.innerHTML = `
+                ${iconSvg}
+                <div class="flex-1 text-right">
+                    <h4 class="text-xs sm:text-sm font-extrabold text-white mb-0.5">${title}</h4>
+                    <p class="text-[11px] sm:text-xs text-slate-300 leading-relaxed font-medium">${message}</p>
+                </div>
+                <button type="button" onclick="this.parentElement.remove()" class="text-slate-400 hover:text-white transition text-xs p-1">
+                    ✕
+                </button>
+            `;
+
+            container.appendChild(toast);
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-[-20px]', 'opacity-0');
+            });
+
+            if (type !== 'loading') {
+                setTimeout(() => {
+                    toast.classList.add('translate-y-[-10px]', 'opacity-0');
+                    setTimeout(() => toast.remove(), 300);
+                }, duration);
+            }
+            return toast;
+        }
+
         async function triggerMyReport() {
             if (!currentUser) return;
-            alert(`جارٍ تجهيز وإرسال تقريرك الأسبوعي إلى ${currentUser.email}...`);
+            const loadingToast = showToast("loading", "جارٍ التجهيز والتسليم...", `يقوم المستشار الآن بجمع أحدث المنح المتوافقة مع ملفك وتوليد التقرير الأسبوعي لإرساله إلى: ${currentUser.email}`, 12000);
             try {
                 const res = await fetch('/api/subscribe', {
                     method: 'POST',
@@ -556,18 +637,22 @@
                         degree: currentUser.degree,
                         majors: currentUser.majors,
                         gpa: currentUser.gpa,
-                        talents_experience: currentUser.talents_experience || "",
+                        talents_experience: "",
                         country: currentUser.country,
                         send_welcome_report: true
                     })
                 });
                 const data = await res.json();
-                if (data.success) {
-                    alert("تم إرسال تقريرك الأسبوعي بنجاح إلى إيميلك المسجل.");
-                    confetti({ particleCount: 50 });
+                if (loadingToast) loadingToast.remove();
+                if (res.ok && data.success) {
+                    showToast("success", "تم إرسال التقرير الأسبوعي بنجاح! 🚀", `تم تسليم التقرير الأكاديمي المخصص إلى: ${currentUser.email}. يرجى فحص صندوق الوارد (أو مجلد الرسائل الترويجية / Spam).`);
+                    confetti({ particleCount: 75, spread: 60, origin: { y: 0.6 } });
+                } else {
+                    showToast("error", "تنبيه بخصوص البريد", data.detail || "تعذر إتمام الإرسال في الوقت الحالي.");
                 }
             } catch(e) {
-                alert("حدث خطأ أثناء الإرسال: " + e.message);
+                if (loadingToast) loadingToast.remove();
+                showToast("error", "فشل الاتصال بالخادم", e.message);
             }
         }
 

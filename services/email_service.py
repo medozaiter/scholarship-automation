@@ -74,7 +74,15 @@ async def dispatch_email(
                     logger.info(f"✅ Delivered successfully to {clean_to} via Resend API (ID: {res.json().get('id')})")
                     return True
                 else:
-                    logger.warning(f"Resend API returned HTTP {res.status_code}: {res.text}. Trying SMTP fallback...")
+                    err_text = res.text
+                    logger.warning(f"Resend API returned HTTP {res.status_code}: {err_text}")
+                    if "only send testing emails to your own email" in err_text:
+                        logger.warning(
+                            "Resend Free Tier Restriction: When using onboarding@resend.dev, "
+                            "emails can only be delivered to the account owner's email address. "
+                            "To send to any recipient, add Gmail SMTP credentials (SENDER_EMAIL & GMAIL_APP_PASSWORD) "
+                            "or verify a custom domain in Resend."
+                        )
         except Exception as e:
             logger.warning(f"Resend API dispatch error: {e}. Trying SMTP fallback...")
 
@@ -121,7 +129,12 @@ async def dispatch_email(
             except Exception as e2:
                 logger.error(f"SMTP SSL also failed: {e2}")
 
-    # 3. Local/Dev fallback logger
+    # 3. Fallback: If in production with RESEND_API_KEY configured and failed, report delivery failure
+    if resend_api_key or os.getenv("RENDER"):
+        logger.error(f"❌ Delivery to {clean_to} failed: Resend/SMTP could not deliver email.")
+        return False
+
+    # 4. Local/Dev fallback logger
     logger.info(f"[DEV MOCK DISPATCH] Email to {clean_to} | Subject: '{clean_sub}' | (No RESEND_API_KEY or SMTP credentials configured).")
     return True
 

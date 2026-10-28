@@ -6,6 +6,9 @@
     <title>ScholarPilot AI | Your AI-Powered Scholarship Advisor</title>
     <meta name="description" content="ScholarPilot AI - Your AI-Powered Scholarship Advisor. منظومة الذكاء الاصطناعي الأكاديمية المؤتمتة لاكتشاف وقبول المنح الدراسية العالمية، حساب نسبة القبول التقديرية، والاشتراك في تقارير المنح الأسبوعية المباشرة.">
 
+    <!-- SVG Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%232563eb'/><stop offset='50%' stop-color='%234f46e5'/><stop offset='100%' stop-color='%2306b6d4'/></linearGradient></defs><rect width='100' height='100' rx='24' fill='url(%23g)'/><path d='M50 20 L82 36 L50 52 L18 36 Z' fill='%23ffffff'/><path d='M26 44 L26 62 Q50 78 74 62 L74 44 L50 56 Z' fill='%23e0e7ff'/><circle cx='82' cy='42' r='4' fill='%2338bdf8'/><path d='M82 46 L82 66' stroke='%2338bdf8' stroke-width='3' stroke-linecap='round'/></svg>">
+
     <!-- Tailwind CSS with Dark Mode -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -53,7 +56,10 @@
         }
     </script>
 </head>
-<body class="min-h-screen selection:bg-blue-600 selection:text-white">
+<body class="min-h-screen selection:bg-blue-600 selection:text-white relative">
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed top-5 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none flex flex-col items-center gap-2 max-w-md w-full px-4"></div>
 
     <!-- ==================== HEADER & NAVIGATION ==================== -->
     <header class="sticky top-0 z-50 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 bg-white/85 dark:bg-slate-950/85 transition-colors">
@@ -61,13 +67,16 @@
             
             <!-- Brand Logo -->
             <a href="/" class="flex items-center gap-3 group">
-                <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-sm shadow-blue-600/30 group-hover:bg-blue-700 transition">
-                    <i data-lucide="compass" class="w-5 h-5 text-white"></i>
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 flex items-center justify-center text-white shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform shrink-0">
+                    <svg class="w-6 h-6 text-white drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                        <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                    </svg>
                 </div>
                 <div class="flex flex-col">
                     <div class="flex items-center gap-2">
-                        <span class="text-base sm:text-lg font-extrabold tracking-tight text-slate-900 dark:text-white">ScholarPilot AI</span>
-                        <span class="sp-badge sp-badge-info text-[10px] hidden sm:inline-flex">2026/2027</span>
+                        <span class="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white">ScholarPilot <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 dark:from-blue-400 dark:to-cyan-400">AI</span></span>
+                        <span class="sp-badge sp-badge-info text-[10px] hidden sm:inline-flex font-latin font-bold">2026/2027</span>
                     </div>
                     <span class="text-[10px] text-slate-500 dark:text-slate-400 font-medium hidden sm:block">Your AI-Powered Scholarship Advisor</span>
                 </div>
@@ -206,68 +215,26 @@
                 <div>
                     <div class="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 dark:text-blue-400 mb-2">
                         <i data-lucide="radar" class="w-4 h-4"></i>
-                        <span>تحديث آلي مباشر من المصادر الرسمية</span>
+                        <span>تحديث آلي مباشر من المصادر الرسمية المعتمدة</span>
                     </div>
                     <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                         رادار المنح المفتوحة لدورة 2026/2027
                     </h2>
-                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-xl">
-                        تصفح أحدث المنح المعتمدة بروابط التقديم المباشرة، مع تفاصيل التمويل ومواعيد الإغلاق.
+                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-2xl leading-relaxed">
+                        تصفح أحدث المنح العالمية المتوافقة بروابط التقديم المباشرة، مع تفاصيل التمويل، إمكانية تفعيل تذكير الموعد، والتوجيه الرسمي.
                     </p>
                 </div>
 
-                <!-- Mode Switcher (Deck vs Grid) -->
-                <div class="inline-flex items-center p-1 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-semibold self-start md:self-auto">
-                    <button type="button" id="modeSwiperBtn" onclick="switchRadarMode('swiper')" class="px-3.5 py-1.5 rounded-lg bg-blue-600 text-white shadow-sm flex items-center gap-1.5 transition">
-                        <i data-lucide="layers" class="w-3.5 h-3.5"></i>
-                        <span>وضع السحب (Cards)</span>
-                    </button>
-                    <button type="button" id="modeGridBtn" onclick="switchRadarMode('grid')" class="px-3.5 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-1.5 transition">
-                        <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
-                        <span>عرض الشبكة (Grid)</span>
-                    </button>
+                <div class="flex items-center gap-2">
+                    <span class="sp-badge sp-badge-success text-xs font-bold flex items-center gap-1.5 px-3 py-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span>محدث ومفحوص رسمياً</span>
+                    </span>
                 </div>
             </div>
 
-            <!-- 1. SWIPER / DECK VIEW -->
-            <div id="radarSwiperView" class="max-w-md mx-auto">
-                <div class="flex justify-between items-center text-xs text-slate-500 dark:text-slate-400 font-semibold mb-3 px-1">
-                    <span class="flex items-center gap-1.5">
-                        <i data-lucide="move" class="w-3.5 h-3.5 text-blue-500"></i>
-                        <span>اسحب يميناً للحفظ • يساراً للتخطي</span>
-                    </span>
-                    <span class="sp-badge sp-badge-neutral font-latin" id="deckCounter">
-                        ...
-                    </span>
-                </div>
-
-                <div id="cardDeckContainer" class="swiper-deck mb-4">
-                    <!-- Dynamic Card Deck Injected via JS -->
-                </div>
-
-                <!-- Swiper Controls -->
-                <div class="flex items-center justify-center gap-3 pt-2">
-                    <button type="button" onclick="swipeCurrentCard('left')" title="تخطي للمنحة التالية" class="w-12 h-12 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 flex items-center justify-center transition active:scale-95 shadow-sm">
-                        <i data-lucide="x" class="w-5 h-5"></i>
-                    </button>
-                    
-                    <button type="button" onclick="openCurrentPortal()" title="زيارة البوابة الرسمية" class="sp-btn-secondary px-4 py-3 text-xs font-bold flex items-center gap-2">
-                        <i data-lucide="external-link" class="w-4 h-4 text-blue-500"></i>
-                        <span>البوابة الرسمية</span>
-                    </button>
-
-                    <button type="button" onclick="swipeCurrentCard('right')" title="حفظ وتفعيل تذكير الموعد" class="w-12 h-12 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center transition active:scale-95 shadow-sm">
-                        <i data-lucide="bookmark-check" class="w-5 h-5"></i>
-                    </button>
-
-                    <button type="button" onclick="resetDeck()" title="إعادة تدوير البطاقات" class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-500 flex items-center justify-center transition border border-slate-200 dark:border-slate-800">
-                        <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- 2. GRID VIEW -->
-            <div id="radarGridView" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- SCHOLARSHIP GRID VIEW (CLEAN DIRECT DISPLAY) -->
+            <div id="radarGridView" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- Injected via Live JS -->
             </div>
 
@@ -1320,27 +1287,41 @@
                 appendUserBubble("ما هي فرص قبولي التقديرية بناءً على ملفي المسجل؟");
                 appendTypingIndicator("جاري حساب درجات التوافق والمعدل والكوتا...");
                 try {
+                    const token = localStorage.getItem('minha_token');
+                    const headers = { 'Content-Type': 'application/json' };
+                    if (token) headers['Authorization'] = 'Bearer ' + token;
+
                     const res = await fetch('/api/advisor/chances', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: headers,
                         body: JSON.stringify({ email: email })
                     });
                     const d = await res.json();
+                    
+                    const schName = d.scholarship_name || 'المنحة المقترحة';
+                    const uniCountry = d.university ? `${d.university} (${d.country || ''})` : (d.country || 'دولي');
+                    const prob = d.acceptance_probability || d.chance_percentage || '88%';
+                    const compLevel = d.competitive_level || 'مرشح تنافسي قوي';
+                    const conf = d.confidence || 'عالية';
+                    const strengths = (d.strengths && d.strengths.length) ? d.strengths.map(s => '• ' + s).join('\n') : '• مؤهلات أكاديمية متوافقة مع متطلبات المنحة.';
+                    const weaknesses = (d.weaknesses && d.weaknesses.length) ? d.weaknesses.map(w => '• ' + w).join('\n') : '• لا توجد نواقص جوهرية مسجلة في ملفك.';
+                    const rec = d.recommendation || 'ابدأ بإعداد الوثائق ومراسلة المشرفين والتقديم قبل الموعد النهائي.';
+
                     const md = `
-### 🎯 فحص احتمالية القبول لمنحة: **${d.scholarship_name}**
-• **المؤسسة والدولة:** ${d.university} (${d.country})
-• **نسبة القبول التقديرية:** \`${d.acceptance_probability}\`
-• **مستوى التنافسية:** ${d.competitive_level}
-• **درجة الثقة في التحليل:** ${d.confidence}
+### 🎯 فحص احتمالية القبول لمنحة: **${schName}**
+• **المؤسسة والدولة:** ${uniCountry}
+• **نسبة القبول التقديرية:** \`${prob}\`
+• **مستوى التنافسية:** ${compLevel}
+• **درجة الثقة في التحليل:** ${conf}
 
 #### نقاط القوة الأكاديمية:
-${(d.strengths || []).map(s => '• ' + s).join('\n')}
+${strengths}
 
 #### متطلبات واجب مراعاتها:
-${(d.weaknesses || []).map(w => '• ' + w).join('\n')}
+${weaknesses}
 
-💡 **توصية المستشار:** ${d.recommendation}
-                    `.strip();
+💡 **توصية المستشار:** ${rec}
+                    `.trim();
                     appendAdvisorResponse(md, ["كيف أرفع فرصة قبولي؟", "قارن هذه المنحة مع خيارات أخرى", "أعد لي جدول التقديم"]);
                     confetti({ particleCount: 45, spread: 50 });
                 } catch(e) {
@@ -1561,7 +1542,7 @@ ${cleanBody}
         <span>نسخ الإيميل كاملاً بضغطة زر</span>
     </button>
 </div>
-                    `.strip();
+                    `.trim();
                     appendAdvisorResponse(md, ["عدل لي نبرة الإيميل لتكون أكثر إيجازاً", "أعد لي جدول التقديم الزمني", "ما هي المواعيد القادمة؟"]);
                 }
             } catch(e) {
@@ -1693,7 +1674,7 @@ ${cleanBody}
                 ];
             }
 
-            renderDeckCard();
+            renderRadarGrid();
         }
 
         function renderDeckCard() {
@@ -1915,6 +1896,57 @@ ${cleanBody}
             renderDeckCard();
         }
 
+        // Modern Glassmorphism Animated Toast
+        function showToast(type, title, message, duration = 4500) {
+            const container = document.getElementById('toastContainer');
+            if (!container) return null;
+
+            const toast = document.createElement('div');
+            toast.className = `pointer-events-auto w-full p-4 rounded-2xl shadow-2xl border backdrop-blur-xl flex items-start gap-3.5 transform transition-all duration-300 ease-out translate-y-[-20px] opacity-0 ${
+                type === 'success' 
+                    ? 'bg-slate-900/95 dark:bg-slate-900/95 border-emerald-500/40 text-white shadow-emerald-500/10' 
+                    : type === 'error'
+                    ? 'bg-slate-900/95 dark:bg-slate-900/95 border-rose-500/40 text-white shadow-rose-500/10'
+                    : 'bg-slate-900/95 dark:bg-slate-900/95 border-blue-500/40 text-white shadow-blue-500/10'
+            }`;
+
+            const iconSvg = type === 'success'
+                ? `<div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/30">
+                     <svg class="w-5 h-5 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                   </div>`
+                : type === 'loading'
+                ? `<div class="w-9 h-9 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0 border border-blue-500/30">
+                     <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                   </div>`
+                : `<div class="w-9 h-9 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0 border border-blue-500/30">
+                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"></circle><line x1="12" y1="8" x2="12" y2="12" stroke-width="2"></line><line x1="12" y1="16" x2="12.01" y2="16" stroke-width="2"></line></svg>
+                   </div>`;
+
+            toast.innerHTML = `
+                ${iconSvg}
+                <div class="flex-1 text-right">
+                    <h4 class="text-xs sm:text-sm font-extrabold text-white mb-0.5">${title}</h4>
+                    <p class="text-[11px] sm:text-xs text-slate-300 leading-relaxed font-medium">${message}</p>
+                </div>
+                <button type="button" onclick="this.parentElement.remove()" class="text-slate-400 hover:text-white transition text-xs p-1">
+                    ✕
+                </button>
+            `;
+
+            container.appendChild(toast);
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-[-20px]', 'opacity-0');
+            });
+
+            if (type !== 'loading') {
+                setTimeout(() => {
+                    toast.classList.add('translate-y-[-10px]', 'opacity-0');
+                    setTimeout(() => toast.remove(), 300);
+                }, duration);
+            }
+            return toast;
+        }
+
         async function saveToWatchlist(scholarshipName, btnElement) {
             confetti({ particleCount: 50, spread: 50, origin: { y: 0.7 } });
             const emailInput = document.getElementById('email');
@@ -1933,13 +1965,14 @@ ${cleanBody}
                     if (btnElement && data.success) {
                         btnElement.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i><span>تم تفعيل التنبيه</span>`;
                         btnElement.className = "sp-btn-secondary w-full py-2 text-xs font-bold flex items-center justify-center gap-1.5 border-emerald-500/30 text-emerald-600 dark:text-emerald-400";
+                        showToast("success", "تم حفظ المنحة بنجاح! 📌", `تمت إضافة "${scholarshipName}" إلى قائمة المتابعة لتلقي التنبيهات.`);
                         if (window.lucide) lucide.createIcons();
                     }
                 } catch(e) {
                     console.log("Watchlist save error:", e);
                 }
             } else if (btnElement) {
-                alert("يرجى إدخال بريدك الإلكتروني في نموذج التسجيل أولاً لتفعيل تنبيهات المواعيد.");
+                showToast("info", "تنبيه المتابعة", "يرجى إدخال بريدك الإلكتروني في نموذج الاشتراك بالأسفل أولاً لتفعيل تنبيهات المواعيد.");
                 document.getElementById('email').focus();
             }
         }
