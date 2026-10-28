@@ -23,6 +23,70 @@ FALLBACK_MODELS = [
     "gemini-3.8-flash"
 ]
 
+# Prestigious Global Undergraduate fallbacks
+CURATED_UNDERGRADUATE_SCHOLARSHIPS: List[Dict[str, str]] = [
+    {
+        "name": "Lester B. Pearson International Scholarship Program",
+        "provider": "University of Toronto",
+        "country_institution": "Canada / University of Toronto",
+        "language": "English",
+        "status": "Open Now",
+        "deadline": "2026-11-06",
+        "mechanism": "School nomination followed by direct portal application",
+        "requirements": "High school senior with exceptional academic achievement (A / 90%+ equivalent), recognized leadership & creative thinking",
+        "tests": "SAT / ACT optional and not required for international curriculum",
+        "visa_support": "Full documentation: Letter of Acceptance (LOA) & Provincial Attestation Letter (PAL)",
+        "competitiveness": "Very High (~37 scholars selected worldwide each year)",
+        "official_link": "https://future.utoronto.ca/pearson/",
+        "funding": "Fully Funded (Tuition, books, incidental fees & full residence for 4 years)"
+    },
+    {
+        "name": "Stipendium Hungaricum Undergraduate Scholarship",
+        "provider": "Tempus Public Foundation / Hungarian Government",
+        "country_institution": "Hungary / Leading Universities (ELTE, BME, Debrecen, Szeged)",
+        "language": "English",
+        "status": "Opening Soon (Expected November 2026)",
+        "deadline": "2027-01-15",
+        "mechanism": "Dual Application (Online application at apply.stipendiumhungaricum.hu AND MoHESR nomination)",
+        "requirements": "High school Tawjihi certificate (typically 80%+ for CS/Engineering), English proficiency (IELTS 5.5-6.5 or institutional test)",
+        "tests": "SAT / ACT not required; online institutional entrance exam & interview",
+        "visa_support": "Official Scholarship Letter of Award & Letter of Admission providing fee-free D-type Schengen visa",
+        "competitiveness": "Moderate to High (Specific substantial national quota for Palestine)",
+        "official_link": "https://stipendiumhungaricum.hu/",
+        "funding": "Fully Funded (100% tuition waiver, monthly living allowance, free dorm or HUF 40,000/mo subsidy, health insurance)"
+    },
+    {
+        "name": "Türkiye Bursları (Türkiye Government Scholarships)",
+        "provider": "Presidency for Turks Abroad and Related Communities (YTB)",
+        "country_institution": "Turkey / Top Universities (METU, ITU, Bogazici, Bilkent)",
+        "language": "Turkish (includes 1-year free language course) or English",
+        "status": "Opening Soon (Opens January 10, 2027)",
+        "deadline": "2027-02-20",
+        "mechanism": "Integrated Single Portal (Unified university placement and scholarship application through TBBS portal)",
+        "requirements": "Tawjihi minimum average of 70% (85%+ strongly recommended for Software Engineering / IT), under 21 years of age",
+        "tests": "SAT optional but enhances acceptance chances in English-medium programs",
+        "visa_support": "Official Scholarship Acceptance Certificate issued for Turkish Student Visa",
+        "competitiveness": "High (Dedicated country-specific quota reserved for Palestine)",
+        "official_link": "https://www.turkiyeburslari.gov.tr/",
+        "funding": "Fully Funded (100% tuition waiver, monthly stipend, free dormitory accommodation, health insurance, language year, flight ticket)"
+    },
+    {
+        "name": "Global Korea Scholarship (GKS-U) - University Track",
+        "provider": "National Institute for International Education (NIIED)",
+        "country_institution": "South Korea / Partner Universities (KAIST, UNIST, Kyungpook)",
+        "language": "Korean & English (Includes 1-year language course + 4-year degree)",
+        "status": "Open Now",
+        "deadline": "2026-11-30",
+        "mechanism": "Separate Application (Direct submission of dossier to chosen Korean university's international office)",
+        "requirements": "Under 25 years old, cumulative high school grade of 80%+ or top 20% of class, verified diploma/transcripts",
+        "tests": "SAT / ACT not required; TOPIK / IELTS provides bonus evaluation points",
+        "visa_support": "Standard Certificate of Admission (CoA) and NIIED official government award document",
+        "competitiveness": "Very High (Fixed country quota allocated for Palestine)",
+        "official_link": "https://www.studyinkorea.go.kr",
+        "funding": "Fully Funded (Full tuition, airfare, monthly stipend, settlement allowance, medical insurance)"
+    }
+]
+
 # Prestigious Global Master's / PhD fallbacks when requested
 CURATED_GRADUATE_SCHOLARSHIPS: List[Dict[str, str]] = [
     {
@@ -230,8 +294,7 @@ Ensure output is strictly valid JSON:
         if "master" in degree_lower or "phd" in degree_lower or "doctor" in degree_lower or "graduate" in degree_lower:
             return CURATED_GRADUATE_SCHOLARSHIPS
 
-        from send_scholarship_report import SCHOLARSHIPS_DATA
-        return SCHOLARSHIPS_DATA
+        return CURATED_UNDERGRADUATE_SCHOLARSHIPS
 
     def _sort_by_deadline(self, scholarships: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """Sorts scholarships chronologically by deadline ascending."""

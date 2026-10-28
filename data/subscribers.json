@@ -1,29 +1,28 @@
 [
   {
     "email": "medo.msz.2006@gmail.com",
-    "full_name": "Mustafa AbuZaiter",
-    "degree": "Undergraduate (Bachelor's)",
+    "full_name": "Mustaf S. M. Abuzaiter",
+    "degree": "Undergraduate (Bachelor&#x27;s)",
     "majors": [
       "Cybersecurity",
       "Software Engineering",
-      "Artificial Intelligence",
-      "Computer Science & IT"
+      "Artificial Intelligence"
     ],
-    "gpa": "90%+",
-    "english_level": "IELTS 6.5+ / Advanced",
+    "gpa": "90%",
+    "english_level": "Intermediate",
     "target_destinations": [
-      "Europe",
-      "Canada",
-      "Turkey"
+      "Any"
     ],
-    "country": "Palestine",
+    "country": "International",
     "saved_scholarships": [
       "Lester B. Pearson",
-      "Stipendium Hungaricum"
+      "Stipendium Hungaricum",
+      "Lester B. Pearson Scholarship"
     ],
     "created_at": "2026-10-28T10:00:00",
-    "last_sent_at": "2026-10-28T19:04:27.282771",
-    "status": "active"
+    "last_sent_at": "2026-10-28T20:33:40.298517",
+    "status": "active",
+    "updated_at": "2026-10-28T20:31:36.213674"
   },
   {
     "email": "student_1793207849@example.com",
@@ -43,6 +42,26 @@
     "saved_scholarships": [],
     "created_at": "2026-10-28T19:17:29.491272",
     "last_sent_at": "2026-10-28T20:12:38.092808",
+    "status": "active"
+  },
+  {
+    "email": "student_1793213060@example.com",
+    "full_name": "Ahmad Test",
+    "degree": "Undergraduate (Bachelor&#x27;s)",
+    "majors": [
+      "Artificial Intelligence",
+      "Computer Science"
+    ],
+    "gpa": "91%",
+    "english_level": "Intermediate",
+    "target_destinations": [
+      "Any"
+    ],
+    "country": "Palestine",
+    "talents_experience": "Participated in NASA Space Apps, active volunteer",
+    "saved_scholarships": [],
+    "created_at": "2026-10-28T20:44:21.003146",
+    "last_sent_at": null,
     "status": "active"
   }
 ]
