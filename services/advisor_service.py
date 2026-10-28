@@ -1260,6 +1260,8 @@ Student in {major}
                 "كيف أرفع نسبة قبولي في المقابلات؟",
                 "أعد لي خطة زمنية للتقديم"
             ]
+            strengths_list = "\n".join(["• " + s for s in chances.get("strengths", [])]) or "• ملف أكاديمي متوازن."
+            weaknesses_list = "\n".join(["• " + w for w in chances.get("weaknesses", [])]) or "• لا توجد نواقص جوهرية مسجلة."
             advice_text = f"""
 بناءً على ملفك الأكاديمي المسجل لدينا ({prof.get('full_name')} | معدل **{prof.get('gpa')}** في **{prof.get('majors', ['هندسة برمجيات'])[0]}**):
 
@@ -1269,10 +1271,10 @@ Student in {major}
 • **مستوى الثقة في التقييم:** {chances['confidence']}
 
 #### أبرز نقاط القوة في ملفك:
-{' '.join(['• ' + s + '\n' for s in chances['strengths']])}
+{strengths_list}
 
 #### المتطلبات الواجب مراعاتها:
-{' '.join(['• ' + w + '\n' for s in chances['weaknesses'] for w in [s]])}
+{weaknesses_list}
 
 💡 **النصيحة الاستراتيجية:** {chances['recommendation']}
 """.strip()

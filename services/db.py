@@ -163,12 +163,25 @@ try:
     elif "sslmode" not in active_url and "neon.tech" in active_url:
         connect_args = {"sslmode": "require"}
 
-    engine = create_engine(
-        active_url,
-        connect_args=connect_args,
-        pool_pre_ping=True,
-        pool_recycle=300
-    )
+    try:
+        engine = create_engine(
+            active_url,
+            connect_args=connect_args,
+            pool_pre_ping=True,
+            pool_recycle=300
+        )
+    except Exception as d_err:
+        if "psycopg" in str(d_err).lower() and active_url.startswith("postgresql://") and not active_url.startswith("postgresql+"):
+            alt_url = active_url.replace("postgresql://", "postgresql+psycopg2://", 1)
+            engine = create_engine(
+                alt_url,
+                connect_args=connect_args,
+                pool_pre_ping=True,
+                pool_recycle=300
+            )
+        else:
+            raise d_err
+
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     logger.info(f"Database Engine initialized for: {'Neon PostgreSQL' if 'postgres' in active_url else 'SQLite fallback'}")
 
