@@ -520,8 +520,8 @@ Ensure output is strictly valid JSON:
         student_profile: Optional[Dict[str, Any]] = None
     ) -> bool:
         """Runs the search, creates CSV/HTML with match scores, and sends directly to student's email."""
-        sender_email = os.getenv("SENDER_EMAIL")
-        gmail_password = os.getenv("GMAIL_APP_PASSWORD")
+        sender_email = os.getenv("SENDER_EMAIL") or os.getenv("EMAIL_USER")
+        gmail_password = os.getenv("GMAIL_APP_PASSWORD") or os.getenv("EMAIL_PASS")
 
         if not sender_email or not gmail_password:
             logger.error("Missing SENDER_EMAIL or GMAIL_APP_PASSWORD.")
@@ -598,8 +598,8 @@ Ensure output is strictly valid JSON:
         documents: Dict[str, str]
     ) -> bool:
         """Sends generated Motivation Letter, Recommendation template, and Checklist to the student."""
-        sender_email = os.getenv("SENDER_EMAIL")
-        gmail_password = os.getenv("GMAIL_APP_PASSWORD")
+        sender_email = os.getenv("SENDER_EMAIL") or os.getenv("EMAIL_USER")
+        gmail_password = os.getenv("GMAIL_APP_PASSWORD") or os.getenv("EMAIL_PASS")
 
         if not sender_email or not gmail_password:
             logger.error("Missing SENDER_EMAIL or GMAIL_APP_PASSWORD.")

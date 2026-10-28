@@ -338,8 +338,8 @@ class AutomationService:
         from email.message import EmailMessage
         import smtplib
 
-        sender_email = os.getenv("SENDER_EMAIL")
-        gmail_password = os.getenv("GMAIL_APP_PASSWORD")
+        sender_email = os.getenv("SENDER_EMAIL") or os.getenv("EMAIL_USER")
+        gmail_password = os.getenv("GMAIL_APP_PASSWORD") or os.getenv("EMAIL_PASS")
         if not sender_email or not gmail_password:
             return
 
