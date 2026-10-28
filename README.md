@@ -1,3 +1,13 @@
+---
+title: MinhaTech AI - Global Scholarship Engine
+emoji: 🎓
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # 🎓 منحة تك AI | MinhaTech AI Copilot
 ### المنظومة الذكية لتتبع المنح، حساب نسبة التوافق، وتوليد مستندات التقديم 🚀
 
