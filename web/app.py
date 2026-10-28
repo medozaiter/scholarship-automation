@@ -3,7 +3,8 @@ import re
 import asyncio
 import logging
 from typing import List, Optional, Dict, Any
-from fastapi import FastAPI, BackgroundTasks, HTTPException, Query
+from fastapi import FastAPI, BackgroundTasks, HTTPException, Query, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, field_validator
@@ -12,6 +13,14 @@ from services.subscriber_service import SubscriberService
 from services.scholarship_engine import ScholarshipEngine
 from services.advisor_service import AdvisorService
 from services.auth_service import AuthService
+from services.security_utils import (
+    validate_email,
+    validate_name,
+    validate_gpa,
+    validate_password,
+    sanitize_text,
+    sanitize_advisor_query
+)
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -21,11 +30,12 @@ INDEX_HTML_PATH = os.path.join(TEMPLATES_DIR, "index.html")
 DASHBOARD_HTML_PATH = os.path.join(TEMPLATES_DIR, "dashboard.html")
 
 app = FastAPI(
-    title="MinhaTech AI - Global Scholarship Automation Engine",
-    description="Automated Scholarship Discovery, Verification, AI Advisor, Documents & User Portal",
-    version="2.3.0"
+    title="MinhaTech AI - Secure Global Scholarship Automation Engine",
+    description="Automated Scholarship Discovery, Verification, AI Advisor & Document Generator",
+    version="2.4.0"
 )
 
+# CORS Middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -34,11 +44,39 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Security Headers Middleware
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    return response
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    errors = exc.errors()
+    first_error = errors[0] if errors else {}
+    msg = first_error.get("msg", "البيانات المدخلة غير صحيحة")
+    if msg.startswith("Value error, "):
+        msg = msg.replace("Value error, ", "")
+    clean_errors = [
+        {"loc": list(e.get("loc", [])), "msg": e.get("msg", ""), "type": e.get("type", "")}
+        for e in errors
+    ]
+    return JSONResponse(
+        status_code=400,
+        content={"success": False, "detail": msg, "errors": clean_errors}
+    )
+
 sub_service = SubscriberService()
 engine = ScholarshipEngine()
 advisor_service = AdvisorService()
 auth_service = AuthService()
 
+
+# ==================== STRICT REQUEST VALIDATION MODELS ====================
 
 class SubscriptionRequest(BaseModel):
     email: str
@@ -47,17 +85,39 @@ class SubscriptionRequest(BaseModel):
     majors: List[str]
     gpa: Optional[str] = "85%"
     english_level: Optional[str] = "Intermediate"
-    target_destinations: Optional[List[str]] = ["Europe", "Canada", "Turkey", "Any"]
+    target_destinations: Optional[List[str]] = ["Any"]
     country: Optional[str] = "Palestine"
     send_welcome_report: Optional[bool] = True
 
     @field_validator("email")
     @classmethod
-    def validate_email_format(cls, v: str) -> str:
-        clean = v.strip().lower()
-        if not re.match(r"^[^@]+@[^@]+\.[^@]+$", clean):
-            raise ValueError("صيغة البريد الإلكتروني غير صحيحة")
-        return clean
+    def check_email(cls, v: str) -> str:
+        return validate_email(v)
+
+    @field_validator("full_name")
+    @classmethod
+    def check_name(cls, v: Optional[str]) -> str:
+        return validate_name(v or "Student")
+
+    @field_validator("gpa")
+    @classmethod
+    def check_gpa(cls, v: Optional[str]) -> str:
+        return validate_gpa(v or "85%")
+
+    @field_validator("majors")
+    @classmethod
+    def clean_majors(cls, v: List[str]) -> List[str]:
+        if not v:
+            raise ValueError("يرجى اختيار أو كتابة تخصص واحد على الأقل.")
+        cleaned = [sanitize_text(m, max_length=50) for m in v if m.strip()]
+        if not cleaned:
+            raise ValueError("يرجى إدخال اسم تخصص صحيح.")
+        return cleaned[:8]  # Limit to max 8 majors
+
+    @field_validator("degree", "english_level", "country")
+    @classmethod
+    def sanitize_fields(cls, v: Optional[str]) -> str:
+        return sanitize_text(v, max_length=60)
 
 
 class RegisterRequest(BaseModel):
@@ -70,15 +130,62 @@ class RegisterRequest(BaseModel):
     english_level: Optional[str] = "Intermediate"
     country: Optional[str] = "Palestine"
 
+    @field_validator("email")
+    @classmethod
+    def check_email(cls, v: str) -> str:
+        return validate_email(v)
+
+    @field_validator("password")
+    @classmethod
+    def check_password(cls, v: str) -> str:
+        return validate_password(v)
+
+    @field_validator("full_name")
+    @classmethod
+    def check_name(cls, v: str) -> str:
+        return validate_name(v)
+
+    @field_validator("gpa")
+    @classmethod
+    def check_gpa(cls, v: Optional[str]) -> str:
+        return validate_gpa(v or "85%")
+
+    @field_validator("degree", "english_level", "country")
+    @classmethod
+    def clean_text(cls, v: Optional[str]) -> str:
+        return sanitize_text(v, max_length=60)
+
 
 class LoginRequest(BaseModel):
     email: str
     password: str
 
+    @field_validator("email")
+    @classmethod
+    def check_email(cls, v: str) -> str:
+        return validate_email(v)
+
+    @field_validator("password")
+    @classmethod
+    def check_password(cls, v: str) -> str:
+        return validate_password(v)
+
 
 class AdvisorChatRequest(BaseModel):
     query: str
     email: Optional[str] = None
+
+    @field_validator("query")
+    @classmethod
+    def clean_query(cls, v: str) -> str:
+        return sanitize_advisor_query(v)
+
+    @field_validator("email")
+    @classmethod
+    def check_optional_email(cls, v: Optional[str]) -> Optional[str]:
+        if v and v.strip():
+            return validate_email(v)
+        return None
 
 
 class DocumentGenerationRequest(BaseModel):
@@ -91,11 +198,43 @@ class DocumentGenerationRequest(BaseModel):
     target_country: Optional[str] = "Europe"
     send_to_email: Optional[bool] = True
 
+    @field_validator("email")
+    @classmethod
+    def check_email(cls, v: str) -> str:
+        return validate_email(v)
+
+    @field_validator("student_name")
+    @classmethod
+    def check_name(cls, v: str) -> str:
+        return validate_name(v)
+
+    @field_validator("gpa")
+    @classmethod
+    def check_gpa(cls, v: str) -> str:
+        return validate_gpa(v)
+
+    @field_validator("scholarship_name", "degree", "major", "target_country")
+    @classmethod
+    def clean_fields(cls, v: Optional[str]) -> str:
+        return sanitize_text(v, max_length=100)
+
 
 class SaveScholarshipRequest(BaseModel):
     email: str
     scholarship_name: str
 
+    @field_validator("email")
+    @classmethod
+    def check_email(cls, v: str) -> str:
+        return validate_email(v)
+
+    @field_validator("scholarship_name")
+    @classmethod
+    def clean_name(cls, v: str) -> str:
+        return sanitize_text(v, max_length=120)
+
+
+# ==================== BACKGROUND TASKS & ENDPOINTS ====================
 
 async def background_send_report(
     email: str,
@@ -143,7 +282,7 @@ async def serve_dashboard():
 
 @app.post("/api/auth/register")
 async def register_account(req: RegisterRequest):
-    """Creates a new student account and registers them for automated alerts."""
+    """Creates a new student account and registers them for automated alerts with strict security filters."""
     try:
         user = auth_service.register(
             email=req.email,
@@ -165,17 +304,23 @@ async def register_account(req: RegisterRequest):
             country=req.country or "Palestine"
         )
         return {"success": True, "user": user, "message": "تم إنشاء حسابك وتفعيل التتبع بنجاح!"}
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        logger.error(f"Registration error: {e}")
+        raise HTTPException(status_code=400, detail="تعذر إتمام التسجيل. يرجى التأكد من صحة المدخلات.")
 
 
 @app.post("/api/auth/login")
 async def login_account(req: LoginRequest):
     """Authenticates student or administrator."""
-    user = auth_service.login(req.email, req.password)
-    if not user:
-        raise HTTPException(status_code=401, detail="البريد الإلكتروني أو كلمة المرور غير صحيحة")
-    return {"success": True, "user": user}
+    try:
+        user = auth_service.login(req.email, req.password)
+        if not user:
+            raise HTTPException(status_code=401, detail="البريد الإلكتروني أو كلمة المرور غير صحيحة.")
+        return {"success": True, "user": user}
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
 
 
 @app.post("/api/subscribe")
@@ -219,54 +364,68 @@ async def subscribe_student(req: SubscriptionRequest, background_tasks: Backgrou
                 }
             }
         )
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:
         logger.error(f"Subscription error: {e}")
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail="حدث خطأ في معالجة الطلب.")
 
 
 @app.post("/api/advisor/consult")
 async def consult_advisor(req: AdvisorChatRequest):
-    """Real-time AI Scholarship Advisor answering free-form questions."""
-    profile = None
-    if req.email:
-        profile = sub_service.get_by_email(req.email)
+    """Real-time AI Scholarship Advisor answering free-form questions with prompt sanitization."""
+    try:
+        profile = None
+        if req.email:
+            profile = sub_service.get_by_email(req.email)
 
-    res = await advisor_service.consult_ai_advisor(
-        student_query=req.query,
-        student_profile=profile
-    )
-    return res
+        res = await advisor_service.consult_ai_advisor(
+            student_query=req.query,
+            student_profile=profile
+        )
+        return res
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        logger.error(f"Advisor error: {e}")
+        raise HTTPException(status_code=500, detail="تعذر الاتصال بالمستشار الذكي حالياً.")
 
 
 @app.post("/api/documents/generate")
 async def generate_documents(req: DocumentGenerationRequest, background_tasks: BackgroundTasks):
     """Generates tailored Motivation Letter, Recommendation Letter, and Checklist."""
-    docs = await advisor_service.generate_smart_documents(
-        student_name=req.student_name,
-        degree=req.degree,
-        major=req.major,
-        gpa=req.gpa,
-        scholarship_name=req.scholarship_name,
-        target_country=req.target_country or "Europe"
-    )
-
-    if req.send_to_email:
-        background_tasks.add_task(
-            engine.send_application_kit_email,
-            recipient_email=req.email,
+    try:
+        docs = await advisor_service.generate_smart_documents(
             student_name=req.student_name,
-            scholarship_name=req.scholarship_name,
             degree=req.degree,
             major=req.major,
-            documents=docs
+            gpa=req.gpa,
+            scholarship_name=req.scholarship_name,
+            target_country=req.target_country or "Europe"
         )
 
-    return {
-        "success": True,
-        "scholarship_name": req.scholarship_name,
-        "documents": docs,
-        "message": f"تم توليد حزمة التقديم لمنحة {req.scholarship_name} بنجاح!" + (" وتم إرسال نسخة إلى بريدك." if req.send_to_email else "")
-    }
+        if req.send_to_email:
+            background_tasks.add_task(
+                engine.send_application_kit_email,
+                recipient_email=req.email,
+                student_name=req.student_name,
+                scholarship_name=req.scholarship_name,
+                degree=req.degree,
+                major=req.major,
+                documents=docs
+            )
+
+        return {
+            "success": True,
+            "scholarship_name": req.scholarship_name,
+            "documents": docs,
+            "message": f"تم توليد حزمة التقديم لمنحة {req.scholarship_name} بنجاح!" + (" وتم إرسال نسخة إلى بريدك." if req.send_to_email else "")
+        }
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        logger.error(f"Doc generation error: {e}")
+        raise HTTPException(status_code=500, detail="حدث خطأ أثناء توليد المستندات.")
 
 
 @app.post("/api/scholarships/save")
@@ -275,6 +434,8 @@ async def save_scholarship(req: SaveScholarshipRequest):
     try:
         result = sub_service.toggle_saved_scholarship(req.email, req.scholarship_name)
         return {"success": True, **result}
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -313,10 +474,13 @@ async def preview_scholarships(
 ):
     """Provides a live JSON preview of top matching scholarships."""
     try:
+        clean_degree = sanitize_text(degree, max_length=50)
+        clean_major = sanitize_text(major, max_length=50)
+        clean_country = sanitize_text(country, max_length=50)
         results = await engine.search_and_extract(
-            degree=degree,
-            majors=[major],
-            country=country
+            degree=clean_degree,
+            majors=[clean_major],
+            country=clean_country
         )
         return {"success": True, "count": len(results), "scholarships": results[:5]}
     except Exception as e:

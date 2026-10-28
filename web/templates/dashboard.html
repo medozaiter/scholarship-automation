@@ -121,12 +121,12 @@
                 <form id="loginForm" class="space-y-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">البريد الإلكتروني</label>
-                        <input type="email" id="loginEmail" required placeholder="example@gmail.com"
+                        <input type="email" id="loginEmail" required maxlength="100" placeholder="example@gmail.com"
                             class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-blue-500">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">كلمة المرور</label>
-                        <input type="password" id="loginPassword" required placeholder="••••••••"
+                        <input type="password" id="loginPassword" required minlength="6" maxlength="128" placeholder="••••••••"
                             class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-blue-500">
                     </div>
                     <button type="submit" id="loginSubmitBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl text-sm transition shadow-lg shadow-blue-600/25">
@@ -141,17 +141,17 @@
                 <form id="regForm" class="hidden space-y-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">الاسم الكامل</label>
-                        <input type="text" id="regName" required placeholder="مثلاً: مصطفى زعيتر"
+                        <input type="text" id="regName" required minlength="2" maxlength="60" pattern="^[a-zA-Z\u0600-\u06FF\s\.\-']+$" title="يرجى إدخال اسم حقيقي بدون رموز برمجية أو أحرف خاصة" placeholder="مثلاً: مصطفى زعيتر"
                             class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-blue-500">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">البريد الإلكتروني</label>
-                        <input type="email" id="regEmail" required placeholder="example@gmail.com"
+                        <input type="email" id="regEmail" required maxlength="100" placeholder="example@gmail.com"
                             class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-blue-500">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">كلمة المرور (6 أحرف فأكثر)</label>
-                        <input type="password" id="regPassword" required placeholder="••••••••"
+                        <input type="password" id="regPassword" required minlength="6" maxlength="128" placeholder="••••••••"
                             class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-blue-500">
                     </div>
                     <div class="grid grid-cols-2 gap-3">
@@ -165,13 +165,13 @@
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المعدل</label>
-                            <input type="text" id="regGpa" placeholder="مثلاً: 88%"
+                            <input type="text" id="regGpa" maxlength="20" placeholder="مثلاً: 88% أو 3.6/4.0"
                                 class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-2 text-xs text-slate-900 dark:text-white">
                         </div>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">التخصص</label>
-                        <input type="text" id="regMajor" placeholder="هندسة برمجيات، أمن سيبراني..."
+                        <input type="text" id="regMajor" maxlength="80" placeholder="هندسة برمجيات، أمن سيبراني..."
                             class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-blue-500">
                     </div>
                     <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3 rounded-xl text-sm transition shadow-lg shadow-blue-600/25">
@@ -291,6 +291,17 @@
     </main>
 
     <script>
+        // Security HTML Escaper to prevent DOM XSS
+        function escapeHTML(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
         // Theme management
         function toggleTheme() {
             const isDark = document.documentElement.classList.toggle('dark');
@@ -437,7 +448,7 @@
                     <div class="flex justify-between items-center p-3.5 rounded-xl bg-slate-100 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 text-xs">
                         <div class="flex items-center gap-2">
                             <span class="w-6 h-6 rounded-full bg-blue-600/10 text-blue-500 flex items-center justify-center font-bold">#${idx+1}</span>
-                            <span class="font-bold text-slate-900 dark:text-white">${s}</span>
+                            <span class="font-bold text-slate-900 dark:text-white">${escapeHTML(s)}</span>
                         </div>
                         <span class="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold px-2.5 py-1 rounded-md">
                             🔔 تذكيرات المواعيد نشطة
@@ -467,12 +478,12 @@
                     const tbody = document.getElementById('subscribersTableBody');
                     tbody.innerHTML = data.subscribers.map(sub => `
                         <tr class="hover:bg-slate-50 dark:hover:bg-slate-900/40">
-                            <td class="p-3 font-bold text-slate-900 dark:text-white">${sub.full_name || 'طالب'}</td>
-                            <td class="p-3 text-blue-500 font-mono">${sub.email}</td>
-                            <td class="p-3">${sub.degree}</td>
-                            <td class="p-3 font-bold text-emerald-500">${sub.gpa || '85%'}</td>
-                            <td class="p-3">${(sub.majors || []).join('، ')}</td>
-                            <td class="p-3">${sub.country || 'Palestine'}</td>
+                            <td class="p-3 font-bold text-slate-900 dark:text-white">${escapeHTML(sub.full_name || 'طالب')}</td>
+                            <td class="p-3 text-blue-500 font-mono">${escapeHTML(sub.email)}</td>
+                            <td class="p-3">${escapeHTML(sub.degree)}</td>
+                            <td class="p-3 font-bold text-emerald-500">${escapeHTML(sub.gpa || '85%')}</td>
+                            <td class="p-3">${escapeHTML((sub.majors || []).join('، '))}</td>
+                            <td class="p-3">${escapeHTML(sub.country || 'Palestine')}</td>
                             <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/15 text-emerald-500">نشط</span></td>
                         </tr>
                     `).join('');

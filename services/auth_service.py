@@ -6,6 +6,14 @@ import logging
 from datetime import datetime
 from typing import Dict, Any, Optional, List
 
+from services.security_utils import (
+    validate_email,
+    validate_name,
+    validate_gpa,
+    validate_password,
+    sanitize_text
+)
+
 logger = logging.getLogger(__name__)
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
@@ -15,7 +23,6 @@ USERS_FILE = os.path.join(DATA_DIR, "users.json")
 def _ensure_users_file():
     os.makedirs(DATA_DIR, exist_ok=True)
     if not os.path.exists(USERS_FILE):
-        # Default admin account for Mustafa
         salt = secrets.token_hex(8)
         hashed_pw = hashlib.sha256((salt + "admin123").encode("utf-8")).hexdigest()
         default_users = [
@@ -39,7 +46,7 @@ def _ensure_users_file():
 
 
 class AuthService:
-    """Authentication and Account Management Service for Students and Administrators."""
+    """Authentication and Account Management Service with comprehensive security filters."""
 
     def __init__(self):
         _ensure_users_file()
@@ -69,34 +76,37 @@ class AuthService:
         english_level: str = "Intermediate",
         country: str = "Palestine"
     ) -> Dict[str, Any]:
-        """Registers a new student user."""
-        email_clean = email.strip().lower()
-        if not email_clean or "@" not in email_clean:
-            raise ValueError("صيغة البريد الإلكتروني غير صحيحة")
-        if len(password) < 6:
-            raise ValueError("كلمة المرور يجب أن لا تقل عن 6 أحرف")
+        """Registers a new student user with strict input validation."""
+        email_clean = validate_email(email)
+        name_clean = validate_name(full_name)
+        gpa_clean = validate_gpa(gpa)
+        password_clean = validate_password(password)
+
+        sanitized_majors = [sanitize_text(m, max_length=50) for m in (majors or ["Software Engineering"])]
+        sanitized_degree = sanitize_text(degree, max_length=50) or "Undergraduate (Bachelor's)"
+        sanitized_english = sanitize_text(english_level, max_length=50) or "Intermediate"
+        sanitized_country = sanitize_text(country, max_length=50) or "Palestine"
 
         users = self._load_users()
         if any(u.get("email", "").lower() == email_clean for u in users):
             raise ValueError("هذا البريد الإلكتروني مسجل بالفعل. يمكنك تسجيل الدخول مباشرة.")
 
         salt = secrets.token_hex(8)
-        hashed_pw = hashlib.sha256((salt + password).encode("utf-8")).hexdigest()
+        hashed_pw = hashlib.sha256((salt + password_clean).encode("utf-8")).hexdigest()
 
-        # If it's Mustafa's email or first user, assign admin
         role = "admin" if email_clean == "medo.msz.2006@gmail.com" else "student"
 
         new_user = {
             "email": email_clean,
-            "full_name": full_name or "Student",
+            "full_name": name_clean,
             "role": role,
             "salt": salt,
             "password_hash": hashed_pw,
-            "degree": degree,
-            "majors": majors or ["Software Engineering"],
-            "gpa": gpa,
-            "english_level": english_level,
-            "country": country,
+            "degree": sanitized_degree,
+            "majors": sanitized_majors,
+            "gpa": gpa_clean,
+            "english_level": sanitized_english,
+            "country": sanitized_country,
             "saved_scholarships": [],
             "created_at": datetime.now().isoformat()
         }
@@ -105,22 +115,26 @@ class AuthService:
         self._save_users(users)
         logger.info(f"Registered user: {email_clean} with role {role}")
 
-        # Return user info without salt/hash
         safe_copy = dict(new_user)
         safe_copy.pop("salt", None)
         safe_copy.pop("password_hash", None)
         return safe_copy
 
     def login(self, email: str, password: str) -> Optional[Dict[str, Any]]:
-        """Verifies credentials and returns user profile if correct."""
-        email_clean = email.strip().lower()
+        """Verifies credentials with sanitized input."""
+        try:
+            email_clean = validate_email(email)
+            password_clean = validate_password(password)
+        except Exception:
+            return None
+
         users = self._load_users()
         user = next((u for u in users if u.get("email", "").lower() == email_clean), None)
         if not user:
             return None
 
         salt = user.get("salt", "")
-        test_hash = hashlib.sha256((salt + password).encode("utf-8")).hexdigest()
+        test_hash = hashlib.sha256((salt + password_clean).encode("utf-8")).hexdigest()
 
         if test_hash == user.get("password_hash"):
             safe_copy = dict(user)
@@ -131,7 +145,11 @@ class AuthService:
 
     def get_by_email(self, email: str) -> Optional[Dict[str, Any]]:
         """Finds user by email."""
-        email_clean = email.strip().lower()
+        try:
+            email_clean = validate_email(email)
+        except Exception:
+            return None
+
         users = self._load_users()
         user = next((u for u in users if u.get("email", "").lower() == email_clean), None)
         if user:
