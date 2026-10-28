@@ -1,16 +1,56 @@
 import os
 import csv
+import json
 import smtplib
 import logging
 from datetime import datetime
 from email.message import EmailMessage
-from email.utils import make_msgid
 from dotenv import load_dotenv
 
 load_dotenv()
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
+
+
+def load_user_config() -> dict:
+    """Loads student customization settings from config.json or returns defaults."""
+    default_config = {
+        "student_profile": {
+            "full_name": "Student",
+            "degree": "Undergraduate (Bachelor's)",
+            "target_majors": [
+                "Cybersecurity",
+                "Software Engineering",
+                "Artificial Intelligence",
+                "Computer Science & IT"
+            ],
+            "country_of_origin": "Palestine",
+            "funding_preference": "Fully Funded (or Partial)"
+        },
+        "automation_settings": {
+            "send_weekly_email": True,
+            "recipient_email": "",
+            "email_language": "ar",
+            "table_language": "en"
+        }
+    }
+
+    config_path = os.path.join(os.path.dirname(__file__), "config.json")
+    if os.path.exists(config_path):
+        try:
+            with open(config_path, "r", encoding="utf-8") as f:
+                user_cfg = json.load(f)
+                if "student_profile" in user_cfg:
+                    default_config["student_profile"].update(user_cfg["student_profile"])
+                if "automation_settings" in user_cfg:
+                    default_config["automation_settings"].update(user_cfg["automation_settings"])
+            logger.info("Loaded custom configuration from config.json")
+        except Exception as e:
+            logger.warning(f"Failed to read config.json: {e}. Using defaults.")
+
+    return default_config
+
 
 # ==================== VERIFIED SCHOLARSHIPS DIRECTORY ====================
 # Strictly conforms to: Undergraduate, Palestine Eligible, Cybersecurity / Software Eng / AI / CS,
@@ -140,7 +180,7 @@ SCHOLARSHIPS_DATA = [
 ]
 
 
-def generate_csv_report(filename: str = "scholarships_undergraduate_palestine.csv") -> str:
+def generate_csv_report(filename: str = "scholarships_report.csv") -> str:
     """Exports the 11-column matrix to CSV."""
     headers = [
         "Scholarship & Provider Name",
@@ -178,10 +218,16 @@ def generate_csv_report(filename: str = "scholarships_undergraduate_palestine.cs
     return filename
 
 
-def build_html_email() -> str:
-    """Constructs a responsive, beautifully styled HTML email template."""
+def build_html_email(config: dict) -> str:
+    """Constructs a responsive, beautifully styled HTML email template tailored to the student."""
     now_str = datetime.now().strftime("%Y-%m-%d")
-    
+    profile = config.get("student_profile", {})
+    student_name = profile.get("full_name", "Student")
+    degree = profile.get("degree", "Undergraduate (Bachelor's)")
+    majors_list = profile.get("target_majors", ["Software Engineering", "Cybersecurity", "AI"])
+    country = profile.get("country_of_origin", "Palestine")
+    majors_str = "، ".join(majors_list)
+
     rows_html = ""
     for idx, s in enumerate(SCHOLARSHIPS_DATA, 1):
         status_color = "#10b981" if "Open Now" in s["status"] else "#3b82f6"
@@ -234,7 +280,7 @@ def build_html_email() -> str:
                 <a href="{s['official_link']}" target="_blank" style="background: #2563eb; color: #ffffff; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: bold; display: inline-block;">
                     🔗 الانتقال لبوابة التقديم الرسمية
                 </a>
-                <span style="font-size: 11.5px; color: #94a3b8; margin-right: 12px;">⚠️ يرجى التأكد من تاريخ الإغلاق عبر الرابط الرسمي</span>
+                <span style="font-size: 11.5px; color: #94a3b8; margin-right: 12px;">⚠️ يرجى التأكد من تاريخ الإغلاق والشروط عبر الرابط الرسمي</span>
             </div>
         </div>
         """
@@ -245,20 +291,20 @@ def build_html_email() -> str:
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>دليل منح البكالوريوس المفتوحة والقريبة</title>
+        <title>دليل منح {degree} المفتوحة والقريبة</title>
     </head>
     <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; margin: 0; padding: 20px; color: #0f172a; line-height: 1.6;">
         <div style="max-width: 820px; margin: 0 auto;">
             
             <!-- Header Banner -->
             <div style="background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: #ffffff; border-radius: 16px; padding: 30px; text-align: center; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(37,99,235,0.2);">
-                <span style="background: rgba(255,255,255,0.2); font-size: 12px; font-weight: bold; padding: 4px 12px; border-radius: 20px; text-transform: uppercase;">تقرير أسبوعي تلقائي | Automated Weekly Report</span>
-                <h1 style="margin: 14px 0 8px 0; font-size: 24px;">دليل منح البكالوريوس المفتوحة والقريبة 🎓</h1>
+                <span style="background: rgba(255,255,255,0.2); font-size: 12px; font-weight: bold; padding: 4px 12px; border-radius: 20px; text-transform: uppercase;">تقرير أسبوعي مخصص | Scholarship AI Engine</span>
+                <h1 style="margin: 14px 0 8px 0; font-size: 24px;">دليل منح {degree} المفتوحة والقريبة 🎓</h1>
                 <p style="margin: 0; font-size: 15px; opacity: 0.95;">
-                    هندسة البرمجيات، الأمن السيبراني، الذكاء الاصطناعي، وتكنولوجيا المعلومات (خاص بالطلاب من فلسطين)
+                    مرحبا <b>{student_name}</b> | التخصصات: <b>{majors_str}</b> (للطلاب من <b>{country}</b>)
                 </p>
                 <div style="margin-top: 14px; font-size: 13px; opacity: 0.85;">
-                    📅 تاريخ التحديث: <b>{now_str}</b> | إجمالي المنح المفحوصة والمفتوحة: <b>{len(SCHOLARSHIPS_DATA)} منح</b>
+                    📅 تاريخ التحديث: <b>{now_str}</b> | إجمالي الفرص النشطة: <b>{len(SCHOLARSHIPS_DATA)} منح</b>
                 </div>
             </div>
 
@@ -272,13 +318,13 @@ def build_html_email() -> str:
 
             <!-- CSV Attachment Notice -->
             <div style="background: #f1f5f9; border: 1px dashed #cbd5e1; border-radius: 10px; padding: 16px; text-align: center; margin-top: 24px; font-size: 13.5px; color: #475569;">
-                📎 <b>مرفق مع هذا الإيميل:</b> ملف جدول بيانات كامل <code>scholarships_undergraduate_palestine.csv</code> يحتوي على الأعمدة الـ 11 باللغة الإنجليزية لتتمكن من فتحه وتصفحه عبر Excel في أي وقت.
+                📎 <b>مرفق مع هذا الإيميل:</b> ملف جدول بيانات كامل <code>scholarships_report.csv</code> يحتوي على الأعمدة الـ 11 باللغة الإنجليزية لتتمكن من فتحه وتصفحه عبر Excel في أي وقت.
             </div>
 
             <!-- Footer -->
             <div style="text-align: center; padding: 24px 0; font-size: 12px; color: #94a3b8;">
                 تم توليد هذا التقرير وتدقيقه تلقائياً بواسطة نظام الأوتوميشن الأسبوعي.<br>
-                جميع الحقوق محفوظة © {datetime.now().year} | Scholarship Automation Engine
+                جميع الحقوق محفوظة © {datetime.now().year} | Global Scholarship AI Engine
             </div>
 
         </div>
@@ -290,29 +336,33 @@ def build_html_email() -> str:
 
 def send_email_report() -> bool:
     """Sends the formatted HTML report and CSV attachment via Gmail SMTP."""
+    config = load_user_config()
+
     sender_email = os.getenv("SENDER_EMAIL")
     gmail_password = os.getenv("GMAIL_APP_PASSWORD")
-    recipient_email = os.getenv("RECIPIENT_EMAIL", sender_email)
+    recipient_email = os.getenv("RECIPIENT_EMAIL") or config.get("automation_settings", {}).get("recipient_email") or sender_email
 
     if not sender_email or not gmail_password:
         logger.error("Missing SENDER_EMAIL or GMAIL_APP_PASSWORD in environment.")
         return False
 
-    # Clean password (remove any spaces)
+    # Clean password (remove spaces)
     gmail_password = gmail_password.replace(" ", "").strip()
 
-    # Generate CSV
+    # Generate CSV & HTML
     csv_file_path = generate_csv_report()
-    html_content = build_html_email()
+    html_content = build_html_email(config)
 
+    degree = config.get("student_profile", {}).get("degree", "Undergraduate")
     msg = EmailMessage()
-    msg["Subject"] = f"🎓 دليل منح البكالوريوس المفتوحة والقريبة | تقرير أسبوعي ({datetime.now().strftime('%d-%m-%Y')})"
+    msg["Subject"] = f"🎓 دليل منح {degree} المفتوحة والقريبة | تقرير أسبوعي ({datetime.now().strftime('%d-%m-%Y')})"
     msg["From"] = f"Scholarship Tracker <{sender_email}>"
     msg["To"] = recipient_email
 
     # Plaintext fallback
+    profile = config.get("student_profile", {})
     msg.set_content(
-        f"مرحباً بك، مرفق تقرير منح البكالوريوس المفتوحة والقريبة لتخصصات الأمن السيبراني وهندسة البرمجيات والذكاء الاصطناعي للطلاب من فلسطين.\n"
+        f"مرحباً {profile.get('full_name', '')}، مرفق تقرير منح {degree} المفتوحة والقريبة للطلاب من {profile.get('country_of_origin', '')}.\n"
         f"يرجى فتح الإيميل في متصفح يدعم HTML للاطلاع على الجدول المنظم، أو فتح ملف CSV المرفق."
     )
 

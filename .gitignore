@@ -12,3 +12,4 @@ ENV/
 .idea/
 .vscode/
 *.log
+*.csv
