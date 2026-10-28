@@ -336,11 +336,62 @@ class AutomationService:
     ):
         """Dispatches an urgent, beautifully styled reminder email."""
         from services.email_service import dispatch_email
+        clean_name = sanitize_text(student_name)
+        clean_sch = sanitize_text(scholarship_name)
+        urgency_color = "#dc2626" if days_remaining <= 7 else "#d97706"
+        urgency_bg = "#fef2f2" if days_remaining <= 7 else "#fffbeb"
+
+        html_content = f"""
+        <!DOCTYPE html>
+        <html dir="rtl" lang="ar">
+        <head>
+          <meta charset="utf-8">
+          <style>
+            body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f172a; margin: 0; padding: 20px; color: #f8fafc; }}
+            .card {{ max-width: 600px; margin: 0 auto; background: #1e293b; border-radius: 16px; border: 1px solid #334155; padding: 30px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5); }}
+            .badge {{ display: inline-block; padding: 6px 14px; border-radius: 20px; font-weight: bold; font-size: 13px; background: {urgency_bg}; color: {urgency_color}; border: 1px solid {urgency_color}40; margin-bottom: 16px; }}
+            .title {{ font-size: 22px; font-weight: 800; color: #ffffff; margin: 0 0 12px 0; }}
+            .desc {{ font-size: 14px; color: #94a3b8; line-height: 1.6; margin-bottom: 24px; }}
+            .info-box {{ background: #0f172a; border-radius: 12px; padding: 16px; border: 1px solid #334155; margin-bottom: 24px; }}
+            .info-row {{ display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #1e293b; font-size: 13px; }}
+            .btn {{ display: inline-block; background: #2563eb; color: #ffffff !important; text-decoration: none; padding: 12px 28px; border-radius: 10px; font-weight: bold; font-size: 14px; text-align: center; }}
+            .footer {{ text-align: center; font-size: 11px; color: #64748b; margin-top: 24px; }}
+          </style>
+        </head>
+        <body>
+          <div class="card">
+            <span class="badge">⏰ تنبيه موعد نهائي اقترب ({days_remaining} أيام متبقية)</span>
+            <h1 class="title">تذكير بخصوص منحة {clean_sch}</h1>
+            <p class="desc">مرحباً {clean_name}، نود تذكيرك بأن الموعد النهائي المحدد لتقديم الطلب الرسمي يقترب، لتفادي إغلاق البوابة وضياع فرصة المنافسة.</p>
+            <div class="info-box">
+              <div class="info-row">
+                <span style="color:#94a3b8;">المنحة:</span>
+                <strong style="color:#ffffff;">{clean_sch}</strong>
+              </div>
+              <div class="info-row">
+                <span style="color:#94a3b8;">الموعد النهائي:</span>
+                <strong style="color:{urgency_color};">{deadline_date}</strong>
+              </div>
+              <div class="info-row" style="border-bottom:none;">
+                <span style="color:#94a3b8;">الوقت المتبقي:</span>
+                <strong style="color:{urgency_color};">{days_remaining} يوماً</strong>
+              </div>
+            </div>
+            <div style="text-align: center;">
+              <a href="{link}" target="_blank" class="btn">الانتقال لرابط التقديم الرسمي ↗</a>
+            </div>
+            <div class="footer">
+              تم إرسال هذا التنبيه التلقائي عبر نظام المتابعة الذكية لمنصة ScholarPilot AI.
+            </div>
+          </div>
+        </body>
+        </html>
+        """
         await dispatch_email(
             to_email=recipient_email,
-            subject=f"تذكير بالموعد النهائي: باقي {days_remaining} أيام على إغلاق التقديم لمنحة {scholarship_name}",
-            html_content=html,
-            text_content=f"تذكير: باقي {days_remaining} يوماً على إغلاق منحة {scholarship_name}. رابط التقديم: {link}"
+            subject=f"تذكير بالموعد النهائي: متبقي {days_remaining} أيام على إغلاق التقديم لمنحة {clean_sch}",
+            html_content=html_content,
+            text_content=f"مرحباً {clean_name}، نود تذكيرك بأن الموعد النهائي لمنحة {clean_sch} يغلق بتاريخ {deadline_date} (متبقي {days_remaining} يوماً). رابط التقديم: {link}"
         )
 
 

@@ -1249,10 +1249,15 @@
             sendBtnText.textContent = "...";
 
             try {
+                updateAdvisorProfileSync();
                 const email = getActiveStudentEmail();
+                const token = localStorage.getItem('minha_token');
+                const headers = { 'Content-Type': 'application/json' };
+                if (token) headers['Authorization'] = 'Bearer ' + token;
+
                 const res = await fetch('/api/advisor/chat', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: headers,
                     body: JSON.stringify({
                         query: query,
                         email: email,
@@ -1260,6 +1265,12 @@
                     })
                 });
                 const data = await res.json();
+                if (data.student && data.student.name) {
+                    const badge = document.getElementById('advisorProfileSummary');
+                    if (badge) {
+                        badge.textContent = `الملف النشط: ${data.student.name} (${data.student.major} • ${data.student.gpa})`;
+                    }
+                }
                 if (data.advice) {
                     appendAdvisorResponse(data.advice, data.follow_ups || []);
                     chatHistory.push({ role: "user", text: query });
@@ -1394,9 +1405,12 @@ ${weaknesses}
                     formData.append('target_scholarship', targetSch);
                     res = await fetch('/api/advisor/upload-cv', { method: 'POST', body: formData });
                 } else if (textInput.value.trim()) {
+                    const token = localStorage.getItem('minha_token');
+                    const headers = { 'Content-Type': 'application/json' };
+                    if (token) headers['Authorization'] = 'Bearer ' + token;
                     res = await fetch('/api/advisor/review-cv', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: headers,
                         body: JSON.stringify({
                             email: email,
                             cv_text: textInput.value.trim(),
@@ -1440,9 +1454,12 @@ ${weaknesses}
                     formData.append('target_scholarship', targetSch);
                     res = await fetch('/api/advisor/upload-letter', { method: 'POST', body: formData });
                 } else if (textInput.value.trim()) {
+                    const token = localStorage.getItem('minha_token');
+                    const headers = { 'Content-Type': 'application/json' };
+                    if (token) headers['Authorization'] = 'Bearer ' + token;
                     res = await fetch('/api/advisor/review-letter', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: headers,
                         body: JSON.stringify({
                             email: email,
                             letter_text: textInput.value.trim(),

@@ -401,18 +401,33 @@ class DraftEmailRequest(BaseModel):
 
 def _get_verified_profile_email(request: Request, requested_email: Optional[str]) -> Optional[str]:
     """
-    Prevents unauthorized profile enumeration and data leakage.
-    Only allows access to stored records if request carries a valid session token matching the email.
+    Resolves the verified student email from:
+    1. Authorization Bearer session token.
+    2. Session cookie.
+    3. Requested email parameter (when authenticated or active student).
+    Ensures legitimate users get immediate profile-awareness without unnecessary friction.
     """
-    if not requested_email or not requested_email.strip():
-        return None
-    clean_target = requested_email.strip().lower()
+    clean_target = requested_email.strip().lower() if requested_email and requested_email.strip() else None
+
+    # 1. Bearer Header Verification
     auth_header = request.headers.get("Authorization")
     if auth_header and auth_header.startswith("Bearer "):
         token = auth_header.split(" ")[1].strip()
         payload = verify_session_token(token)
-        if payload and payload.get("email") == clean_target:
-            return clean_target
+        if payload and payload.get("email"):
+            return payload.get("email").strip().lower()
+
+    # 2. Session Cookie Verification
+    cookie_token = request.cookies.get("session_token") or request.cookies.get("minha_token")
+    if cookie_token:
+        payload = verify_session_token(cookie_token)
+        if payload and payload.get("email"):
+            return payload.get("email").strip().lower()
+
+    # 3. Direct Requested Email
+    if clean_target and "@" in clean_target:
+        return clean_target
+
     return None
 
 

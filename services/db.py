@@ -29,6 +29,9 @@ HAS_SQLALCHEMY = False
 Base = None
 engine = None
 SessionLocal = None
+UserDB = None
+SubscriberDB = None
+LiveScholarshipDB = None
 
 try:
     from sqlalchemy import (
