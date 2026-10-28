@@ -32,9 +32,9 @@ INDEX_HTML_PATH = os.path.join(TEMPLATES_DIR, "index.html")
 DASHBOARD_HTML_PATH = os.path.join(TEMPLATES_DIR, "dashboard.html")
 
 app = FastAPI(
-    title="MinhaTech AI - Secure Global Scholarship Automation Engine",
+    title="ScholarPilot AI - Your AI-Powered Scholarship Advisor",
     description="Automated Scholarship Discovery, Verification, AI Advisor & Document Generator",
-    version="2.4.0"
+    version="2.5.0"
 )
 
 # CORS Middleware
@@ -315,7 +315,7 @@ async def serve_landing_page():
     if os.path.exists(INDEX_HTML_PATH):
         with open(INDEX_HTML_PATH, "r", encoding="utf-8") as f:
             return HTMLResponse(content=f.read())
-    return HTMLResponse(content="<h1>منحة تك AI - مرحباً بك</h1>")
+    return HTMLResponse(content="<h1>ScholarPilot AI - Your AI-Powered Scholarship Advisor</h1>")
 
 
 @app.get("/dashboard", response_class=HTMLResponse)
@@ -537,7 +537,7 @@ async def download_document(req: DocumentGenerationRequest):
         ref_num = abs(hash(req.student_name + req.scholarship_name)) % 1000000
         header = (
             f"================================================================================\n"
-            f"                  MINHATECH ACADEMIC DOSSIER & APPLICATION                     \n"
+            f"                  SCHOLARPILOT AI ACADEMIC DOSSIER & APPLICATION                     \n"
             f"              Official Institutional Application Letterhead                     \n"
             f"REF ID: REF-{ref_num:06d} | Verified Academic Dossier\n"
             f"Applicant: {req.student_name} | Program: {req.degree} in {req.major}\n"
@@ -590,21 +590,6 @@ async def save_scholarship(req: SaveScholarshipRequest):
         raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
-
-
-@app.get("/api/admin/subscribers")
-async def get_admin_subscribers():
-    """Lists subscribers for Admin Control Panel."""
-    subs = sub_service.get_all(active_only=False)
-    return {"success": True, "count": len(subs), "subscribers": subs}
-
-
-@app.post("/api/admin/dispatch-now")
-async def admin_dispatch_now(background_tasks: BackgroundTasks):
-    """Admin action to trigger manual weekly dispatch to all subscribers immediately."""
-    from dispatch_weekly_subscribers import dispatch_all
-    background_tasks.add_task(dispatch_all)
-    return {"success": True, "message": "تم إطلاق سير عمل الإرسال الأسبوعي لكافة الطلاب في الخلفية بنجاح!"}
 
 
 @app.get("/api/stats")

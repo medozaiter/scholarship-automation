@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم وبوابة الحسابات | منحة تك AI 🎓</title>
+    <title>ScholarPilot AI | لوحة التحكم وبوابة الحسابات 🎓</title>
 
     <!-- Tailwind CSS with Dark Mode -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -115,10 +115,10 @@
                         <i data-lucide="graduation-cap" class="w-5 h-5 text-white"></i>
                     </div>
                     <div>
-                        <span class="text-lg font-black block leading-none">منحة تك AI</span>
+                        <span class="text-lg font-black block leading-none">ScholarPilot AI</span>
                         <span class="text-[10px] text-emerald-500 font-bold flex items-center gap-1 mt-1">
-                            <i data-lucide="shield-check" class="w-3 h-3"></i>
-                            <span>بوابة الحسابات والأوتوميشن</span>
+                            <i data-lucide="sparkles" class="w-3 h-3"></i>
+                            <span>Your AI-Powered Scholarship Advisor</span>
                         </span>
                     </div>
                 </a>
@@ -174,11 +174,8 @@
                             class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-blue-500">
                     </div>
                     <button type="submit" id="loginSubmitBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl text-sm transition shadow-lg shadow-blue-600/25">
-                        🚀 دخول إلى لوحة التحكم
+                        🚀 دخول إلى حسابي
                     </button>
-                    <div class="text-[11px] text-slate-400 text-center pt-2">
-                        💡 حساب الإدارة: <code>medo.msz.2006@gmail.com</code> / <code>admin123</code>
-                    </div>
                 </form>
 
                 <!-- REGISTER FORM -->
@@ -309,43 +306,6 @@
                 </div>
 
                 <div id="savedScholarshipsList" class="space-y-3 pt-2"></div>
-            </div>
-
-            <!-- ADMIN PANEL -->
-            <div id="adminPanel" class="hidden card-theme rounded-3xl p-6 sm:p-8 border-2 border-indigo-500/40 shadow-2xl space-y-6">
-                
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-indigo-500/20 pb-4">
-                    <div>
-                        <span class="bg-indigo-600 text-white text-[11px] font-bold px-3 py-1 rounded-full">🛡️ لوحة الإدارة العامة (Admin Control Panel)</span>
-                        <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mt-2">إدارة المشتركين والإرسال الجماعي</h2>
-                        <p class="text-xs text-slate-400">خاص بمدير النظام للتحكم بكافة الاشتراكات وإطلاق سير العمل يدوياً.</p>
-                    </div>
-
-                    <button type="button" id="adminDispatchBtn" onclick="triggerAdminDispatch()" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black px-6 py-3 rounded-xl text-xs sm:text-sm shadow-xl shadow-emerald-600/20 transition flex items-center gap-2">
-                        <span id="dispatchBtnText">🚀 إطلاق الإرسال الأسبوعي للجميع الآن (Dispatch All)</span>
-                        <div id="dispatchSpinner" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    </button>
-                </div>
-
-                <div id="dispatchResultNotice" class="hidden p-4 rounded-xl text-xs font-bold"></div>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-right text-xs">
-                        <thead class="sub-card-theme text-slate-700 dark:text-slate-300 font-bold border-b border-slate-200 dark:border-slate-800">
-                            <tr>
-                                <th class="p-3">الطالب</th>
-                                <th class="p-3">البريد الإلكتروني</th>
-                                <th class="p-3">المرحلة</th>
-                                <th class="p-3">المعدل</th>
-                                <th class="p-3">التخصصات</th>
-                                <th class="p-3">الدولة</th>
-                                <th class="p-3">الحالة</th>
-                            </tr>
-                        </thead>
-                        <tbody id="subscribersTableBody" class="divide-y divide-slate-200/60 dark:divide-slate-800/60"></tbody>
-                    </table>
-                </div>
-
             </div>
 
         </div>
@@ -520,74 +480,7 @@
                 `).join('');
             }
 
-            const isAdmin = user.role === 'admin' || user.email === 'medo.msz.2006@gmail.com';
-            const adminPanel = document.getElementById('adminPanel');
-            if (isAdmin) {
-                adminPanel.classList.remove('hidden');
-                document.getElementById('roleBadge').textContent = "👑 مدير النظام (Administrator)";
-                document.getElementById('roleBadge').className = "bg-purple-600 text-white text-xs font-bold px-3 py-1 rounded-full mb-2 inline-block";
-                loadAdminSubscribers();
-            } else {
-                adminPanel.classList.add('hidden');
-            }
             if (window.lucide) lucide.createIcons();
-        }
-
-        async function loadAdminSubscribers() {
-            try {
-                const res = await fetch('/api/admin/subscribers');
-                const data = await res.json();
-                if (data.success && data.subscribers) {
-                    const tbody = document.getElementById('subscribersTableBody');
-                    tbody.innerHTML = data.subscribers.map(sub => `
-                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-900/40">
-                            <td class="p-3 font-bold text-slate-900 dark:text-white">${escapeHTML(sub.full_name || 'طالب')}</td>
-                            <td class="p-3 text-blue-500 font-mono">${escapeHTML(sub.email)}</td>
-                            <td class="p-3">${escapeHTML(sub.degree)}</td>
-                            <td class="p-3 font-bold text-emerald-500">${escapeHTML(sub.gpa || '85%')}</td>
-                            <td class="p-3">${escapeHTML((sub.majors || []).join('، '))}</td>
-                            <td class="p-3">${escapeHTML(sub.country || 'Palestine')}</td>
-                            <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/15 text-emerald-500">نشط</span></td>
-                        </tr>
-                    `).join('');
-                }
-            } catch(e) {
-                console.error("Could not load subscribers:", e);
-            }
-        }
-
-        async function triggerAdminDispatch() {
-            if (!confirm("هل أنت متأكد من رغبتك بإطلاق سير عمل الإرسال الأسبوعي لكافة الطلاب المسجلين الآن؟")) return;
-
-            const btn = document.getElementById('adminDispatchBtn');
-            const btnText = document.getElementById('dispatchBtnText');
-            const spinner = document.getElementById('dispatchSpinner');
-            const notice = document.getElementById('dispatchResultNotice');
-
-            btn.disabled = true;
-            btnText.textContent = "جارٍ إرسال التقارير لجميع الطلاب الآن...";
-            spinner.classList.remove('hidden');
-            notice.classList.add('hidden');
-
-            try {
-                const res = await fetch('/api/admin/dispatch-now', { method: 'POST' });
-                const data = await res.json();
-                if (data.success) {
-                    notice.className = "p-4 rounded-xl text-xs font-bold bg-emerald-500/15 text-emerald-500 border border-emerald-500/30 block";
-                    notice.textContent = "🎉 " + data.message;
-                    confetti({ particleCount: 100, spread: 70 });
-                } else {
-                    notice.className = "p-4 rounded-xl text-xs font-bold bg-rose-500/15 text-rose-500 border border-rose-500/30 block";
-                    notice.textContent = "❌ " + data.message;
-                }
-            } catch(err) {
-                notice.className = "p-4 rounded-xl text-xs font-bold bg-rose-500/15 text-rose-500 block";
-                notice.textContent = "خطأ: " + err.message;
-            } finally {
-                btn.disabled = false;
-                btnText.textContent = "🚀 إطلاق الإرسال الأسبوعي للجميع الآن (Dispatch All)";
-                spinner.classList.add('hidden');
-            }
         }
 
         async function triggerMyReport() {

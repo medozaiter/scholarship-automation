@@ -28,8 +28,8 @@ def _ensure_users_file():
         default_users = [
             {
                 "email": "medo.msz.2006@gmail.com",
-                "full_name": "Mustafa AbuZaiter (Admin)",
-                "role": "admin",
+                "full_name": "Mustafa AbuZaiter",
+                "role": "student",
                 "salt": salt,
                 "password_hash": hashed_pw,
                 "degree": "Undergraduate (Bachelor's)",
@@ -96,12 +96,10 @@ class AuthService:
         salt = secrets.token_hex(8)
         hashed_pw = hashlib.sha256((salt + password_clean).encode("utf-8")).hexdigest()
 
-        role = "admin" if email_clean == "medo.msz.2006@gmail.com" else "student"
-
         new_user = {
             "email": email_clean,
             "full_name": name_clean,
-            "role": role,
+            "role": "student",
             "salt": salt,
             "password_hash": hashed_pw,
             "degree": sanitized_degree,

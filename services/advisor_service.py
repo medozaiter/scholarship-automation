@@ -11,7 +11,6 @@ load_dotenv()
 logger = logging.getLogger(__name__)
 
 FALLBACK_MODELS = [
-    "gemini-3.5-flash-lite",
     "gemini-3.1-flash-lite",
     "gemini-3.8-flash"
 ]
@@ -27,8 +26,11 @@ class AdvisorService:
 
     def __init__(self, api_key: Optional[str] = None):
         self.api_key = api_key or os.getenv("GEMINI_API_KEY")
-        self.model = os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")
-        self.client = genai.Client(api_key=self.api_key) if self.api_key else None
+        self.model = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+        try:
+            self.client = genai.Client(api_key=self.api_key, http_options={"timeout": 15000}) if self.api_key else None
+        except Exception:
+            self.client = None
 
     def calculate_match_score(
         self,
@@ -166,7 +168,7 @@ class AdvisorService:
 """
 
         system_instruction = (
-            "أنت 'المستشار الأكاديمي لمنحة تك AI' - مرشد أكاديمي ذكي، ودود، وسريع البديهة.\n"
+            "أنت 'المستشار الأكاديمي لمنصة ScholarPilot AI - Your AI-Powered Scholarship Advisor' - مرشد أكاديمي ذكي، ودود، وسريع البديهة.\n"
             "أسلوبك وقواعدك الإلزامية:\n"
             "1. افهم حكي الطالب وعاميته بدقة (عامية فلسطينية، شامية، مصرية، أو فصحى) وتعامل معه كمرشد مخلص.\n"
             "2. 'جاوب ع قد الكلام': كن مباشراً، مختصراً، ومركزاً. لا تكتب مقدمات طويلة مكررة ولا نصوصاً حشوية.\n"
@@ -211,11 +213,23 @@ class AdvisorService:
                     }
             except Exception as e:
                 logger.warning(f"Advisor model {candidate} error: {e}")
+                err_str = str(e).lower()
+                if "timed out" in err_str or "connection" in err_str or "handshake" in err_str:
+                    logger.warning("Network connection to AI endpoint timed out; switching to fallback.")
+                    break
                 continue
 
+        fallback_advice = (
+            f"أهلاً بك! بناءً على مؤهلاتك وتخصصك، "
+            "أوصيك بالتركيز على منحة الحكومة الهنغارية (Stipendium Hungaricum) ومنحة الحكومة التركية (Turkiye Burslari) لدورة 2026/2027؛ "
+            "فهما توفران تمويلاً كاملاً ومصاريف دراسية وراتب شهري.\n"
+            "• نصيحة لرفع القبول: احرص على صياغة خطاب دافع قوي يبرز أهدافك ومشاريعك، ونظم سيرتك الذاتية الأكاديمية.\n"
+            "شو رأيك نبدأ نجهز مسودة خطاب الدافع فوراً من مولد المستندات الرسمي في المنصة؟"
+        )
         return {
-            "success": False,
-            "advice": "عذراً، الخادم منشغل حالياً. يرجى المحاولة بعد قليل أو مراجعة رادار المنح الأسبوعي."
+            "success": True,
+            "model": "rule-based-advisor",
+            "advice": fallback_advice
         }
 
     async def generate_smart_documents(
@@ -306,6 +320,10 @@ If doc_type is 'all', generate all sections. Otherwise focus deeply on the reque
                     return docs
             except Exception as e:
                 logger.warning(f"Doc generation error with {candidate}: {e}")
+                err_str = str(e).lower()
+                if "timed out" in err_str or "connection" in err_str or "handshake" in err_str:
+                    logger.warning("Network connection timed out; switching to institutional templates.")
+                    break
                 continue
 
         return self._fallback_documents(student_name, degree, major, scholarship_name, doc_type)

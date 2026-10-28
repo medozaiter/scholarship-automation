@@ -103,7 +103,7 @@ def test_document_download_with_letterhead():
     })
     assert resp.status_code == 200
     text = resp.text
-    assert "MINHATECH ACADEMIC DOSSIER" in text
+    assert "SCHOLARPILOT AI ACADEMIC DOSSIER" in text
     assert "REF ID:" in text
     assert "Mustafa AbuZaiter" in text
     print(" -> PASSED: Downloadable document with official institutional letterhead generated successfully.")

@@ -346,7 +346,7 @@ class AutomationService:
         gmail_password = gmail_password.replace(" ", "").strip()
         msg = EmailMessage()
         msg["Subject"] = f"⏰ تذكير موعد نهائي: باقي {days_remaining} أيام على إغلاق منحة {scholarship_name}!"
-        msg["From"] = f"منحة تك AI <{sender_email}>"
+        msg["From"] = f"ScholarPilot AI <{sender_email}>"
         msg["To"] = recipient_email
 
         html = f"""
@@ -365,7 +365,7 @@ class AutomationService:
                     </a>
                 </div>
             </div>
-            <p style="font-size: 11px; color: #64748b; text-align: center;">منحة تك AI | نظام التتبع والتذكير الآلي الذكي</p>
+            <p style="font-size: 11px; color: #64748b; text-align: center;">ScholarPilot AI | Your AI-Powered Scholarship Advisor</p>
         </div>
         """
         msg.set_content(f"تذكير: باقي {days_remaining} يوماً على إغلاق منحة {scholarship_name}. رابط التقديم: {link}")

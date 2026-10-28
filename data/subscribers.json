@@ -61,6 +61,70 @@
     "talents_experience": "Participated in NASA Space Apps, active volunteer",
     "saved_scholarships": [],
     "created_at": "2026-10-28T20:44:21.003146",
+    "last_sent_at": "2026-10-28T20:52:06.036499",
+    "status": "active"
+  },
+  {
+    "email": "oa.zaiter@alaqsa.edu.ps",
+    "full_name": "Mustaf S. M. Abuzaiter",
+    "degree": "Undergraduate (Bachelor&#x27;s)",
+    "majors": [
+      "Cybersecurity",
+      "Software Engineering",
+      "Artificial Intelligence",
+      "Computer Science &amp; IT",
+      "Civil &amp; Electrical Engineering"
+    ],
+    "gpa": "90%",
+    "english_level": "Intermediate",
+    "target_destinations": [
+      "Any"
+    ],
+    "country": "International",
+    "talents_experience": "",
+    "saved_scholarships": [],
+    "created_at": "2026-10-28T20:45:27.911647",
+    "last_sent_at": "2026-10-28T20:46:49.446499",
+    "status": "active",
+    "updated_at": "2026-10-28T20:46:23.923029"
+  },
+  {
+    "email": "student_1793214933@example.com",
+    "full_name": "Ahmad Test",
+    "degree": "Undergraduate (Bachelor&#x27;s)",
+    "majors": [
+      "Artificial Intelligence",
+      "Computer Science"
+    ],
+    "gpa": "91%",
+    "english_level": "Intermediate",
+    "target_destinations": [
+      "Any"
+    ],
+    "country": "Palestine",
+    "talents_experience": "Participated in NASA Space Apps, active volunteer",
+    "saved_scholarships": [],
+    "created_at": "2026-10-28T21:15:33.724717",
+    "last_sent_at": "2026-10-28T21:16:31.542187",
+    "status": "active"
+  },
+  {
+    "email": "student_1793215027@example.com",
+    "full_name": "Ahmad Test",
+    "degree": "Undergraduate (Bachelor&#x27;s)",
+    "majors": [
+      "Artificial Intelligence",
+      "Computer Science"
+    ],
+    "gpa": "91%",
+    "english_level": "Intermediate",
+    "target_destinations": [
+      "Any"
+    ],
+    "country": "Palestine",
+    "talents_experience": "Participated in NASA Space Apps, active volunteer",
+    "saved_scholarships": [],
+    "created_at": "2026-10-28T21:17:07.117163",
     "last_sent_at": null,
     "status": "active"
   }

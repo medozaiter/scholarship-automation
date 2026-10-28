@@ -1,8 +1,8 @@
 [
   {
     "email": "medo.msz.2006@gmail.com",
-    "full_name": "Mustafa AbuZaiter (Admin)",
-    "role": "admin",
+    "full_name": "Mustafa AbuZaiter",
+    "role": "student",
     "salt": "3f2fa5bda9350bb4",
     "password_hash": "f9807cf81ada314659a5e7f5cbb858b73166a68969235c9e3549be7e28f8011f",
     "degree": "Undergraduate (Bachelor's)",
