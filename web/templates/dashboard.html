@@ -25,35 +25,62 @@
         }
     </script>
 
-    <!-- Google Fonts: Cairo -->
+    <!-- Google Fonts: Cairo, Tajawal, Inter & Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Lucide Outlined Modern Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
     <style>
-        body { font-family: 'Cairo', sans-serif; transition: background-color 0.3s ease, color 0.3s ease; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Tajawal', 'Cairo', 'Inter', sans-serif; transition: background-color 0.3s ease, color 0.3s ease; }
+        .font-num { font-family: 'Inter', 'Plus Jakarta Sans', sans-serif; }
+
+        /* Calm Deep Navy & Dark Slate */
         .ambient-dark {
-            background-color: #080c16;
+            background-color: #090d16;
             background-image: 
-                radial-gradient(at 15% 15%, rgba(37, 99, 235, 0.15) 0px, transparent 50%),
-                radial-gradient(at 85% 20%, rgba(99, 102, 241, 0.12) 0px, transparent 50%);
+                radial-gradient(at 15% 15%, rgba(30, 58, 138, 0.22) 0px, transparent 55%),
+                radial-gradient(at 85% 20%, rgba(16, 185, 129, 0.12) 0px, transparent 50%);
         }
         .ambient-light {
             background-color: #f8fafc;
             background-image: 
-                radial-gradient(at 10% 10%, rgba(219, 234, 254, 0.7) 0px, transparent 50%),
-                radial-gradient(at 90% 15%, rgba(224, 231, 255, 0.6) 0px, transparent 50%);
+                radial-gradient(at 10% 10%, rgba(219, 234, 254, 0.75) 0px, transparent 55%),
+                radial-gradient(at 90% 15%, rgba(209, 250, 229, 0.5) 0px, transparent 50%);
         }
         .glass-card-dark {
-            background: rgba(15, 23, 42, 0.75);
+            background: rgba(15, 23, 42, 0.8);
             backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            box-shadow: 0 20px 45px -15px rgba(0, 0, 0, 0.55);
         }
         .glass-card-light {
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.92);
             backdrop-filter: blur(20px);
-            border: 1px solid rgba(226, 232, 240, 0.9);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(226, 232, 240, 0.85);
+            box-shadow: 0 20px 45px -15px rgba(148, 163, 184, 0.22);
+        }
+
+        .icon-hover {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), stroke 0.2s ease;
+        }
+        .btn-interactive:hover .icon-hover {
+            transform: scale(1.15) rotate(-3deg);
+        }
+        .interactive-card {
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .interactive-card:hover {
+            transform: translateY(-3px);
         }
     </style>
 
@@ -68,34 +95,39 @@
 <body class="ambient-dark dark:ambient-dark text-slate-800 dark:text-slate-100 min-h-screen">
 
     <!-- NAVBAR -->
-    <header class="sticky top-0 z-50 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-800/80 bg-white/70 dark:bg-slate-950/60">
+    <header class="sticky top-0 z-50 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-800/80 bg-white/80 dark:bg-slate-950/75">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex justify-between items-center">
             
             <div class="flex items-center gap-3">
-                <a href="/" class="flex items-center gap-2 text-slate-900 dark:text-white hover:opacity-90">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-xl text-white shadow-md">
-                        🎓
+                <a href="/" class="flex items-center gap-2.5 text-slate-900 dark:text-white hover:opacity-90 transition">
+                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-700 via-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-600/30 border border-blue-400/20 icon-hover">
+                        <i data-lucide="graduation-cap" class="w-5 h-5 text-white"></i>
                     </div>
                     <div>
-                        <span class="text-lg font-black block">منحة تك AI</span>
-                        <span class="text-[10px] text-blue-500 font-bold">بوابة الحسابات والإدارة</span>
+                        <span class="text-lg font-black block leading-none">منحة تك AI</span>
+                        <span class="text-[10px] text-emerald-500 font-bold flex items-center gap-1 mt-1">
+                            <i data-lucide="shield-check" class="w-3 h-3"></i>
+                            <span>بوابة الحسابات وإدارة المنح</span>
+                        </span>
                     </div>
                 </a>
             </div>
 
-            <div class="flex items-center gap-3">
-                <a href="/" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 transition flex items-center gap-1.5">
-                    <span>🏠</span> <span>الرئيسية</span>
+            <div class="flex items-center gap-2.5">
+                <a href="/" class="btn-interactive px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 transition flex items-center gap-1.5">
+                    <span class="icon-hover"><i data-lucide="home" class="w-3.5 h-3.5 text-blue-500"></i></span>
+                    <span>الرئيسية</span>
                 </a>
 
-                <button type="button" onclick="toggleTheme()" class="p-2 sm:px-3 sm:py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700 transition text-xs font-bold flex items-center gap-1.5">
-                    <span id="themeIcon">🌙</span>
+                <button type="button" onclick="toggleTheme()" class="btn-interactive p-2 sm:px-3 sm:py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700 transition text-xs font-bold flex items-center gap-1.5">
+                    <span id="themeIcon" class="icon-hover"><i data-lucide="moon" class="w-3.5 h-3.5 text-amber-400"></i></span>
                     <span class="hidden sm:inline" id="themeText">الوضع الليلي</span>
                 </button>
 
                 <div id="userNavActions" class="hidden">
-                    <button type="button" onclick="logoutUser()" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 transition">
-                        تسجيل الخروج 🚪
+                    <button type="button" onclick="logoutUser()" class="btn-interactive px-3 py-2 rounded-xl text-xs font-bold bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 transition flex items-center gap-1.5">
+                        <span class="icon-hover"><i data-lucide="log-out" class="w-3.5 h-3.5"></i></span>
+                        <span>تسجيل الخروج</span>
                     </button>
                 </div>
             </div>
@@ -200,32 +232,46 @@
                 </div>
 
                 <div class="flex flex-wrap gap-2.5">
-                    <button type="button" onclick="triggerMyReport()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-blue-600/20">
-                        <span>📧</span> <span>إرسال تقريري المخصص لإيميلي الآن</span>
+                    <button type="button" onclick="triggerMyReport()" class="btn-interactive bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-blue-600/20">
+                        <span class="icon-hover"><i data-lucide="mail-check" class="w-4 h-4 text-emerald-300"></i></span>
+                        <span>إرسال تقريري المخصص لإيميلي الآن</span>
                     </button>
-                    <a href="/#docSection" class="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-purple-600/20">
-                        <span>✍️</span> <span>توليد خطاب دافع</span>
+                    <a href="/#docSection" class="btn-interactive bg-purple-600 hover:bg-purple-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-purple-600/20">
+                        <span class="icon-hover"><i data-lucide="file-pen" class="w-4 h-4 text-purple-200"></i></span>
+                        <span>توليد خطاب دافع</span>
                     </a>
                 </div>
             </div>
 
-            <!-- Profile & Match Stats Grid -->
+            <!-- Profile & Match Stats Grid with Outlined Icons -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="glass-card-light dark:glass-card-dark p-5 rounded-2xl border border-slate-200 dark:border-slate-800">
-                    <span class="text-xs text-slate-400 font-bold block mb-1">المرحلة الدراسية</span>
+                <div class="interactive-card glass-card-light dark:glass-card-dark p-5 rounded-2xl border border-slate-200 dark:border-slate-800">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs text-slate-400 font-bold block">المرحلة الدراسية</span>
+                        <i data-lucide="graduation-cap" class="w-4 h-4 text-blue-500"></i>
+                    </div>
                     <span id="statDegree" class="text-base font-extrabold text-slate-900 dark:text-white block">-</span>
                 </div>
-                <div class="glass-card-light dark:glass-card-dark p-5 rounded-2xl border border-slate-200 dark:border-slate-800">
-                    <span class="text-xs text-slate-400 font-bold block mb-1">المعدل الأكاديمي</span>
-                    <span id="statGpa" class="text-base font-extrabold text-emerald-500 block">-</span>
+                <div class="interactive-card glass-card-light dark:glass-card-dark p-5 rounded-2xl border border-slate-200 dark:border-slate-800">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs text-slate-400 font-bold block">المعدل الأكاديمي</span>
+                        <i data-lucide="award" class="w-4 h-4 text-emerald-500"></i>
+                    </div>
+                    <span id="statGpa" class="text-base font-extrabold text-emerald-500 font-num block">-</span>
                 </div>
-                <div class="glass-card-light dark:glass-card-dark p-5 rounded-2xl border border-slate-200 dark:border-slate-800">
-                    <span class="text-xs text-slate-400 font-bold block mb-1">مستوى اللغة المسجل</span>
+                <div class="interactive-card glass-card-light dark:glass-card-dark p-5 rounded-2xl border border-slate-200 dark:border-slate-800">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs text-slate-400 font-bold block">مستوى اللغة المسجل</span>
+                        <i data-lucide="languages" class="w-4 h-4 text-indigo-500"></i>
+                    </div>
                     <span id="statEnglish" class="text-base font-extrabold text-blue-500 block">-</span>
                 </div>
-                <div class="glass-card-light dark:glass-card-dark p-5 rounded-2xl border border-slate-200 dark:border-slate-800">
-                    <span class="text-xs text-slate-400 font-bold block mb-1">المنح المحفوظة للمتابعة</span>
-                    <span id="statSavedCount" class="text-base font-extrabold text-purple-500 block">0 منح</span>
+                <div class="interactive-card glass-card-light dark:glass-card-dark p-5 rounded-2xl border border-slate-200 dark:border-slate-800">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs text-slate-400 font-bold block">المنح المحفوظة للمتابعة</span>
+                        <i data-lucide="bookmark" class="w-4 h-4 text-purple-500"></i>
+                    </div>
+                    <span id="statSavedCount" class="text-base font-extrabold text-purple-500 font-num block">0 منح</span>
                 </div>
             </div>
 
@@ -234,9 +280,10 @@
                 <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
                     <div>
                         <h2 class="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
-                            <span>🔔</span> <span>قائمة متابعة المنح وتذكير المواعيد</span>
+                            <i data-lucide="bell" class="w-5 h-5 text-emerald-500"></i>
+                            <span>قائمة متابعة المنح وتذكير المواعيد</span>
                         </h2>
-                        <p class="text-xs text-slate-400">المنح التي قمت بحفظها لتلقي تذكيرات قبل الموعد النهائي بشهر، أسبوعين، أسبوع، ويومين.</p>
+                        <p class="text-xs text-slate-400 mt-0.5">المنح التي قمت بحفظها لتلقي تذكيرات قبل الموعد النهائي بشهر، أسبوعين، أسبوع، ويومين.</p>
                     </div>
                 </div>
 
@@ -313,8 +360,14 @@
             document.body.className = isDark 
                 ? 'ambient-dark dark:ambient-dark text-slate-100 min-h-screen'
                 : 'ambient-light text-slate-800 min-h-screen';
-            document.getElementById('themeIcon').textContent = isDark ? '🌙' : '☀️';
+            const themeIcon = document.getElementById('themeIcon');
+            if (themeIcon) {
+                themeIcon.innerHTML = isDark 
+                    ? '<i data-lucide="moon" class="w-3.5 h-3.5 text-amber-400"></i>' 
+                    : '<i data-lucide="sun" class="w-3.5 h-3.5 text-amber-500"></i>';
+            }
             document.getElementById('themeText').textContent = isDark ? 'الوضع الليلي' : 'الوضع النهاري';
+            if (window.lucide) lucide.createIcons();
         }
         updateThemeButton();
 
@@ -468,6 +521,7 @@
             } else {
                 adminPanel.classList.add('hidden');
             }
+            if (window.lucide) lucide.createIcons();
         }
 
         async function loadAdminSubscribers() {
@@ -559,6 +613,10 @@
             currentUser = null;
             location.reload();
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) lucide.createIcons();
+        });
     </script>
 </body>
 </html>
