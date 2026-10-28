@@ -19,6 +19,20 @@ logger = logging.getLogger("scholarpilot.email")
 
 RESEND_API_URL = "https://api.resend.com/emails"
 
+_last_dispatch_meta: Dict[str, Any] = {
+    "success": False,
+    "provider": None,
+    "recipient": None,
+    "error_detail": None,
+    "hint": None,
+    "raw_resend_error": None
+}
+
+
+def get_last_dispatch_meta() -> Dict[str, Any]:
+    """Returns the diagnostic metadata from the last email dispatch attempt."""
+    return dict(_last_dispatch_meta)
+
 
 async def dispatch_email(
     to_email: str,
@@ -31,10 +45,20 @@ async def dispatch_email(
     Dispatches an email through Resend (primary cloud provider) or Gmail SMTP (fallback).
     attachments format: [{"filename": "report.csv", "content_bytes": b"..."}]
     """
+    global _last_dispatch_meta
     resend_api_key = os.getenv("RESEND_API_KEY")
     sender_name_email = os.getenv("RESEND_FROM_EMAIL") or os.getenv("SENDER_EMAIL") or "ScholarPilot AI <onboarding@resend.dev>"
     clean_to = sanitize_email_header(to_email)
     clean_sub = sanitize_email_header(subject)
+
+    _last_dispatch_meta = {
+        "success": False,
+        "provider": None,
+        "recipient": clean_to,
+        "error_detail": None,
+        "hint": None,
+        "raw_resend_error": None
+    }
 
     # 1. Primary Cloud Provider: Resend HTTP REST API
     if resend_api_key and len(resend_api_key.strip()) > 5:
@@ -72,10 +96,13 @@ async def dispatch_email(
                 res = await client.post(RESEND_API_URL, headers=headers, json=payload)
                 if res.status_code in [200, 201]:
                     logger.info(f"✅ Delivered successfully to {clean_to} via Resend API (ID: {res.json().get('id')})")
+                    _last_dispatch_meta["success"] = True
+                    _last_dispatch_meta["provider"] = "Resend API"
                     return True
                 else:
                     err_text = res.text
                     logger.warning(f"Resend API returned HTTP {res.status_code}: {err_text}")
+                    _last_dispatch_meta["raw_resend_error"] = err_text
                     if "only send testing emails to your own email" in err_text:
                         logger.warning(
                             "Resend Free Tier Restriction: When using onboarding@resend.dev, "
@@ -83,8 +110,16 @@ async def dispatch_email(
                             "To send to any recipient, add Gmail SMTP credentials (SENDER_EMAIL & GMAIL_APP_PASSWORD) "
                             "or verify a custom domain in Resend."
                         )
+                        _last_dispatch_meta["error_detail"] = (
+                            "حساب Resend التجريبي الحالي (onboarding@resend.dev) مخصص للاختبار ويرسل فقط إلى البريد المالك للحساب المسجل به في Resend. "
+                            "لتفعيل إرسال التقارير لجميع إيميلات الطلاب والزوار، يرجى تفعيل مفتاح Gmail App Password في لوحة Render."
+                        )
+                        _last_dispatch_meta["hint"] = "resend_sandbox_restriction"
+                    else:
+                        _last_dispatch_meta["error_detail"] = f"مزود Resend رد بالخطأ ({res.status_code}): {err_text[:160]}"
         except Exception as e:
             logger.warning(f"Resend API dispatch error: {e}. Trying SMTP fallback...")
+            _last_dispatch_meta["error_detail"] = f"فشل اتصال Resend: {str(e)[:160]}"
 
     # 2. Secondary Provider: SMTP (Gmail / Custom)
     smtp_user = os.getenv("SENDER_EMAIL") or os.getenv("EMAIL_USER")
@@ -117,6 +152,9 @@ async def dispatch_email(
                 server.login(smtp_user, smtp_pass)
                 server.send_message(msg)
                 logger.info(f"✅ Delivered successfully to {clean_to} via SMTP TLS!")
+                _last_dispatch_meta["success"] = True
+                _last_dispatch_meta["provider"] = "Gmail SMTP"
+                _last_dispatch_meta["error_detail"] = None
                 return True
         except Exception as e:
             logger.error(f"SMTP TLS failed: {e}. Trying SSL port 465...")
@@ -125,17 +163,25 @@ async def dispatch_email(
                     server.login(smtp_user, smtp_pass)
                     server.send_message(msg)
                     logger.info(f"✅ Delivered successfully to {clean_to} via SMTP SSL!")
+                    _last_dispatch_meta["success"] = True
+                    _last_dispatch_meta["provider"] = "Gmail SMTP"
+                    _last_dispatch_meta["error_detail"] = None
                     return True
             except Exception as e2:
                 logger.error(f"SMTP SSL also failed: {e2}")
+                _last_dispatch_meta["error_detail"] = f"فشل إرسال SMTP: {str(e2)[:160]}"
 
     # 3. Fallback: If in production with RESEND_API_KEY configured and failed, report delivery failure
     if resend_api_key or os.getenv("RENDER"):
         logger.error(f"❌ Delivery to {clean_to} failed: Resend/SMTP could not deliver email.")
+        if not _last_dispatch_meta["error_detail"]:
+            _last_dispatch_meta["error_detail"] = "تعذر إرسال البريد عبر المزودين المتاحين."
         return False
 
     # 4. Local/Dev fallback logger
     logger.info(f"[DEV MOCK DISPATCH] Email to {clean_to} | Subject: '{clean_sub}' | (No RESEND_API_KEY or SMTP credentials configured).")
+    _last_dispatch_meta["success"] = True
+    _last_dispatch_meta["provider"] = "Dev Mock"
     return True
 
 

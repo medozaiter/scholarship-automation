@@ -15,7 +15,7 @@ from services.advisor_service import AdvisorService
 from services.auth_service import AuthService
 from services.automation_service import AutomationService, start_automation_daemon
 from services.db import init_db_and_migrate, is_db_available
-from services.email_service import get_email_provider_info
+from services.email_service import get_email_provider_info, dispatch_email, get_last_dispatch_meta
 from services.security_utils import (
     validate_email,
     validate_name,
@@ -566,6 +566,105 @@ async def subscribe_student(req: SubscriptionRequest, background_tasks: Backgrou
     except Exception as e:
         logger.error(f"Subscription error: {e}")
         raise HTTPException(status_code=400, detail="حدث خطأ في معالجة الطلب.")
+
+
+@app.post("/api/student/send-report")
+async def send_student_report_direct(req: SubscriptionRequest):
+    """
+    Direct synchronous endpoint for sending the weekly report to student's email.
+    Provides instant real-time delivery status and detailed diagnostic message if blocked.
+    """
+    clean_email = (req.email or "").strip().lower()
+    if not clean_email or "@" not in clean_email:
+        raise HTTPException(status_code=400, detail="البريد الإلكتروني غير صالح.")
+
+    allowed, wait_sec = security_rate_limiter.check_welcome_email_cooldown(clean_email)
+    if not allowed:
+        return {
+            "success": False,
+            "cooldown": True,
+            "wait_seconds": wait_sec,
+            "detail": f"يرجى الانتظار {wait_sec} ثانية قبل إعادة طلب التقرير منعاً للتكرار."
+        }
+
+    degree = req.degree or "Undergraduate (Bachelor's)"
+    majors = req.majors or ["Software Engineering"]
+    country = req.country or "Palestine"
+    full_name = req.full_name or "Student"
+
+    profile = {
+        "email": clean_email,
+        "full_name": full_name,
+        "degree": degree,
+        "majors": majors,
+        "gpa": req.gpa or "85%",
+        "country": country,
+        "talents_experience": req.talents_experience or ""
+    }
+
+    try:
+        ok = await engine.send_personalized_report(
+            recipient_email=clean_email,
+            student_name=full_name,
+            degree=degree,
+            majors=majors,
+            country=country,
+            student_profile=profile
+        )
+
+        meta = get_last_dispatch_meta()
+
+        if ok:
+            sub_service.update_last_sent(clean_email)
+            return {
+                "success": True,
+                "provider": meta.get("provider", "Resend"),
+                "detail": f"تم تسليم التقرير الأكاديمي بنجاح إلى: {clean_email}. تفقد صندوق الوارد أو مجلد الرسائل غير المرغوب فيها (Spam)."
+            }
+        else:
+            error_msg = meta.get("error_detail") or "تعذر تسليم البريد الإلكتروني. يرجى مراجعة إعدادات مزود البريد."
+            return {
+                "success": False,
+                "provider": meta.get("provider"),
+                "detail": error_msg,
+                "hint": meta.get("hint")
+            }
+    except Exception as e:
+        logger.error(f"Error executing synchronous send-report to {clean_email}: {e}")
+        return {
+            "success": False,
+            "detail": f"حدث خطأ أثناء إعداد التقرير: {str(e)[:150]}"
+        }
+
+
+@app.post("/api/email/test")
+async def test_email_dispatch(payload: Dict[str, str]):
+    """
+    Diagnostic tool to verify email delivery to any test recipient.
+    """
+    to_email = payload.get("email", "").strip()
+    if not to_email or "@" not in to_email:
+        raise HTTPException(status_code=400, detail="البريد الإلكتروني غير صالح.")
+    
+    test_html = """
+    <div style="font-family: Arial, sans-serif; direction: rtl; text-align: right; padding: 24px; background-color: #0f172a; color: #f8fafc; border-radius: 16px; border: 1px solid #334155;">
+        <h2 style="color: #38bdf8; margin-top: 0;">🚀 اختبار تسليم رسائل ScholarPilot AI</h2>
+        <p>مرحباً بك! هذه رسالة تحقق تؤكد أن محرك البريد متصل ويعمل بنجاح وقادر على الوصول إلى صندوق بريدك.</p>
+        <p style="font-size: 13px; color: #94a3b8;">إذا استلمت هذه الرسالة، فهذا يعني أن نظام الإشعارات والتذكيرات جاهز تماماً.</p>
+    </div>
+    """
+    ok = await dispatch_email(
+        to_email=to_email,
+        subject="ScholarPilot AI - رسالة تأكيد فحص البريد الإلكتروني",
+        html_content=test_html,
+        text_content="ScholarPilot AI - Test Email Verification."
+    )
+    meta = get_last_dispatch_meta()
+    return {
+        "success": ok,
+        "recipient": to_email,
+        "meta": meta
+    }
 
 
 @app.get("/api/scholarships/live")

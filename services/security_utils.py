@@ -464,7 +464,7 @@ class SecurityRateLimiter:
         with self._lock:
             self._failed_logins.pop(identifier, None)
 
-    def check_welcome_email_cooldown(self, email: str, cooldown_seconds: int = 1800) -> Tuple[bool, int]:
+    def check_welcome_email_cooldown(self, email: str, cooldown_seconds: int = 45) -> Tuple[bool, int]:
         clean_email = email.strip().lower()
         now = time.time()
         with self._lock:

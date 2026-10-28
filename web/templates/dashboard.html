@@ -92,8 +92,12 @@
                     </span>
                 </button>
 
-                <!-- User Session Logout -->
-                <div id="userNavActions" class="hidden">
+                <!-- User Session Logout & Email Display -->
+                <div id="userNavActions" class="hidden flex items-center gap-2">
+                    <div class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 text-xs shadow-xs">
+                        <i data-lucide="mail" class="w-3.5 h-3.5 text-blue-500"></i>
+                        <span id="navUserEmail" class="font-latin font-bold text-slate-700 dark:text-slate-300"></span>
+                    </div>
                     <button type="button" onclick="logoutUser()" class="sp-btn-secondary px-3 py-2 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:border-rose-500/30 flex items-center gap-1.5">
                         <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
                         <span>تسجيل الخروج</span>
@@ -533,6 +537,9 @@
             
             const emailElem = document.getElementById('userDisplayEmail');
             if (emailElem) emailElem.textContent = user.email || "";
+
+            const navEmail = document.getElementById('navUserEmail');
+            if (navEmail) navEmail.textContent = user.email || "";
             
             const countryElem = document.getElementById('userDisplayCountryText');
             if (countryElem) countryElem.textContent = user.country || "Palestine";
@@ -626,9 +633,9 @@
 
         async function triggerMyReport() {
             if (!currentUser) return;
-            const loadingToast = showToast("loading", "جارٍ التجهيز والتسليم...", `يقوم المستشار الآن بجمع أحدث المنح المتوافقة مع ملفك وتوليد التقرير الأسبوعي لإرساله إلى: ${currentUser.email}`, 12000);
+            const loadingToast = showToast("loading", "جارٍ التجهيز والتسليم...", `يقوم المستشار الآن بجمع أحدث المنح المتوافقة وتوليد التقرير الأسبوعي لإرساله إلى: ${currentUser.email}`, 25000);
             try {
-                const res = await fetch('/api/subscribe', {
+                const res = await fetch('/api/student/send-report', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -645,10 +652,11 @@
                 const data = await res.json();
                 if (loadingToast) loadingToast.remove();
                 if (res.ok && data.success) {
-                    showToast("success", "تم إرسال التقرير الأسبوعي بنجاح! 🚀", `تم تسليم التقرير الأكاديمي المخصص إلى: ${currentUser.email}. يرجى فحص صندوق الوارد (أو مجلد الرسائل الترويجية / Spam).`);
+                    showToast("success", "تم إرسال التقرير الأسبوعي بنجاح! 🚀", data.detail || `تم تسليم التقرير بنجاح إلى: ${currentUser.email}. تفقد صندوق الوارد أو مجلد Spam.`, 8000);
                     confetti({ particleCount: 75, spread: 60, origin: { y: 0.6 } });
                 } else {
-                    showToast("error", "تنبيه بخصوص البريد", data.detail || "تعذر إتمام الإرسال في الوقت الحالي.");
+                    const detail = data.detail || "تعذر إتمام الإرسال في الوقت الحالي.";
+                    showToast("error", "تنبيه بخصوص تسليم البريد", detail, 12000);
                 }
             } catch(e) {
                 if (loadingToast) loadingToast.remove();

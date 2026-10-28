@@ -522,11 +522,11 @@ Ensure output is strictly valid JSON:
         student_profile: Optional[Dict[str, Any]] = None
     ) -> bool:
         """Runs the search, creates CSV/HTML with match scores, and sends directly to student's email."""
-        # Email cooldown check to prevent mailbombing
+        # Email cooldown check to prevent mailbombing (45s window)
         allowed, wait_sec = security_rate_limiter.check_welcome_email_cooldown(recipient_email)
         if not allowed:
-            logger.info(f"Rate limiting email to {recipient_email}: cooldown active ({wait_sec}s remaining).")
-            return True
+            logger.warning(f"Rate limiting email to {recipient_email}: cooldown active ({wait_sec}s remaining).")
+            return False
 
         scholarships = await self.search_and_extract(
             degree=degree,
