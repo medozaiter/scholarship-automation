@@ -6,56 +6,56 @@
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Tajawal:wght@400;500;700;800;900&display=swap');
 
 :root {
-  /* Surface & Canvas (Light Mode) */
-  --sp-canvas: #f8fafc;
-  --sp-surface: #ffffff;
+  /* Eye-Comfort Canvas & Surfaces (Soft Light Mode - Anti-Glare) */
+  --sp-canvas: #f1f4f9;
+  --sp-surface: #f9fbfd;
   --sp-surface-raised: #ffffff;
-  --sp-surface-subtle: #f1f5f9;
-  --sp-surface-hover: #e2e8f0;
+  --sp-surface-subtle: #e7eef6;
+  --sp-surface-hover: #dbe5f0;
 
-  /* Borders */
-  --sp-border-subtle: #f1f5f9;
-  --sp-border-default: #e2e8f0;
-  --sp-border-strong: #cbd5e1;
+  /* Borders (Refined, Soft Slate Tones) */
+  --sp-border-subtle: #e2ebf4;
+  --sp-border-default: #d3deea;
+  --sp-border-strong: #b9cadb;
   --sp-border-focus: #2563eb;
 
-  /* Typography */
-  --sp-text-primary: #0f172a;
+  /* Typography (Comfortable Contrast for Long Reading) */
+  --sp-text-primary: #1e293b;
   --sp-text-secondary: #475569;
   --sp-text-muted: #64748b;
   --sp-text-disabled: #94a3b8;
   --sp-text-inverse: #ffffff;
 
-  /* Brand Accents */
-  --sp-brand-50: #eff6ff;
+  /* Brand Accents (Harmonious Royal Blue & Indigo) */
+  --sp-brand-50: #eef4ff;
   --sp-brand-100: #dbeafe;
   --sp-brand-500: #3b82f6;
   --sp-brand-600: #2563eb;
   --sp-brand-700: #1d4ed8;
 
-  /* Status Colors */
-  --sp-success-bg: rgba(16, 185, 129, 0.08);
-  --sp-success-border: rgba(16, 185, 129, 0.25);
-  --sp-success-text: #059669;
+  /* Status Colors (Subtle, Non-Harsh Badges & Indicators) */
+  --sp-success-bg: rgba(16, 185, 129, 0.10);
+  --sp-success-border: rgba(16, 185, 129, 0.30);
+  --sp-success-text: #047857;
 
-  --sp-warning-bg: rgba(245, 158, 11, 0.08);
-  --sp-warning-border: rgba(245, 158, 11, 0.25);
-  --sp-warning-text: #d97706;
+  --sp-warning-bg: rgba(217, 119, 6, 0.10);
+  --sp-warning-border: rgba(217, 119, 6, 0.30);
+  --sp-warning-text: #b45309;
 
-  --sp-danger-bg: rgba(239, 68, 68, 0.08);
-  --sp-danger-border: rgba(239, 68, 68, 0.25);
-  --sp-danger-text: #dc2626;
+  --sp-danger-bg: rgba(239, 68, 68, 0.10);
+  --sp-danger-border: rgba(239, 68, 68, 0.30);
+  --sp-danger-text: #b91c1c;
 
-  --sp-info-bg: rgba(37, 99, 235, 0.08);
-  --sp-info-border: rgba(37, 99, 235, 0.25);
-  --sp-info-text: #2563eb;
+  --sp-info-bg: rgba(37, 99, 235, 0.10);
+  --sp-info-border: rgba(37, 99, 235, 0.30);
+  --sp-info-text: #1d4ed8;
 
-  /* Shadows (Subtle, Crisp, Non-diffuse) */
+  /* Shadows (Soft, Crisp, Eye-Comfort Depth) */
   --sp-shadow-xs: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
-  --sp-shadow-sm: 0 1px 3px 0 rgba(15, 23, 42, 0.06), 0 1px 2px -1px rgba(15, 23, 42, 0.06);
-  --sp-shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.06), 0 2px 4px -2px rgba(15, 23, 42, 0.06);
-  --sp-shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.06), 0 4px 6px -4px rgba(15, 23, 42, 0.06);
-  --sp-shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.06), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+  --sp-shadow-sm: 0 1px 3px 0 rgba(15, 23, 42, 0.06), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
+  --sp-shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.06), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+  --sp-shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.06), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+  --sp-shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.06), 0 8px 10px -6px rgba(15, 23, 42, 0.03);
 
   /* Radius */
   --sp-radius-sm: 6px;
@@ -364,6 +364,129 @@ body {
   color: var(--sp-text-primary);
   border: 1px solid var(--sp-border-default);
   border-radius: 14px 14px 14px 4px;
+}
+
+/* AI Toolbar Quick Action Buttons */
+.ai-toolbar-scroll {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  scrollbar-width: thin;
+}
+
+.ai-toolbar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: var(--sp-radius-md);
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+  background-color: var(--sp-surface-subtle);
+  border: 1px solid var(--sp-border-default);
+  color: var(--sp-text-secondary);
+  transition: all 0.15s ease;
+  cursor: pointer;
+  user-select: none;
+}
+
+.ai-toolbar-btn:hover {
+  background-color: var(--sp-surface-hover);
+  border-color: var(--sp-border-strong);
+  color: var(--sp-text-primary);
+  transform: translateY(-1px);
+}
+
+.ai-toolbar-btn:active {
+  transform: scale(0.97);
+}
+
+.ai-toolbar-btn.active-tool {
+  background-color: #2563eb;
+  color: #ffffff;
+  border-color: #1d4ed8;
+}
+
+/* Modal / Drawer Overlay System */
+.sp-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background-color: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.sp-modal-overlay.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.sp-modal-dialog {
+  width: 100%;
+  max-width: 32rem;
+  background: var(--sp-surface);
+  border: 1px solid var(--sp-border-default);
+  border-radius: var(--sp-radius-2xl);
+  box-shadow: var(--sp-shadow-xl);
+  overflow: hidden;
+  transform: scale(0.95);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sp-modal-overlay.is-open .sp-modal-dialog {
+  transform: scale(1);
+}
+
+/* Typing Indicator Animation */
+.typing-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.typing-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #3b82f6;
+  animation: typingBounce 1.4s infinite ease-in-out both;
+}
+
+.typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes typingBounce {
+  0%, 80%, 100% { transform: scale(0); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+/* Markdown Table Styling inside Advisor Chat */
+.chat-bubble-advisor table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.75rem 0;
+  font-size: 0.75rem;
+}
+
+.chat-bubble-advisor th,
+.chat-bubble-advisor td {
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--sp-border-default);
+  text-align: right;
+}
+
+.chat-bubble-advisor th {
+  background-color: var(--sp-surface-subtle);
+  font-weight: 700;
 }
 
 /* Toast Container */

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ScholarPilot AI | Student Portal & Intelligence Dashboard</title>
-    <meta name="description" content="ScholarPilot AI Student Workspace - Autonomous Scholarship Tracking, Admission Odds & Application Dossiers.">
+    <meta name="description" content="ScholarPilot AI Student Workspace - Autonomous Scholarship Tracking, Admission Odds & Automated Weekly Digests.">
 
     <!-- Tailwind CSS with Dark Mode -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -253,9 +253,9 @@
                         <i data-lucide="send" class="w-3.5 h-3.5"></i>
                         <span>إرسال تقريري المخصص لإيميلي الآن</span>
                     </button>
-                    <a href="/#docSection" class="sp-btn-secondary px-4 py-2.5 text-xs font-bold flex items-center gap-2">
-                        <i data-lucide="file-text" class="w-3.5 h-3.5 text-purple-500"></i>
-                        <span>توليد خطاب دافع</span>
+                    <a href="/#radarSection" class="sp-btn-secondary px-4 py-2.5 text-xs font-bold flex items-center gap-2">
+                        <i data-lucide="radar" class="w-3.5 h-3.5 text-blue-500"></i>
+                        <span>استعراض رادار المنح المتاحة</span>
                     </a>
                 </div>
             </div>
@@ -292,6 +292,49 @@
                         <i data-lucide="bookmark" class="w-4 h-4 text-purple-500"></i>
                     </div>
                     <span id="statSavedCount" class="text-base font-extrabold text-purple-600 dark:text-purple-400 font-latin block">0 منح</span>
+                </div>
+            </div>
+
+            <!-- AI ADVISOR WORKSPACE LAUNCHER -->
+            <div class="sp-card p-6 sm:p-7 space-y-4 border border-blue-500/20 bg-gradient-to-r from-blue-500/5 to-indigo-500/5">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-sm">
+                            <i data-lucide="sparkles" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">المستشار الأكاديمي الذكي المتاح 24/7</h2>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">تحليل فوري لملفك الأكاديمي، مراجعة الـ CV، حساب نسب القبول، وصياغة المراسلات الرسمية.</p>
+                        </div>
+                    </div>
+
+                    <a href="/#advisorSection" class="sp-btn-primary px-4 py-2 text-xs font-bold flex items-center gap-2 self-start sm:self-auto shadow-sm">
+                        <span>فتح جلسة المستشار الآن</span>
+                        <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+                    </a>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
+                    <a href="/#advisorSection" class="p-3 rounded-xl sp-subcard hover:border-blue-500/40 text-center transition block">
+                        <i data-lucide="bar-chart-2" class="w-4 h-4 text-indigo-500 mx-auto mb-1"></i>
+                        <span class="text-xs font-bold text-slate-800 dark:text-slate-200 block">فحص نسبة قبولي</span>
+                        <span class="text-[10px] text-slate-400">توقعات الذكاء الاصطناعي</span>
+                    </a>
+                    <a href="/#advisorSection" class="p-3 rounded-xl sp-subcard hover:border-blue-500/40 text-center transition block">
+                        <i data-lucide="file-text" class="w-4 h-4 text-purple-500 mx-auto mb-1"></i>
+                        <span class="text-xs font-bold text-slate-800 dark:text-slate-200 block">تدقيق السيرة الذاتية</span>
+                        <span class="text-[10px] text-slate-400">تقييم الـ CV وملاحظات</span>
+                    </a>
+                    <a href="/#advisorSection" class="p-3 rounded-xl sp-subcard hover:border-blue-500/40 text-center transition block">
+                        <i data-lucide="scale" class="w-4 h-4 text-amber-500 mx-auto mb-1"></i>
+                        <span class="text-xs font-bold text-slate-800 dark:text-slate-200 block">مقارنة المنح</span>
+                        <span class="text-[10px] text-slate-400">جدول مالي وأكاديمي</span>
+                    </a>
+                    <a href="/#advisorSection" class="p-3 rounded-xl sp-subcard hover:border-blue-500/40 text-center transition block">
+                        <i data-lucide="mail" class="w-4 h-4 text-blue-500 mx-auto mb-1"></i>
+                        <span class="text-xs font-bold text-slate-800 dark:text-slate-200 block">صياغة إيميل رسمي</span>
+                        <span class="text-[10px] text-slate-400">مراسلة الأساتذة واللجان</span>
+                    </a>
                 </div>
             </div>
 
@@ -404,6 +447,7 @@
                 if (res.ok && data.success) {
                     currentUser = data.user;
                     localStorage.setItem('minha_user', JSON.stringify(currentUser));
+                    if (data.token) localStorage.setItem('minha_token', data.token);
                     renderDashboard(currentUser);
                     confetti({ particleCount: 70, spread: 60 });
                 } else {
@@ -444,6 +488,7 @@
                 if (res.ok && data.success) {
                     currentUser = data.user;
                     localStorage.setItem('minha_user', JSON.stringify(currentUser));
+                    if (data.token) localStorage.setItem('minha_token', data.token);
                     renderDashboard(currentUser);
                     confetti({ particleCount: 80, spread: 60 });
                 } else {
@@ -528,6 +573,7 @@
 
         function logoutUser() {
             localStorage.removeItem('minha_user');
+            localStorage.removeItem('minha_token');
             currentUser = null;
             location.reload();
         }

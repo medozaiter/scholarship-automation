@@ -1,4 +1,7 @@
 .env
+.app_secret
+data/.app_secret
+*.tmp
 *.db
 *.sqlite3
 *.sqlite

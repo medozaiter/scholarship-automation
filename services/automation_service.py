@@ -335,50 +335,13 @@ class AutomationService:
         link: str
     ):
         """Dispatches an urgent, beautifully styled reminder email."""
-        from email.message import EmailMessage
-        import smtplib
-
-        sender_email = os.getenv("SENDER_EMAIL") or os.getenv("EMAIL_USER")
-        gmail_password = os.getenv("GMAIL_APP_PASSWORD") or os.getenv("EMAIL_PASS")
-        if not sender_email or not gmail_password:
-            return
-
-        gmail_password = gmail_password.replace(" ", "").strip()
-        msg = EmailMessage()
-        msg["Subject"] = f"تذكير بالموعد النهائي: باقي {days_remaining} أيام على إغلاق التقديم لمنحة {scholarship_name}"
-        msg["From"] = f"ScholarPilot AI <{sender_email}>"
-        msg["To"] = recipient_email
-
-        html = f"""
-        <div dir="rtl" style="font-family: Arial, sans-serif; background-color: #090d16; color: #f8fafc; padding: 25px; border-radius: 16px;">
-            <div style="background: #1e3a8a; padding: 20px; border-radius: 12px; text-align: center; color: white;">
-                <h2>تذكير باقتراب الموعد النهائي للمنحة</h2>
-            </div>
-            <div style="padding: 20px; background: rgba(255,255,255,0.05); margin-top: 15px; border-radius: 12px;">
-                <p>مرحباً <b>{student_name}</b>،</p>
-                <p>نود تذكيرك بأن المنحة المحفوظة في ملفك: <b style="color: #60a5fa;">{scholarship_name}</b></p>
-                <p style="font-size: 16px; color: #f59e0b;">باقي على موعد إغلاق التقديم: <b>{days_remaining} يوماً فقط</b> (تاريخ الإغلاق: {deadline_date}).</p>
-                <p>يرجى إكمال وتدقيق أوراقك الأكاديمية وخطاب الدافع فوراً والتقديم عبر البوابة الرسمية قبل انتهاء المهلة.</p>
-                <div style="text-align: center; margin: 25px 0;">
-                    <a href="{link}" target="_blank" style="background: #2563eb; color: white; padding: 12px 25px; border-radius: 8px; text-decoration: none; font-weight: bold;">
-                        التقديم الآن عبر البوابة الرسمية
-                    </a>
-                </div>
-            </div>
-            <p style="font-size: 11px; color: #64748b; text-align: center;">ScholarPilot AI | Your AI-Powered Scholarship Advisor</p>
-        </div>
-        """
-        msg.set_content(f"تذكير: باقي {days_remaining} يوماً على إغلاق منحة {scholarship_name}. رابط التقديم: {link}")
-        msg.add_alternative(html, subtype="html")
-
-        try:
-            with smtplib.SMTP("smtp.gmail.com", 587, timeout=20) as server:
-                server.starttls()
-                server.login(sender_email, gmail_password)
-                server.send_message(msg)
-                logger.info(f"Reminder delivered to {recipient_email}")
-        except Exception as e:
-            logger.error(f"Failed to send reminder email: {e}")
+        from services.email_service import dispatch_email
+        await dispatch_email(
+            to_email=recipient_email,
+            subject=f"تذكير بالموعد النهائي: باقي {days_remaining} أيام على إغلاق التقديم لمنحة {scholarship_name}",
+            html_content=html,
+            text_content=f"تذكير: باقي {days_remaining} يوماً على إغلاق منحة {scholarship_name}. رابط التقديم: {link}"
+        )
 
 
 # Standalone worker loop for background tasks

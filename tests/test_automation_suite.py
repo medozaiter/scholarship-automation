@@ -88,28 +88,8 @@ def test_interactive_advisor_chat():
     assert len(data["advice"]) > 30
     print(f" -> PASSED: Advisor returned concise advice ({len(data['advice'])} chars).")
 
-def test_document_download_with_letterhead():
-    print("[TEST 5] Testing /api/documents/download with Official Letterhead...")
-    resp = client.post("/api/documents/download", json={
-        "student_name": "Mustafa AbuZaiter",
-        "email": "medo.msz.2006@gmail.com",
-        "degree": "Undergraduate",
-        "major": "Cybersecurity",
-        "gpa": "90%",
-        "scholarship_name": "Stipendium Hungaricum",
-        "doc_type": "motivation",
-        "talents_experience": "Cybersecurity CTF champion, volunteer",
-        "send_to_email": False
-    })
-    assert resp.status_code == 200
-    text = resp.text
-    assert "SCHOLARPILOT AI ACADEMIC DOSSIER" in text
-    assert "REF ID:" in text
-    assert "Mustafa AbuZaiter" in text
-    print(" -> PASSED: Downloadable document with official institutional letterhead generated successfully.")
-
 def test_subscription_automation():
-    print("[TEST 6] Testing Student Subscription & Profile Update...")
+    print("[TEST 5] Testing Student Weekly Subscription & Profile Update...")
     unique_email = f"student_{int(time.time())}@example.com"
     resp = client.post("/api/subscribe", json={
         "email": unique_email,
@@ -125,13 +105,95 @@ def test_subscription_automation():
     data = resp.json()
     assert data["success"] is True
     assert data["subscriber"]["email"] == unique_email
-    print(" -> PASSED: Subscription saved with talents and automatic tracking enabled.")
+    print(" -> PASSED: Subscription saved with talents and automatic weekly tracking enabled.")
+
+def test_ai_advisor_suite():
+    print("[TEST 6] Testing AI Advisor Production Suite Endpoints...")
+    
+    # 1. Acceptance Chance Estimator
+    chances_resp = client.post("/api/advisor/chances", json={
+        "scholarship_name": "Lester B. Pearson",
+        "email": "medo.msz.2006@gmail.com"
+    })
+    assert chances_resp.status_code == 200
+    chances_data = chances_resp.json()
+    assert "chance_percentage" in chances_data
+    assert "competitiveness" in chances_data
+    assert "strengths" in chances_data
+    print(f" -> PASSED: Chances Estimator ({chances_data['chance_percentage']}%)")
+
+    # 2. Scholarship Comparison
+    compare_resp = client.post("/api/advisor/compare", json={
+        "scholarships": ["Lester B. Pearson", "Chevening UK Government Scholarship"],
+        "email": "medo.msz.2006@gmail.com"
+    })
+    assert compare_resp.status_code == 200
+    compare_data = compare_resp.json()
+    assert "comparison_table" in compare_data
+    assert len(compare_data["comparison_table"]) == 2
+    assert "verdict" in compare_data
+    print(f" -> PASSED: Scholarship Comparison ({len(compare_data['comparison_table'])} scholarships compared)")
+
+    # 3. CV Reviewer
+    cv_resp = client.post("/api/advisor/review-cv", json={
+        "cv_text": "Experienced software developer, BSc Computer Science with 89% GPA. Led AI research projects. Fluent in English.",
+        "target_scholarship": "DAAD Germany"
+    })
+    assert cv_resp.status_code == 200
+    cv_data = cv_resp.json()
+    assert "cv_score" in cv_data
+    assert "recommendations" in cv_data
+    print(f" -> PASSED: CV Reviewer (Score: {cv_data['cv_score']}/100)")
+
+    # 4. Motivation Letter Reviewer
+    letter_resp = client.post("/api/advisor/review-letter", json={
+        "letter_text": "I am applying for the master's degree in AI. Throughout my academic career I have developed multiple high-impact projects.",
+        "scholarship_name": "Chevening"
+    })
+    assert letter_resp.status_code == 200
+    letter_data = letter_resp.json()
+    assert "letter_score" in letter_data
+    assert "missing_sections" in letter_data
+    print(f" -> PASSED: Letter Reviewer (Score: {letter_data['letter_score']}/100)")
+
+    # 5. Application Roadmap
+    roadmap_resp = client.post("/api/advisor/roadmap", json={
+        "scholarship_name": "Stipendium Hungaricum",
+        "weeks": 4
+    })
+    assert roadmap_resp.status_code == 200
+    roadmap_data = roadmap_resp.json()
+    assert "weeks" in roadmap_data
+    assert "checklist" in roadmap_data
+    assert len(roadmap_data["weeks"]) == 4
+    print(f" -> PASSED: Application Roadmap ({len(roadmap_data['weeks'])} weeks generated)")
+
+    # 6. Email Assistant
+    email_resp = client.post("/api/advisor/draft-email", json={
+        "email_type": "professor_outreach",
+        "recipient_name": "Dr. Sarah Adams",
+        "scholarship_name": "DAAD",
+        "field": "Artificial Intelligence"
+    })
+    assert email_resp.status_code == 200
+    email_data = email_resp.json()
+    assert "subject" in email_data
+    assert "body" in email_data
+    print(f" -> PASSED: Email Assistant (Drafted: '{email_data['subject']}')")
+
+    # 7. Deadline Analytics
+    dl_resp = client.get("/api/advisor/deadlines")
+    assert dl_resp.status_code == 200
+    dl_data = dl_resp.json()
+    assert "closing_this_week" in dl_data
+    assert "closing_in_30_days" in dl_data
+    print(f" -> PASSED: Deadline Analytics (Active: {dl_data['total_active']})")
 
 if __name__ == "__main__":
     test_security_input_filters()
     test_admission_probability()
     test_live_scholarships_endpoint()
     test_interactive_advisor_chat()
-    test_document_download_with_letterhead()
     test_subscription_automation()
+    test_ai_advisor_suite()
     print("\nALL AUTOMATION AND SECURITY TESTS PASSED PERFECTLY!")

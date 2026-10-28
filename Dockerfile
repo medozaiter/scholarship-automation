@@ -30,4 +30,4 @@ RUN mkdir -p data
 # Hugging Face Spaces listens on port 7860
 EXPOSE 7860
 
-CMD ["uvicorn", "web.app:app", "--host", "0.0.0.0", "--port", "7860"]
+CMD ["sh", "-c", "uvicorn web.app:app --host 0.0.0.0 --port ${PORT:-7860}"]

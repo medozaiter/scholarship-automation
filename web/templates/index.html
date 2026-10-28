@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ScholarPilot AI | Your AI-Powered Scholarship Advisor</title>
-    <meta name="description" content="ScholarPilot AI - Your AI-Powered Scholarship Advisor. منظومة الذكاء الاصطناعي الأكاديمية المؤتمتة لاكتشاف وقبول المنح الدراسية العالمية، حساب نسبة القبول، وصياغة المستندات الرسمية.">
+    <meta name="description" content="ScholarPilot AI - Your AI-Powered Scholarship Advisor. منظومة الذكاء الاصطناعي الأكاديمية المؤتمتة لاكتشاف وقبول المنح الدراسية العالمية، حساب نسبة القبول التقديرية، والاشتراك في تقارير المنح الأسبوعية المباشرة.">
 
     <!-- Tailwind CSS with Dark Mode -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -76,9 +76,8 @@
             <!-- Desktop Nav Links -->
             <nav class="hidden md:flex items-center gap-1 text-xs font-semibold text-slate-600 dark:text-slate-300">
                 <a href="#radarSection" class="px-3 py-2 rounded-lg hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">رادار المنح المفتوحة</a>
-                <a href="#matchSection" class="px-3 py-2 rounded-lg hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">حاسبة القبول الذكية</a>
+                <a href="#matchSection" class="px-3 py-2 rounded-lg hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">الاشتراك الأسبوعي وحاسبة القبول</a>
                 <a href="#advisorSection" class="px-3 py-2 rounded-lg hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">المستشار الأكاديمي</a>
-                <a href="#docSection" class="px-3 py-2 rounded-lg hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">مولد المستندات الرسمية</a>
                 <a href="#faqSection" class="px-3 py-2 rounded-lg hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">الأسئلة الشائعة</a>
             </nav>
 
@@ -127,7 +126,7 @@
 
             <!-- Subtitle -->
             <p class="text-sm sm:text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
-                اكتشاف مؤتمت لأحدث المنح المعتمدة عالمياً، حساب دقيق لاحتمالية قبولك بناءً على مواهبك ومعدلك، وتوليد فوري لخطابات الدافع والـ CV بالترويسة الرسمية دون أي تدخل يدوي.
+                اكتشاف مؤتمت لأحدث المنح المعتمدة عالمياً، حساب دقيق لاحتمالية قبولك بناءً على مواهبك ومعدلك، وتوصيل تقارير المنح الأسبوعية المخصصة مباشرة إلى بريدك الإلكتروني دون أي تدخل يدوي.
             </p>
 
             <!-- Hero Action Controls -->
@@ -275,25 +274,37 @@
         </div>
     </section>
 
-    <!-- ==================== ADMISSION PREDICTOR & REGISTRATION ==================== -->
+    <!-- ==================== ADMISSION PREDICTOR & WEEKLY SUBSCRIPTION ==================== -->
     <section id="matchSection" class="py-14 sm:py-20 border-b border-slate-200/80 dark:border-slate-800/80">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
             
-            <div class="text-center space-y-2">
-                <div class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                    <i data-lucide="calculator" class="w-4 h-4"></i>
-                    <span>حساب ذكي وتفعيل تلقائي</span>
+            <div class="text-center space-y-3">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-xs font-bold text-blue-600 dark:text-blue-400">
+                    <i data-lucide="mail-check" class="w-4 h-4"></i>
+                    <span>خدمة الاشتراك الأسبوعي المؤتمت (مجاناً 100%)</span>
                 </div>
                 <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                     حاسبة احتمالية القبول والاشتراك الأسبوعي
                 </h2>
-                <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-xl mx-auto">
+                <p class="text-xs sm:text-base text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed font-medium">
                     أدخل بياناتك الأكاديمية لحساب نسبة قبولك التقديرية بناءً على مواهبك، وتفعيل تقارير المنح الأسبوعية إلى إيميلك.
                 </p>
             </div>
 
             <!-- Form Card -->
-            <div class="sp-card p-6 sm:p-8">
+            <div class="sp-card p-6 sm:p-8 space-y-6">
+                
+                <!-- Subscription Explanation Callout -->
+                <div class="sp-subcard p-4 sm:p-5 rounded-xl border border-blue-500/30 bg-blue-500/5 space-y-2">
+                    <div class="flex items-center gap-2 font-bold text-xs sm:text-sm text-blue-600 dark:text-blue-400">
+                        <i data-lucide="bell-ring" class="w-4 h-4 shrink-0"></i>
+                        <span>توضيح حول خدمة الاشتراك الأسبوعي</span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                        هذا النموذج مخصص <b>للاشتراك المباشر في خدمة المنح</b> لكي يصلك بريد إلكتروني بشكل أسبوعي دوري بأحدث المنح الدراسية المتاحة والمفتوحة عالمياً والمتوافقة مع تخصصك ومعدلك مع روابط التقديم الرسمية، بالإضافة إلى حساب فوري لنسبة قبولك التقديرية بناءً على مواهبك وخبراتك.
+                    </p>
+                </div>
+
                 <form id="subscribeForm" class="space-y-6">
                     
                     <!-- Full Name & Email -->
@@ -314,7 +325,7 @@
 
                         <div>
                             <label class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">
-                                البريد الإلكتروني (لتلقي التقارير) <span class="text-rose-500">*</span>
+                                البريد الإلكتروني (الذي ستصلك عليه المنح أسبوعياً) <span class="text-rose-500">*</span>
                             </label>
                             <div class="relative">
                                 <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
@@ -480,12 +491,13 @@
                     <!-- Submit Button -->
                     <div>
                         <button type="submit" id="submitBtn" class="sp-btn-primary w-full py-3.5 px-6 text-sm sm:text-base font-bold flex items-center justify-center gap-2">
-                            <span id="btnText">حفظ الملف وتفعيل الأتمتة الأسبوعية</span>
+                            <i data-lucide="mail-plus" class="w-4 h-4"></i>
+                            <span id="btnText">تأكيد الاشتراك وتفعيل إرسال تقارير المنح أسبوعياً إلى إيميلي</span>
                             <div id="btnSpinner" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                         </button>
                         <p class="text-center text-[11px] text-slate-400 mt-2 flex items-center justify-center gap-1">
                             <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-500"></i>
-                            <span>نظام محمي ومشفر بالكامل. لا إعلانات ولا رسائل مزعجة.</span>
+                            <span>نظام محمي ومشفر بالكامل. اشتراك مجاني يرسل إيميل أسبوعي دوري بدون أي رسائل مزعجة.</span>
                         </p>
                     </div>
 
@@ -498,176 +510,367 @@
         </div>
     </section>
 
-    <!-- ==================== INTERACTIVE AI ADVISOR CHAT ==================== -->
+    <!-- ==================== PRODUCTION-GRADE AI SCHOLARSHIP ADVISOR ==================== -->
     <section id="advisorSection" class="py-14 sm:py-20 border-b border-slate-200/80 dark:border-slate-800/80">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
             
-            <div class="sp-card p-6 sm:p-8">
+            <div class="sp-card p-6 sm:p-8 space-y-5">
+                
                 <!-- Chat Desk Header -->
-                <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4 mb-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4 gap-3">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
-                            <i data-lucide="bot" class="w-5 h-5"></i>
+                        <div class="w-11 h-11 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shadow-sm">
+                            <i data-lucide="sparkles" class="w-6 h-6"></i>
                         </div>
                         <div>
-                            <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">المستشار الأكاديمي الذكي (AI Advisor)</h2>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">مدرّب على شروط المنح واللهجات، ويجيبك بإيجاز واحترافية.</p>
+                            <div class="flex items-center gap-2">
+                                <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white">المستشار الأكاديمي المتخصص (AI Scholarship Advisor)</h2>
+                                <span class="sp-badge sp-badge-success text-[10px]">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                    <span>مستشار شخصي 24/7</span>
+                                </span>
+                            </div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                                خبير قبول جامعي دولي متخصص في المطابقة، فحص الأهلية، تدقيق الوثائق، وصياغة المراسلات.
+                            </p>
                         </div>
                     </div>
 
-                    <span class="sp-badge sp-badge-success">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span>متصل الآن</span>
-                    </span>
+                    <!-- Profile Awareness Status Indicator -->
+                    <div id="advisorProfileBadge" class="self-start sm:self-auto px-3 py-1.5 rounded-lg sp-subcard border text-xs flex items-center gap-2">
+                        <i data-lucide="user-check" class="w-3.5 h-3.5 text-blue-500"></i>
+                        <span id="advisorProfileSummary" class="text-slate-700 dark:text-slate-300 font-semibold">مربوط بالملف الأكاديمي</span>
+                    </div>
                 </div>
 
-                <!-- Suggested Prompt Chips -->
-                <div class="flex flex-wrap gap-2 mb-4">
-                    <button type="button" onclick="sendPresetMessage('معدلي 85 وهندسة برمجيات وبدي منحة بأوروبا')" class="px-2.5 py-1 rounded-lg text-xs sp-subcard hover:border-blue-500 text-slate-600 dark:text-slate-300 transition flex items-center gap-1.5">
-                        <i data-lucide="help-circle" class="w-3 h-3 text-blue-500"></i>
-                        <span>معدلي 85 وهندسة برمجيات وبدي منحة بأوروبا</span>
-                    </button>
-                    <button type="button" onclick="sendPresetMessage('بدي منح طب بشري ممولة بالكامل للطلاب من فلسطين')" class="px-2.5 py-1 rounded-lg text-xs sp-subcard hover:border-blue-500 text-slate-600 dark:text-slate-300 transition flex items-center gap-1.5">
-                        <i data-lucide="help-circle" class="w-3 h-3 text-blue-500"></i>
-                        <span>منح طب بشري ممولة بالكامل</span>
-                    </button>
-                    <button type="button" onclick="sendPresetMessage('كيف أجهز خطاب دافع يضمن قبولي في منحة المجر أو تركيا؟')" class="px-2.5 py-1 rounded-lg text-xs sp-subcard hover:border-blue-500 text-slate-600 dark:text-slate-300 transition flex items-center gap-1.5">
-                        <i data-lucide="help-circle" class="w-3 h-3 text-blue-500"></i>
-                        <span>نصائح خطاب الدافع لمنحة المجر وتركيا</span>
-                    </button>
+                <!-- ==================== AI TOOLBAR (10 SPECIALIZED ACTIONS) ==================== -->
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                            <i data-lucide="wrench" class="w-3 h-3 text-blue-500"></i>
+                            <span>شريط الأدوات الأكاديمية السريعة (AI Toolbar)</span>
+                        </span>
+                        <span class="text-[10px] text-slate-400">اختر أداة لتطبيقها فوراً</span>
+                    </div>
+
+                    <div class="ai-toolbar-scroll">
+                        <button type="button" onclick="triggerTool('find')" class="ai-toolbar-btn">
+                            <i data-lucide="search" class="w-3.5 h-3.5 text-blue-500"></i>
+                            <span>بحث عن منح</span>
+                        </button>
+                        <button type="button" onclick="triggerTool('eligibility')" class="ai-toolbar-btn">
+                            <i data-lucide="target" class="w-3.5 h-3.5 text-emerald-500"></i>
+                            <span>فحص الأهلية</span>
+                        </button>
+                        <button type="button" onclick="triggerTool('chances')" class="ai-toolbar-btn">
+                            <i data-lucide="bar-chart-2" class="w-3.5 h-3.5 text-indigo-500"></i>
+                            <span>ما هي فرص قبولي؟</span>
+                        </button>
+                        <button type="button" onclick="openModal('cvModal')" class="ai-toolbar-btn">
+                            <i data-lucide="file-text" class="w-3.5 h-3.5 text-purple-500"></i>
+                            <span>مراجعة السيرة الذاتية (CV)</span>
+                        </button>
+                        <button type="button" onclick="openModal('letterModal')" class="ai-toolbar-btn">
+                            <i data-lucide="pen-tool" class="w-3.5 h-3.5 text-rose-500"></i>
+                            <span>تدقيق رسالة الدافع</span>
+                        </button>
+                        <button type="button" onclick="openModal('compareModal')" class="ai-toolbar-btn">
+                            <i data-lucide="scale" class="w-3.5 h-3.5 text-amber-500"></i>
+                            <span>مقارنة المنح</span>
+                        </button>
+                        <button type="button" onclick="openModal('roadmapModal')" class="ai-toolbar-btn">
+                            <i data-lucide="calendar" class="w-3.5 h-3.5 text-teal-500"></i>
+                            <span>خطة التقديم والجدول</span>
+                        </button>
+                        <button type="button" onclick="triggerTool('deadlines')" class="ai-toolbar-btn">
+                            <i data-lucide="clock" class="w-3.5 h-3.5 text-red-500"></i>
+                            <span>مواعيد الإغلاق القادمة</span>
+                        </button>
+                        <button type="button" onclick="openModal('emailModal')" class="ai-toolbar-btn">
+                            <i data-lucide="mail" class="w-3.5 h-3.5 text-blue-600"></i>
+                            <span>صياغة إيميل رسمي</span>
+                        </button>
+                        <button type="button" onclick="triggerTool('saved')" class="ai-toolbar-btn">
+                            <i data-lucide="bookmark" class="w-3.5 h-3.5 text-amber-600"></i>
+                            <span>منحي المحفوظة</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Chat History Box -->
-                <div id="chatHistoryBox" class="sp-subcard p-4 sm:p-5 h-80 overflow-y-auto space-y-3 mb-4 text-xs sm:text-sm">
+                <div id="chatHistoryBox" class="sp-subcard p-4 sm:p-5 h-96 overflow-y-auto space-y-3 text-xs sm:text-sm">
                     <div class="flex items-start gap-2.5">
-                        <div class="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0 font-latin">
+                        <div class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0 font-latin shadow-sm">
                             AI
                         </div>
-                        <div class="chat-bubble-advisor p-3.5 max-w-[85%] leading-relaxed">
-                            أهلاً بك! أنا مستشارك الأكاديمي لمنصة ScholarPilot AI. اسألني عن أي منحة، شروط القبول، أو كيفية تعزيز ملفك، وسأجيبك بدقة وبنقاط محددة ومباشرة. كيف يمكنني مساعدتك اليوم؟
+                        <div class="chat-bubble-advisor p-4 max-w-[88%] leading-relaxed space-y-2">
+                            <p class="font-bold text-sm text-slate-900 dark:text-white">
+                                مرحباً بك! أنا مستشارك الأكاديمي المخصص لمنصة ScholarPilot AI.
+                            </p>
+                            <p class="text-slate-600 dark:text-slate-300">
+                                أنا على دراية تامة بمؤهلاتك الأكاديمية المسجلة، وبمعايير المنح العالمية المعتمدة لعامي 2026/2027. كيف ترغب أن نبدأ؟
+                            </p>
+                            <div class="pt-2 flex flex-wrap gap-2" id="initialPromptChips">
+                                <button type="button" onclick="sendPresetMessage('ما هي المنح الأكثر توافقاً مع معدلي وتخصصي حالياً؟')" class="px-2.5 py-1 rounded-lg text-xs sp-subcard hover:border-blue-500 text-slate-700 dark:text-slate-200 transition font-medium">
+                                    🎯 المنح الأكثر توافقاً مع ملفي
+                                </button>
+                                <button type="button" onclick="triggerTool('chances')" class="px-2.5 py-1 rounded-lg text-xs sp-subcard hover:border-blue-500 text-slate-700 dark:text-slate-200 transition font-medium">
+                                    📊 احسب لي نسبة قبولي التقديرية
+                                </button>
+                                <button type="button" onclick="triggerTool('deadlines')" class="px-2.5 py-1 rounded-lg text-xs sp-subcard hover:border-blue-500 text-slate-700 dark:text-slate-200 transition font-medium">
+                                    ⏰ ما هي المنح التي تغلق قريباً؟
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Input Controls -->
+                <div class="space-y-2">
+                    <div class="flex items-center gap-2">
+                        <div class="relative flex-1">
+                            <input type="text" id="chatInputText" maxlength="500" placeholder="اكتب سؤالك الأكاديمي، أو اطلب مقارنة، أو استفسر عن أي منحة..."
+                                onkeydown="if(event.key === 'Enter') sendChatMessage()"
+                                class="sp-input text-xs sm:text-sm py-3 pr-4 pl-12">
+                            <button type="button" onclick="openModal('cvModal')" title="رفع سيرة ذاتية أو مستند" class="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-500 p-1 rounded-lg transition">
+                                <i data-lucide="paperclip" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+
+                        <button type="button" id="chatSendBtn" onclick="sendChatMessage()" class="sp-btn-primary px-5 py-3 text-xs sm:text-sm font-bold flex items-center gap-1.5 shrink-0 shadow-sm">
+                            <span id="chatSendBtnText">إرسال</span>
+                            <i data-lucide="send" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+
+                    <!-- Dynamic Follow-up Prompt Container -->
+                    <div id="dynamicFollowUpBox" class="hidden flex flex-wrap gap-2 pt-1 text-xs"></div>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ==================== INTERACTIVE AI MODALS & DRAWERS ==================== -->
+
+    <!-- 1. CV REVIEW MODAL -->
+    <div id="cvModal" class="sp-modal-overlay">
+        <div class="sp-modal-dialog p-6 sm:p-7 space-y-4 text-right">
+            <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
                 <div class="flex items-center gap-2">
-                    <div class="relative flex-1">
-                        <input type="text" id="chatInputText" maxlength="400" placeholder="اكتب استفسارك الأكاديمي هنا..."
-                            onkeydown="if(event.key === 'Enter') sendChatMessage()"
-                            class="sp-input text-xs sm:text-sm py-2.5">
-                    </div>
-
-                    <button type="button" id="chatSendBtn" onclick="sendChatMessage()" class="sp-btn-primary px-4 py-2.5 text-xs sm:text-sm font-bold flex items-center gap-1.5 shrink-0">
-                        <span id="chatSendBtnText">إرسال</span>
-                        <i data-lucide="send" class="w-3.5 h-3.5"></i>
-                    </button>
+                    <i data-lucide="file-text" class="w-5 h-5 text-purple-500"></i>
+                    <h3 class="font-bold text-base text-slate-900 dark:text-white">مراجعة وتدقيق السيرة الذاتية (CV Reviewer)</h3>
                 </div>
-
+                <button type="button" onclick="closeModal('cvModal')" class="text-slate-400 hover:text-slate-200 p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
             </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400">
+                يقوم المستشار بفحص هيكلية الـ CV، الإنجازات القابلة للقياس، والتوافق الأكاديمي مع المنح، ويمنحك تقييماً من 100.
+            </p>
 
-        </div>
-    </section>
-
-    <!-- ==================== SMART APPLICATION DOCUMENTS STUDIO ==================== -->
-    <section id="docSection" class="py-14 sm:py-20 border-b border-slate-200/80 dark:border-slate-800/80">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-            
-            <div class="sp-card p-6 sm:p-8">
-                <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4 mb-4">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center">
-                            <i data-lucide="file-text" class="w-5 h-5"></i>
-                        </div>
-                        <div>
-                            <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">مُولّد المستندات بترويسة رسمية قابلة للتحميل</h2>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">صياغة خطابات الدافع والسيرة الذاتية وقوائم التحقق المخصصة لكل منحة.</p>
-                        </div>
-                    </div>
-
-                    <span class="sp-badge sp-badge-neutral font-latin">Official Dossier</span>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المنحة المستهدفة (اختياري)</label>
+                    <input type="text" id="cvTargetSch" placeholder="مثلاً: Stipendium Hungaricum أو DAAD" class="sp-input text-xs">
                 </div>
 
-                <!-- Selectors -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المنحة المستهدفة</label>
-                        <select id="docScholarship" class="sp-input text-xs font-semibold">
-                            <option value="Lester B. Pearson Scholarship (University of Toronto)">Lester B. Pearson - كندا (تورنتو)</option>
-                            <option value="Stipendium Hungaricum Scholarship">Stipendium Hungaricum - منحة المجر</option>
-                            <option value="Türkiye Bursları Government Scholarship">Türkiye Bursları - المنحة التركية</option>
-                            <option value="Chevening UK Master's Scholarship">Chevening Scholarships - بريطانيا</option>
-                            <option value="Global Korea Scholarship (GKS)">Global Korea Scholarship - كوريا</option>
-                            <option value="DAAD Scholarship Germany">DAAD Scholarship - ألمانيا</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">نوع المستند</label>
-                        <select id="docTypeSelect" class="sp-input text-xs font-semibold">
-                            <option value="all" selected>حزمة التقديم الكاملة (كافة المستندات)</option>
-                            <option value="motivation">خطاب الدافع الرسمي (Motivation Letter)</option>
-                            <option value="recommendation">خطاب التوصية الأكاديمي (Recommendation)</option>
-                            <option value="cv">السيرة الذاتية الأكاديمية (Curriculum Vitae)</option>
-                            <option value="proposal">مقترح بحثي أكاديمي (Research Proposal)</option>
-                            <option value="checklist">قائمة التحقق والمتطلبات (Checklist)</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">البريد الإلكتروني للنسخة</label>
-                        <input type="email" id="docEmail" maxlength="100" placeholder="student@example.com"
-                            class="sp-input text-xs font-latin">
-                    </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">رفع ملف الـ CV (PDF أو TXT)</label>
+                    <input type="file" id="cvFileInput" accept=".pdf,.txt,.doc,.docx" class="sp-input text-xs file:mr-2 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 dark:file:bg-blue-900/30 dark:file:text-blue-300">
                 </div>
 
-                <!-- Actions -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <button type="button" id="generateDocBtn" onclick="generateSmartDocs(false)" class="sp-btn-primary py-3 px-4 text-xs sm:text-sm font-bold flex items-center justify-center gap-2">
-                        <span id="docBtnText">صياغة وعرض المستند بالترويسة الرسمية</span>
-                        <div id="docSpinner" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    </button>
+                <div class="text-center text-xs text-slate-400 font-bold">— أو الصق نص سيرتك الذاتية —</div>
 
-                    <button type="button" onclick="generateSmartDocs(true)" class="sp-btn-secondary py-3 px-4 text-xs sm:text-sm font-bold flex items-center justify-center gap-2">
-                        <i data-lucide="download" class="w-4 h-4 text-emerald-500"></i>
-                        <span>تحميل المستند الرسمي فوراً كملف (TXT)</span>
-                    </button>
+                <div>
+                    <textarea id="cvTextInput" rows="4" placeholder="الصق نص السيرة الذاتية هنا (التعليم، المشاريع، المهارات، اللغات)..." class="sp-input text-xs"></textarea>
                 </div>
 
-                <!-- Results Output -->
-                <div id="docResultBox" class="hidden mt-6 space-y-4">
-                    <div class="flex border-b border-slate-200 dark:border-slate-800 text-xs font-bold gap-3 pb-2" id="docTabs">
-                        <button type="button" onclick="switchDocTab('motTab')" id="motTabBtn" class="text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 pb-1 font-bold">خطاب الدافع</button>
-                        <button type="button" onclick="switchDocTab('recTab')" id="recTabBtn" class="text-slate-400 hover:text-slate-200 pb-1">خطاب التوصية</button>
-                        <button type="button" onclick="switchDocTab('cvTab')" id="cvTabBtn" class="text-slate-400 hover:text-slate-200 pb-1">السيرة الذاتية (CV)</button>
-                        <button type="button" onclick="switchDocTab('chkTab')" id="chkTabBtn" class="text-slate-400 hover:text-slate-200 pb-1">المتطلبات</button>
-                    </div>
-
-                    <div class="sp-subcard p-4 rounded-xl text-xs sm:text-sm font-mono overflow-x-auto max-h-80 overflow-y-auto">
-                        <pre id="docContentDisplay" class="whitespace-pre-wrap"></pre>
-                    </div>
-
-                    <div class="flex justify-between items-center text-xs text-slate-400">
-                        <span id="docSentNotice" class="text-emerald-500 font-bold flex items-center gap-1">
-                            <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
-                            <span>تم إرسال نسخة إلى بريدك الإلكتروني المسجل</span>
-                        </span>
-                        <div class="flex gap-2">
-                            <button type="button" onclick="copyCurrentDoc()" class="sp-btn-secondary px-3 py-1.5 text-xs font-semibold flex items-center gap-1">
-                                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-                                <span>نسخ النص</span>
-                            </button>
-                            <button type="button" onclick="downloadCurrentDisplay()" class="sp-btn-primary px-3 py-1.5 text-xs font-bold flex items-center gap-1">
-                                <i data-lucide="download" class="w-3.5 h-3.5"></i>
-                                <span>تنزيل</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
+                <button type="button" id="submitCvBtn" onclick="submitCVReview()" class="sp-btn-primary w-full py-2.5 text-xs font-bold flex items-center justify-center gap-2">
+                    <i data-lucide="check-circle" class="w-4 h-4"></i>
+                    <span id="submitCvBtnText">بدء فحص وتدقيق الـ CV</span>
+                </button>
             </div>
-
         </div>
-    </section>
+    </div>
+
+    <!-- 2. MOTIVATION LETTER MODAL -->
+    <div id="letterModal" class="sp-modal-overlay">
+        <div class="sp-modal-dialog p-6 sm:p-7 space-y-4 text-right">
+            <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="pen-tool" class="w-5 h-5 text-rose-500"></i>
+                    <h3 class="font-bold text-base text-slate-900 dark:text-white">تدقيق رسالة الدافع (Motivation Letter Reviewer)</h3>
+                </div>
+                <button type="button" onclick="closeModal('letterModal')" class="text-slate-400 hover:text-slate-200 p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400">
+                فحص جودة المقدمة، ترابط الأهداف الأكاديمية، خلو الخطاب من الكليشيهات المكررة، واقتراح نموذج معدل لزيادة فرص قبولك.
+            </p>
+
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المنحة أو الجامعة المستهدفة</label>
+                    <input type="text" id="letterTargetSch" placeholder="مثلاً: Chevening أو Stipendium Hungaricum" class="sp-input text-xs">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">رفع ملف الخطاب (PDF أو TXT)</label>
+                    <input type="file" id="letterFileInput" accept=".pdf,.txt,.doc,.docx" class="sp-input text-xs file:mr-2 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 dark:file:bg-blue-900/30 dark:file:text-blue-300">
+                </div>
+
+                <div class="text-center text-xs text-slate-400 font-bold">— أو الصق نص الخطاب مباشرة —</div>
+
+                <div>
+                    <textarea id="letterTextInput" rows="5" placeholder="الصق نص خطاب الدافع هنا (المقدمة، الدوافع، الأهداف، الأثر)..." class="sp-input text-xs"></textarea>
+                </div>
+
+                <button type="button" id="submitLetterBtn" onclick="submitLetterReview()" class="sp-btn-primary w-full py-2.5 text-xs font-bold flex items-center justify-center gap-2">
+                    <i data-lucide="check-circle" class="w-4 h-4"></i>
+                    <span id="submitLetterBtnText">بدء تدقيق خطاب الدافع</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. COMPARE SCHOLARSHIPS MODAL -->
+    <div id="compareModal" class="sp-modal-overlay">
+        <div class="sp-modal-dialog p-6 sm:p-7 space-y-4 text-right">
+            <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="scale" class="w-5 h-5 text-amber-500"></i>
+                    <h3 class="font-bold text-base text-slate-900 dark:text-white">مقارنة المنح الدراسية (Side-by-Side Comparison)</h3>
+                </div>
+                <button type="button" onclick="closeModal('compareModal')" class="text-slate-400 hover:text-slate-200 p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400">
+                اختر منحتين لمقارنة التغطية المالية، الراتب الشهري، شروط اللغة، الصعوبة، وآلية التقديم في جدول تفصيلي واحد.
+            </p>
+
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المنحة الأولى</label>
+                    <select id="compareSch1" class="sp-input text-xs">
+                        <option value="hungaricum" selected>Stipendium Hungaricum (المجر)</option>
+                        <option value="turkiye">Türkiye Bursları (تركيا)</option>
+                        <option value="daad">DAAD Scholarships (ألمانيا)</option>
+                        <option value="chevening">Chevening Scholarship (بريطانيا)</option>
+                        <option value="erasmus">Erasmus Mundus (الاتحاد الأوروبي)</option>
+                        <option value="pearson">Lester B. Pearson (كندا)</option>
+                        <option value="gks">Global Korea Scholarship (كوريا)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المنحة الثانية</label>
+                    <select id="compareSch2" class="sp-input text-xs">
+                        <option value="daad" selected>DAAD Scholarships (ألمانيا)</option>
+                        <option value="hungaricum">Stipendium Hungaricum (المجر)</option>
+                        <option value="turkiye">Türkiye Bursları (تركيا)</option>
+                        <option value="chevening">Chevening Scholarship (بريطانيا)</option>
+                        <option value="erasmus">Erasmus Mundus (الاتحاد الأوروبي)</option>
+                        <option value="pearson">Lester B. Pearson (كندا)</option>
+                        <option value="gks">Global Korea Scholarship (كوريا)</option>
+                    </select>
+                </div>
+
+                <button type="button" onclick="submitCompare()" class="sp-btn-primary w-full py-2.5 text-xs font-bold flex items-center justify-center gap-2">
+                    <i data-lucide="scale" class="w-4 h-4"></i>
+                    <span>توليد المقارنة والرأي الاستشاري</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. OFFICIAL EMAIL ASSISTANT MODAL -->
+    <div id="emailModal" class="sp-modal-overlay">
+        <div class="sp-modal-dialog p-6 sm:p-7 space-y-4 text-right">
+            <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="mail" class="w-5 h-5 text-blue-600"></i>
+                    <h3 class="font-bold text-base text-slate-900 dark:text-white">مساعد صياغة الإيميلات الرسمية (Email Assistant)</h3>
+                </div>
+                <button type="button" onclick="closeModal('emailModal')" class="text-slate-400 hover:text-slate-200 p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400">
+                صياغة مراسلات أكاديمية رسمية باللغة الإنجليزية المعيارية مع إمكانية النسخ بضغطة زر واحدة.
+            </p>
+
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">نوع المراسلة</label>
+                    <select id="emailTypeSelect" class="sp-input text-xs">
+                        <option value="inquiry">استفسار أكاديمي للجنة القبول (Scholarship Inquiry)</option>
+                        <option value="professor_outreach">مراسلة أستاذ لطلب الإشراف الأكاديمي (Professor Outreach)</option>
+                        <option value="recommendation_request">طلب رسالة توصية من دكتور (Recommendation Letter Request)</option>
+                        <option value="follow_up">متابعة محترمة لحالة الطلب (Application Follow-up)</option>
+                        <option value="thank_you">رسالة شكر بعد المقابلة (Thank-You Note)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">اسم المنحة / الجامعة</label>
+                    <input type="text" id="emailSchTarget" placeholder="مثلاً: DAAD Program أو University of Toronto" class="sp-input text-xs">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">اسم المستلم أو البروفيسور (اختياري)</label>
+                    <input type="text" id="emailRecipientName" placeholder="مثلاً: Dr. Schmidt أو Admissions Committee" class="sp-input text-xs">
+                </div>
+
+                <button type="button" onclick="submitDraftEmail()" class="sp-btn-primary w-full py-2.5 text-xs font-bold flex items-center justify-center gap-2">
+                    <i data-lucide="send" class="w-4 h-4"></i>
+                    <span>صياغة الإيميل الآن</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. APPLICATION ROADMAP MODAL -->
+    <div id="roadmapModal" class="sp-modal-overlay">
+        <div class="sp-modal-dialog p-6 sm:p-7 space-y-4 text-right">
+            <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="calendar" class="w-5 h-5 text-teal-500"></i>
+                    <h3 class="font-bold text-base text-slate-900 dark:text-white">خطة التقديم والجدول الزمني (Application Roadmap)</h3>
+                </div>
+                <button type="button" onclick="closeModal('roadmapModal')" class="text-slate-400 hover:text-slate-200 p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400">
+                تقسيم فترة التقديم إلى مراحل أسبوعية دقيقة مع قائمة تحقق (Checklist) قابلة للمتابعة.
+            </p>
+
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">اختر المنحة المستهدفة</label>
+                    <select id="roadmapSchSelect" class="sp-input text-xs">
+                        <option value="Stipendium Hungaricum" selected>Stipendium Hungaricum (المجر)</option>
+                        <option value="Türkiye Bursları">Türkiye Bursları (تركيا)</option>
+                        <option value="DAAD">DAAD Development Courses (ألمانيا)</option>
+                        <option value="Chevening">Chevening Scholarship (بريطانيا)</option>
+                        <option value="Erasmus Mundus">Erasmus Mundus (أوروبا)</option>
+                        <option value="Lester B. Pearson">Lester B. Pearson (كندا)</option>
+                    </select>
+                </div>
+
+                <button type="button" onclick="submitRoadmap()" class="sp-btn-primary w-full py-2.5 text-xs font-bold flex items-center justify-center gap-2">
+                    <i data-lucide="calendar-check" class="w-4 h-4"></i>
+                    <span>إنشاء الخطة الزمنية وقائمة التحقق</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+
 
     <!-- ==================== FAQ SECTION ==================== -->
     <section id="faqSection" class="py-14 sm:py-20 border-b border-slate-200/80 dark:border-slate-800/80">
@@ -886,9 +1089,6 @@
                 send_welcome_report: document.getElementById('sendWelcome').checked
             };
 
-            // Pre-fill doc email
-            document.getElementById('docEmail').value = payload.email;
-
             try {
                 const res = await fetch('/api/subscribe', {
                     method: 'POST',
@@ -921,8 +1121,146 @@
             }
         });
 
-        // --- AI ADVISOR CHAT ---
+        // --- PRODUCTION-GRADE AI SCHOLARSHIP ADVISOR CLIENT SUITE ---
         let chatHistory = [];
+
+        function updateAdvisorProfileSync() {
+            let name = "طالب مبادر";
+            let gpa = "85%";
+            let major = "هندسة برمجيات";
+
+            const savedUser = localStorage.getItem('minha_user');
+            if (savedUser) {
+                try {
+                    const u = JSON.parse(savedUser);
+                    if (u.full_name) name = u.full_name;
+                    if (u.gpa) gpa = u.gpa;
+                    if (u.majors && u.majors.length > 0) major = u.majors[0];
+                } catch(e) {}
+            } else {
+                const nameInp = document.getElementById('fullName');
+                const gpaInp = document.getElementById('gpaInput');
+                if (nameInp && nameInp.value.trim()) name = nameInp.value.trim();
+                if (gpaInp && gpaInp.value.trim()) gpa = gpaInp.value.trim();
+            }
+
+            const badge = document.getElementById('advisorProfileSummary');
+            if (badge) {
+                badge.textContent = `الملف النشط: ${name} (${major} • ${gpa})`;
+            }
+        }
+
+        function getActiveStudentEmail() {
+            const savedUser = localStorage.getItem('minha_user');
+            if (savedUser) {
+                try {
+                    const u = JSON.parse(savedUser);
+                    if (u.email) return u.email;
+                } catch(e) {}
+            }
+            const emailInp = document.getElementById('email');
+            return emailInp && emailInp.value.trim() ? emailInp.value.trim() : null;
+        }
+
+        function openModal(id) {
+            const m = document.getElementById(id);
+            if (m) {
+                m.classList.add('is-open');
+                if (window.lucide) lucide.createIcons();
+            }
+        }
+
+        function closeModal(id) {
+            const m = document.getElementById(id);
+            if (m) m.classList.remove('is-open');
+        }
+
+        function copyTextToClipboard(text, btnElement) {
+            navigator.clipboard.writeText(text).then(() => {
+                if (btnElement) {
+                    const originalHtml = btnElement.innerHTML;
+                    btnElement.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i><span>تم النسخ بنجاح!</span>`;
+                    if (window.lucide) lucide.createIcons();
+                    setTimeout(() => {
+                        btnElement.innerHTML = originalHtml;
+                        if (window.lucide) lucide.createIcons();
+                    }, 2500);
+                }
+            }).catch(err => {
+                alert("تعذر النسخ تلقائياً: " + err);
+            });
+        }
+
+        function renderFollowUpChips(chips) {
+            const container = document.getElementById('dynamicFollowUpBox');
+            if (!container) return;
+            if (!chips || chips.length === 0) {
+                container.classList.add('hidden');
+                container.innerHTML = '';
+                return;
+            }
+            container.innerHTML = chips.map(c => `
+                <button type="button" onclick="sendPresetMessage('${escapeHTML(c)}')" class="px-2.5 py-1 rounded-lg text-xs sp-subcard hover:border-blue-500 text-blue-600 dark:text-blue-400 transition font-medium flex items-center gap-1">
+                    <i data-lucide="arrow-left" class="w-3 h-3"></i>
+                    <span>${escapeHTML(c)}</span>
+                </button>
+            `).join('');
+            container.classList.remove('hidden');
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function appendUserBubble(text) {
+            const chatBox = document.getElementById('chatHistoryBox');
+            const userBubble = document.createElement('div');
+            userBubble.className = "flex justify-end";
+            userBubble.innerHTML = `
+                <div class="chat-bubble-user p-3.5 max-w-[85%] leading-relaxed shadow-sm">
+                    ${escapeHTML(text)}
+                </div>
+            `;
+            chatBox.appendChild(userBubble);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function appendTypingIndicator(message = "المستشار يحلل بياناتك الأكاديمية والشروط الرسمية...") {
+            const chatBox = document.getElementById('chatHistoryBox');
+            const typingBubble = document.createElement('div');
+            typingBubble.id = "typingBubble";
+            typingBubble.className = "flex items-start gap-2.5";
+            typingBubble.innerHTML = `
+                <div class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0 font-latin shadow-sm">AI</div>
+                <div class="chat-bubble-advisor p-3.5 max-w-[85%] leading-relaxed flex items-center gap-3">
+                    <div class="typing-dots">
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                    </div>
+                    <span class="text-xs text-slate-500 dark:text-slate-400 italic">${message}</span>
+                </div>
+            `;
+            chatBox.appendChild(typingBubble);
+            chatBox.scrollTop = chatBox.scrollHeight;
+            return typingBubble;
+        }
+
+        function appendAdvisorResponse(markdownText, followUps = []) {
+            const typing = document.getElementById('typingBubble');
+            if (typing) typing.remove();
+
+            const chatBox = document.getElementById('chatHistoryBox');
+            const advBubble = document.createElement('div');
+            advBubble.className = "flex items-start gap-2.5";
+            advBubble.innerHTML = `
+                <div class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0 font-latin shadow-sm">AI</div>
+                <div class="chat-bubble-advisor p-4 max-w-[88%] leading-relaxed shadow-sm prose dark:prose-invert text-xs sm:text-sm">
+                    ${marked.parse(markdownText)}
+                </div>
+            `;
+            chatBox.appendChild(advBubble);
+            chatBox.scrollTop = chatBox.scrollHeight;
+            renderFollowUpChips(followUps);
+            if (window.lucide) lucide.createIcons();
+        }
 
         function sendPresetMessage(text) {
             document.getElementById('chatInputText').value = text;
@@ -934,40 +1272,17 @@
             const query = input.value.trim();
             if (!query) return;
 
-            const chatBox = document.getElementById('chatHistoryBox');
+            appendUserBubble(query);
+            input.value = "";
+            const typing = appendTypingIndicator();
+
             const sendBtn = document.getElementById('chatSendBtn');
             const sendBtnText = document.getElementById('chatSendBtnText');
-
-            // User bubble
-            const userBubble = document.createElement('div');
-            userBubble.className = "flex justify-end";
-            userBubble.innerHTML = `
-                <div class="chat-bubble-user p-3 max-w-[85%] leading-relaxed shadow-sm">
-                    ${escapeHTML(query)}
-                </div>
-            `;
-            chatBox.appendChild(userBubble);
-            input.value = "";
-            chatBox.scrollTop = chatBox.scrollHeight;
-
-            // Typing indicator
-            const typingBubble = document.createElement('div');
-            typingBubble.id = "typingBubble";
-            typingBubble.className = "flex items-start gap-2.5";
-            typingBubble.innerHTML = `
-                <div class="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0 font-latin">AI</div>
-                <div class="chat-bubble-advisor p-3 max-w-[85%] leading-relaxed text-slate-400 italic">
-                    المستشار يحلل شروط المنح والخيارات الأنسب...
-                </div>
-            `;
-            chatBox.appendChild(typingBubble);
-            chatBox.scrollTop = chatBox.scrollHeight;
-
             sendBtn.disabled = true;
             sendBtnText.textContent = "...";
 
             try {
-                const email = document.getElementById('email').value.trim() || null;
+                const email = getActiveStudentEmail();
                 const res = await fetch('/api/advisor/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -978,172 +1293,331 @@
                     })
                 });
                 const data = await res.json();
-                typingBubble.remove();
-
                 if (data.advice) {
-                    const advBubble = document.createElement('div');
-                    advBubble.className = "flex items-start gap-2.5";
-                    advBubble.innerHTML = `
-                        <div class="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0 font-latin">AI</div>
-                        <div class="chat-bubble-advisor p-3.5 max-w-[85%] leading-relaxed shadow-sm prose dark:prose-invert text-xs sm:text-sm">
-                            ${marked.parse(data.advice)}
-                        </div>
-                    `;
-                    chatBox.appendChild(advBubble);
-
-                    chatHistory.push({ role: "user", parts: [query] });
-                    chatHistory.push({ role: "model", parts: [data.advice] });
-                    if (chatHistory.length > 10) chatHistory = chatHistory.slice(-10);
+                    appendAdvisorResponse(data.advice, data.follow_ups || []);
+                    chatHistory.push({ role: "user", text: query });
+                    chatHistory.push({ role: "model", text: data.advice });
+                    if (chatHistory.length > 8) chatHistory = chatHistory.slice(-8);
                 } else {
-                    const errBubble = document.createElement('div');
-                    errBubble.className = "flex items-start gap-2.5";
-                    errBubble.innerHTML = `
-                        <div class="w-7 h-7 rounded-lg bg-rose-600 text-white flex items-center justify-center font-bold text-xs shrink-0 font-latin">!</div>
-                        <div class="chat-bubble-advisor p-3 text-rose-500">تعذر معالجة الطلب حالياً. يرجى إعادة المحاولة.</div>
-                    `;
-                    chatBox.appendChild(errBubble);
+                    appendAdvisorResponse("عذراً، حدثت مشكلة في معالجة طلبك حالياً. يمكنك تجربة اختيار أداة من شريط الأدوات أعلاه.");
                 }
             } catch(err) {
-                if (typingBubble) typingBubble.remove();
-                console.error(err);
+                if (typing) typing.remove();
+                appendAdvisorResponse("حدث خطأ في الاتصال بالخادم. يرجى التأكد من اتصالك بالإنترنت.");
             } finally {
                 sendBtn.disabled = false;
                 sendBtnText.textContent = "إرسال";
-                chatBox.scrollTop = chatBox.scrollHeight;
                 if (window.lucide) lucide.createIcons();
             }
         }
 
-        // --- SMART APPLICATION DOCUMENTS GENERATOR ---
-        let currentDocs = {};
+        // ==================== AI TOOLBAR HANDLERS ====================
+        async function triggerTool(toolName) {
+            updateAdvisorProfileSync();
+            const email = getActiveStudentEmail();
 
-        async function generateSmartDocs(triggerDownload) {
-            const email = document.getElementById('docEmail').value.trim() || document.getElementById('email').value.trim();
-            if (!email) {
-                alert("يرجى إدخال بريدك الإلكتروني لاستلام أو تحميل المستند.");
-                document.getElementById('docEmail').focus();
-                return;
+            if (toolName === 'chances') {
+                appendUserBubble("ما هي فرص قبولي التقديرية بناءً على ملفي المسجل؟");
+                appendTypingIndicator("جاري حساب درجات التوافق والمعدل والكوتا...");
+                try {
+                    const res = await fetch('/api/advisor/chances', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: email })
+                    });
+                    const d = await res.json();
+                    const md = `
+### 🎯 فحص احتمالية القبول لمنحة: **${d.scholarship_name}**
+• **المؤسسة والدولة:** ${d.university} (${d.country})
+• **نسبة القبول التقديرية:** \`${d.acceptance_probability}\`
+• **مستوى التنافسية:** ${d.competitive_level}
+• **درجة الثقة في التحليل:** ${d.confidence}
+
+#### نقاط القوة الأكاديمية:
+${(d.strengths || []).map(s => '• ' + s).join('\n')}
+
+#### متطلبات واجب مراعاتها:
+${(d.weaknesses || []).map(w => '• ' + w).join('\n')}
+
+💡 **توصية المستشار:** ${d.recommendation}
+                    `.strip();
+                    appendAdvisorResponse(md, ["كيف أرفع فرصة قبولي؟", "قارن هذه المنحة مع خيارات أخرى", "أعد لي جدول التقديم"]);
+                    confetti({ particleCount: 45, spread: 50 });
+                } catch(e) {
+                    appendAdvisorResponse("حدث خطأ أثناء تقييم الفرص: " + e.message);
+                }
+
+            } else if (toolName === 'deadlines') {
+                appendUserBubble("ما هي مواعيد إغلاق المنح القادمة والفرص العاجلة؟");
+                appendTypingIndicator("جاري مسح مواعيد الإغلاق وساعات العمل الرسمية...");
+                try {
+                    const res = await fetch('/api/advisor/deadlines');
+                    const d = await res.json();
+                    let md = `### ⏰ رادار مواعيد الإغلاق للمنح المعتمدة\n\n`;
+                    if (d.closing_this_week && d.closing_this_week.length > 0) {
+                        md += `#### 🚨 فرص تغلق هذا الأسبوع (عاجلة):\n`;
+                        d.closing_this_week.forEach(item => {
+                            md += `• **${item.name}** (${item.country}) - متبقي \`${item.days_remaining}\` أيام (تاريخ الإغلاق: **${item.deadline}**) | [رابط التقديم الرسمي](${item.link})\n`;
+                        });
+                    }
+                    if (d.closing_in_30_days && d.closing_in_30_days.length > 0) {
+                        md += `\n#### 📅 فرص تغلق خلال 30 يوماً:\n`;
+                        d.closing_in_30_days.forEach(item => {
+                            md += `• **${item.name}** (${item.country}) - متبقي \`${item.days_remaining}\` يوماً (تاريخ الإغلاق: **${item.deadline}**) | [رابط التقديم](${item.link})\n`;
+                        });
+                    }
+                    md += `\n💡 **نصيحة هامة:** احرص على إرسال طلبك قبل 72 ساعة على الأقل لتفادي الضغط التقني على بوابات الجامعات.`;
+                    appendAdvisorResponse(md, ["ما هي شروط المنح العاجلة؟", "أعد لي خطة عمل أسبوعية", "صيغ لي إيميل استفسار"]);
+                } catch(e) {
+                    appendAdvisorResponse("تعذر استرجاع مواعيد الإغلاق حالياً: " + e.message);
+                }
+
+            } else if (toolName === 'find' || toolName === 'eligibility') {
+                const prompt = toolName === 'find' 
+                    ? "ابحث لي عن أفضل المنح المفتوحة والممولة بالكامل التي تناسب تخصصي ومعدلي الحالي"
+                    : "افحص أهليتي الأكاديمية للدراسة في الخارج وحدد لي أفضل الدول المستهدفة";
+                sendPresetMessage(prompt);
+
+            } else if (toolName === 'saved') {
+                const savedUser = localStorage.getItem('minha_user');
+                let savedList = [];
+                if (savedUser) {
+                    try { savedList = JSON.parse(savedUser).saved_scholarships || []; } catch(e) {}
+                }
+                if (savedList.length === 0) {
+                    appendAdvisorResponse("لم تقم بحفظ أي منح في قائمتك بعد. يمكنك استعراض [رادار المنح المتاحة](#radarSection) والضغط على زر 'تفعيل تذكير الموعد' لحفظها ومتابعتها.", ["استعرض رادار المنح الآن"]);
+                } else {
+                    const md = `### 🔖 قائمة المنح المحفوظة في ملفك:\n\n` + savedList.map((s, i) => `${i+1}. **${s}** (تذكيرات المواعيد مفعلة آلياً)`).join('\n') + `\n\n💡 سيصلك تنبيه بريدي تلقائي قبل موعد إغلاق كل منحة بـ 30 و 14 و 7 و 2 أيام.`;
+                    appendAdvisorResponse(md, ["احسب فرصة قبولي في منحي المحفوظة", "أعد لي جدول التقديم الزمني"]);
+                }
             }
+        }
 
-            const scholarship = document.getElementById('docScholarship').value;
-            const docType = document.getElementById('docTypeSelect').value;
-            const name = document.getElementById('fullName').value.trim() || "Student";
-            const gpa = document.getElementById('gpaInput').value.trim() || "85%";
-            const talents = document.getElementById('talentsInput').value.trim();
-            const major = selectedMajors[0] || "Software Engineering";
+        // CV Review Submission
+        async function submitCVReview() {
+            closeModal('cvModal');
+            const fileInput = document.getElementById('cvFileInput');
+            const textInput = document.getElementById('cvTextInput');
+            const targetSch = document.getElementById('cvTargetSch').value.trim() || "Global Accredited Scholarship";
+            const email = getActiveStudentEmail();
 
-            const btn = document.getElementById('generateDocBtn');
-            const btnText = document.getElementById('docBtnText');
-            const spinner = document.getElementById('docSpinner');
-            const resultBox = document.getElementById('docResultBox');
-
-            btn.disabled = true;
-            btnText.textContent = "جارٍ صياغة الترويسة والمستند الرسمي...";
-            spinner.classList.remove('hidden');
+            appendUserBubble(`طلب تدقيق السيرة الذاتية (CV) لمنحة: ${targetSch}`);
+            appendTypingIndicator("جاري فحص وتدقيق هيكلية السيرة الذاتية والإنجازات بنظام الذكاء الاصطناعي...");
 
             try {
-                if (triggerDownload) {
-                    const res = await fetch('/api/documents/download', {
+                let res;
+                if (fileInput.files && fileInput.files[0]) {
+                    const formData = new FormData();
+                    formData.append('file', fileInput.files[0]);
+                    if (email) formData.append('email', email);
+                    formData.append('target_scholarship', targetSch);
+                    res = await fetch('/api/advisor/upload-cv', { method: 'POST', body: formData });
+                } else if (textInput.value.trim()) {
+                    res = await fetch('/api/advisor/review-cv', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            student_name: name,
                             email: email,
-                            degree: selectedDegree,
-                            major: major,
-                            gpa: gpa,
-                            scholarship_name: scholarship,
-                            doc_type: docType,
-                            talents_experience: talents,
-                            send_to_email: false
+                            cv_text: textInput.value.trim(),
+                            target_scholarship: targetSch
                         })
                     });
-                    if (res.ok) {
-                        const blob = await res.blob();
-                        const url = window.URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = `${scholarship.split(' ')[0]}_${docType}_Dossier.txt`;
-                        document.body.appendChild(a);
-                        a.click();
-                        a.remove();
-                        window.URL.revokeObjectURL(url);
-                        confetti({ particleCount: 40, spread: 50 });
-                    }
+                } else {
+                    appendAdvisorResponse("يرجى إرفاق ملف PDF أو لصق نص السيرة الذاتية لإتمام الفحص.");
+                    return;
                 }
 
-                // Also fetch for preview
-                const resGen = await fetch('/api/documents/generate', {
+                const data = await res.json();
+                if (data.analysis) {
+                    appendAdvisorResponse(data.analysis, ["كيف أحسن النقاط الضعيفة في الـ CV؟", "صيغ لي إيميل لمراسلة دكتور", "أعد لي خطة زمنية للتقديم"]);
+                    confetti({ particleCount: 50, spread: 60 });
+                } else {
+                    appendAdvisorResponse(data.detail || "تعذر إتمام فحص الـ CV. يرجى التأكد من وضوح النص.");
+                }
+            } catch(e) {
+                appendAdvisorResponse("حدث خطأ أثناء تدقيق السيرة الذاتية: " + e.message);
+            }
+        }
+
+        // Motivation Letter Review Submission
+        async function submitLetterReview() {
+            closeModal('letterModal');
+            const fileInput = document.getElementById('letterFileInput');
+            const textInput = document.getElementById('letterTextInput');
+            const targetSch = document.getElementById('letterTargetSch').value.trim() || "Scholarship Committee";
+            const email = getActiveStudentEmail();
+
+            appendUserBubble(`طلب تدقيق رسالة الدافع (Motivation Letter) لمنحة: ${targetSch}`);
+            appendTypingIndicator("جاري تقييم عمق الخطاب، المقدمة، وترابط الأهداف الأكاديمية...");
+
+            try {
+                let res;
+                if (fileInput.files && fileInput.files[0]) {
+                    const formData = new FormData();
+                    formData.append('file', fileInput.files[0]);
+                    if (email) formData.append('email', email);
+                    formData.append('target_scholarship', targetSch);
+                    res = await fetch('/api/advisor/upload-letter', { method: 'POST', body: formData });
+                } else if (textInput.value.trim()) {
+                    res = await fetch('/api/advisor/review-letter', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            email: email,
+                            letter_text: textInput.value.trim(),
+                            target_scholarship: targetSch
+                        })
+                    });
+                } else {
+                    appendAdvisorResponse("يرجى إرفاق ملف أو إدخال نص رسالة الدافع للبدء في التدقيق.");
+                    return;
+                }
+
+                const data = await res.json();
+                if (data.analysis) {
+                    appendAdvisorResponse(data.analysis, ["اعتمد لي الفقرة الافتتاحية المقترحة", "صيغ لي إيميل استفسار", "ما هي المواعيد القادمة؟"]);
+                    confetti({ particleCount: 40, spread: 50 });
+                } else {
+                    appendAdvisorResponse(data.detail || "تعذر فحص رسالة الدافع.");
+                }
+            } catch(e) {
+                appendAdvisorResponse("حدث خطأ أثناء تدقيق الرسالة: " + e.message);
+            }
+        }
+
+        // Compare Scholarships Submission
+        async function submitCompare() {
+            closeModal('compareModal');
+            const sch1 = document.getElementById('compareSch1').value;
+            const sch2 = document.getElementById('compareSch2').value;
+            const email = getActiveStudentEmail();
+
+            appendUserBubble(`مقارنة شاملة بين المنح: ${sch1} مقابل ${sch2}`);
+            appendTypingIndicator("جاري استخراج بيانات التمويل والراتب وشروط اللغة وإعداد المقارنة...");
+
+            try {
+                const res = await fetch('/api/advisor/compare', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        student_name: name,
                         email: email,
-                        degree: selectedDegree,
-                        major: major,
-                        gpa: gpa,
-                        scholarship_name: scholarship,
-                        doc_type: docType,
-                        talents_experience: talents,
-                        send_to_email: true
+                        scholarships: [sch1, sch2]
                     })
                 });
-                const data = await resGen.json();
-                if (data.success && data.documents) {
-                    currentDocs = data.documents;
-                    switchDocTab(docType === 'recommendation' ? 'recTab' : (docType === 'cv' ? 'cvTab' : (docType === 'checklist' ? 'chkTab' : 'motTab')));
-                    resultBox.classList.remove('hidden');
-                    resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                    confetti({ particleCount: 30, spread: 45 });
+                const d = await res.json();
+                if (d.success) {
+                    let md = `### ⚖️ جدول المقارنة التفصيلي المباشر:\n\n`;
+                    md += "| " + d.table_headers.join(" | ") + " |\n";
+                    md += "| " + d.table_headers.map(() => "---").join(" | ") + " |\n";
+                    d.table_rows.forEach(r => {
+                        md += "| " + r.join(" | ") + " |\n";
+                    });
+                    md += `\n### 🎓 الرأي الاستشاري المخصص لملفك:\n${d.verdict}`;
+                    appendAdvisorResponse(md, ["ما هي شروط اللغة للمنحة الأفضل؟", "أعد لي خطة تقديم للمنحة الأنسب", "صيغ لي إيميل رسمي"]);
                 }
-            } catch(err) {
-                alert("حدث خطأ أثناء إعداد المستندات: " + err.message);
-            } finally {
-                btn.disabled = false;
-                btnText.textContent = "صياغة وعرض المستند بالترويسة الرسمية";
-                spinner.classList.add('hidden');
-                if (window.lucide) lucide.createIcons();
+            } catch(e) {
+                appendAdvisorResponse("حدث خطأ أثناء توليد المقارنة: " + e.message);
             }
         }
 
-        function switchDocTab(tabName) {
-            const display = document.getElementById('docContentDisplay');
-            document.querySelectorAll('#docTabs button').forEach(b => {
-                b.className = "text-slate-400 hover:text-slate-200 pb-1";
-            });
+        // Official Email Assistant Submission
+        async function submitDraftEmail() {
+            closeModal('emailModal');
+            const type = document.getElementById('emailTypeSelect').value;
+            const target = document.getElementById('emailSchTarget').value.trim() || "Scholarship Committee";
+            const rec = document.getElementById('emailRecipientName').value.trim() || "Admissions Committee";
+            const email = getActiveStudentEmail();
 
-            const activeBtn = document.getElementById(tabName + 'Btn');
-            if (activeBtn) activeBtn.className = "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 pb-1 font-bold";
+            appendUserBubble(`صياغة إيميل رسمي (${type}) لمنحة: ${target}`);
+            appendTypingIndicator("جاري صياغة إيميل رسمي احترافي باللغة الإنجليزية المعيارية...");
 
-            if (tabName === 'motTab') {
-                display.textContent = currentDocs.motivation_letter || "لا يوجد محتوى متاح.";
-            } else if (tabName === 'recTab') {
-                display.textContent = currentDocs.recommendation_letter || "لا يوجد محتوى متاح.";
-            } else if (tabName === 'cvTab') {
-                display.textContent = currentDocs.academic_cv || "لا يوجد محتوى متاح.";
-            } else {
-                display.textContent = currentDocs.checklist || "لا يوجد محتوى متاح.";
+            try {
+                const res = await fetch('/api/advisor/draft-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: email,
+                        email_type: type,
+                        target_scholarship: target,
+                        recipient_name: rec
+                    })
+                });
+                const d = await res.json();
+                if (d.success) {
+                    const cleanBody = d.body;
+                    const encodedBody = encodeURIComponent(cleanBody);
+                    const md = `
+### ✉️ مسودة الإيميل الرسمي الجاهزة للإرسال:
+
+**الموضوع (Subject):** \`${d.subject}\`
+
+\`\`\`text
+${cleanBody}
+\`\`\`
+
+<div class="pt-2 flex gap-2">
+    <button type="button" onclick="copyTextToClipboard(decodeURIComponent('${encodedBody}'), this)" class="sp-btn-primary px-3 py-1.5 text-xs font-bold flex items-center gap-1.5">
+        <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+        <span>نسخ الإيميل كاملاً بضغطة زر</span>
+    </button>
+</div>
+                    `.strip();
+                    appendAdvisorResponse(md, ["عدل لي نبرة الإيميل لتكون أكثر إيجازاً", "أعد لي جدول التقديم الزمني", "ما هي المواعيد القادمة؟"]);
+                }
+            } catch(e) {
+                appendAdvisorResponse("حدث خطأ أثناء صياغة الإيميل: " + e.message);
             }
         }
 
-        function copyCurrentDoc() {
-            const text = document.getElementById('docContentDisplay').textContent;
-            navigator.clipboard.writeText(text);
-            alert("تم نسخ محتوى المستند والترويسة بنجاح!");
+        // Application Roadmap Submission
+        async function submitRoadmap() {
+            closeModal('roadmapModal');
+            const sch = document.getElementById('roadmapSchSelect').value;
+            const email = getActiveStudentEmail();
+
+            appendUserBubble(`إنشاء خطة وجدول زمني للتقديم على منحة: ${sch}`);
+            appendTypingIndicator("جاري حساب الأسابيع المتبقية وتقسيم المهام الأكاديمية...");
+
+            try {
+                const res = await fetch('/api/advisor/roadmap', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: email,
+                        scholarship_name: sch
+                    })
+                });
+                const d = await res.json();
+                if (d.success) {
+                    let md = `### 🗓️ خطة التقديم والجدول الزمني: **${d.scholarship_name}**\n`;
+                    md += `• **الموعد النهائي:** \`${d.deadline}\` (متبقي **${d.days_remaining}** يوماً تقريباً)\n\n`;
+
+                    d.roadmap.forEach(r => {
+                        md += `#### 📌 ${r.week}:\n`;
+                        r.milestones.forEach(m => {
+                            md += `• ${m}\n`;
+                        });
+                        md += `\n`;
+                    });
+
+                    md += `#### ✅ قائمة التحقق الأساسية (Application Checklist):\n`;
+                    d.checklist.forEach(item => {
+                        const icon = item.checked ? "☑️" : "🔲";
+                        md += `${icon} ${item.task}\n`;
+                    });
+
+                    appendAdvisorResponse(md, ["صيغ لي إيميل لطلب رسالة التوصية", "راجع لي السيرة الذاتية", "ما هي نسبة قبولي؟"]);
+                    confetti({ particleCount: 40, spread: 55 });
+                }
+            } catch(e) {
+                appendAdvisorResponse("حدث خطأ أثناء إعداد الخطة الزمنية: " + e.message);
+            }
         }
 
-        function downloadCurrentDisplay() {
-            const text = document.getElementById('docContentDisplay').textContent;
-            const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = "Official_Application_Document.txt";
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            window.URL.revokeObjectURL(url);
-        }
+        // Update profile badge on load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateAdvisorProfileSync();
+        });
 
         // --- LIVE SCHOLARSHIP FEED & DECK ---
         let scholarshipDeckData = [];
@@ -1443,12 +1917,16 @@
 
         async function saveToWatchlist(scholarshipName, btnElement) {
             confetti({ particleCount: 50, spread: 50, origin: { y: 0.7 } });
-            const email = document.getElementById('email').value.trim() || document.getElementById('docEmail').value.trim();
+            const emailInput = document.getElementById('email');
+            const email = emailInput ? emailInput.value.trim() : '';
             if (email) {
                 try {
+                    const token = localStorage.getItem('minha_token');
+                    const headers = { 'Content-Type': 'application/json' };
+                    if (token) headers['Authorization'] = 'Bearer ' + token;
                     const res = await fetch('/api/scholarships/save', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: headers,
                         body: JSON.stringify({ email: email, scholarship_name: scholarshipName })
                     });
                     const data = await res.json();

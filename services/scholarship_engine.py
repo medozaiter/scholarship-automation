@@ -12,6 +12,8 @@ from google import genai
 
 from services.search_service import SearchService, CURATED_VERIFIED_SCHOLARSHIPS
 from services.advisor_service import AdvisorService
+from services.security_utils import sanitize_email_header, security_rate_limiter
+from services.email_service import dispatch_email
 
 load_dotenv()
 
@@ -520,14 +522,11 @@ Ensure output is strictly valid JSON:
         student_profile: Optional[Dict[str, Any]] = None
     ) -> bool:
         """Runs the search, creates CSV/HTML with match scores, and sends directly to student's email."""
-        sender_email = os.getenv("SENDER_EMAIL") or os.getenv("EMAIL_USER")
-        gmail_password = os.getenv("GMAIL_APP_PASSWORD") or os.getenv("EMAIL_PASS")
-
-        if not sender_email or not gmail_password:
-            logger.error("Missing SENDER_EMAIL or GMAIL_APP_PASSWORD.")
-            return False
-
-        gmail_password = gmail_password.replace(" ", "").strip()
+        # Email cooldown check to prevent mailbombing
+        allowed, wait_sec = security_rate_limiter.check_welcome_email_cooldown(recipient_email)
+        if not allowed:
+            logger.info(f"Rate limiting email to {recipient_email}: cooldown active ({wait_sec}s remaining).")
+            return True
 
         scholarships = await self.search_and_extract(
             degree=degree,
@@ -535,52 +534,35 @@ Ensure output is strictly valid JSON:
             country=country
         )
 
-        temp_csv = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", f"report_{recipient_email.replace('@', '_')}.csv")
+        temp_csv = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", f"report_{abs(hash(recipient_email))}.csv")
         os.makedirs(os.path.dirname(temp_csv), exist_ok=True)
         self.generate_csv(scholarships, temp_csv)
         html_content = self.build_html_report(scholarships, student_name, degree, majors, country, student_profile)
 
-        msg = EmailMessage()
-        msg["Subject"] = f"دليل منح {degree} المتوافقة معك | تقرير أسبوعي ({datetime.now().strftime('%d-%m-%Y')})"
-        msg["From"] = f"Scholarship Tracker <{sender_email}>"
-        msg["To"] = recipient_email
-
-        msg.set_content(
+        clean_subject = sanitize_email_header(f"دليل منح {degree} المتوافقة معك | تقرير أسبوعي ({datetime.now().strftime('%d-%m-%Y')})")
+        text_content = (
             f"مرحباً {student_name}، مرفق تقرير أحدث منح {degree} مع درجات التوافق (Match Score) للطلاب من {country}.\n"
             f"يرجى فتح الإيميل في متصفح يدعم HTML للاطلاع على الجدول المنظم أو فتح ملف CSV المرفق."
         )
-        msg.add_alternative(html_content, subtype="html")
 
+        attachments = []
         try:
             with open(temp_csv, "rb") as f:
-                msg.add_attachment(
-                    f.read(),
-                    maintype="text",
-                    subtype="csv",
-                    filename="scholarships_report.csv"
-                )
+                attachments.append({
+                    "filename": "scholarships_report.csv",
+                    "content_bytes": f.read()
+                })
         except Exception as e:
-            logger.warning(f"Could not attach CSV: {e}")
+            logger.warning(f"Could not read CSV for attachment: {e}")
 
         try:
-            logger.info(f"Delivering report to {recipient_email}...")
-            with smtplib.SMTP("smtp.gmail.com", 587, timeout=25) as server:
-                server.starttls()
-                server.login(sender_email, gmail_password)
-                server.send_message(msg)
-                logger.info(f"✅ Successfully delivered customized report to {recipient_email}!")
-                return True
-        except Exception as e:
-            logger.error(f"Failed TLS delivery: {e}. Trying SSL 465...")
-            try:
-                with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=25) as server:
-                    server.login(sender_email, gmail_password)
-                    server.send_message(msg)
-                    logger.info(f"✅ Successfully delivered report to {recipient_email} via SSL!")
-                    return True
-            except Exception as e2:
-                logger.error(f"Failed to deliver to {recipient_email}: {e2}")
-                return False
+            return await dispatch_email(
+                to_email=recipient_email,
+                subject=clean_subject,
+                html_content=html_content,
+                text_content=text_content,
+                attachments=attachments
+            )
         finally:
             if os.path.exists(temp_csv):
                 try:

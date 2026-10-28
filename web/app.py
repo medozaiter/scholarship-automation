@@ -3,7 +3,7 @@ import re
 import asyncio
 import logging
 from typing import List, Optional, Dict, Any
-from fastapi import FastAPI, BackgroundTasks, HTTPException, Query, Request, Response
+from fastapi import FastAPI, BackgroundTasks, HTTPException, Query, Request, Response, UploadFile, File, Form
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,6 +14,8 @@ from services.scholarship_engine import ScholarshipEngine
 from services.advisor_service import AdvisorService
 from services.auth_service import AuthService
 from services.automation_service import AutomationService, start_automation_daemon
+from services.db import init_db_and_migrate, is_db_available
+from services.email_service import get_email_provider_info
 from services.security_utils import (
     validate_email,
     validate_name,
@@ -21,7 +23,11 @@ from services.security_utils import (
     validate_password,
     sanitize_text,
     sanitize_advisor_query,
-    validate_talents_experience
+    validate_talents_experience,
+    validate_uploaded_file,
+    sanitize_uploaded_text,
+    security_rate_limiter,
+    verify_session_token
 )
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -38,16 +44,56 @@ app = FastAPI(
     version="2.5.0"
 )
 
-# CORS Middleware
+# Secure CORS Middleware
+allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "").strip()
+allowed_origins = [o.strip() for o in allowed_origins_env.split(",") if o.strip()] if allowed_origins_env else ["*"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
+    allow_origins=allowed_origins,
+    allow_credentials=bool(allowed_origins_env),
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
 
-# Security Headers Middleware
+# Application Rate Limiting Middleware with Anti-Spoofing Defense
+@app.middleware("http")
+async def rate_limiting_middleware(request: Request, call_next):
+    path = request.url.path
+    if path.startswith("/api/"):
+        peer_ip = request.client.host if request.client else "127.0.0.1"
+        forwarded = request.headers.get("x-forwarded-for")
+        # Anti-spoofing: only trust X-Forwarded-For if direct peer is local reverse proxy or testclient
+        if forwarded and peer_ip in ["127.0.0.1", "::1", "localhost", "testclient"]:
+            client_ip = forwarded.split(",")[0].strip()
+        else:
+            client_ip = peer_ip
+
+        category = "general"
+        if path.startswith("/api/auth/"):
+            category = "auth"
+        elif path.startswith("/api/advisor/upload-"):
+            category = "upload"
+        elif path.startswith("/api/advisor/"):
+            category = "advisor"
+        elif path == "/api/subscribe":
+            category = "subscribe"
+
+        allowed, retry_after = security_rate_limiter.check_rate_limit(client_ip, category)
+        if not allowed:
+            logger.warning(f"Rate limit exceeded for IP {client_ip} on category '{category}'")
+            return JSONResponse(
+                status_code=429,
+                content={
+                    "success": False,
+                    "detail": f"تم تجاوز عدد الطلبات المسموح به. يرجى الانتظار {retry_after} ثانية والمحاولة مجدداً.",
+                    "retry_after": retry_after
+                },
+                headers={"Retry-After": str(retry_after)}
+            )
+    return await call_next(request)
+
+# Hardened Security Headers Middleware
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next):
     response = await call_next(request)
@@ -55,6 +101,19 @@ async def add_security_headers(request: Request, call_next):
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["X-XSS-Protection"] = "1; mode=block"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
+    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=(), payment=()"
+    response.headers["Content-Security-Policy"] = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com https://cdn.jsdelivr.net; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+        "font-src 'self' https://fonts.gstatic.com data:; "
+        "img-src 'self' data: https:; "
+        "connect-src 'self'; "
+        "frame-ancestors 'none'; "
+        "object-src 'none'; "
+        "base-uri 'self';"
+    )
     return response
 
 @app.exception_handler(RequestValidationError)
@@ -81,8 +140,42 @@ automation_service = AutomationService()
 
 @app.on_event("startup")
 async def startup_event():
+    """Initializes database schema migrations and starts background daemon."""
+    logger.info("Initializing database migrations and tables...")
+    try:
+        init_db_and_migrate()
+    except Exception as e:
+        logger.error(f"Database initialization warning: {e}")
+
     logger.info("Initializing 100% Automated Background Scholarship & Email Daemon...")
     asyncio.create_task(start_automation_daemon())
+
+
+@app.get("/healthz")
+@app.get("/api/health")
+async def health_check():
+    """Production health check probe for Render, Uptime Robot, and cloud load balancers."""
+    raw_db = os.getenv("DATABASE_URL", "")
+    db_type = "Neon PostgreSQL" if "postgres" in raw_db else "SQLite / JSON Store"
+    email_info = get_email_provider_info()
+    gemini_key = os.getenv("GEMINI_API_KEY", "").strip()
+
+    return {
+        "status": "healthy",
+        "timestamp": asyncio.get_event_loop().time(),
+        "database": {
+            "type": db_type,
+            "connected": is_db_available(),
+            "pool": "active"
+        },
+        "email": email_info,
+        "ai": {
+            "provider": "Google AI Studio",
+            "model": os.getenv("GEMINI_MODEL", "gemini-2.5-flash"),
+            "configured": bool(gemini_key and len(gemini_key) > 5)
+        },
+        "version": "2.5.0"
+    }
 
 
 # ==================== STRICT REQUEST VALIDATION MODELS ====================
@@ -228,43 +321,13 @@ class MatchCalculationRequest(BaseModel):
     def check_talents(cls, v: Optional[str]) -> str:
         return validate_talents_experience(v or "")
 
-
-class DocumentGenerationRequest(BaseModel):
-    student_name: str = "Student"
-    email: str
-    degree: str = "Undergraduate"
-    major: str = "Software Engineering"
-    gpa: str = "85%"
-    scholarship_name: str = "Lester B. Pearson"
-    doc_type: Optional[str] = "all"
-    talents_experience: Optional[str] = ""
-    target_country: Optional[str] = "Europe"
-    send_to_email: Optional[bool] = True
-
-    @field_validator("email")
+    @field_validator("majors")
     @classmethod
-    def check_email(cls, v: str) -> str:
-        return validate_email(v)
-
-    @field_validator("student_name")
-    @classmethod
-    def check_name(cls, v: str) -> str:
-        return validate_name(v)
-
-    @field_validator("gpa")
-    @classmethod
-    def check_gpa(cls, v: str) -> str:
-        return validate_gpa(v)
-
-    @field_validator("talents_experience")
-    @classmethod
-    def check_talents(cls, v: Optional[str]) -> str:
-        return validate_talents_experience(v or "")
-
-    @field_validator("scholarship_name", "degree", "major", "target_country", "doc_type")
-    @classmethod
-    def clean_fields(cls, v: Optional[str]) -> str:
-        return sanitize_text(v, max_length=100)
+    def check_majors(cls, v: List[str]) -> List[str]:
+        if not v:
+            return ["Software Engineering"]
+        cleaned = [sanitize_text(m, max_length=50) for m in v[:8] if m.strip()]
+        return cleaned or ["Software Engineering"]
 
 
 class SaveScholarshipRequest(BaseModel):
@@ -280,6 +343,77 @@ class SaveScholarshipRequest(BaseModel):
     @classmethod
     def clean_name(cls, v: str) -> str:
         return sanitize_text(v, max_length=120)
+
+
+class ChancesRequest(BaseModel):
+    email: Optional[str] = None
+    scholarship_name: Optional[str] = None
+
+
+class CompareRequest(BaseModel):
+    email: Optional[str] = None
+    scholarships: List[str] = ["hungaricum", "daad"]
+
+    @field_validator("scholarships")
+    @classmethod
+    def check_scholarships(cls, v: List[str]) -> List[str]:
+        return [sanitize_text(s, max_length=100) for s in v[:5]]
+
+
+class CVReviewRequest(BaseModel):
+    email: Optional[str] = None
+    cv_text: str
+    target_scholarship: Optional[str] = None
+
+    @field_validator("cv_text")
+    @classmethod
+    def check_cv_len(cls, v: str) -> str:
+        if len(v) > 30000:
+            return v[:30000]
+        return v
+
+
+class LetterReviewRequest(BaseModel):
+    email: Optional[str] = None
+    letter_text: str
+    target_scholarship: Optional[str] = None
+
+    @field_validator("letter_text")
+    @classmethod
+    def check_letter_len(cls, v: str) -> str:
+        if len(v) > 30000:
+            return v[:30000]
+        return v
+
+
+class RoadmapRequest(BaseModel):
+    email: Optional[str] = None
+    scholarship_name: str = "Stipendium Hungaricum"
+
+
+class DraftEmailRequest(BaseModel):
+    email: Optional[str] = None
+    email_type: str = "inquiry"
+    target_scholarship: Optional[str] = None
+    recipient_name: Optional[str] = None
+    context: Optional[str] = None
+
+
+def _get_verified_profile_email(request: Request, requested_email: Optional[str]) -> Optional[str]:
+    """
+    Prevents unauthorized profile enumeration and data leakage.
+    Only allows access to stored records if request carries a valid session token matching the email.
+    """
+    if not requested_email or not requested_email.strip():
+        return None
+    clean_target = requested_email.strip().lower()
+    auth_header = request.headers.get("Authorization")
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header.split(" ")[1].strip()
+        payload = verify_session_token(token)
+        if payload and payload.get("email") == clean_target:
+            return clean_target
+    return None
 
 
 # ==================== BACKGROUND TASKS & ENDPOINTS ====================
@@ -362,7 +496,8 @@ async def register_account(req: RegisterRequest):
             country=req.country or "Palestine",
             talents_experience=req.talents_experience or ""
         )
-        return {"success": True, "user": user, "message": "تم إنشاء حسابك وتفعيل التتبع بنجاح!"}
+        token = user.get("session_token", "")
+        return {"success": True, "user": user, "token": token, "message": "تم إنشاء حسابك وتفعيل التتبع بنجاح!"}
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:
@@ -372,12 +507,13 @@ async def register_account(req: RegisterRequest):
 
 @app.post("/api/auth/login")
 async def login_account(req: LoginRequest):
-    """Authenticates student or administrator."""
+    """Authenticates student or administrator with PBKDF2 verification, lockout protection, and session token."""
     try:
         user = auth_service.login(req.email, req.password)
         if not user:
             raise HTTPException(status_code=401, detail="البريد الإلكتروني أو كلمة المرور غير صحيحة.")
-        return {"success": True, "user": user}
+        token = user.get("session_token", "")
+        return {"success": True, "user": user, "token": token}
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=str(ve))
 
@@ -450,17 +586,16 @@ async def get_live_scholarships():
 
 @app.post("/api/advisor/chat")
 @app.post("/api/advisor/consult")
-async def consult_advisor(req: AdvisorChatRequest):
-    """Real-time AI Scholarship Advisor answering concisely with multi-turn dialect understanding."""
+async def consult_advisor(req: AdvisorChatRequest, request: Request):
+    """Real-time AI Scholarship Advisor answering concisely with multi-turn dialect understanding and profile awareness."""
     try:
-        profile = None
-        if req.email:
-            profile = sub_service.get_by_email(req.email)
-
+        safe_email = _get_verified_profile_email(request, req.email)
+        profile = advisor_service.resolve_student_profile(email=safe_email)
         res = await advisor_service.consult_ai_advisor(
             student_query=req.query,
             student_profile=profile,
-            chat_history=req.history
+            chat_history=req.history,
+            email=safe_email
         )
         return res
     except ValueError as ve:
@@ -468,6 +603,183 @@ async def consult_advisor(req: AdvisorChatRequest):
     except Exception as e:
         logger.error(f"Advisor error: {e}")
         raise HTTPException(status_code=500, detail="تعذر الاتصال بالمستشار الذكي حالياً.")
+
+
+@app.post("/api/advisor/chances")
+async def estimate_my_chances(req: ChancesRequest, request: Request):
+    """Calculates student admission probability, competitiveness tier, and confidence level."""
+    try:
+        safe_email = _get_verified_profile_email(request, req.email)
+        profile = advisor_service.resolve_student_profile(email=safe_email)
+        return advisor_service.estimate_acceptance_chances(
+            student_profile=profile,
+            scholarship_target=req.scholarship_name
+        )
+    except Exception as e:
+        logger.error(f"Chances estimation error: {e}")
+        raise HTTPException(status_code=500, detail="حدث خطأ أثناء حساب احتمالية القبول.")
+
+
+@app.post("/api/advisor/compare")
+async def compare_scholarships_route(req: CompareRequest, request: Request):
+    """Generates side-by-side comparison table between 2+ scholarships with tailored verdict."""
+    try:
+        safe_email = _get_verified_profile_email(request, req.email)
+        profile = advisor_service.resolve_student_profile(email=safe_email)
+        return advisor_service.compare_scholarships(
+            scholarship_names_or_ids=req.scholarships,
+            student_profile=profile
+        )
+    except Exception as e:
+        logger.error(f"Comparison error: {e}")
+        raise HTTPException(status_code=500, detail="حدث خطأ أثناء إعداد المقارنة.")
+
+
+@app.post("/api/advisor/review-cv")
+async def review_cv_text_route(req: CVReviewRequest, request: Request):
+    """Reviews text CV and returns CV Score (0-100), strengths, and recommendations."""
+    try:
+        safe_email = _get_verified_profile_email(request, req.email)
+        profile = advisor_service.resolve_student_profile(email=safe_email)
+        clean_text = sanitize_uploaded_text(req.cv_text)
+        return await advisor_service.review_cv(
+            cv_text=clean_text,
+            student_profile=profile,
+            target_scholarship=req.target_scholarship
+        )
+    except Exception as e:
+        logger.error(f"CV review error: {e}")
+        raise HTTPException(status_code=500, detail="حدث خطأ أثناء فحص السيرة الذاتية.")
+
+
+@app.post("/api/advisor/upload-cv")
+async def upload_and_review_cv(
+    request: Request,
+    file: UploadFile = File(...),
+    email: Optional[str] = Form(None),
+    target_scholarship: Optional[str] = Form(None)
+):
+    """Uploads PDF/TXT/DOCX CV, extracts text without external binaries, and generates full evaluation."""
+    try:
+        content = await file.read()
+        safe_name = validate_uploaded_file(file.filename or "cv.pdf", content, max_size_mb=5)
+        extracted = advisor_service.extract_text_from_document_bytes(content, safe_name)
+        if not extracted or len(extracted.strip()) < 30:
+            raise HTTPException(status_code=400, detail="لم يتم العثور على نصوص مقروءة داخل الملف المرفوع.")
+        safe_email = _get_verified_profile_email(request, email)
+        profile = advisor_service.resolve_student_profile(email=safe_email)
+        return await advisor_service.review_cv(
+            cv_text=extracted,
+            student_profile=profile,
+            target_scholarship=target_scholarship
+        )
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"CV upload error: {e}")
+        raise HTTPException(status_code=500, detail="تعذر تدقيق ملف السيرة الذاتية.")
+
+
+@app.post("/api/advisor/review-letter")
+async def review_letter_text_route(req: LetterReviewRequest, request: Request):
+    """Reviews Statement of Purpose / Motivation Letter text and returns score and improvements."""
+    try:
+        safe_email = _get_verified_profile_email(request, req.email)
+        profile = advisor_service.resolve_student_profile(email=safe_email)
+        clean_text = sanitize_uploaded_text(req.letter_text)
+        return await advisor_service.review_motivation_letter(
+            letter_text=clean_text,
+            student_profile=profile,
+            target_scholarship=req.target_scholarship
+        )
+    except Exception as e:
+        logger.error(f"Letter review error: {e}")
+        raise HTTPException(status_code=500, detail="حدث خطأ أثناء تدقيق خطاب الدافع.")
+
+
+@app.post("/api/advisor/upload-letter")
+async def upload_and_review_letter(
+    request: Request,
+    file: UploadFile = File(...),
+    email: Optional[str] = Form(None),
+    target_scholarship: Optional[str] = Form(None)
+):
+    """Uploads Motivation letter document (PDF/TXT/DOCX), extracts text, and reviews it."""
+    try:
+        content = await file.read()
+        safe_name = validate_uploaded_file(file.filename or "motivation_letter.pdf", content, max_size_mb=5)
+        extracted = advisor_service.extract_text_from_document_bytes(content, safe_name)
+        if not extracted or len(extracted.strip()) < 50:
+            raise HTTPException(status_code=400, detail="نص خطاب الدافع في الملف المرفوع قصير جداً أو غير مقروء.")
+        safe_email = _get_verified_profile_email(request, email)
+        profile = advisor_service.resolve_student_profile(email=safe_email)
+        return await advisor_service.review_motivation_letter(
+            letter_text=extracted,
+            student_profile=profile,
+            target_scholarship=target_scholarship
+        )
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Letter upload error: {e}")
+        raise HTTPException(status_code=500, detail="تعذر تدقيق ملف خطاب الدافع.")
+
+
+@app.post("/api/advisor/roadmap")
+async def generate_roadmap_route(req: RoadmapRequest, request: Request):
+    """Generates detailed 4-8 week milestone roadmap and interactive checklist."""
+    try:
+        safe_email = _get_verified_profile_email(request, req.email)
+        profile = advisor_service.resolve_student_profile(email=safe_email)
+        return advisor_service.generate_application_roadmap(
+            scholarship_name=req.scholarship_name,
+            student_profile=profile
+        )
+    except Exception as e:
+        logger.error(f"Roadmap error: {e}")
+        raise HTTPException(status_code=500, detail="حدث خطأ أثناء توليد خطة التقديم.")
+
+
+@app.post("/api/advisor/draft-email")
+async def draft_email_route(req: DraftEmailRequest, request: Request):
+    """Generates official academic email ready to copy."""
+    try:
+        safe_email = _get_verified_profile_email(request, req.email)
+        profile = advisor_service.resolve_student_profile(email=safe_email)
+        return advisor_service.draft_official_email(
+            email_type=req.email_type,
+            student_profile=profile,
+            target_scholarship=req.target_scholarship,
+            recipient_name=req.recipient_name,
+            additional_context=req.context
+        )
+    except Exception as e:
+        logger.error(f"Draft email error: {e}")
+        raise HTTPException(status_code=500, detail="حدث خطأ أثناء صياغة الإيميل الرسمي.")
+        return advisor_service.draft_official_email(
+            email_type=req.email_type,
+            student_profile=profile,
+            target_scholarship=req.target_scholarship,
+            recipient_name=req.recipient_name,
+            additional_context=req.context
+        )
+    except Exception as e:
+        logger.error(f"Draft email error: {e}")
+        raise HTTPException(status_code=500, detail="حدث خطأ أثناء صياغة الإيميل الرسمي.")
+
+
+@app.get("/api/advisor/deadlines")
+async def get_deadlines_route():
+    """Returns analytics on scholarships closing this week, in 30 days, and upcoming openings."""
+    try:
+        return advisor_service.get_deadline_analytics()
+    except Exception as e:
+        logger.error(f"Deadlines error: {e}")
+        raise HTTPException(status_code=500, detail="حدث خطأ في استرجاع مواعيد الإغلاق.")
 
 
 @app.post("/api/match/calculate")
@@ -489,117 +801,25 @@ async def calculate_match(req: MatchCalculationRequest):
         raise HTTPException(status_code=500, detail="حدث خطأ أثناء تقييم نسبة القبول.")
 
 
-@app.post("/api/documents/generate")
-async def generate_documents(req: DocumentGenerationRequest, background_tasks: BackgroundTasks):
-    """Generates tailored Motivation Letter, Recommendation Letter, Academic CV, or Checklist with official letterhead."""
-    try:
-        docs = await advisor_service.generate_smart_documents(
-            student_name=req.student_name,
-            degree=req.degree,
-            major=req.major,
-            gpa=req.gpa,
-            scholarship_name=req.scholarship_name,
-            target_country=req.target_country or "Europe",
-            doc_type=req.doc_type or "all",
-            talents_experience=req.talents_experience or ""
-        )
-
-        if req.send_to_email:
-            background_tasks.add_task(
-                engine.send_application_kit_email,
-                recipient_email=req.email,
-                student_name=req.student_name,
-                scholarship_name=req.scholarship_name,
-                degree=req.degree,
-                major=req.major,
-                documents=docs
-            )
-
-        return {
-            "success": True,
-            "scholarship_name": req.scholarship_name,
-            "doc_type": req.doc_type or "all",
-            "documents": docs,
-            "message": f"تم توليد مستندات التقديم الرسمية لمنحة {req.scholarship_name} بنجاح!" + (" وتم إرسال نسخة إلى بريدك." if req.send_to_email else "")
-        }
-    except ValueError as ve:
-        raise HTTPException(status_code=400, detail=str(ve))
-    except Exception as e:
-        logger.error(f"Doc generation error: {e}")
-        raise HTTPException(status_code=500, detail="حدث خطأ أثناء توليد المستندات.")
-
-
-@app.post("/api/documents/download")
-async def download_document(req: DocumentGenerationRequest):
-    """Generates and downloads a clean formatted file with official institutional letterhead."""
-    try:
-        docs = await advisor_service.generate_smart_documents(
-            student_name=req.student_name,
-            degree=req.degree,
-            major=req.major,
-            gpa=req.gpa,
-            scholarship_name=req.scholarship_name,
-            target_country=req.target_country or "Europe",
-            doc_type=req.doc_type or "all",
-            talents_experience=req.talents_experience or ""
-        )
-
-        ref_num = abs(hash(req.student_name + req.scholarship_name)) % 1000000
-        header = (
-            f"================================================================================\n"
-            f"                  SCHOLARPILOT AI ACADEMIC DOSSIER & APPLICATION                     \n"
-            f"              Official Institutional Application Letterhead                     \n"
-            f"REF ID: REF-{ref_num:06d} | Verified Academic Dossier\n"
-            f"Applicant: {req.student_name} | Program: {req.degree} in {req.major}\n"
-            f"Target: {req.scholarship_name}\n"
-            f"================================================================================\n\n"
-        )
-
-        doc_choice = req.doc_type or "all"
-        if doc_choice == "motivation":
-            content = header + docs.get("motivation_letter", "")
-            filename = f"Motivation_Letter_{req.student_name.replace(' ', '_')}.txt"
-        elif doc_choice == "recommendation":
-            content = header + docs.get("recommendation_letter", "")
-            filename = f"Recommendation_Letter_{req.student_name.replace(' ', '_')}.txt"
-        elif doc_choice == "cv":
-            content = header + docs.get("academic_cv", "")
-            filename = f"Academic_CV_{req.student_name.replace(' ', '_')}.txt"
-        elif doc_choice == "proposal":
-            content = header + docs.get("research_proposal", "")
-            filename = f"Research_Proposal_{req.student_name.replace(' ', '_')}.txt"
-        elif doc_choice == "checklist":
-            content = header + docs.get("checklist", "")
-            filename = f"Application_Checklist_{req.scholarship_name.replace(' ', '_')}.txt"
-        else:
-            # Combine all documents with clear dividers
-            content = header
-            content += docs.get("academic_cv", "") + "\n\n" + ("="*52) + "\n\n"
-            content += docs.get("motivation_letter", "") + "\n\n" + ("="*52) + "\n\n"
-            content += docs.get("recommendation_letter", "") + "\n\n" + ("="*52) + "\n\n"
-            content += docs.get("checklist", "")
-            filename = f"Application_Kit_{req.scholarship_name.replace(' ', '_')}.txt"
-
-        return Response(
-            content=content,
-            media_type="text/plain; charset=utf-8",
-            headers={"Content-Disposition": f'attachment; filename="{filename}"'}
-        )
-    except Exception as e:
-        logger.error(f"Download error: {e}")
-        raise HTTPException(status_code=500, detail="تعذر تحميل المستند حالياً.")
-
-
 @app.post("/api/scholarships/save")
-async def save_scholarship(req: SaveScholarshipRequest):
-    """Saves scholarship to student's watchlist for deadline countdown reminders."""
+async def save_scholarship(req: SaveScholarshipRequest, request: Request):
+    """Saves scholarship to student's watchlist for deadline countdown reminders with optional session token verification."""
     try:
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header.split(" ")[1].strip()
+            token_user = auth_service.authenticate_token(token)
+            if token_user and token_user.get("email"):
+                # Enforce authenticated session email to prevent IDOR
+                req.email = token_user["email"]
+
         result = sub_service.toggle_saved_scholarship(req.email, req.scholarship_name)
         return {"success": True, **result}
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        logger.error(f"Save scholarship error: {e}")
+        raise HTTPException(status_code=400, detail="تعذر حفظ المنحة. يرجى التحقق من صحة البيانات.")
 
 
 @app.get("/api/stats")
@@ -632,7 +852,7 @@ async def preview_scholarships(
         return {"success": True, "count": len(results), "scholarships": results[:5]}
     except Exception as e:
         logger.error(f"Preview error: {e}")
-        return {"success": False, "error": str(e)}
+        return {"success": False, "count": 0, "error": "تعذر استرجاع المنح المقترحة حالياً."}
 
 
 if __name__ == "__main__":

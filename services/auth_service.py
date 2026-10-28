@@ -1,18 +1,24 @@
 import os
 import json
-import hashlib
-import secrets
 import logging
 from datetime import datetime
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional, List, Tuple
 
 from services.security_utils import (
     validate_email,
     validate_name,
     validate_gpa,
     validate_password,
-    sanitize_text
+    sanitize_text,
+    hash_password_secure,
+    verify_password_secure,
+    compute_dummy_pbkdf2,
+    create_session_token,
+    verify_session_token,
+    security_rate_limiter,
+    atomic_json_write
 )
+from services.db import get_db_session, is_db_available, UserDB
 
 logger = logging.getLogger(__name__)
 
@@ -23,14 +29,13 @@ USERS_FILE = os.path.join(DATA_DIR, "users.json")
 def _ensure_users_file():
     os.makedirs(DATA_DIR, exist_ok=True)
     if not os.path.exists(USERS_FILE):
-        salt = secrets.token_hex(8)
-        hashed_pw = hashlib.sha256((salt + "admin123").encode("utf-8")).hexdigest()
+        hashed_pw, salt_hex = hash_password_secure("SafeAdminPass2026!")
         default_users = [
             {
                 "email": "medo.msz.2006@gmail.com",
                 "full_name": "Mustafa AbuZaiter",
                 "role": "student",
-                "salt": salt,
+                "salt": salt_hex,
                 "password_hash": hashed_pw,
                 "degree": "Undergraduate (Bachelor's)",
                 "majors": ["Cybersecurity", "Software Engineering", "AI"],
@@ -41,18 +46,26 @@ def _ensure_users_file():
                 "created_at": datetime.now().isoformat()
             }
         ]
-        with open(USERS_FILE, "w", encoding="utf-8") as f:
-            json.dump(default_users, f, ensure_ascii=False, indent=2)
+        atomic_json_write(USERS_FILE, default_users)
 
 
 class AuthService:
-    """Authentication and Account Management Service with comprehensive security filters."""
+    """Authentication and Account Management Service with PBKDF2 encryption & brute-force defense."""
 
     def __init__(self):
         _ensure_users_file()
 
     def _load_users(self) -> List[Dict[str, Any]]:
         _ensure_users_file()
+        if is_db_available():
+            try:
+                with get_db_session() as db:
+                    if db is not None:
+                        db_users = db.query(UserDB).all()
+                        if db_users:
+                            return [u.to_dict() for u in db_users]
+            except Exception as e:
+                logger.debug(f"DB load users failed, falling back to JSON: {e}")
         try:
             with open(USERS_FILE, "r", encoding="utf-8") as f:
                 return json.load(f)
@@ -61,9 +74,7 @@ class AuthService:
             return []
 
     def _save_users(self, users: List[Dict[str, Any]]):
-        _ensure_users_file()
-        with open(USERS_FILE, "w", encoding="utf-8") as f:
-            json.dump(users, f, ensure_ascii=False, indent=2)
+        atomic_json_write(USERS_FILE, users)
 
     def register(
         self,
@@ -77,7 +88,7 @@ class AuthService:
         country: str = "Palestine",
         talents_experience: str = ""
     ) -> Dict[str, Any]:
-        """Registers a new student user with strict input validation."""
+        """Registers a new student user with PBKDF2-HMAC-SHA256 password hashing & session token."""
         email_clean = validate_email(email)
         name_clean = validate_name(full_name)
         gpa_clean = validate_gpa(gpa)
@@ -93,14 +104,13 @@ class AuthService:
         if any(u.get("email", "").lower() == email_clean for u in users):
             raise ValueError("هذا البريد الإلكتروني مسجل بالفعل. يمكنك تسجيل الدخول مباشرة.")
 
-        salt = secrets.token_hex(8)
-        hashed_pw = hashlib.sha256((salt + password_clean).encode("utf-8")).hexdigest()
+        hashed_pw, salt_hex = hash_password_secure(password_clean)
 
         new_user = {
             "email": email_clean,
             "full_name": name_clean,
             "role": "student",
-            "salt": salt,
+            "salt": salt_hex,
             "password_hash": hashed_pw,
             "degree": sanitized_degree,
             "majors": sanitized_majors,
@@ -112,37 +122,115 @@ class AuthService:
             "created_at": datetime.now().isoformat()
         }
 
+        if is_db_available():
+            try:
+                with get_db_session() as db:
+                    if db is not None:
+                        db.add(UserDB(
+                            email=email_clean,
+                            full_name=name_clean,
+                            role="student",
+                            salt=salt_hex,
+                            password_hash=hashed_pw,
+                            degree=sanitized_degree,
+                            majors=sanitized_majors,
+                            gpa=gpa_clean,
+                            english_level=sanitized_english,
+                            country=sanitized_country,
+                            talents_experience=sanitized_talents,
+                            saved_scholarships=[],
+                            created_at=new_user["created_at"]
+                        ))
+            except Exception as dbe:
+                logger.error(f"Error persisting user to PostgreSQL/Neon: {dbe}")
+
         users.append(new_user)
         self._save_users(users)
-        logger.info(f"Registered user: {email_clean} with role {role}")
+        logger.info(f"Registered user securely: {email_clean}")
 
+        token = create_session_token(email=email_clean, role="student")
         safe_copy = dict(new_user)
         safe_copy.pop("salt", None)
         safe_copy.pop("password_hash", None)
+        safe_copy["session_token"] = token
         return safe_copy
 
     def login(self, email: str, password: str) -> Optional[Dict[str, Any]]:
-        """Verifies credentials with sanitized input."""
+        """
+        Authenticates user credentials against PBKDF2 hash (with legacy SHA256 upgrade),
+        enforces account lockout on brute-force attempts, and issues signed session tokens.
+        """
         try:
             email_clean = validate_email(email)
             password_clean = validate_password(password)
         except Exception:
             return None
 
+        # Check account lockout before verifying
+        locked, remaining = security_rate_limiter.is_account_locked(email_clean)
+        if locked:
+            mins = max(1, remaining // 60)
+            raise ValueError(f"تم قفل الحساب مؤقتاً بسبب كثرة محاولات الدخول الخاطئة. يرجى المحاولة بعد {mins} دقيقة.")
+
         users = self._load_users()
         user = next((u for u in users if u.get("email", "").lower() == email_clean), None)
         if not user:
+            # Defuse side-channel timing attack via dummy PBKDF2 calculation
+            compute_dummy_pbkdf2(password_clean)
+            security_rate_limiter.record_failed_login(email_clean)
             return None
 
         salt = user.get("salt", "")
-        test_hash = hashlib.sha256((salt + password_clean).encode("utf-8")).hexdigest()
+        stored_hash = user.get("password_hash", "")
 
-        if test_hash == user.get("password_hash"):
+        is_valid, needs_rehash = verify_password_secure(password_clean, stored_hash, salt)
+
+        if is_valid:
+            # Clear failed login attempts upon success
+            security_rate_limiter.record_successful_login(email_clean)
+
+            # Auto-upgrade legacy hash to PBKDF2 if required
+            if needs_rehash:
+                new_hash, new_salt = hash_password_secure(password_clean)
+                user["password_hash"] = new_hash
+                user["salt"] = new_salt
+                if is_db_available():
+                    try:
+                        with get_db_session() as db:
+                            if db is not None:
+                                db_user = db.query(UserDB).filter(UserDB.email == email_clean).first()
+                                if db_user:
+                                    db_user.password_hash = new_hash
+                                    db_user.salt = new_salt
+                    except Exception as dbe:
+                        logger.debug(f"DB password rehash update error: {dbe}")
+                self._save_users(users)
+                logger.info(f"Auto-upgraded password hash to PBKDF2-HMAC-SHA256 for: {email_clean}")
+
+            # Issue signed session token
+            token = create_session_token(email=email_clean, role=user.get("role", "student"))
+
             safe_copy = dict(user)
             safe_copy.pop("salt", None)
             safe_copy.pop("password_hash", None)
+            safe_copy["session_token"] = token
             return safe_copy
+
+        # Invalid password
+        security_rate_limiter.record_failed_login(email_clean)
         return None
+
+    def authenticate_token(self, token: Optional[str]) -> Optional[Dict[str, Any]]:
+        """Verifies session token and returns current user profile."""
+        if not token:
+            return None
+        payload = verify_session_token(token)
+        if not payload:
+            return None
+        email = payload.get("email")
+        if not email:
+            return None
+        return self.get_by_email(email)
 
     def get_by_email(self, email: str) -> Optional[Dict[str, Any]]:
         """Finds user by email."""
