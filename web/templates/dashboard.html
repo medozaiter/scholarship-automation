@@ -28,7 +28,7 @@
     <!-- Google Fonts: Cairo, Tajawal, Inter & Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700;800;900&family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Lucide Outlined Modern Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -39,32 +39,43 @@
         body { font-family: 'Tajawal', 'Cairo', 'Inter', sans-serif; transition: background-color 0.3s ease, color 0.3s ease; }
         .font-num { font-family: 'Inter', 'Plus Jakarta Sans', sans-serif; }
 
-        /* Calm Deep Navy & Dark Slate */
+        /* Background ambients */
         .ambient-dark {
-            background-color: #090d16;
+            background-color: #080c14;
             background-image: 
-                radial-gradient(at 15% 15%, rgba(30, 58, 138, 0.22) 0px, transparent 55%),
-                radial-gradient(at 85% 20%, rgba(16, 185, 129, 0.12) 0px, transparent 50%);
+                radial-gradient(at 15% 15%, rgba(30, 58, 138, 0.28) 0px, transparent 55%),
+                radial-gradient(at 85% 20%, rgba(16, 185, 129, 0.15) 0px, transparent 50%);
         }
         .ambient-light {
             background-color: #f8fafc;
             background-image: 
-                radial-gradient(at 10% 10%, rgba(219, 234, 254, 0.75) 0px, transparent 55%),
-                radial-gradient(at 90% 15%, rgba(209, 250, 229, 0.5) 0px, transparent 50%);
+                radial-gradient(at 10% 10%, rgba(219, 234, 254, 0.8) 0px, transparent 55%),
+                radial-gradient(at 90% 15%, rgba(209, 250, 229, 0.6) 0px, transparent 50%);
         }
-        .glass-card-dark {
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.09);
-            box-shadow: 0 20px 45px -15px rgba(0, 0, 0, 0.55);
+
+        /* Distinct cards in Light and Dark Mode */
+        .card-theme {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            color: #0f172a;
+            box-shadow: 0 10px 30px -10px rgba(148, 163, 184, 0.25);
         }
-        .glass-card-light {
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(226, 232, 240, 0.85);
-            box-shadow: 0 20px 45px -15px rgba(148, 163, 184, 0.22);
+        html.dark .card-theme {
+            background: #111827 !important;
+            border-color: #1f293d !important;
+            color: #f8fafc !important;
+            box-shadow: 0 15px 40px -15px rgba(0, 0, 0, 0.6) !important;
+        }
+
+        .sub-card-theme {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            color: #1e293b;
+        }
+        html.dark .sub-card-theme {
+            background: #162032 !important;
+            border-color: #24324a !important;
+            color: #e2e8f0 !important;
         }
 
         .icon-hover {
@@ -95,7 +106,7 @@
 <body class="ambient-dark dark:ambient-dark text-slate-800 dark:text-slate-100 min-h-screen">
 
     <!-- NAVBAR -->
-    <header class="sticky top-0 z-50 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-800/80 bg-white/80 dark:bg-slate-950/75">
+    <header class="sticky top-0 z-50 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-800/80 bg-white/85 dark:bg-slate-950/80">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex justify-between items-center">
             
             <div class="flex items-center gap-3">
@@ -107,7 +118,7 @@
                         <span class="text-lg font-black block leading-none">منحة تك AI</span>
                         <span class="text-[10px] text-emerald-500 font-bold flex items-center gap-1 mt-1">
                             <i data-lucide="shield-check" class="w-3 h-3"></i>
-                            <span>بوابة الحسابات وإدارة المنح</span>
+                            <span>بوابة الحسابات والأوتوميشن</span>
                         </span>
                     </div>
                 </a>
@@ -136,12 +147,12 @@
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         
-        <!-- SECTION A: AUTH GATE (LOGIN / REGISTER IF NOT LOGGED IN) -->
+        <!-- AUTH GATE -->
         <div id="authGate" class="max-w-md mx-auto my-8">
-            <div class="glass-card-light dark:glass-card-dark rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-2xl">
+            <div class="card-theme rounded-3xl p-6 sm:p-8 border shadow-2xl">
                 
                 <div class="flex border-b border-slate-200 dark:border-slate-800 text-sm font-bold mb-6 pb-2 gap-4">
-                    <button type="button" id="tabLoginBtn" onclick="switchAuthTab('login')" class="text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 pb-1 flex-1 text-center">
+                    <button type="button" id="tabLoginBtn" onclick="switchAuthTab('login')" class="text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 pb-1 flex-1 text-center font-bold">
                         🔑 تسجيل الدخول
                     </button>
                     <button type="button" id="tabRegBtn" onclick="switchAuthTab('register')" class="text-slate-400 hover:text-slate-300 pb-1 flex-1 text-center">
@@ -154,18 +165,19 @@
                     <div>
                         <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">البريد الإلكتروني</label>
                         <input type="email" id="loginEmail" required maxlength="100" placeholder="example@gmail.com"
-                            class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-blue-500">
+                            oninput="this.value = this.value.replace(/[^a-zA-Z0-9@._-]/g, '')"
+                            class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-blue-500">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">كلمة المرور</label>
                         <input type="password" id="loginPassword" required minlength="6" maxlength="128" placeholder="••••••••"
-                            class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-blue-500">
+                            class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-blue-500">
                     </div>
                     <button type="submit" id="loginSubmitBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl text-sm transition shadow-lg shadow-blue-600/25">
                         🚀 دخول إلى لوحة التحكم
                     </button>
                     <div class="text-[11px] text-slate-400 text-center pt-2">
-                        💡 حساب الإدارة الافتراضي: <code>medo.msz.2006@gmail.com</code> / <code>admin123</code>
+                        💡 حساب الإدارة: <code>medo.msz.2006@gmail.com</code> / <code>admin123</code>
                     </div>
                 </form>
 
@@ -173,38 +185,49 @@
                 <form id="regForm" class="hidden space-y-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">الاسم الكامل</label>
-                        <input type="text" id="regName" required minlength="2" maxlength="60" pattern="^[a-zA-Z\u0600-\u06FF\s\.\-']+$" title="يرجى إدخال اسم حقيقي بدون رموز برمجية أو أحرف خاصة" placeholder="مثلاً: مصطفى زعيتر"
-                            class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-blue-500">
+                        <input type="text" id="regName" required minlength="2" maxlength="60" placeholder="مثلاً: مصطفى زعيتر"
+                            oninput="this.value = this.value.replace(/[^a-zA-Z\u0600-\u06FF\s.\-']/g, '')"
+                            class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-blue-500">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">البريد الإلكتروني</label>
                         <input type="email" id="regEmail" required maxlength="100" placeholder="example@gmail.com"
-                            class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-blue-500">
+                            oninput="this.value = this.value.replace(/[^a-zA-Z0-9@._-]/g, '')"
+                            class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-blue-500">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">كلمة المرور (6 أحرف فأكثر)</label>
                         <input type="password" id="regPassword" required minlength="6" maxlength="128" placeholder="••••••••"
-                            class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-blue-500">
+                            class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-blue-500">
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المرحلة</label>
-                            <select id="regDegree" class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-2 text-xs text-slate-900 dark:text-white">
+                            <select id="regDegree" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-2 text-xs text-slate-900 dark:text-white">
                                 <option value="Undergraduate (Bachelor's)">بكالوريوس</option>
                                 <option value="Master's Degree">ماجستير</option>
                                 <option value="PhD / Doctorate">دكتوراه</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المعدل</label>
-                            <input type="text" id="regGpa" maxlength="20" placeholder="مثلاً: 88% أو 3.6/4.0"
-                                class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-2 text-xs text-slate-900 dark:text-white">
+                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المعدل (أرقام فقط)</label>
+                            <input type="text" id="regGpa" maxlength="15" placeholder="88% أو 3.6"
+                                onkeypress="return /[0-9.%/]/.test(event.key)"
+                                oninput="this.value = this.value.replace(/[^0-9.%/]/g, '')"
+                                class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-2 text-xs text-slate-900 dark:text-white font-num">
                         </div>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">التخصص</label>
                         <input type="text" id="regMajor" maxlength="80" placeholder="هندسة برمجيات، أمن سيبراني..."
-                            class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-blue-500">
+                            oninput="this.value = this.value.replace(/[<>{}\`$]/g, '')"
+                            class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المواهب والخبرات السابقة</label>
+                        <input type="text" id="regTalents" maxlength="200" placeholder="مشاريع، هاكاثونات، تطوع..."
+                            oninput="this.value = this.value.replace(/[<>{}\`$]/g, '')"
+                            class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-500">
                     </div>
                     <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3 rounded-xl text-sm transition shadow-lg shadow-blue-600/25">
                         ✨ إنشاء الحساب والتفعيل فوراً
@@ -212,15 +235,13 @@
                 </form>
 
                 <div id="authAlert" class="hidden mt-4 p-3 rounded-xl text-xs font-bold"></div>
-
             </div>
         </div>
 
-        <!-- SECTION B: LOGGED-IN DASHBOARD (STUDENT & ADMIN VIEWS) -->
+        <!-- LOGGED-IN DASHBOARD -->
         <div id="dashboardView" class="hidden space-y-8">
             
-            <!-- Welcome Header Card -->
-            <div class="glass-card-light dark:glass-card-dark rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div class="card-theme rounded-3xl p-6 sm:p-8 border flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <span id="roleBadge" class="bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 text-xs font-bold px-3 py-1 rounded-full mb-2 inline-block">حساب طالب مؤكد</span>
                     <h1 class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
@@ -243,30 +264,30 @@
                 </div>
             </div>
 
-            <!-- Profile & Match Stats Grid with Outlined Icons -->
+            <!-- Stats Grid -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="interactive-card glass-card-light dark:glass-card-dark p-5 rounded-2xl border border-slate-200 dark:border-slate-800">
+                <div class="interactive-card card-theme p-5 rounded-2xl border">
                     <div class="flex items-center justify-between mb-2">
                         <span class="text-xs text-slate-400 font-bold block">المرحلة الدراسية</span>
                         <i data-lucide="graduation-cap" class="w-4 h-4 text-blue-500"></i>
                     </div>
-                    <span id="statDegree" class="text-base font-extrabold text-slate-900 dark:text-white block">-</span>
+                    <span id="statDegree" class="text-base font-extrabold block">-</span>
                 </div>
-                <div class="interactive-card glass-card-light dark:glass-card-dark p-5 rounded-2xl border border-slate-200 dark:border-slate-800">
+                <div class="interactive-card card-theme p-5 rounded-2xl border">
                     <div class="flex items-center justify-between mb-2">
                         <span class="text-xs text-slate-400 font-bold block">المعدل الأكاديمي</span>
                         <i data-lucide="award" class="w-4 h-4 text-emerald-500"></i>
                     </div>
                     <span id="statGpa" class="text-base font-extrabold text-emerald-500 font-num block">-</span>
                 </div>
-                <div class="interactive-card glass-card-light dark:glass-card-dark p-5 rounded-2xl border border-slate-200 dark:border-slate-800">
+                <div class="interactive-card card-theme p-5 rounded-2xl border">
                     <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs text-slate-400 font-bold block">مستوى اللغة المسجل</span>
-                        <i data-lucide="languages" class="w-4 h-4 text-indigo-500"></i>
+                        <span class="text-xs text-slate-400 font-bold block">التخصص المستهدف</span>
+                        <i data-lucide="cpu" class="w-4 h-4 text-indigo-500"></i>
                     </div>
-                    <span id="statEnglish" class="text-base font-extrabold text-blue-500 block">-</span>
+                    <span id="statMajor" class="text-base font-extrabold text-blue-500 block">-</span>
                 </div>
-                <div class="interactive-card glass-card-light dark:glass-card-dark p-5 rounded-2xl border border-slate-200 dark:border-slate-800">
+                <div class="interactive-card card-theme p-5 rounded-2xl border">
                     <div class="flex items-center justify-between mb-2">
                         <span class="text-xs text-slate-400 font-bold block">المنح المحفوظة للمتابعة</span>
                         <i data-lucide="bookmark" class="w-4 h-4 text-purple-500"></i>
@@ -275,8 +296,8 @@
                 </div>
             </div>
 
-            <!-- STUDENT WATCHLIST / REMINDERS -->
-            <div class="glass-card-light dark:glass-card-dark rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 space-y-4">
+            <!-- WATCHLIST -->
+            <div class="card-theme rounded-3xl p-6 sm:p-8 border space-y-4">
                 <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
                     <div>
                         <h2 class="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
@@ -287,13 +308,11 @@
                     </div>
                 </div>
 
-                <div id="savedScholarshipsList" class="space-y-3 pt-2">
-                    <!-- Populated dynamically -->
-                </div>
+                <div id="savedScholarshipsList" class="space-y-3 pt-2"></div>
             </div>
 
-            <!-- ADMIN ONLY SECTION -->
-            <div id="adminPanel" class="hidden glass-card-light dark:glass-card-dark rounded-3xl p-6 sm:p-8 border-2 border-indigo-500/40 shadow-2xl space-y-6">
+            <!-- ADMIN PANEL -->
+            <div id="adminPanel" class="hidden card-theme rounded-3xl p-6 sm:p-8 border-2 border-indigo-500/40 shadow-2xl space-y-6">
                 
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-indigo-500/20 pb-4">
                     <div>
@@ -302,7 +321,6 @@
                         <p class="text-xs text-slate-400">خاص بمدير النظام للتحكم بكافة الاشتراكات وإطلاق سير العمل يدوياً.</p>
                     </div>
 
-                    <!-- Instant Dispatch Button -->
                     <button type="button" id="adminDispatchBtn" onclick="triggerAdminDispatch()" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black px-6 py-3 rounded-xl text-xs sm:text-sm shadow-xl shadow-emerald-600/20 transition flex items-center gap-2">
                         <span id="dispatchBtnText">🚀 إطلاق الإرسال الأسبوعي للجميع الآن (Dispatch All)</span>
                         <div id="dispatchSpinner" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -311,10 +329,9 @@
 
                 <div id="dispatchResultNotice" class="hidden p-4 rounded-xl text-xs font-bold"></div>
 
-                <!-- Subscribers Table -->
                 <div class="overflow-x-auto">
                     <table class="w-full text-right text-xs">
-                        <thead class="bg-slate-100 dark:bg-slate-900/80 text-slate-700 dark:text-slate-300 font-bold border-b border-slate-200 dark:border-slate-800">
+                        <thead class="sub-card-theme text-slate-700 dark:text-slate-300 font-bold border-b border-slate-200 dark:border-slate-800">
                             <tr>
                                 <th class="p-3">الطالب</th>
                                 <th class="p-3">البريد الإلكتروني</th>
@@ -325,9 +342,7 @@
                                 <th class="p-3">الحالة</th>
                             </tr>
                         </thead>
-                        <tbody id="subscribersTableBody" class="divide-y divide-slate-200/60 dark:divide-slate-800/60">
-                            <!-- Populated dynamically -->
-                        </tbody>
+                        <tbody id="subscribersTableBody" class="divide-y divide-slate-200/60 dark:divide-slate-800/60"></tbody>
                     </table>
                 </div>
 
@@ -338,7 +353,6 @@
     </main>
 
     <script>
-        // Security HTML Escaper to prevent DOM XSS
         function escapeHTML(str) {
             if (str === null || str === undefined) return '';
             return String(str)
@@ -349,7 +363,6 @@
                 .replace(/'/g, '&#039;');
         }
 
-        // Theme management
         function toggleTheme() {
             const isDark = document.documentElement.classList.toggle('dark');
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
@@ -366,12 +379,12 @@
                     ? '<i data-lucide="moon" class="w-3.5 h-3.5 text-amber-400"></i>' 
                     : '<i data-lucide="sun" class="w-3.5 h-3.5 text-amber-500"></i>';
             }
-            document.getElementById('themeText').textContent = isDark ? 'الوضع الليلي' : 'الوضع النهاري';
+            const txt = document.getElementById('themeText');
+            if (txt) txt.textContent = isDark ? 'الوضع الليلي' : 'الوضع النهاري';
             if (window.lucide) lucide.createIcons();
         }
         updateThemeButton();
 
-        // Auth Tabs
         function switchAuthTab(tab) {
             const isLogin = tab === 'login';
             document.getElementById('loginForm').classList.toggle('hidden', !isLogin);
@@ -387,7 +400,6 @@
 
         let currentUser = null;
 
-        // Check Local Storage session
         function checkSession() {
             const saved = localStorage.getItem('minha_user');
             if (saved) {
@@ -401,7 +413,6 @@
         }
         checkSession();
 
-        // Login Handler
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const alertBox = document.getElementById('authAlert');
@@ -436,7 +447,6 @@
             }
         });
 
-        // Register Handler
         document.getElementById('regForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const alertBox = document.getElementById('authAlert');
@@ -448,7 +458,8 @@
                 password: document.getElementById('regPassword').value.trim(),
                 degree: document.getElementById('regDegree').value,
                 gpa: document.getElementById('regGpa').value.trim() || "85%",
-                majors: [document.getElementById('regMajor').value.trim() || "Computer Science"]
+                majors: [document.getElementById('regMajor').value.trim() || "Software Engineering"],
+                talents_experience: document.getElementById('regTalents').value.trim()
             };
 
             try {
@@ -483,22 +494,21 @@
             document.getElementById('userDisplayName').textContent = user.full_name || "Student";
             document.getElementById('statDegree').textContent = user.degree || "-";
             document.getElementById('statGpa').textContent = user.gpa || "-";
-            document.getElementById('statEnglish').textContent = user.english_level || "متوسط";
+            document.getElementById('statMajor').textContent = (user.majors && user.majors[0]) || "هندسة برمجيات";
 
             const saved = user.saved_scholarships || [];
             document.getElementById('statSavedCount').textContent = `${saved.length} منح`;
 
-            // Render Saved Watchlist
             const list = document.getElementById('savedScholarshipsList');
             if (saved.length === 0) {
                 list.innerHTML = `
-                    <div class="text-center p-6 text-xs text-slate-400 bg-slate-100 dark:bg-slate-900/40 rounded-xl">
+                    <div class="text-center p-6 text-xs text-slate-400 sub-card-theme rounded-xl">
                         لم تقم بحفظ أي منح للمتابعة بعد. يمكنك زيارة <a href="/#radarSection" class="text-blue-500 font-bold underline">رادار المنح</a> والضغط على "تفعيل تذكير الموعد".
                     </div>
                 `;
             } else {
                 list.innerHTML = saved.map((s, idx) => `
-                    <div class="flex justify-between items-center p-3.5 rounded-xl bg-slate-100 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 text-xs">
+                    <div class="flex justify-between items-center p-3.5 rounded-xl sub-card-theme border text-xs">
                         <div class="flex items-center gap-2">
                             <span class="w-6 h-6 rounded-full bg-blue-600/10 text-blue-500 flex items-center justify-center font-bold">#${idx+1}</span>
                             <span class="font-bold text-slate-900 dark:text-white">${escapeHTML(s)}</span>
@@ -510,7 +520,6 @@
                 `).join('');
             }
 
-            // Check if Admin
             const isAdmin = user.role === 'admin' || user.email === 'medo.msz.2006@gmail.com';
             const adminPanel = document.getElementById('adminPanel');
             if (isAdmin) {
@@ -594,6 +603,7 @@
                         degree: currentUser.degree,
                         majors: currentUser.majors,
                         gpa: currentUser.gpa,
+                        talents_experience: currentUser.talents_experience || "",
                         country: currentUser.country,
                         send_welcome_report: true
                     })

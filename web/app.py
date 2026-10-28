@@ -3,7 +3,7 @@ import re
 import asyncio
 import logging
 from typing import List, Optional, Dict, Any
-from fastapi import FastAPI, BackgroundTasks, HTTPException, Query, Request
+from fastapi import FastAPI, BackgroundTasks, HTTPException, Query, Request, Response
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,13 +13,15 @@ from services.subscriber_service import SubscriberService
 from services.scholarship_engine import ScholarshipEngine
 from services.advisor_service import AdvisorService
 from services.auth_service import AuthService
+from services.automation_service import AutomationService, start_automation_daemon
 from services.security_utils import (
     validate_email,
     validate_name,
     validate_gpa,
     validate_password,
     sanitize_text,
-    sanitize_advisor_query
+    sanitize_advisor_query,
+    validate_talents_experience
 )
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -74,6 +76,12 @@ sub_service = SubscriberService()
 engine = ScholarshipEngine()
 advisor_service = AdvisorService()
 auth_service = AuthService()
+automation_service = AutomationService()
+
+@app.on_event("startup")
+async def startup_event():
+    logger.info("Initializing 100% Automated Background Scholarship & Email Daemon...")
+    asyncio.create_task(start_automation_daemon())
 
 
 # ==================== STRICT REQUEST VALIDATION MODELS ====================
@@ -84,6 +92,7 @@ class SubscriptionRequest(BaseModel):
     degree: str = "Undergraduate (Bachelor's)"
     majors: List[str]
     gpa: Optional[str] = "85%"
+    talents_experience: Optional[str] = ""
     english_level: Optional[str] = "Intermediate"
     target_destinations: Optional[List[str]] = ["Any"]
     country: Optional[str] = "Palestine"
@@ -103,6 +112,11 @@ class SubscriptionRequest(BaseModel):
     @classmethod
     def check_gpa(cls, v: Optional[str]) -> str:
         return validate_gpa(v or "85%")
+
+    @field_validator("talents_experience")
+    @classmethod
+    def check_talents(cls, v: Optional[str]) -> str:
+        return validate_talents_experience(v or "")
 
     @field_validator("majors")
     @classmethod
@@ -127,6 +141,7 @@ class RegisterRequest(BaseModel):
     degree: Optional[str] = "Undergraduate (Bachelor's)"
     majors: Optional[List[str]] = None
     gpa: Optional[str] = "85%"
+    talents_experience: Optional[str] = ""
     english_level: Optional[str] = "Intermediate"
     country: Optional[str] = "Palestine"
 
@@ -149,6 +164,11 @@ class RegisterRequest(BaseModel):
     @classmethod
     def check_gpa(cls, v: Optional[str]) -> str:
         return validate_gpa(v or "85%")
+
+    @field_validator("talents_experience")
+    @classmethod
+    def check_talents(cls, v: Optional[str]) -> str:
+        return validate_talents_experience(v or "")
 
     @field_validator("degree", "english_level", "country")
     @classmethod
@@ -174,6 +194,7 @@ class LoginRequest(BaseModel):
 class AdvisorChatRequest(BaseModel):
     query: str
     email: Optional[str] = None
+    history: Optional[List[Dict[str, str]]] = None
 
     @field_validator("query")
     @classmethod
@@ -188,6 +209,25 @@ class AdvisorChatRequest(BaseModel):
         return None
 
 
+class MatchCalculationRequest(BaseModel):
+    gpa: str = "85%"
+    degree: str = "Undergraduate (Bachelor's)"
+    majors: List[str] = ["Software Engineering"]
+    talents_experience: Optional[str] = ""
+    country: Optional[str] = "Palestine"
+    scholarship_name: Optional[str] = ""
+
+    @field_validator("gpa")
+    @classmethod
+    def check_gpa(cls, v: str) -> str:
+        return validate_gpa(v)
+
+    @field_validator("talents_experience")
+    @classmethod
+    def check_talents(cls, v: Optional[str]) -> str:
+        return validate_talents_experience(v or "")
+
+
 class DocumentGenerationRequest(BaseModel):
     student_name: str = "Student"
     email: str
@@ -195,6 +235,8 @@ class DocumentGenerationRequest(BaseModel):
     major: str = "Software Engineering"
     gpa: str = "85%"
     scholarship_name: str = "Lester B. Pearson"
+    doc_type: Optional[str] = "all"
+    talents_experience: Optional[str] = ""
     target_country: Optional[str] = "Europe"
     send_to_email: Optional[bool] = True
 
@@ -213,7 +255,12 @@ class DocumentGenerationRequest(BaseModel):
     def check_gpa(cls, v: str) -> str:
         return validate_gpa(v)
 
-    @field_validator("scholarship_name", "degree", "major", "target_country")
+    @field_validator("talents_experience")
+    @classmethod
+    def check_talents(cls, v: Optional[str]) -> str:
+        return validate_talents_experience(v or "")
+
+    @field_validator("scholarship_name", "degree", "major", "target_country", "doc_type")
     @classmethod
     def clean_fields(cls, v: Optional[str]) -> str:
         return sanitize_text(v, max_length=100)
@@ -292,7 +339,8 @@ async def register_account(req: RegisterRequest):
             majors=req.majors or ["Software Engineering"],
             gpa=req.gpa or "85%",
             english_level=req.english_level or "Intermediate",
-            country=req.country or "Palestine"
+            country=req.country or "Palestine",
+            talents_experience=req.talents_experience or ""
         )
         sub_service.add_or_update(
             email=req.email,
@@ -301,7 +349,8 @@ async def register_account(req: RegisterRequest):
             majors=req.majors or ["Software Engineering"],
             gpa=req.gpa or "85%",
             english_level=req.english_level or "Intermediate",
-            country=req.country or "Palestine"
+            country=req.country or "Palestine",
+            talents_experience=req.talents_experience or ""
         )
         return {"success": True, "user": user, "message": "تم إنشاء حسابك وتفعيل التتبع بنجاح!"}
     except ValueError as ve:
@@ -335,7 +384,8 @@ async def subscribe_student(req: SubscriptionRequest, background_tasks: Backgrou
             gpa=req.gpa or "85%",
             english_level=req.english_level or "Intermediate",
             target_destinations=req.target_destinations or ["Any"],
-            country=req.country or "Palestine"
+            country=req.country or "Palestine",
+            talents_experience=req.talents_experience or ""
         )
 
         if req.send_welcome_report:
@@ -353,14 +403,15 @@ async def subscribe_student(req: SubscriptionRequest, background_tasks: Backgrou
             status_code=200,
             content={
                 "success": True,
-                "message": "تم تفعيل اشتراكك وحساب نسبة التوافق بنجاح! ستصلك التقارير المحدثة أسبوعياً.",
+                "message": "تم تفعيل اشتراكك وحساب نسبة التوافق بنجاح! ستصلك التقارير المحدثة أسبوعياً بدون تدخل يدوي.",
                 "subscriber": {
                     "email": sub["email"],
                     "degree": sub["degree"],
                     "majors": sub["majors"],
                     "gpa": sub["gpa"],
                     "english_level": sub["english_level"],
-                    "country": sub["country"]
+                    "country": sub["country"],
+                    "talents_experience": sub.get("talents_experience", "")
                 }
             }
         )
@@ -371,9 +422,26 @@ async def subscribe_student(req: SubscriptionRequest, background_tasks: Backgrou
         raise HTTPException(status_code=400, detail="حدث خطأ في معالجة الطلب.")
 
 
+@app.get("/api/scholarships/live")
+async def get_live_scholarships():
+    """Returns autonomous live scholarships automatically fetched and maintained with application links & requirements."""
+    try:
+        items = automation_service.get_live_scholarships()
+        return {
+            "success": True,
+            "count": len(items),
+            "source": "Automated Live Feed & Ingestion Engine",
+            "scholarships": items
+        }
+    except Exception as e:
+        logger.error(f"Live scholarships error: {e}")
+        return {"success": False, "count": 0, "scholarships": []}
+
+
+@app.post("/api/advisor/chat")
 @app.post("/api/advisor/consult")
 async def consult_advisor(req: AdvisorChatRequest):
-    """Real-time AI Scholarship Advisor answering free-form questions with prompt sanitization."""
+    """Real-time AI Scholarship Advisor answering concisely with multi-turn dialect understanding."""
     try:
         profile = None
         if req.email:
@@ -381,7 +449,8 @@ async def consult_advisor(req: AdvisorChatRequest):
 
         res = await advisor_service.consult_ai_advisor(
             student_query=req.query,
-            student_profile=profile
+            student_profile=profile,
+            chat_history=req.history
         )
         return res
     except ValueError as ve:
@@ -391,9 +460,28 @@ async def consult_advisor(req: AdvisorChatRequest):
         raise HTTPException(status_code=500, detail="تعذر الاتصال بالمستشار الذكي حالياً.")
 
 
+@app.post("/api/match/calculate")
+async def calculate_match(req: MatchCalculationRequest):
+    """Calculates student admission probability & match percentage based on GPA, talents, and target profile."""
+    try:
+        res = advisor_service.calculate_match_score(
+            gpa=req.gpa,
+            majors=req.majors,
+            country=req.country or "Palestine",
+            scholarship={"name": req.scholarship_name or "Global Scholarship", "target_majors": req.majors},
+            student_talents=req.talents_experience or ""
+        )
+        return {"success": True, "match": res}
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        logger.error(f"Match calculation error: {e}")
+        raise HTTPException(status_code=500, detail="حدث خطأ أثناء تقييم نسبة القبول.")
+
+
 @app.post("/api/documents/generate")
 async def generate_documents(req: DocumentGenerationRequest, background_tasks: BackgroundTasks):
-    """Generates tailored Motivation Letter, Recommendation Letter, and Checklist."""
+    """Generates tailored Motivation Letter, Recommendation Letter, Academic CV, or Checklist with official letterhead."""
     try:
         docs = await advisor_service.generate_smart_documents(
             student_name=req.student_name,
@@ -401,7 +489,9 @@ async def generate_documents(req: DocumentGenerationRequest, background_tasks: B
             major=req.major,
             gpa=req.gpa,
             scholarship_name=req.scholarship_name,
-            target_country=req.target_country or "Europe"
+            target_country=req.target_country or "Europe",
+            doc_type=req.doc_type or "all",
+            talents_experience=req.talents_experience or ""
         )
 
         if req.send_to_email:
@@ -418,14 +508,76 @@ async def generate_documents(req: DocumentGenerationRequest, background_tasks: B
         return {
             "success": True,
             "scholarship_name": req.scholarship_name,
+            "doc_type": req.doc_type or "all",
             "documents": docs,
-            "message": f"تم توليد حزمة التقديم لمنحة {req.scholarship_name} بنجاح!" + (" وتم إرسال نسخة إلى بريدك." if req.send_to_email else "")
+            "message": f"تم توليد مستندات التقديم الرسمية لمنحة {req.scholarship_name} بنجاح!" + (" وتم إرسال نسخة إلى بريدك." if req.send_to_email else "")
         }
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:
         logger.error(f"Doc generation error: {e}")
         raise HTTPException(status_code=500, detail="حدث خطأ أثناء توليد المستندات.")
+
+
+@app.post("/api/documents/download")
+async def download_document(req: DocumentGenerationRequest):
+    """Generates and downloads a clean formatted file with official institutional letterhead."""
+    try:
+        docs = await advisor_service.generate_smart_documents(
+            student_name=req.student_name,
+            degree=req.degree,
+            major=req.major,
+            gpa=req.gpa,
+            scholarship_name=req.scholarship_name,
+            target_country=req.target_country or "Europe",
+            doc_type=req.doc_type or "all",
+            talents_experience=req.talents_experience or ""
+        )
+
+        ref_num = abs(hash(req.student_name + req.scholarship_name)) % 1000000
+        header = (
+            f"================================================================================\n"
+            f"                  MINHATECH ACADEMIC DOSSIER & APPLICATION                     \n"
+            f"              Official Institutional Application Letterhead                     \n"
+            f"REF ID: REF-{ref_num:06d} | Verified Academic Dossier\n"
+            f"Applicant: {req.student_name} | Program: {req.degree} in {req.major}\n"
+            f"Target: {req.scholarship_name}\n"
+            f"================================================================================\n\n"
+        )
+
+        doc_choice = req.doc_type or "all"
+        if doc_choice == "motivation":
+            content = header + docs.get("motivation_letter", "")
+            filename = f"Motivation_Letter_{req.student_name.replace(' ', '_')}.txt"
+        elif doc_choice == "recommendation":
+            content = header + docs.get("recommendation_letter", "")
+            filename = f"Recommendation_Letter_{req.student_name.replace(' ', '_')}.txt"
+        elif doc_choice == "cv":
+            content = header + docs.get("academic_cv", "")
+            filename = f"Academic_CV_{req.student_name.replace(' ', '_')}.txt"
+        elif doc_choice == "proposal":
+            content = header + docs.get("research_proposal", "")
+            filename = f"Research_Proposal_{req.student_name.replace(' ', '_')}.txt"
+        elif doc_choice == "checklist":
+            content = header + docs.get("checklist", "")
+            filename = f"Application_Checklist_{req.scholarship_name.replace(' ', '_')}.txt"
+        else:
+            # Combine all documents with clear dividers
+            content = header
+            content += docs.get("academic_cv", "") + "\n\n" + ("="*52) + "\n\n"
+            content += docs.get("motivation_letter", "") + "\n\n" + ("="*52) + "\n\n"
+            content += docs.get("recommendation_letter", "") + "\n\n" + ("="*52) + "\n\n"
+            content += docs.get("checklist", "")
+            filename = f"Application_Kit_{req.scholarship_name.replace(' ', '_')}.txt"
+
+        return Response(
+            content=content,
+            media_type="text/plain; charset=utf-8",
+            headers={"Content-Disposition": f'attachment; filename="{filename}"'}
+        )
+    except Exception as e:
+        logger.error(f"Download error: {e}")
+        raise HTTPException(status_code=500, detail="تعذر تحميل المستند حالياً.")
 
 
 @app.post("/api/scholarships/save")

@@ -72,7 +72,8 @@ class SubscriberService:
         gpa: str = "85%",
         english_level: str = "Intermediate",
         target_destinations: Optional[List[str]] = None,
-        country: str = "Palestine"
+        country: str = "Palestine",
+        talents_experience: str = ""
     ) -> Dict[str, Any]:
         """Adds or updates comprehensive student profile."""
         _ensure_data_dir()
@@ -97,6 +98,8 @@ class SubscriberService:
             existing["english_level"] = english_level or existing.get("english_level", "Intermediate")
             existing["target_destinations"] = target_destinations or existing.get("target_destinations", ["Any"])
             existing["country"] = country or existing.get("country", "Palestine")
+            if talents_experience:
+                existing["talents_experience"] = talents_experience
             existing["status"] = "active"
             existing["updated_at"] = now_str
             subscriber_record = existing
@@ -111,6 +114,7 @@ class SubscriberService:
                 "english_level": english_level,
                 "target_destinations": target_destinations,
                 "country": country,
+                "talents_experience": talents_experience or "",
                 "saved_scholarships": [],
                 "created_at": now_str,
                 "last_sent_at": None,

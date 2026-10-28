@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منحة تك AI | منظومة تتبع المنح الذكية، حساب التوافق، ومولد المستندات 🎓</title>
-    <meta name="description" content="محرك ذكاء اصطناعي شامل يبحث عن المنح الرسمية، يحسب نسبة التوافق لملفك، يذكرك بالمواعيد، ويولد خطاب الدافع والـ CV المخصص لكل منحة.">
+    <title>منحة تك AI | منظومة تتبع المنح المؤتمتة، حساب التوافق، ومستشار القبول الذكي 🎓</title>
+    <meta name="description" content="محرك ذكاء اصطناعي مؤتمت بالكامل يبحث عن المنح الرسمية، يحسب نسبة التوافق لملفك، يذكرك بالمواعيد، ويولد خطاب الدافع والـ CV المخصص لكل منحة.">
 
-    <!-- Tailwind CSS with Dark Mode Plugin Config -->
+    <!-- Tailwind CSS with Dark Mode -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -15,17 +15,9 @@
                 extend: {
                     colors: {
                         primary: {
-                            50: '#eff6ff',
-                            100: '#dbeafe',
-                            200: '#bfdbfe',
-                            300: '#93c5fd',
-                            400: '#60a5fa',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                            800: '#1e40af',
-                            900: '#1e3a8a',
-                            950: '#0f172a',
+                            50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd',
+                            400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8',
+                            800: '#1e40af', 900: '#1e3a8a', 950: '#0f172a',
                         }
                     },
                     fontFamily: {
@@ -39,64 +31,63 @@
     <!-- Google Fonts: Cairo, Tajawal, Inter & Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700;800;900&family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Lucide Outlined Modern Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- Canvas Confetti & Marked.js for Markdown Rendering -->
+    <!-- Canvas Confetti & Marked.js -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <style>
-        html {
-            scroll-behavior: smooth;
-        }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Tajawal', 'Cairo', 'Inter', sans-serif; transition: background-color 0.3s ease, color 0.3s ease; }
+        .font-num { font-family: 'Inter', 'Plus Jakarta Sans', sans-serif; }
 
-        body {
-            font-family: 'Tajawal', 'Cairo', 'Inter', sans-serif;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        .font-num {
-            font-family: 'Inter', 'Plus Jakarta Sans', sans-serif;
-        }
-
-        /* 1. Deep Navy & Calm Dark Slate Theme */
+        /* Unified Dark / Light Card Themes to Fix Color Contrast Bug */
         .ambient-dark {
-            background-color: #090d16;
+            background-color: #080c14;
             background-image: 
-                radial-gradient(at 15% 15%, rgba(30, 58, 138, 0.22) 0px, transparent 55%),
-                radial-gradient(at 85% 20%, rgba(16, 185, 129, 0.12) 0px, transparent 50%),
+                radial-gradient(at 15% 15%, rgba(30, 58, 138, 0.28) 0px, transparent 55%),
+                radial-gradient(at 85% 20%, rgba(16, 185, 129, 0.15) 0px, transparent 50%),
                 radial-gradient(at 50% 80%, rgba(245, 158, 11, 0.08) 0px, transparent 50%);
         }
 
-        /* Calm Off-White Light Theme */
         .ambient-light {
             background-color: #f8fafc;
             background-image: 
-                radial-gradient(at 10% 10%, rgba(219, 234, 254, 0.75) 0px, transparent 55%),
+                radial-gradient(at 10% 10%, rgba(219, 234, 254, 0.8) 0px, transparent 55%),
                 radial-gradient(at 90% 15%, rgba(209, 250, 229, 0.6) 0px, transparent 50%),
                 radial-gradient(at 50% 90%, rgba(254, 243, 199, 0.45) 0px, transparent 50%);
         }
 
-        .glass-card-dark {
-            background: rgba(15, 23, 42, 0.78);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.09);
-            box-shadow: 0 20px 45px -15px rgba(0, 0, 0, 0.55);
+        /* Distinct cards in Light and Dark Mode */
+        .card-theme {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            color: #0f172a;
+            box-shadow: 0 10px 30px -10px rgba(148, 163, 184, 0.25);
+        }
+        html.dark .card-theme {
+            background: #111827 !important;
+            border-color: #1f293d !important;
+            color: #f8fafc !important;
+            box-shadow: 0 15px 40px -15px rgba(0, 0, 0, 0.6) !important;
         }
 
-        .glass-card-light {
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(226, 232, 240, 0.85);
-            box-shadow: 0 20px 45px -15px rgba(148, 163, 184, 0.22);
+        .sub-card-theme {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            color: #1e293b;
+        }
+        html.dark .sub-card-theme {
+            background: #162032 !important;
+            border-color: #24324a !important;
+            color: #e2e8f0 !important;
         }
 
-        /* 3. Lucide Outlined Micro-interactions */
+        /* Micro-interactions */
         .icon-hover {
             display: inline-flex;
             align-items: center;
@@ -104,31 +95,30 @@
             transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), stroke 0.2s ease;
         }
         .btn-interactive:hover .icon-hover {
-            transform: scale(1.18) rotate(-4deg);
+            transform: scale(1.16) rotate(-3deg);
         }
         .interactive-card {
-            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease;
         }
         .interactive-card:hover {
             transform: translateY(-4px);
         }
 
-        /* 4. Scroll Reveal Animations (Fade & Slide Up) */
+        /* Scroll Reveal */
         .reveal-scroll {
             opacity: 0;
-            transform: translateY(28px);
-            transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-            will-change: opacity, transform;
+            transform: translateY(24px);
+            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .reveal-scroll.is-visible {
             opacity: 1;
             transform: translateY(0);
         }
 
-        /* 5. Mobile & Desktop Card Swiper Styling */
+        /* Swiper deck */
         .swiper-deck {
             position: relative;
-            min-height: 440px;
+            min-height: 480px;
             perspective: 1000px;
         }
         .swipe-card {
@@ -137,24 +127,22 @@
             margin: auto;
             touch-action: none;
             user-select: none;
-            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+            transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
             cursor: grab;
-            will-change: transform, opacity;
         }
         .swipe-card.is-dragging {
             transition: none !important;
             cursor: grabbing !important;
         }
         .swipe-card.fly-right {
-            transform: translate(120%, -20px) rotate(25deg) !important;
+            transform: translate(120%, -20px) rotate(22deg) !important;
             opacity: 0 !important;
         }
         .swipe-card.fly-left {
-            transform: translate(-120%, -20px) rotate(-25deg) !important;
+            transform: translate(-120%, -20px) rotate(-22deg) !important;
             opacity: 0 !important;
         }
 
-        /* Stamp Badges on Swiping */
         .stamp-badge {
             position: absolute;
             top: 24px;
@@ -163,7 +151,6 @@
             font-size: 13px;
             font-weight: 900;
             letter-spacing: 1px;
-            text-transform: uppercase;
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.15s ease;
@@ -173,30 +160,38 @@
             right: 24px;
             border: 2.5px solid #10b981;
             color: #10b981;
-            background: rgba(16, 185, 129, 0.12);
-            transform: rotate(-12deg);
+            background: rgba(16, 185, 129, 0.15);
+            transform: rotate(-10deg);
         }
         .stamp-skip {
             left: 24px;
             border: 2.5px solid #f43f5e;
             color: #f43f5e;
-            background: rgba(244, 63, 94, 0.12);
-            transform: rotate(12deg);
+            background: rgba(244, 63, 94, 0.15);
+            transform: rotate(10deg);
         }
 
-        /* Pulse Radar Animation */
-        @keyframes radarSweep {
-            0% { transform: scale(0.9); opacity: 0.8; }
-            50% { transform: scale(1.15); opacity: 0.3; }
-            100% { transform: scale(0.9); opacity: 0.8; }
+        /* Chat bubbles */
+        .chat-bubble-user {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #ffffff;
+            border-radius: 18px 18px 4px 18px;
         }
-        .radar-pulse {
-            animation: radarSweep 3s infinite ease-in-out;
+        .chat-bubble-advisor {
+            background: #f1f5f9;
+            color: #0f172a;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px 18px 18px 4px;
+        }
+        html.dark .chat-bubble-advisor {
+            background: #1e293b;
+            color: #f8fafc;
+            border-color: #334155;
         }
 
-        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar { width: 7px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #2563eb; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 4px; }
     </style>
 
     <script>
@@ -212,15 +207,15 @@
     <!-- TOP ANNOUNCEMENT BANNER -->
     <div class="bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 border-b border-blue-500/20 text-white text-xs font-semibold py-2 px-4 text-center tracking-wide flex items-center justify-center gap-2 shadow-md">
         <span class="text-emerald-400 font-bold">🇵🇸</span>
-        <span>منظومة متكاملة لدعم الطلاب: حساب نسبة التوافق • تذكير المواعيد • توليد خطابات الدافع والـ CV المخصص</span>
+        <span>أوتوميشن أكاديمي متكامل: رصد الفرص عالمياً • حساب نسبة وتوقع القبول • وتوليد الخطابات بترويسة رسمية</span>
         <span class="hidden sm:inline-flex items-center gap-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] px-2.5 py-0.5 rounded-full font-bold">
             <i data-lucide="sparkles" class="w-3 h-3 text-emerald-400"></i>
-            <span>2026/2027</span>
+            <span>تحديثات تلقائية 100%</span>
         </span>
     </div>
 
     <!-- MAIN NAVBAR -->
-    <header class="sticky top-0 z-50 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-800/80 bg-white/80 dark:bg-slate-950/75 transition-colors duration-300">
+    <header class="sticky top-0 z-50 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-800/80 bg-white/85 dark:bg-slate-950/80 transition-colors duration-300">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3.5 flex justify-between items-center">
             
             <div class="flex items-center gap-3">
@@ -231,52 +226,48 @@
                     <div class="flex items-center gap-2">
                         <span class="text-xl font-black tracking-tight text-slate-900 dark:text-white">منحة تك AI</span>
                         <span class="bg-emerald-500/10 dark:bg-emerald-400/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-extrabold px-2 py-0.5 rounded-md border border-emerald-500/20 flex items-center gap-1">
-                            <i data-lucide="award" class="w-3 h-3"></i>
-                            <span>Scholarship Copilot</span>
+                            <i data-lucide="shield-check" class="w-3 h-3"></i>
+                            <span>أوتوميشن ذاتي</span>
                         </span>
                     </div>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">المساعد الأكاديمي الذكي للقبول والمنح</p>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">رصد وتوليد وإرسال بدون أي تدخل يدوي</p>
                 </div>
             </div>
 
-            <!-- Navigation Links with Outlined Icons -->
+            <!-- Navigation Links -->
             <nav class="hidden lg:flex items-center gap-1 text-xs font-bold text-slate-600 dark:text-slate-300">
                 <a href="#formCard" class="btn-interactive px-3 py-1.5 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-800 transition flex items-center gap-1.5">
                     <span class="icon-hover"><i data-lucide="clipboard-list" class="w-4 h-4 text-blue-500"></i></span>
-                    <span>التسجيل والملف</span>
+                    <span>التسجيل والأوتوميشن</span>
                 </a>
                 <a href="#advisorSection" class="btn-interactive px-3 py-1.5 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-800 transition flex items-center gap-1.5">
-                    <span class="icon-hover"><i data-lucide="bot" class="w-4 h-4 text-indigo-500"></i></span>
-                    <span>المستشار الذكي</span>
+                    <span class="icon-hover"><i data-lucide="messages-square" class="w-4 h-4 text-indigo-500"></i></span>
+                    <span>شات المستشار الأكاديمي</span>
                 </a>
                 <a href="#docSection" class="btn-interactive px-3 py-1.5 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-800 transition flex items-center gap-1.5">
-                    <span class="icon-hover"><i data-lucide="file-pen" class="w-4 h-4 text-purple-500"></i></span>
-                    <span>مُولّد المستندات</span>
+                    <span class="icon-hover"><i data-lucide="file-text" class="w-4 h-4 text-purple-500"></i></span>
+                    <span>مُولّد الخطابات والترويسة</span>
                 </a>
                 <a href="#radarSection" class="btn-interactive px-3 py-1.5 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-800 transition flex items-center gap-1.5">
                     <span class="icon-hover"><i data-lucide="compass" class="w-4 h-4 text-emerald-500"></i></span>
-                    <span>رادار المنح والتوافق</span>
+                    <span>المنح النشطة حالياً</span>
                 </a>
             </nav>
 
             <div class="flex items-center gap-2 sm:gap-3">
-                <!-- Dashboard / Account Link -->
                 <a href="/dashboard" class="btn-interactive px-3.5 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-600 hover:from-blue-600 hover:to-indigo-500 text-white transition flex items-center gap-1.5 shadow-md shadow-blue-600/20 border border-blue-400/20">
                     <span class="icon-hover"><i data-lucide="user-check" class="w-4 h-4 text-emerald-300"></i></span>
                     <span>حسابي والإدارة</span>
                 </a>
 
-                <!-- Dark / Light Mode Switcher -->
-                <button type="button" id="themeToggleBtn" onclick="toggleTheme()" class="btn-interactive p-2 sm:px-3 sm:py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700 transition flex items-center gap-1.5 text-xs font-bold" title="تبديل الوضع الليلي / النهاري">
+                <button type="button" id="themeToggleBtn" onclick="toggleTheme()" class="btn-interactive p-2 sm:px-3 sm:py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700 transition flex items-center gap-1.5 text-xs font-bold" title="تبديل الوضع">
                     <span id="themeIcon" class="icon-hover"><i data-lucide="moon" class="w-4 h-4 text-amber-400"></i></span>
                     <span class="hidden sm:inline" id="themeText">الوضع الليلي</span>
                 </button>
 
-                <!-- GitHub Repo -->
                 <a href="https://github.com/medozaiter/scholarship-automation" target="_blank" class="btn-interactive p-2 sm:px-3.5 sm:py-2 rounded-xl bg-slate-900 dark:bg-slate-800 text-white hover:bg-slate-800 dark:hover:bg-slate-700 border border-slate-700 text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
                     <svg class="w-4 h-4 fill-current icon-hover" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
                     <span class="hidden sm:inline">GitHub</span>
-                    <span class="bg-amber-500/20 text-amber-400 text-[10px] px-1.5 py-0.2 rounded font-mono font-bold">⭐</span>
                 </a>
             </div>
         </div>
@@ -284,129 +275,142 @@
 
     <!-- HERO SECTION -->
     <section class="max-w-5xl mx-auto px-4 pt-10 pb-8 text-center space-y-5 reveal-scroll">
-        
         <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 dark:bg-emerald-400/10 border border-emerald-500/25 text-emerald-600 dark:text-emerald-400 text-xs sm:text-sm font-bold shadow-sm">
-            <i data-lucide="sparkles" class="w-4 h-4 text-emerald-500"></i>
-            <span>سجل مرة واحدة فقط • والذكاء الاصطناعي يتولى رصد واقتناص المنح بالكامل</span>
+            <i data-lucide="zap" class="w-4 h-4 text-emerald-500"></i>
+            <span>أوتوميشن ذكي 100% • البحث في كافة المنح العالمية أوتوماتيكياً دون تدخل منك</span>
         </div>
 
         <h1 class="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight leading-tight sm:leading-tight">
-            منصتك الأكاديمية للمنح العالمية<br>
+            بوابتك الأكاديمية للمنح العالمية<br>
             <span class="bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-500 dark:from-blue-400 dark:via-indigo-300 dark:to-emerald-400 bg-clip-text text-transparent">
-                تتبع ذكي • حساب التوافق • وتوليد المستندات فوراً
+                رصد ذاتي • حساب نسبة وتوقع القبول • مستندات جاهزة
             </span>
         </h1>
 
         <p class="text-slate-600 dark:text-slate-300 text-sm sm:text-base md:text-lg max-w-3xl mx-auto leading-relaxed font-normal">
-            أدخل معدلك وتخصصك لمرة واحدة فقط؛ وسيقوم النظام بالبحث المستمر في المواقع الرسمية، حساب <b class="text-emerald-600 dark:text-emerald-400">نسبة توافق ملفك (Match Score)</b> لكل منحة، تذكيرك بالمواعيد قبل إغلاقها، وتوليد <b class="text-blue-600 dark:text-blue-400">خطاب الدافع والـ CV الاحترافي</b> بضغطة زر.
+            سجل بريدك ومعدلك وتخصصك لمرة واحدة فقط؛ وسيتولى الخادم فحص المنح العالمية الرسمية أسبوعياً، حساب <b class="text-emerald-600 dark:text-emerald-400">احتمالية ونسبة قبولك</b> بناءً على خبراتك، تذكيرك بالمواعيد قبل إغلاقها، وتوليد <b class="text-blue-600 dark:text-blue-400">خطابات الدافع والترويسات الرسمية</b> فوراً.
         </p>
-
-        <!-- Feature Pillars with Outlined Icons & Micro-interactions -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5 pt-4 text-xs font-bold text-slate-700 dark:text-slate-200">
-            <div class="interactive-card bg-white/80 dark:bg-slate-900/60 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 text-center shadow-sm hover:border-emerald-500/40">
-                <div class="w-10 h-10 mx-auto mb-2 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center icon-hover">
-                    <i data-lucide="target" class="w-5 h-5"></i>
-                </div>
-                <span>حساب نسبة التوافق (Match Score)</span>
-            </div>
-            <div class="interactive-card bg-white/80 dark:bg-slate-900/60 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 text-center shadow-sm hover:border-amber-500/40">
-                <div class="w-10 h-10 mx-auto mb-2 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center icon-hover">
-                    <i data-lucide="clock" class="w-5 h-5"></i>
-                </div>
-                <span>تذكير تلقائي بالمواعيد النهائية</span>
-            </div>
-            <div class="interactive-card bg-white/80 dark:bg-slate-900/60 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 text-center shadow-sm hover:border-indigo-500/40">
-                <div class="w-10 h-10 mx-auto mb-2 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center icon-hover">
-                    <i data-lucide="bot" class="w-5 h-5"></i>
-                </div>
-                <span>مستشار أكاديمي ذكي يجيبك فوراً</span>
-            </div>
-            <div class="interactive-card bg-white/80 dark:bg-slate-900/60 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 text-center shadow-sm hover:border-purple-500/40">
-                <div class="w-10 h-10 mx-auto mb-2 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center icon-hover">
-                    <i data-lucide="file-pen" class="w-5 h-5"></i>
-                </div>
-                <span>توليد خطاب الدافع ونماذج التوصية</span>
-            </div>
-        </div>
     </section>
 
-    <!-- CORE REGISTRATION CARD (FEATURE 1, 2, 3) -->
+    <!-- REGISTRATION & PROFILE (STRICT SECURITY FILTERS APPLIED) -->
     <section class="max-w-4xl mx-auto px-4 py-6 reveal-scroll">
-        <div id="formCard" class="glass-card-light dark:glass-card-dark rounded-3xl p-6 sm:p-10 border border-slate-200 dark:border-slate-800/80 shadow-2xl relative overflow-hidden transition-all duration-300">
+        <div id="formCard" class="card-theme rounded-3xl p-6 sm:p-10 border shadow-2xl relative overflow-hidden transition-all duration-300">
             
-            <div class="mb-6 border-b border-slate-200/60 dark:border-slate-800 pb-4 flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-blue-600/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
-                    <i data-lucide="clipboard-signature" class="w-5 h-5"></i>
+            <div class="mb-6 border-b border-slate-200 dark:border-slate-800 pb-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-blue-600/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                        <i data-lucide="user-plus" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+                            تفعيل الأوتوميشن وحساب فرصة القبول
+                        </h2>
+                        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">البحث يشمل كافة المنح المتاحة عالمياً بدون قيود.</p>
+                    </div>
                 </div>
-                <div>
-                    <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-                        سجل ملفك الأكاديمي (مرة واحدة فقط)
-                    </h2>
-                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">يستخدم النظام هذه البيانات لحساب نسبة التوافق واقتراح المنح وتوليد مستندات التقديم المخصصة لك.</p>
-                </div>
+
+                <span class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+                    <i data-lucide="shield" class="w-3.5 h-3.5"></i>
+                    <span>حماية XSS & SQLi</span>
+                </span>
             </div>
 
-            <form id="subscribeForm" class="space-y-6 relative z-10">
+            <form id="subscribeForm" class="space-y-5 relative z-10">
                 
-                <!-- Email & Name -->
+                <!-- Email & Name with strict sanitizer -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
                         <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">
-                            البريد الإلكتروني لاستلام التقارير والمستندات <span class="text-rose-500">*</span>
+                            البريد الإلكتروني لاستلام النتائج والتنبيهات <span class="text-rose-500">*</span>
                         </label>
-                        <input type="email" id="email" required maxlength="100" placeholder="example@gmail.com"
-                            class="w-full bg-white dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 text-sm font-medium transition shadow-sm">
+                        <input type="email" id="email" required maxlength="100" placeholder="your_email@gmail.com"
+                            oninput="this.value = this.value.replace(/[^a-zA-Z0-9@._-]/g, '')"
+                            class="w-full bg-slate-50 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 text-sm font-medium transition shadow-sm">
+                        <p class="text-[11px] text-slate-400 mt-1">يصلك تقرير أسبوعي تلقائي بنفس التوقيت وتنبيهات المواعيد.</p>
                     </div>
 
                     <div>
                         <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">
                             اسم الطالب الكامل <span class="text-rose-500">*</span>
                         </label>
-                        <input type="text" id="fullName" required minlength="2" maxlength="60" pattern="^[a-zA-Z\u0600-\u06FF\s\.\-']+$" title="يرجى إدخال اسم حقيقي بدون رموز برمجية" placeholder="مثلاً: مصطفى زعيتر"
-                            class="w-full bg-white dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 text-sm font-medium transition shadow-sm">
+                        <input type="text" id="fullName" required minlength="2" maxlength="60" placeholder="مثلاً: مصطفى زعيتر"
+                            oninput="this.value = this.value.replace(/[^a-zA-Z\u0600-\u06FF\s.\-']/g, '')"
+                            class="w-full bg-slate-50 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 text-sm font-medium transition shadow-sm">
+                        <p class="text-[11px] text-slate-400 mt-1">أحرف نصية صريحة فقط (ممنوع الأكواد والرموز).</p>
                     </div>
                 </div>
 
                 <!-- Degree Level -->
                 <div>
                     <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 mb-2.5">
-                        المرحلة الدراسية المطلوبة <span class="text-rose-500">*</span>
+                        نوع المنحة والمرحلة الدراسية <span class="text-rose-500">*</span>
                     </label>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <button type="button" data-val="Undergraduate (Bachelor's)" class="degree-btn p-3.5 rounded-xl border border-blue-500 bg-blue-600 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-blue-500/20 transition">
-                            <span>🎓</span> <span>بكالوريوس (Undergraduate)</span>
+                            <span>🎓</span> <span>بكالوريوس (Bachelor's)</span>
                         </button>
-                        <button type="button" data-val="Master's Degree" class="degree-btn p-3.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-900/60 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition">
+                        <button type="button" data-val="Master's Degree" class="degree-btn p-3.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition">
                             <span>📜</span> <span>ماجستير (Master's)</span>
                         </button>
-                        <button type="button" data-val="PhD / Doctorate" class="degree-btn p-3.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-900/60 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition">
+                        <button type="button" data-val="PhD / Doctorate" class="degree-btn p-3.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition">
                             <span>🔬</span> <span>دكتوراه (PhD)</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- GPA & English Level -->
+                <!-- GPA & Talents / Experience (New Feature) -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
                         <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">
-                            المعدل الأكاديمي (توجيهي / تراكمي) <span class="text-rose-500">*</span>
+                            المعدل الأكاديمي (أرقام فقط) <span class="text-rose-500">*</span>
                         </label>
-                        <input type="text" id="gpaInput" required maxlength="20" placeholder="مثلاً: 88% أو 3.6/4.0"
-                            class="w-full bg-white dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 text-sm font-medium transition shadow-sm">
-                        <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">يُستخدم لحساب نسبة التوافق وفحص الشروط الدنيا للجامعات.</p>
+                        <input type="text" id="gpaInput" required maxlength="15" placeholder="88% أو 3.6"
+                            onkeypress="return /[0-9.%/]/.test(event.key)"
+                            oninput="this.value = this.value.replace(/[^0-9.%/]/g, '')"
+                            class="w-full bg-slate-50 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 text-sm font-medium transition shadow-sm font-num">
+                        <p class="text-[11px] text-slate-400 mt-1">ممنوع إدخال أي حروف أو أكواد برمجية لضمان الأمان الأقصى.</p>
                     </div>
 
                     <div>
                         <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">
-                            مستوى اللغة الإنجليزية
+                            الدولة / الجنسية (للكوتا والفرص الخاصة)
                         </label>
-                        <select id="englishLevel" class="w-full bg-white dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 text-sm font-medium transition shadow-sm">
-                            <option value="IELTS 6.5+ / Advanced" selected>متقدم (IELTS 6.5+ أو TOEFL 90+)</option>
-                            <option value="IELTS 5.5 - 6.0 / Intermediate">متوسط (IELTS 5.5 - 6.0 أو ما يعادله)</option>
-                            <option value="Duolingo / Institutional Test">امتحان دولينجو أو امتحان قبول محلي</option>
-                            <option value="No Test / Seeking Language Year">لا يوجد امتحان حالياً (أبحث عن منح توفر سنة لغة مجانية)</option>
+                        <select id="country" class="w-full bg-slate-50 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 text-sm font-bold transition shadow-sm">
+                            <option value="Palestine" selected>🇵🇸 فلسطين (Palestine) - أولوية ومنح معفاة 100%</option>
+                            <option value="Jordan">🇯🇴 الأردن (Jordan)</option>
+                            <option value="Egypt">🇪🇬 مصر (Egypt)</option>
+                            <option value="Syria">🇸🇾 سوريا (Syria)</option>
+                            <option value="Lebanon">🇱🇧 لبنان (Lebanon)</option>
+                            <option value="Yemen">🇾🇪 اليمن (Yemen)</option>
+                            <option value="International">🌍 دولة أخرى</option>
                         </select>
-                        <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">معظم المنح الحكومية تشمل سنة تحضيرية مجانية للغة.</p>
+                        <p class="text-[11px] text-slate-400 mt-1">نظام البحث يشمل كافة المنح المتاحة عالمياً.</p>
+                    </div>
+                </div>
+
+                <!-- Talents, Experience & Extracurriculars for Admission Probability Prediction -->
+                <div>
+                    <div class="flex justify-between items-center mb-1.5">
+                        <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200">
+                            مواهبك وخبراتك والأنشطة السابقة (لحساب وتوقع احتمالية القبول 🎯)
+                        </label>
+                        <button type="button" onclick="calculateInstantProbability()" class="text-xs text-emerald-600 dark:text-emerald-400 font-extrabold hover:underline flex items-center gap-1">
+                            <i data-lucide="target" class="w-3.5 h-3.5"></i>
+                            <span>توقع نسبة قبولي الآن</span>
+                        </button>
+                    </div>
+                    <textarea id="talentsInput" rows="2" maxlength="300"
+                        oninput="this.value = this.value.replace(/[<>{}\`$]/g, '')"
+                        placeholder="مثلاً: هاكاثونات تقنية، تدريب صيفي، تطوع في الهلال الأحمر، نشر أبحاث أو مقالات، قيادة فريق طلابي..."
+                        class="w-full bg-slate-50 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 text-xs sm:text-sm font-medium transition"></textarea>
+                    
+                    <!-- Probability Outcome Box -->
+                    <div id="probabilityBox" class="hidden mt-2 p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-xs text-slate-800 dark:text-slate-200 space-y-1">
+                        <div class="flex items-center justify-between font-bold text-emerald-600 dark:text-emerald-400">
+                            <span id="probScore">احتمالية القبول التقديرية: 88% - فرصة قوية جداً 🌟</span>
+                            <span id="matchPercent" class="font-num">نسبة التوافق: 94%</span>
+                        </div>
+                        <p id="probAdvice" class="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed"></p>
                     </div>
                 </div>
 
@@ -430,48 +434,18 @@
                         <button type="button" data-major="Business Administration & MBA" class="major-chip px-3 py-1.5 rounded-lg border text-xs font-semibold transition">📈 إدارة الأعمال</button>
                     </div>
 
-                    <input type="text" id="customMajor" maxlength="120" placeholder="أو اكتب تخصصاتك الأخرى مفصولة بفواصل (مثلاً: تمريض، ترجمة، معمار)..."
-                        class="w-full bg-white dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 text-xs sm:text-sm font-medium transition">
-                </div>
-
-                <!-- Destination Countries & Origin -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div>
-                        <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">
-                            الوجهات الدراسية المفضلة
-                        </label>
-                        <select id="destination" class="w-full bg-white dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 text-sm font-medium transition shadow-sm">
-                            <option value="Any Country" selected>🌍 أي دولة (البحث عن أفضل المنح عالمياً)</option>
-                            <option value="Europe (EU)">🇪🇺 دول أوروبا (ألمانيا، المجر، بريطانيا، فرنسا، إيطاليا)</option>
-                            <option value="Canada & USA">🇨🇦 كندا والولايات المتحدة</option>
-                            <option value="Turkey">🇹🇷 تركيا (المنحة التركية الحكومية YTB)</option>
-                            <option value="East Asia">🇰🇷 شرق آسيا (كوريا الجنوبية GKS، اليابان MEXT)</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">
-                            الدولة المؤهلة / الجنسية
-                        </label>
-                        <select id="country" class="w-full bg-white dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 text-sm font-semibold transition shadow-sm">
-                            <option value="Palestine" selected>🇵🇸 فلسطين (Palestine) - أولوية قصوى وكوتا مخصصة</option>
-                            <option value="Jordan">🇯🇴 الأردن (Jordan)</option>
-                            <option value="Egypt">🇪🇬 مصر (Egypt)</option>
-                            <option value="Syria">🇸🇾 سوريا (Syria)</option>
-                            <option value="Lebanon">🇱🇧 لبنان (Lebanon)</option>
-                            <option value="Yemen">🇾🇪 اليمن (Yemen)</option>
-                            <option value="International">🌍 طالب دولي آخر</option>
-                        </select>
-                    </div>
+                    <input type="text" id="customMajor" maxlength="100" placeholder="أو اكتب تخصصاتك الأخرى مفصولة بفواصل (مثلاً: تمريض، ذكاء أعمال، لغات)..."
+                        oninput="this.value = this.value.replace(/[<>{}\`$]/g, '')"
+                        class="w-full bg-slate-50 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 text-xs sm:text-sm font-medium transition">
                 </div>
 
                 <!-- Instant Welcome Toggle -->
-                <div class="pt-2">
-                    <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 cursor-pointer hover:border-blue-500 transition">
-                        <input type="checkbox" id="sendWelcome" checked class="w-4 h-4 mt-0.5 rounded bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-0">
+                <div class="pt-1">
+                    <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 cursor-pointer hover:border-blue-500 transition">
+                        <input type="checkbox" id="sendWelcome" checked class="w-4 h-4 mt-0.5 rounded text-blue-600 focus:ring-0">
                         <div>
-                            <span class="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 block">أرسل لي التقرير الترحيبي الأول مع نسبة التوافق فوراً ⚡</span>
-                            <span class="text-[11px] text-slate-500 dark:text-slate-400">ستصلك أحدث 5 منح مطابقة لمعدلك وتخصصك في دقيقة واحدة للتأكد من نجاح الربط.</span>
+                            <span class="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 block">أرسل لي التقرير الترحيبي الأول مع أفضل المنح المفتوحة فوراً ⚡</span>
+                            <span class="text-[11px] text-slate-500 dark:text-slate-400">ستصلك المنح الـ 11 عموداً المطابقة لملفك الأكاديمي أوتوماتيكياً في دقيقة واحدة.</span>
                         </div>
                     </label>
                 </div>
@@ -479,149 +453,192 @@
                 <!-- Submit Button -->
                 <div>
                     <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-500 hover:to-indigo-500 text-white font-black py-4 px-6 rounded-2xl shadow-xl shadow-blue-500/25 transition transform active:scale-[0.99] flex items-center justify-center gap-2.5 text-base sm:text-lg">
-                        <span id="btnText">🚀 حفظ الملف وتفعيل التتبع الأسبوعي المجاني</span>
+                        <span id="btnText">🚀 حفظ الملف وتفعيل الأوتوميشن الأسبوعي الذاتي</span>
                         <div id="btnSpinner" class="hidden w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                     </button>
-                    <p class="text-center text-xs text-slate-400 mt-2">🔒 بياناتك محفوظة بأمان تام. لا إعلانات ولا رسائل سبام.</p>
+                    <p class="text-center text-xs text-slate-400 mt-2">🔒 نظام محمي ومؤتمت بالكامل. لا إعلانات ولا تدخلات يدوية.</p>
                 </div>
 
-                <!-- Alert Result Message -->
+                <!-- Alert Box -->
                 <div id="alertBox" class="hidden p-5 rounded-2xl text-sm font-bold transition shadow-lg"></div>
 
             </form>
         </div>
     </section>
 
-    <!-- FEATURE 5: AI SCHOLARSHIP ADVISOR (LIVE CONSOLE) -->
-    <section id="advisorSection" class="max-w-4xl mx-auto px-4 py-10">
-        <div class="glass-card-light dark:glass-card-dark rounded-3xl p-6 sm:p-10 border border-indigo-200/50 dark:border-indigo-500/20 shadow-xl relative overflow-hidden">
+    <!-- INTERACTIVE MULTI-TURN AI SCHOLARSHIP ADVISOR CHAT -->
+    <section id="advisorSection" class="max-w-4xl mx-auto px-4 py-8 reveal-scroll">
+        <div class="card-theme rounded-3xl p-6 sm:p-8 border shadow-xl relative overflow-hidden">
             
-            <div class="flex items-center gap-3 mb-4">
-                <div class="w-10 h-10 rounded-xl bg-indigo-600/10 dark:bg-indigo-400/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-2xl font-black">
-                    🤖
+            <div class="flex items-center justify-between mb-4 border-b border-slate-200 dark:border-slate-800 pb-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-600/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-2xl font-black">
+                        🤖
+                    </div>
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">المستشار الأكاديمي التفاعلي (AI Advisor)</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">مدرّب على اللهجات العربية ويجيبك مباشرة وبدون حشو ("ع قد الكلام").</p>
+                    </div>
                 </div>
-                <div>
-                    <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">المستشار الأكاديمي الذكي (AI Advisor)</h2>
-                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">اطرح أي استفسار طبيعي باللغة العربية وسيقوم المستشار بتحليله وترشيح أفضل المنح والخطوات فوراً.</p>
-                </div>
+
+                <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 flex items-center gap-1">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                    <span>متصل الآن</span>
+                </span>
             </div>
 
-            <!-- Quick Preset Queries -->
+            <!-- Quick Preset Chips -->
             <div class="flex flex-wrap gap-2 mb-4">
-                <span class="text-xs text-slate-400 font-semibold self-center ml-1">جرب الضغط:</span>
-                <button type="button" onclick="setQuery('معدلي 85 وهندسة برمجيات وأريد منحة في أوروبا')" class="preset-btn px-2.5 py-1 rounded-lg text-xs bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-indigo-500 border border-slate-300 dark:border-slate-700 transition">
+                <button type="button" onclick="sendPresetMessage('معدلي 85 وهندسة برمجيات وبدي منحة بأوروبا')" class="px-2.5 py-1 rounded-lg text-xs bg-slate-100 dark:bg-slate-800 hover:border-indigo-500 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 transition">
                     💡 معدلي 85 وهندسة برمجيات وبدي منحة بأوروبا
                 </button>
-                <button type="button" onclick="setQuery('منح بكالوريوس طب بشري ممولة بالكامل للطلاب من فلسطين')" class="preset-btn px-2.5 py-1 rounded-lg text-xs bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-indigo-500 border border-slate-300 dark:border-slate-700 transition">
+                <button type="button" onclick="sendPresetMessage('بدي منحة طب بشري ممولة بالكامل للطلاب من فلسطين')" class="px-2.5 py-1 rounded-lg text-xs bg-slate-100 dark:bg-slate-800 hover:border-indigo-500 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 transition">
                     💡 منح طب بشري ممولة بالكامل
                 </button>
-                <button type="button" onclick="setQuery('ماجستير ذكاء اصطناعي وأمن سيبراني في كندا أو بريطانيا بدون اختبار لغة')" class="preset-btn px-2.5 py-1 rounded-lg text-xs bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-indigo-500 border border-slate-300 dark:border-slate-700 transition">
-                    💡 ماجستير AI بدون آيلتس
+                <button type="button" onclick="sendPresetMessage('كيف أجهز خطاب دافع يضمن قبولي في منحة المجر أو تركيا؟')" class="px-2.5 py-1 rounded-lg text-xs bg-slate-100 dark:bg-slate-800 hover:border-indigo-500 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 transition">
+                    💡 نصائح لخطاب دافع منحة المجر وتركيا
                 </button>
             </div>
 
-            <!-- Query Input Box -->
-            <div class="space-y-3">
-                <div class="relative">
-                    <textarea id="advisorQuery" rows="3" maxlength="500" placeholder="اكتب سؤالك هنا بالتفصيل (مثلاً: معدلي 89 توجيهي علمي وبدي أدرس أمن سيبراني في كندا أو تركيا، شو أفضل المنح المفتوحة حالياً وكيف أجهز حالي؟)..."
-                        class="w-full bg-white dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700 rounded-2xl p-4 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 text-sm font-medium transition"></textarea>
-                </div>
-                <div class="flex justify-end">
-                    <button type="button" id="consultBtn" onclick="askAdvisor()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 px-6 rounded-xl text-sm transition shadow-md shadow-indigo-600/20 flex items-center gap-2">
-                        <span id="consultBtnText">⚡ استشر الذكاء الاصطناعي الآن</span>
-                        <div id="consultSpinner" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    </button>
+            <!-- Chat Messages Log Container -->
+            <div id="chatHistoryBox" class="sub-card-theme rounded-2xl p-4 sm:p-5 h-80 overflow-y-auto space-y-3 mb-4 text-xs sm:text-sm">
+                <!-- Advisor initial greeting -->
+                <div class="flex items-start gap-2.5">
+                    <div class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
+                        AI
+                    </div>
+                    <div class="chat-bubble-advisor p-3 max-w-[85%] leading-relaxed shadow-sm">
+                        أهلاً بك يا بطل! أنا مستشارك الأكاديمي الذكي. اسألني عن أي منحة، شروط القبول، أو كيف ترفع نسبة قبولك بمعدلك وخبراتك.. وجوابي بكون محدد ع قد السؤال بدون لف ودوران. تفضل شو ببالك؟
+                    </div>
                 </div>
             </div>
 
-            <!-- Advisor Output Display -->
-            <div id="advisorOutput" class="hidden mt-6 p-6 rounded-2xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 text-sm leading-relaxed text-slate-800 dark:text-slate-200">
-                <div class="flex items-center gap-2 text-indigo-500 font-bold mb-3 pb-2 border-b border-slate-200 dark:border-slate-800">
-                    <span>💡</span> <span>توصية المستشار الأكاديمي:</span>
-                </div>
-                <div id="advisorMarkdown" class="prose dark:prose-invert max-w-none text-xs sm:text-sm"></div>
+            <!-- Chat Input Controls -->
+            <div class="flex items-center gap-2">
+                <input type="text" id="chatInputText" maxlength="400" placeholder="اكتب سؤالك هنا واضغط إرسال (مثلاً: شو وضع منحة تشيفنينج لمعدل 80؟)..."
+                    onkeydown="if(event.key === 'Enter') sendChatMessage()"
+                    class="flex-1 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 text-xs sm:text-sm font-medium">
+                
+                <button type="button" id="chatSendBtn" onclick="sendChatMessage()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-5 rounded-xl text-xs sm:text-sm transition flex items-center gap-1.5 shadow-md shadow-indigo-600/20 shrink-0">
+                    <span id="chatSendBtnText">إرسال</span>
+                    <i data-lucide="send" class="w-4 h-4"></i>
+                </button>
             </div>
 
         </div>
     </section>
 
-    <!-- FEATURE 6: SMART APPLICATION DOCUMENTS GENERATOR -->
-    <section id="docSection" class="max-w-4xl mx-auto px-4 py-8">
-        <div class="glass-card-light dark:glass-card-dark rounded-3xl p-6 sm:p-10 border border-purple-200/50 dark:border-purple-500/20 shadow-xl relative overflow-hidden">
+    <!-- SMART APPLICATION DOCUMENTS GENERATOR (WITH OFFICIAL LETTERHEAD & DOWNLOAD) -->
+    <section id="docSection" class="max-w-4xl mx-auto px-4 py-8 reveal-scroll">
+        <div class="card-theme rounded-3xl p-6 sm:p-8 border shadow-xl relative overflow-hidden">
             
-            <div class="flex items-center gap-3 mb-4">
-                <div class="w-10 h-10 rounded-xl bg-purple-600/10 dark:bg-purple-400/10 text-purple-600 dark:text-purple-400 flex items-center justify-center text-2xl font-black">
-                    ✍️
+            <div class="flex items-center justify-between mb-4 border-b border-slate-200 dark:border-slate-800 pb-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-purple-600/10 text-purple-600 dark:text-purple-400 flex items-center justify-center text-2xl font-black">
+                        ✍️
+                    </div>
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">مُولّد المستندات بترويسة رسمية قابلة للتحميل</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">حدد نوع الخطاب وسيقوم الذكاء الاصطناعي بصياغته وتحميله كملف رسمي فوراً.</p>
+                    </div>
                 </div>
-                <div>
-                    <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">مُولّد مستندات التقديم الذكية (Application Kit)</h2>
-                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">اختر منحتك المستهدفة وسيقوم الذكاء الاصطناعي بكتابة وتوليد خطاب الدافع ونموذج التوصية وقائمة التحقق فوراً.</p>
-                </div>
+
+                <span class="text-xs font-bold text-purple-600 dark:text-purple-400 bg-purple-500/10 px-3 py-1 rounded-full border border-purple-500/20">
+                    Official Dossier
+                </span>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">اختر المنحة المستهدفة</label>
-                    <select id="docScholarship" class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:border-purple-500">
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المنحة المستهدفة</label>
+                    <select id="docScholarship" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:border-purple-500">
                         <option value="Lester B. Pearson Scholarship (University of Toronto)">Lester B. Pearson - كندا (جامعة تورنتو)</option>
-                        <option value="Stipendium Hungaricum Scholarship">Stipendium Hungaricum - منحة الحكومة المجرية</option>
-                        <option value="Türkiye Bursları Government Scholarship">Türkiye Bursları - المنحة التركية الحكومية</option>
-                        <option value="Chevening UK Master's Scholarship">Chevening Scholarships - منحة تشيفنينج البريطانية</option>
-                        <option value="Global Korea Scholarship (GKS)">Global Korea Scholarship (GKS) - منحة كوريا الجنوبية</option>
-                        <option value="DAAD Scholarship Germany">DAAD Scholarship - منحة داد للدراسات العليا بألمانيا</option>
+                        <option value="Stipendium Hungaricum Scholarship">Stipendium Hungaricum - منحة المجر</option>
+                        <option value="Türkiye Bursları Government Scholarship">Türkiye Bursları - المنحة التركية</option>
+                        <option value="Chevening UK Master's Scholarship">Chevening Scholarships - بريطانيا</option>
+                        <option value="Global Korea Scholarship (GKS)">Global Korea Scholarship - كوريا الجنوبية</option>
+                        <option value="DAAD Scholarship Germany">DAAD Scholarship - ألمانيا</option>
                     </select>
                 </div>
+
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">إيميلك لاستلام المستندات</label>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">نوع المستند المطلوب</label>
+                    <select id="docTypeSelect" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:border-purple-500">
+                        <option value="all" selected>📦 حزمة التقديم الكاملة (كافة الخطابات)</option>
+                        <option value="motivation">📝 خطاب الدافع الرسمي (Motivation Letter)</option>
+                        <option value="recommendation">✍️ خطاب التوصية الأكاديمي (Recommendation)</option>
+                        <option value="cv">📄 السيرة الذاتية الأكاديمية (Curriculum Vitae)</option>
+                        <option value="proposal">🔬 مقترح بحثي أكاديمي (Research Proposal)</option>
+                        <option value="checklist">📋 قائمة التحقق والمتطلبات (Checklist)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">البريد الإلكتروني للنسخة</label>
                     <input type="email" id="docEmail" maxlength="100" placeholder="your_email@gmail.com"
-                        class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:border-purple-500">
+                        class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:border-purple-500">
                 </div>
             </div>
 
-            <button type="button" id="generateDocBtn" onclick="generateSmartDocs()" class="w-full bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-3 px-6 rounded-xl text-sm transition shadow-lg shadow-purple-600/20 flex items-center justify-center gap-2">
-                <span id="docBtnText">🪄 توليد خطاب الدافع ونماذج التقديم المخصصة وإرسالها لإيميلي</span>
-                <div id="docSpinner" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-            </button>
+            <!-- Action buttons -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <button type="button" id="generateDocBtn" onclick="generateSmartDocs(false)" class="bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-3 px-4 rounded-xl text-xs sm:text-sm transition shadow-lg shadow-purple-600/20 flex items-center justify-center gap-2">
+                    <span id="docBtnText">🪄 صياغة وعرض المستند بالترويسة الرسمية</span>
+                    <div id="docSpinner" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                </button>
 
-            <!-- Generated Docs Output Display -->
+                <button type="button" onclick="generateSmartDocs(true)" class="bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white font-bold py-3 px-4 rounded-xl text-xs sm:text-sm transition border border-slate-700 flex items-center justify-center gap-2 shadow-sm">
+                    <i data-lucide="download" class="w-4 h-4 text-emerald-400"></i>
+                    <span>تحميل المستند الرسمي فوراً كملف (Download File)</span>
+                </button>
+            </div>
+
+            <!-- Output Box -->
             <div id="docResultBox" class="hidden mt-6 space-y-4">
                 <div class="flex border-b border-slate-200 dark:border-slate-800 text-xs font-bold gap-3 pb-2" id="docTabs">
-                    <button type="button" onclick="switchDocTab('motTab')" id="motTabBtn" class="text-purple-500 border-b-2 border-purple-500 pb-1">📝 خطاب الدافع (Motivation Letter)</button>
-                    <button type="button" onclick="switchDocTab('recTab')" id="recTabBtn" class="text-slate-400 hover:text-white pb-1">✍️ خطاب التوصية (Recommendation)</button>
-                    <button type="button" onclick="switchDocTab('chkTab')" id="chkTabBtn" class="text-slate-400 hover:text-white pb-1">📋 قائمة التحقق (Checklist)</button>
+                    <button type="button" onclick="switchDocTab('motTab')" id="motTabBtn" class="text-purple-500 border-b-2 border-purple-500 pb-1">📝 خطاب الدافع</button>
+                    <button type="button" onclick="switchDocTab('recTab')" id="recTabBtn" class="text-slate-400 hover:text-white pb-1">✍️ خطاب التوصية</button>
+                    <button type="button" onclick="switchDocTab('cvTab')" id="cvTabBtn" class="text-slate-400 hover:text-white pb-1">📄 السيرة الذاتية (CV)</button>
+                    <button type="button" onclick="switchDocTab('chkTab')" id="chkTabBtn" class="text-slate-400 hover:text-white pb-1">📋 المتطلبات</button>
                 </div>
 
-                <div class="p-4 rounded-xl bg-slate-100 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-800 text-xs sm:text-sm font-mono overflow-x-auto max-h-80 overflow-y-auto">
-                    <pre id="docContentDisplay" class="whitespace-pre-wrap text-slate-800 dark:text-slate-200"></pre>
+                <div class="sub-card-theme p-4 rounded-xl text-xs sm:text-sm font-mono overflow-x-auto max-h-80 overflow-y-auto">
+                    <pre id="docContentDisplay" class="whitespace-pre-wrap"></pre>
                 </div>
 
                 <div class="flex justify-between items-center text-xs text-slate-400">
-                    <span id="docSentNotice" class="text-emerald-500 font-bold">✅ تم إرسال نسخة كاملة إلى بريدك الإلكتروني!</span>
-                    <button type="button" onclick="copyCurrentDoc()" class="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 transition">
-                        📋 نسخ النص
-                    </button>
+                    <span id="docSentNotice" class="text-emerald-500 font-bold">✅ تم إرسال نسخة إلى بريدك المسجل!</span>
+                    <div class="flex gap-2">
+                        <button type="button" onclick="copyCurrentDoc()" class="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 transition">
+                            📋 نسخ النص
+                        </button>
+                        <button type="button" onclick="downloadCurrentDisplay()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1">
+                            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                            <span>تنزيل</span>
+                        </button>
+                    </div>
                 </div>
             </div>
 
         </div>
     </section>
 
-    <!-- LIVE SAMPLE RADAR (FEATURE 4: DEADLINE REMINDER & CARD SWIPER) -->
-    <section id="radarSection" class="max-w-6xl mx-auto px-4 py-12 reveal-scroll">
+    <!-- LIVE AUTONOMOUS SCHOLARSHIP RADAR (FEATURE 4 & LIVE INGESTION) -->
+    <section id="radarSection" class="max-w-6xl mx-auto px-4 py-10 reveal-scroll">
         <div class="text-center space-y-3 mb-8">
             <span class="inline-flex items-center gap-1.5 text-xs font-black text-emerald-600 dark:text-emerald-400 tracking-wider uppercase bg-emerald-500/10 border border-emerald-500/20 px-3.5 py-1 rounded-full">
-                <i data-lucide="compass" class="w-3.5 h-3.5"></i>
-                <span>رادار المنح ونسب التوافق المباشرة</span>
+                <i data-lucide="radar" class="w-3.5 h-3.5"></i>
+                <span>تحديث مؤتمت دوري بدون أي تدخل يدوي</span>
             </span>
             <h2 class="text-2xl sm:text-4xl font-black text-slate-900 dark:text-white">
-                أهم المنح النشطة الموصى بها لملفك
+                أهم المنح العالمية النشطة حالياً بروابطها المباشرة
             </h2>
             <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">
-                استخدم سحب البطاقات السريع لتصفح الفرص بسهولة: اسحب البطاقة لليمين للحفظ وتفعيل التنبيهات، أو لليسار للتخطي.
+                يتم جلب هذه المنح وتحليل شروطها وروابط التقديم الرسمية أوتوماتيكياً بواسطة محرك الذكاء الاصطناعي.
             </p>
 
-            <!-- Mode Switcher (Swipe vs Grid) -->
-            <div class="inline-flex items-center p-1 rounded-2xl bg-slate-200/80 dark:bg-slate-900/80 border border-slate-300 dark:border-slate-800 text-xs font-bold gap-1 mt-2">
+            <!-- Mode Switcher -->
+            <div class="inline-flex items-center p-1 rounded-2xl bg-slate-200 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-xs font-bold gap-1 mt-2">
                 <button type="button" id="modeSwiperBtn" onclick="switchRadarMode('swiper')" class="px-4 py-2 rounded-xl bg-blue-600 text-white shadow-md flex items-center gap-1.5 transition">
                     <i data-lucide="layers" class="w-4 h-4"></i>
                     <span>وضع سحب البطاقات (Swiper)</span>
@@ -633,25 +650,22 @@
             </div>
         </div>
 
-        <!-- 1. SWIPER MODE CONTAINER -->
+        <!-- 1. SWIPER VIEW -->
         <div id="radarSwiperView" class="max-w-md mx-auto">
-            
             <div class="flex justify-between items-center text-xs text-slate-400 font-bold mb-3 px-2">
                 <span class="flex items-center gap-1">
                     <i data-lucide="hand" class="w-3.5 h-3.5 text-blue-500"></i>
                     <span>اسحب يميناً للحفظ • يساراً للتخطي</span>
                 </span>
                 <span class="bg-blue-600/10 text-blue-600 dark:text-blue-400 px-2.5 py-0.5 rounded-full font-mono text-[11px]" id="deckCounter">
-                    1 / 6
+                    ...
                 </span>
             </div>
 
-            <!-- The Swiper Deck -->
             <div id="cardDeckContainer" class="swiper-deck mb-4">
                 <!-- Injected via JavaScript -->
             </div>
 
-            <!-- Swiper Controls -->
             <div class="flex items-center justify-center gap-3 pt-2">
                 <button type="button" onclick="swipeCurrentCard('left')" title="تخطي للمنحة التالية" class="btn-interactive w-12 h-12 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 flex items-center justify-center transition shadow-sm">
                     <span class="icon-hover"><i data-lucide="x" class="w-6 h-6"></i></span>
@@ -670,41 +684,13 @@
                     <span class="icon-hover"><i data-lucide="rotate-ccw" class="w-4 h-4"></i></span>
                 </button>
             </div>
-
         </div>
 
-        <!-- 2. FULL GRID MODE CONTAINER -->
+        <!-- 2. GRID VIEW -->
         <div id="radarGridView" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Populated via JavaScript for unified data -->
+            <!-- Populated via live dataset -->
         </div>
-
     </section>
-
-    <!-- SMART ACADEMIC RADAR LOADING MODAL (LOTTIE / RADAR MOTION) -->
-    <div id="academicLoaderModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md hidden transition-all duration-300">
-        <div class="glass-card-dark p-8 rounded-3xl max-w-sm w-full mx-4 text-center border border-blue-500/30 shadow-2xl relative overflow-hidden transform transition-all duration-300 scale-95 opacity-0" id="loaderCard">
-            <!-- Pulsing Holographic Academic Radar -->
-            <div class="relative w-28 h-28 mx-auto mb-5 flex items-center justify-center">
-                <div class="absolute inset-0 rounded-full border-2 border-blue-500/30 radar-pulse"></div>
-                <div class="absolute inset-2 rounded-full border-2 border-emerald-400/40 animate-ping"></div>
-                <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-700 via-indigo-600 to-emerald-500 flex items-center justify-center text-white shadow-xl shadow-blue-500/30 border border-white/20">
-                    <i data-lucide="graduation-cap" class="w-8 h-8 animate-bounce"></i>
-                </div>
-            </div>
-            
-            <h3 id="loaderTitle" class="text-base sm:text-lg font-black text-white mb-1.5">
-                جارٍ تحليل ومعالجة ملفك الأكاديمي...
-            </h3>
-            <p id="loaderSub" class="text-xs text-slate-300 leading-relaxed mb-4">
-                فحص معايير القبول العالمية • حساب نسبة التوافق • جدولة تنبيهات المواعيد
-            </p>
-            
-            <!-- Animated Gradient Progress Bar -->
-            <div class="w-full bg-slate-800/80 rounded-full h-2 overflow-hidden border border-slate-700">
-                <div class="h-full bg-gradient-to-r from-blue-500 via-emerald-400 to-amber-400 rounded-full animate-pulse w-full"></div>
-            </div>
-        </div>
-    </div>
 
     <!-- FOOTER -->
     <footer class="border-t border-slate-200 dark:border-slate-800/80 py-10 text-center text-xs text-slate-500 dark:text-slate-400 space-y-2">
@@ -715,13 +701,12 @@
             تطوير وإدارة: <a href="https://github.com/medozaiter" target="_blank" class="text-blue-600 dark:text-blue-400 font-bold hover:underline">مصطفى زعيتر (Mustafa AbuZaiter)</a>
         </p>
         <p class="text-[11px] text-slate-400 dark:text-slate-500">
-            Global Scholarship AI Engine &copy; 2026 | مفتوح المصدر برخصة MIT
+            MinhaTech Global AI Engine &copy; 2026 | مؤتمت بالكامل بنسبة 100%
         </p>
     </footer>
 
-    <!-- INTERACTIVE SCRIPT LOGIC -->
+    <!-- INTERACTIVE JAVASCRIPT LOGIC -->
     <script>
-        // Security HTML Escaper to prevent DOM XSS
         function escapeHTML(str) {
             if (str === null || str === undefined) return '';
             return String(str)
@@ -732,12 +717,11 @@
                 .replace(/'/g, '&#039;');
         }
 
-        // --- 1. THEME SWITCHER (DARK / LIGHT) ---
+        // --- THEME SWITCHER (DARK / LIGHT) ---
         function toggleTheme() {
             const isDark = document.documentElement.classList.toggle('dark');
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
             updateThemeButton();
-            updateStylesForTheme();
         }
 
         function updateThemeButton() {
@@ -752,58 +736,26 @@
                     ? '<i data-lucide="moon" class="w-4 h-4 text-amber-400"></i>' 
                     : '<i data-lucide="sun" class="w-4 h-4 text-amber-500"></i>';
             }
-            document.getElementById('themeText').textContent = isDark ? 'الوضع الليلي' : 'الوضع النهاري';
+            const txt = document.getElementById('themeText');
+            if (txt) txt.textContent = isDark ? 'الوضع الليلي' : 'الوضع النهاري';
             if (window.lucide) lucide.createIcons();
-        }
-
-        // --- SMART ACADEMIC RADAR LOADER HELPERS ---
-        function showAcademicLoader(title, subtitle) {
-            const modal = document.getElementById('academicLoaderModal');
-            const card = document.getElementById('loaderCard');
-            if (title) document.getElementById('loaderTitle').textContent = title;
-            if (subtitle) document.getElementById('loaderSub').textContent = subtitle;
-            modal.classList.remove('hidden');
-            setTimeout(() => {
-                card.classList.remove('scale-95', 'opacity-0');
-                card.classList.add('scale-100', 'opacity-100');
-            }, 10);
-            if (window.lucide) lucide.createIcons();
-        }
-
-        function hideAcademicLoader() {
-            const modal = document.getElementById('academicLoaderModal');
-            const card = document.getElementById('loaderCard');
-            card.classList.remove('scale-100', 'opacity-100');
-            card.classList.add('scale-95', 'opacity-0');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 250);
-        }
-
-        function updateStylesForTheme() {
-            const isDark = document.documentElement.classList.contains('dark');
-            const card = document.getElementById('formCard');
-            if (card) {
-                card.className = (isDark ? 'glass-card-dark' : 'glass-card-light') + ' rounded-3xl p-6 sm:p-10 border border-slate-200 dark:border-slate-800/80 shadow-2xl relative overflow-hidden transition-all duration-300';
-            }
         }
         updateThemeButton();
 
-        // --- 2. DEGREE LEVEL BUTTONS ---
+        // --- DEGREE SELECTION ---
         let selectedDegree = "Undergraduate (Bachelor's)";
         document.querySelectorAll('.degree-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.degree-btn').forEach(b => {
-                    b.className = "degree-btn p-3.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-900/60 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition";
+                    b.className = "degree-btn p-3.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition";
                 });
                 btn.className = "degree-btn p-3.5 rounded-xl border border-blue-500 bg-blue-600 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-blue-500/20 transition";
                 selectedDegree = btn.getAttribute('data-val');
             });
         });
 
-        // --- 3. MAJORS SELECTION ---
+        // --- MAJORS SELECTION ---
         let selectedMajors = ["Cybersecurity", "Software Engineering", "Artificial Intelligence"];
-
         function renderChips() {
             document.querySelectorAll('.major-chip').forEach(chip => {
                 const majorVal = chip.getAttribute('data-major');
@@ -811,11 +763,10 @@
                 if (isSelected) {
                     chip.className = "major-chip px-3 py-1.5 rounded-lg border text-xs font-semibold transition bg-blue-600 text-white border-blue-500 shadow-sm";
                 } else {
-                    chip.className = "major-chip px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-900/60 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold transition";
+                    chip.className = "major-chip px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 text-xs font-semibold transition";
                 }
             });
         }
-
         document.querySelectorAll('.major-chip').forEach(chip => {
             chip.addEventListener('click', () => {
                 const val = chip.getAttribute('data-major');
@@ -829,7 +780,40 @@
         });
         renderChips();
 
-        // --- 4. FORM SUBMISSION ---
+        // --- INSTANT ADMISSION PROBABILITY CALCULATOR ---
+        async function calculateInstantProbability() {
+            const gpa = document.getElementById('gpaInput').value.trim() || "85%";
+            const talents = document.getElementById('talentsInput').value.trim();
+            const country = document.getElementById('country').value;
+            const probBox = document.getElementById('probabilityBox');
+
+            try {
+                const res = await fetch('/api/match/calculate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        gpa: gpa,
+                        degree: selectedDegree,
+                        majors: selectedMajors,
+                        talents_experience: talents,
+                        country: country
+                    })
+                });
+                const data = await res.json();
+                if (data.success && data.match) {
+                    const m = data.match;
+                    document.getElementById('probScore').textContent = `احتمالية القبول التقديرية: ${m.admission_probability || '85%'}`;
+                    document.getElementById('matchPercent').textContent = `توافق الشروط: ${m.match_score || '90%'}`;
+                    document.getElementById('probAdvice').textContent = (m.strengths ? 'أبرز نقاط القوة: ' + m.strengths.join(' • ') : '') + (m.tips ? ' | نصيحة: ' + m.tips[0] : '');
+                    probBox.classList.remove('hidden');
+                    if (window.lucide) lucide.createIcons();
+                }
+            } catch(e) {
+                console.error("Match calc error:", e);
+            }
+        }
+
+        // --- REGISTRATION / SUBSCRIPTION FORM SUBMIT ---
         const form = document.getElementById('subscribeForm');
         const submitBtn = document.getElementById('submitBtn');
         const btnText = document.getElementById('btnText');
@@ -847,17 +831,16 @@
             }
 
             if (finalMajors.length === 0) {
-                alertBox.className = "p-4 rounded-2xl text-sm font-bold bg-rose-500/15 text-rose-500 dark:text-rose-400 border border-rose-500/30";
+                alertBox.className = "p-4 rounded-2xl text-sm font-bold bg-rose-500/15 text-rose-500 border border-rose-500/30";
                 alertBox.innerHTML = "⚠️ يرجى اختيار أو كتابة تخصص دراسي واحد على الأقل للمتابعة.";
                 alertBox.classList.remove('hidden');
                 return;
             }
 
             submitBtn.disabled = true;
-            btnText.textContent = "جارٍ حفظ ملفك وحساب درجات التوافق...";
+            btnText.textContent = "جارٍ تفعيل الأوتوميشن وحساب نسبة القبول...";
             btnSpinner.classList.remove('hidden');
             alertBox.classList.add('hidden');
-            showAcademicLoader("جارٍ حفظ ملفك الأكاديمي...", "مطابقة التخصص والمعدل مع المنح الرسمية • جدولة التقرير الأول");
 
             const payload = {
                 email: document.getElementById('email').value.trim(),
@@ -865,8 +848,7 @@
                 degree: selectedDegree,
                 majors: finalMajors,
                 gpa: document.getElementById('gpaInput').value.trim() || "85%",
-                english_level: document.getElementById('englishLevel').value,
-                target_destinations: [document.getElementById('destination').value],
+                talents_experience: document.getElementById('talentsInput').value.trim(),
                 country: document.getElementById('country').value,
                 send_welcome_report: document.getElementById('sendWelcome').checked
             };
@@ -883,95 +865,142 @@
                 const data = await res.json();
 
                 if (res.ok && data.success) {
-                    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-
+                    confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 } });
                     alertBox.className = "p-5 rounded-2xl text-sm font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 text-center";
                     alertBox.innerHTML = `
-                        <div class="text-3xl mb-1.5">🎉 مبارك! تم حفظ ملفك بنجاح</div>
+                        <div class="text-3xl mb-1.5">🎉 مبارك! تم تفعيل الأوتوميشن بنجاح</div>
                         <div class="text-sm font-bold mb-1">${escapeHTML(data.message)}</div>
                         <div class="text-xs font-normal text-slate-600 dark:text-emerald-200/80">
-                            تم تفعيل التتبع الأسبوعي، وحساب نسبة التوافق لمعدلك (${escapeHTML(payload.gpa)})، وإرسال التقرير لبريدك.
+                            سيصلك كل أسبوع في نفس التوقيت إيميل بأحدث المنح المناسبة مع نسبة توافقك وتذكيرات المواعيد.
                         </div>
                     `;
                     alertBox.classList.remove('hidden');
                 } else {
-                    throw new Error(data.detail || data.message || "حدث خطأ أثناء حفظ الاشتراك.");
+                    throw new Error(data.detail || data.message || "حدث خطأ أثناء تفعيل الأوتوميشن.");
                 }
             } catch (err) {
                 alertBox.className = "p-4 rounded-2xl text-sm font-bold bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30";
                 alertBox.innerHTML = `❌ عذراً: ${escapeHTML(err.message)}`;
                 alertBox.classList.remove('hidden');
             } finally {
-                hideAcademicLoader();
                 submitBtn.disabled = false;
-                btnText.textContent = "🚀 حفظ الملف وتفعيل التتبع الأسبوعي المجاني";
+                btnText.textContent = "🚀 حفظ الملف وتفعيل الأوتوميشن الأسبوعي الذاتي";
                 btnSpinner.classList.add('hidden');
             }
         });
 
-        // --- 5. AI SCHOLARSHIP ADVISOR LOGIC ---
-        function setQuery(text) {
-            document.getElementById('advisorQuery').value = text;
+        // --- MULTI-TURN AI SCHOLARSHIP ADVISOR CHAT ---
+        let chatHistory = [];
+
+        function sendPresetMessage(text) {
+            document.getElementById('chatInputText').value = text;
+            sendChatMessage();
         }
 
-        async function askAdvisor() {
-            const query = document.getElementById('advisorQuery').value.trim();
-            if (!query) {
-                alert("يرجى كتابة سؤالك أولاً");
-                return;
-            }
+        async function sendChatMessage() {
+            const input = document.getElementById('chatInputText');
+            const query = input.value.trim();
+            if (!query) return;
 
-            const btn = document.getElementById('consultBtn');
-            const btnText = document.getElementById('consultBtnText');
-            const spinner = document.getElementById('consultSpinner');
-            const outBox = document.getElementById('advisorOutput');
-            const outMarkdown = document.getElementById('advisorMarkdown');
+            const chatBox = document.getElementById('chatHistoryBox');
+            const sendBtn = document.getElementById('chatSendBtn');
+            const sendBtnText = document.getElementById('chatSendBtnText');
 
-            btn.disabled = true;
-            btnText.textContent = "المستشار يحلل سؤالك...";
-            spinner.classList.remove('hidden');
-            showAcademicLoader("المستشار الأكاديمي الذكي يفكر...", "تحليل شروط القبول • مطابقة التخصصات والوجهات • صياغة التوصية الأكاديمية");
+            // Append user bubble
+            const userBubble = document.createElement('div');
+            userBubble.className = "flex justify-end";
+            userBubble.innerHTML = `
+                <div class="chat-bubble-user p-3 max-w-[85%] leading-relaxed shadow-sm">
+                    ${escapeHTML(query)}
+                </div>
+            `;
+            chatBox.appendChild(userBubble);
+            input.value = "";
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Typing indicator
+            const typingBubble = document.createElement('div');
+            typingBubble.id = "typingBubble";
+            typingBubble.className = "flex items-start gap-2.5";
+            typingBubble.innerHTML = `
+                <div class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0">AI</div>
+                <div class="chat-bubble-advisor p-3 max-w-[85%] leading-relaxed text-slate-400 italic">
+                    المستشار يفكر ويحلل شروط المنح...
+                </div>
+            `;
+            chatBox.appendChild(typingBubble);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            sendBtn.disabled = true;
+            sendBtnText.textContent = "...";
 
             try {
-                const emailVal = document.getElementById('email').value.trim();
-                const res = await fetch('/api/advisor/consult', {
+                const email = document.getElementById('email').value.trim() || null;
+                const res = await fetch('/api/advisor/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query: query, email: emailVal || null })
+                    body: JSON.stringify({
+                        query: query,
+                        email: email,
+                        history: chatHistory
+                    })
                 });
                 const data = await res.json();
 
-                if (data.success && data.advice) {
-                    outMarkdown.innerHTML = marked.parse(data.advice);
-                    outBox.classList.remove('hidden');
-                    outBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                    if (window.lucide) lucide.createIcons();
+                typingBubble.remove();
+
+                if (data.advice) {
+                    // Append Advisor bubble
+                    const advBubble = document.createElement('div');
+                    advBubble.className = "flex items-start gap-2.5";
+                    advBubble.innerHTML = `
+                        <div class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0">AI</div>
+                        <div class="chat-bubble-advisor p-3.5 max-w-[85%] leading-relaxed shadow-sm prose dark:prose-invert text-xs sm:text-sm">
+                            ${marked.parse(data.advice)}
+                        </div>
+                    `;
+                    chatBox.appendChild(advBubble);
+
+                    // Track in history
+                    chatHistory.push({ role: "user", parts: [query] });
+                    chatHistory.push({ role: "model", parts: [data.advice] });
+                    if (chatHistory.length > 10) chatHistory = chatHistory.slice(-10);
                 } else {
-                    alert("تعذر الحصول على إجابة حالياً: " + (data.advice || "خطأ غير متوقع"));
+                    const errBubble = document.createElement('div');
+                    errBubble.className = "flex items-start gap-2.5";
+                    errBubble.innerHTML = `
+                        <div class="w-8 h-8 rounded-full bg-rose-600 text-white flex items-center justify-center font-bold text-xs shrink-0">!</div>
+                        <div class="chat-bubble-advisor p-3 text-rose-500">تعذر معالجة الطلب حالياً. يرجى المحاولة مرة أخرى.</div>
+                    `;
+                    chatBox.appendChild(errBubble);
                 }
-            } catch (err) {
-                alert("حدث خطأ في الاتصال: " + err.message);
+            } catch(err) {
+                if (typingBubble) typingBubble.remove();
+                console.error(err);
             } finally {
-                hideAcademicLoader();
-                btn.disabled = false;
-                btnText.textContent = "⚡ استشر الذكاء الاصطناعي الآن";
-                spinner.classList.add('hidden');
+                sendBtn.disabled = false;
+                sendBtnText.textContent = "إرسال";
+                chatBox.scrollTop = chatBox.scrollHeight;
+                if (window.lucide) lucide.createIcons();
             }
         }
 
-        // --- 6. SMART APPLICATION DOCUMENTS GENERATOR ---
+        // --- SMART APPLICATION DOCUMENTS GENERATOR ---
         let currentDocs = {};
 
-        async function generateSmartDocs() {
+        async function generateSmartDocs(triggerDownload) {
             const email = document.getElementById('docEmail').value.trim() || document.getElementById('email').value.trim();
             if (!email) {
-                alert("يرجى كتابة إيميلك لاستلام المستندات");
+                alert("يرجى كتابة إيميلك لاستلام أو تحميل المستند");
+                document.getElementById('docEmail').focus();
                 return;
             }
 
             const scholarship = document.getElementById('docScholarship').value;
+            const docType = document.getElementById('docTypeSelect').value;
             const name = document.getElementById('fullName').value.trim() || "Student";
             const gpa = document.getElementById('gpaInput').value.trim() || "85%";
+            const talents = document.getElementById('talentsInput').value.trim();
             const major = selectedMajors[0] || "Software Engineering";
 
             const btn = document.getElementById('generateDocBtn');
@@ -980,12 +1009,43 @@
             const resultBox = document.getElementById('docResultBox');
 
             btn.disabled = true;
-            btnText.textContent = "جارٍ صياغة وتوليد المستندات بالذكاء الاصطناعي...";
+            btnText.textContent = "جارٍ إعداد وتوليد الترويسة الرسمية...";
             spinner.classList.remove('hidden');
-            showAcademicLoader("مُولّد المستندات الذكية يصيغ أوراقك...", "كتابة خطاب الدافع المخصص للمنحة • إعداد نموذج التوصية • استخراج قائمة المتطلبات");
 
             try {
-                const res = await fetch('/api/documents/generate', {
+                if (triggerDownload) {
+                    // Trigger download endpoint
+                    const res = await fetch('/api/documents/download', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            student_name: name,
+                            email: email,
+                            degree: selectedDegree,
+                            major: major,
+                            gpa: gpa,
+                            scholarship_name: scholarship,
+                            doc_type: docType,
+                            talents_experience: talents,
+                            send_to_email: false
+                        })
+                    });
+                    if (res.ok) {
+                        const blob = await res.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `${scholarship.split(' ')[0]}_${docType}_Dossier.txt`;
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                        window.URL.revokeObjectURL(url);
+                        confetti({ particleCount: 50, spread: 60 });
+                    }
+                }
+
+                // Also fetch for preview
+                const resGen = await fetch('/api/documents/generate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -995,207 +1055,157 @@
                         major: major,
                         gpa: gpa,
                         scholarship_name: scholarship,
+                        doc_type: docType,
+                        talents_experience: talents,
                         send_to_email: true
                     })
                 });
-                const data = await res.json();
-
+                const data = await resGen.json();
                 if (data.success && data.documents) {
                     currentDocs = data.documents;
-                    switchDocTab('motTab');
+                    switchDocTab(docType === 'recommendation' ? 'recTab' : (docType === 'cv' ? 'cvTab' : (docType === 'checklist' ? 'chkTab' : 'motTab')));
                     resultBox.classList.remove('hidden');
                     resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                    confetti({ particleCount: 50, spread: 60 });
-                    if (window.lucide) lucide.createIcons();
-                } else {
-                    alert("تعذر توليد المستندات: " + (data.message || "خطأ"));
+                    confetti({ particleCount: 40, spread: 50 });
                 }
-            } catch (err) {
-                alert("حدث خطأ: " + err.message);
+            } catch(err) {
+                alert("حدث خطأ أثناء توليد المستندات: " + err.message);
             } finally {
-                hideAcademicLoader();
                 btn.disabled = false;
-                btnText.textContent = "🪄 توليد خطاب الدافع ونماذج التقديم المخصصة وإرسالها لإيميلي";
+                btnText.textContent = "🪄 صياغة وعرض المستند بالترويسة الرسمية";
                 spinner.classList.add('hidden');
             }
         }
 
-        let activeTab = 'motTab';
         function switchDocTab(tabName) {
-            activeTab = tabName;
             const display = document.getElementById('docContentDisplay');
-            
-            document.getElementById('motTabBtn').className = (tabName === 'motTab') ? "text-purple-500 border-b-2 border-purple-500 pb-1 font-bold" : "text-slate-400 hover:text-white pb-1";
-            document.getElementById('recTabBtn').className = (tabName === 'recTab') ? "text-purple-500 border-b-2 border-purple-500 pb-1 font-bold" : "text-slate-400 hover:text-white pb-1";
-            document.getElementById('chkTabBtn').className = (tabName === 'chkTab') ? "text-purple-500 border-b-2 border-purple-500 pb-1 font-bold" : "text-slate-400 hover:text-white pb-1";
+            document.querySelectorAll('#docTabs button').forEach(b => b.className = "text-slate-400 hover:text-white pb-1");
+
+            const activeBtn = document.getElementById(tabName + 'Btn');
+            if (activeBtn) activeBtn.className = "text-purple-500 border-b-2 border-purple-500 pb-1 font-bold";
 
             if (tabName === 'motTab') {
-                display.textContent = currentDocs.motivation_letter || "لا يوجد محتوى";
+                display.textContent = currentDocs.motivation_letter || "لا يوجد محتوى متاح.";
             } else if (tabName === 'recTab') {
-                display.textContent = currentDocs.recommendation_letter || "لا يوجد محتوى";
+                display.textContent = currentDocs.recommendation_letter || "لا يوجد محتوى متاح.";
+            } else if (tabName === 'cvTab') {
+                display.textContent = currentDocs.academic_cv || "لا يوجد محتوى متاح.";
             } else {
-                display.textContent = currentDocs.checklist || "لا يوجد محتوى";
+                display.textContent = currentDocs.checklist || "لا يوجد محتوى متاح.";
             }
         }
 
         function copyCurrentDoc() {
             const text = document.getElementById('docContentDisplay').textContent;
             navigator.clipboard.writeText(text);
-            alert("تم نسخ المستند للحافظة بنجاح! 📋");
+            alert("تم نسخ المستند والترويسة للحافظة بنجاح! 📋");
         }
 
-        // --- 7. WATCHLIST DEADLINE REMINDER TOGGLE ---
-        async function saveToWatchlist(scholarshipName, btnElement) {
-            const email = document.getElementById('email').value.trim() || document.getElementById('docEmail').value.trim();
-            if (!email) {
-                alert("يرجى إدخال إيميلك في نموذج التسجيل أولاً لنتمكن من إرسال تنبيهات المواعيد إليك.");
-                document.getElementById('email').focus();
-                return;
-            }
-
-            try {
-                const res = await fetch('/api/scholarships/save', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: email, scholarship_name: scholarshipName })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    if (data.saved) {
-                        btnElement.className = "w-full bg-emerald-600 text-white text-xs font-bold py-2 rounded-xl transition flex items-center justify-center gap-1.5";
-                        btnElement.innerHTML = "<span>✅</span> <span>تم الحفظ (تذكيرات المواعيد مفعلة)</span>";
-                    } else {
-                        btnElement.className = "w-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold py-2 rounded-xl border border-slate-300 dark:border-slate-700 transition flex items-center justify-center gap-1.5";
-                        btnElement.innerHTML = "<span>🔔</span> <span>تفعيل تذكير الموعد (Reminder)</span>";
-                    }
-                }
-            } catch (err) {
-                alert("تعذر الحفظ: " + err.message);
-            }
+        function downloadCurrentDisplay() {
+            const text = document.getElementById('docContentDisplay').textContent;
+            const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = "Official_Application_Document.txt";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
         }
 
-        // --- 8. RADAR SCHOLARSHIP DATASET (OFFICIAL 2026/2027 OPPORTUNITIES) ---
-        const scholarshipDeckData = [
-            {
-                id: "pearson",
-                name: "Lester B. Pearson Scholarship",
-                university: "جامعة تورنتو (University of Toronto)",
-                country: "كندا 🇨🇦",
-                degree: "Undergraduate (بكالوريوس)",
-                matchScore: "96%",
-                matchLabel: "توافق استثنائي 🌟",
-                status: "🟢 مفتوح حالياً للتقديم",
-                statusClass: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
-                deadline: "6 نوفمبر 2026",
-                deadlineDays: "متبقي أسبوع واحد",
-                coverage: "تغطية كاملة 100%: الرسوم الدراسية + السكن الجامعي 4 سنوات + تكلفة الكتب والتأمين",
-                badgeColor: "emerald",
-                link: "https://future.utoronto.ca/pearson/"
-            },
-            {
-                id: "hungaricum",
-                name: "Stipendium Hungaricum Scholarship",
-                university: "جامعات المجر الحكومية (بودابست، ديبريسين، زيجد)",
-                country: "المجر (الاتحاد الأوروبي) 🇭🇺",
-                degree: "بكالوريوس • ماجستير • دكتوراه",
-                matchScore: "94%",
-                matchLabel: "توافق مرتفع جداً 🎯",
-                status: "🔵 تفتح للتقديم قريباً",
-                statusClass: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-                deadline: "15 يناير 2027",
-                deadlineDays: "يفتح خلال شهرين",
-                coverage: "إعفاء دراسي 100% + راتب شهري + سكن جامعي مجاني + تأمين صحي شامل",
-                badgeColor: "blue",
-                link: "https://stipendiumhungaricum.hu/"
-            },
-            {
-                id: "turkiye",
-                name: "Türkiye Bursları Government",
-                university: "كافة الجامعات التركية الحكومية الرائدة (METU, Boğaziçi)",
-                country: "تركيا 🇹🇷",
-                degree: "كافة المراحل (بكالوريوس ودراسات عليا)",
-                matchScore: "92%",
-                matchLabel: "فرصة كبرى مع كوتا خاصة 🇹🇷",
-                status: "🔵 تفتح 10 يناير 2027",
-                statusClass: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-                deadline: "20 فبراير 2027",
-                deadlineDays: "فرصة سنوية ذهبية",
-                coverage: "رسوم مجانية 100% + راتب شهري + سكن جامعي + سنة تحضيرية للغة وتذاكر طيران",
-                badgeColor: "emerald",
-                link: "https://www.turkiyeburslari.gov.tr/"
-            },
-            {
-                id: "chevening",
-                name: "Chevening UK Government Scholarship",
-                university: "جامعات المملكة المتحدة (أكسفورد، كامبريدج، إمبريال، UCL)",
-                country: "بريطانيا 🇬🇧",
-                degree: "Master's Degree (ماجستير)",
-                matchScore: "89%",
-                matchLabel: "برنامج القادة والتميز 👑",
-                status: "🟢 مفتوح حالياً",
-                statusClass: "bg-amber-500/10 text-amber-500 border-amber-500/20",
-                deadline: "5 نوفمبر 2026",
-                deadlineDays: "أيام معدودة للإغلاق",
-                coverage: "تمويل كامل بنسبة 100% + راتب شهري للمعيشة في بريطانيا + تذاكر طيران ذهاب وعودة",
-                badgeColor: "amber",
-                link: "https://www.chevening.org/scholarships/"
-            },
-            {
-                id: "gks",
-                name: "Global Korea Scholarship (GKS)",
-                university: "أفضل الجامعات الكورية في سيئول والمدن الكبرى (SNU, KAIST)",
-                country: "كوريا الجنوبية 🇰🇷",
-                degree: "بكالوريوس وماجستير ودكتوراه",
-                matchScore: "91%",
-                matchLabel: "تطور تكنولوجي وأكاديمي 🚀",
-                status: "🔵 التقديم السنوي عبر السفارة",
-                statusClass: "bg-indigo-500/10 text-indigo-500 border-indigo-500/20",
-                deadline: "مارس 2027",
-                deadlineDays: "تفتح في الربيع",
-                coverage: "رسوم دراسية كاملة + راتب شهري 1,000,000 وون + سنة لغة كورية وتذاكر طيران",
-                badgeColor: "indigo",
-                link: "https://www.studyinkorea.go.kr/"
-            },
-            {
-                id: "daad",
-                name: "DAAD Scholarships Germany",
-                university: "جامعات ألمانيا التقنية والبحثية (TUM, LMU, Heidelberg)",
-                country: "ألمانيا 🇩🇪",
-                degree: "Master's & PhD (دراسات عليا)",
-                matchScore: "95%",
-                matchLabel: "توافق استثنائي 🇩🇪",
-                status: "🟢 مفتوح حسب التخصص",
-                statusClass: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
-                deadline: "مواعيد متعددة 2026/2027",
-                deadlineDays: "مستمر حسب البرنامج",
-                coverage: "راتب شهري 934 يورو + تأمين صحي شامل + بدل سفر وتكاليف الأبحاث والمراجع",
-                badgeColor: "emerald",
-                link: "https://www.daad.de/en/"
-            }
-        ];
-
+        // --- LIVE SCHOLARSHIP FEED (100% AUTOMATED INGESTION) ---
+        let scholarshipDeckData = [];
         let currentDeckIndex = 0;
         let isCardDragging = false;
-        let startX = 0;
-        let startY = 0;
-        let currentX = 0;
-        let currentY = 0;
+        let startX = 0, startY = 0, currentX = 0, currentY = 0;
 
-        // Render Top Card in Deck
+        async function loadLiveScholarships() {
+            try {
+                const res = await fetch('/api/scholarships/live');
+                const data = await res.json();
+                if (data.success && data.scholarships && data.scholarships.length > 0) {
+                    scholarshipDeckData = data.scholarships.map(s => ({
+                        id: s.id,
+                        name: s.name,
+                        university: s.target_university || s.country,
+                        country: s.country,
+                        degree: s.degree,
+                        matchScore: s.admission_probability || s.match_score || "92%",
+                        matchLabel: "توافق مرتفع 🎯",
+                        status: s.status || "🟢 مفتوح حالياً",
+                        statusClass: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+                        deadline: s.deadline || "مفتوح الآن",
+                        coverage: s.coverage || "تمويل دراسي وسكن وراتب شهري",
+                        link: s.official_link || "#"
+                    }));
+                }
+            } catch(e) {
+                console.warn("Live fetch fallback:", e);
+            }
+
+            if (!scholarshipDeckData.length) {
+                // Built-in fallback
+                scholarshipDeckData = [
+                    {
+                        name: "Lester B. Pearson Scholarship",
+                        university: "جامعة تورنتو (University of Toronto)",
+                        country: "كندا 🇨🇦",
+                        degree: "Undergraduate (بكالوريوس)",
+                        matchScore: "96%",
+                        matchLabel: "توافق استثنائي 🌟",
+                        status: "🟢 مفتوح حالياً للتقديم",
+                        statusClass: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+                        deadline: "نوفمبر 2026",
+                        coverage: "تغطية كاملة 100%: الرسوم الدراسية + السكن الجامعي 4 سنوات + تكلفة الكتب والتأمين",
+                        link: "https://future.utoronto.ca/pearson/"
+                    },
+                    {
+                        name: "Stipendium Hungaricum Scholarship",
+                        university: "جامعات المجر الحكومية الرائدة",
+                        country: "المجر (الاتحاد الأوروبي) 🇭🇺",
+                        degree: "بكالوريوس • ماجستير • دكتوراه",
+                        matchScore: "95%",
+                        matchLabel: "فرصة كبرى مع كوتا خاصة 🎯",
+                        status: "🔵 تفتح للتقديم قريباً",
+                        statusClass: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+                        deadline: "15 يناير 2027",
+                        coverage: "إعفاء دراسي 100% + راتب شهري + سكن جامعي مجاني + تأمين صحي شامل",
+                        link: "https://stipendiumhungaricum.hu/"
+                    },
+                    {
+                        name: "Türkiye Bursları Government",
+                        university: "كافة الجامعات التركية الحكومية الرائدة",
+                        country: "تركيا 🇹🇷",
+                        degree: "كافة المراحل (بكالوريوس ودراسات عليا)",
+                        matchScore: "93%",
+                        matchLabel: "كوتا سنوية خاصة 🇹🇷",
+                        status: "🔵 تفتح 10 يناير 2027",
+                        statusClass: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+                        deadline: "20 فبراير 2027",
+                        coverage: "رسوم مجانية 100% + راتب شهري + سكن جامعي + سنة لغة وتذاكر طيران",
+                        link: "https://www.turkiyeburslari.gov.tr/"
+                    }
+                ];
+            }
+
+            renderDeckCard();
+        }
+
         function renderDeckCard() {
             const container = document.getElementById('cardDeckContainer');
             const counter = document.getElementById('deckCounter');
             if (!container || !counter) return;
-            
+
             if (currentDeckIndex >= scholarshipDeckData.length) {
                 counter.textContent = "انتهت القائمة";
                 container.innerHTML = `
-                    <div class="glass-card-light dark:glass-card-dark rounded-3xl p-8 text-center border border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center min-h-[400px]">
+                    <div class="card-theme rounded-3xl p-8 text-center border flex flex-col items-center justify-center min-h-[440px]">
                         <div class="w-16 h-16 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center mb-3">
                             <i data-lucide="sparkles" class="w-8 h-8"></i>
                         </div>
-                        <h3 class="text-lg font-black text-slate-900 dark:text-white mb-1">تصفحت كافة المنح المقترحة لهذا الأسبوع!</h3>
-                        <p class="text-xs text-slate-400 max-w-xs mb-5">يمكنك إعادة تدوير البطاقات لتصفحها مرة أخرى أو الانتقال لوضع الشبكة الكاملة.</p>
+                        <h3 class="text-lg font-black text-slate-900 dark:text-white mb-1">تصفحت كافة الفرص المقترحة لملفك!</h3>
+                        <p class="text-xs text-slate-400 max-w-xs mb-5">يقوم الروبوت الآلي بتحديث المنح دورياً دون أي تدخل يدوي.</p>
                         <button type="button" onclick="resetDeck()" class="btn-interactive px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-blue-600/20">
                             <span class="icon-hover"><i data-lucide="rotate-ccw" class="w-4 h-4"></i></span>
                             <span>إعادة تصفح المنح من البداية</span>
@@ -1210,8 +1220,7 @@
             counter.textContent = `${currentDeckIndex + 1} / ${scholarshipDeckData.length}`;
 
             container.innerHTML = `
-                <div id="activeSwipeCard" class="swipe-card glass-card-light dark:glass-card-dark rounded-3xl p-6 sm:p-7 border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col justify-between overflow-hidden">
-                    <!-- Stamps on drag -->
+                <div id="activeSwipeCard" class="swipe-card card-theme rounded-3xl p-6 sm:p-7 border shadow-2xl flex flex-col justify-between overflow-hidden">
                     <div id="stampSave" class="stamp-badge stamp-save">حفظ وتنبيه 💚</div>
                     <div id="stampSkip" class="stamp-badge stamp-skip">تخطي ❌</div>
 
@@ -1220,35 +1229,34 @@
                             <span class="text-[11px] font-bold px-3 py-1 rounded-full border ${item.statusClass}">
                                 ${item.status}
                             </span>
-                            <span class="bg-gradient-to-r from-emerald-500/15 to-teal-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 text-xs font-black px-2.5 py-1 rounded-lg flex items-center gap-1 shadow-sm font-num">
+                            <span class="bg-gradient-to-r from-emerald-500/15 to-teal-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 text-xs font-black px-2.5 py-1 rounded-lg flex items-center gap-1 font-num">
                                 <i data-lucide="target" class="w-3.5 h-3.5"></i>
                                 <span>${item.matchScore}</span>
                             </span>
                         </div>
 
                         <h3 class="text-xl font-black text-slate-900 dark:text-white leading-tight mb-1">
-                            ${item.name}
+                            ${escapeHTML(item.name)}
                         </h3>
-                        <p class="text-xs text-blue-600 dark:text-blue-400 font-bold mb-2 flex items-center gap-1">
+                        <p class="text-xs text-blue-600 dark:text-blue-400 font-bold mb-3 flex items-center gap-1">
                             <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
-                            <span>${item.country} • ${item.university}</span>
+                            <span>${escapeHTML(item.country)} • ${escapeHTML(item.university)}</span>
                         </p>
 
-                        <div class="bg-slate-100 dark:bg-slate-900/70 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800/80 text-xs mb-3 space-y-2">
+                        <div class="sub-card-theme p-3.5 rounded-2xl border text-xs mb-3 space-y-2">
                             <div class="flex items-center gap-1.5 text-amber-500 dark:text-amber-400 font-bold">
                                 <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
-                                <span>الموعد النهائي: ${item.deadline}</span>
-                                <span class="text-[10px] bg-amber-500/10 px-1.5 py-0.5 rounded font-normal font-num">(${item.deadlineDays})</span>
+                                <span>الموعد النهائي: ${escapeHTML(item.deadline)}</span>
                             </div>
-                            <div class="text-slate-600 dark:text-slate-300 text-[11px] leading-relaxed flex items-start gap-1.5">
+                            <div class="text-[11px] leading-relaxed flex items-start gap-1.5">
                                 <i data-lucide="gift" class="w-3.5 h-3.5 text-emerald-500 mt-0.5 shrink-0"></i>
-                                <span>${item.coverage}</span>
+                                <span>${escapeHTML(item.coverage)}</span>
                             </div>
                         </div>
 
                         <div class="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
-                            <span class="bg-slate-200 dark:bg-slate-800 px-2.5 py-1 rounded-md font-semibold">${item.degree}</span>
-                            <span class="text-emerald-500 font-bold">${item.matchLabel}</span>
+                            <span class="sub-card-theme px-2.5 py-1 rounded-md font-semibold border">${escapeHTML(item.degree)}</span>
+                            <span class="text-emerald-500 font-bold">${escapeHTML(item.matchLabel)}</span>
                         </div>
                     </div>
 
@@ -1276,7 +1284,6 @@
             const stampSave = document.getElementById('stampSave');
             const stampSkip = document.getElementById('stampSkip');
 
-            // Touch Events (Mobile)
             card.addEventListener('touchstart', (e) => {
                 isCardDragging = true;
                 startX = e.touches[0].clientX;
@@ -1291,14 +1298,11 @@
                 const rotateDeg = currentX * 0.08;
                 card.style.transform = `translate(${currentX}px, ${currentY * 0.4}px) rotate(${rotateDeg}deg)`;
 
-                // Update Stamp Opacity
                 if (currentX > 30) {
-                    const op = Math.min(1, (currentX - 30) / 80);
-                    stampSave.style.opacity = op;
+                    stampSave.style.opacity = Math.min(1, (currentX - 30) / 80);
                     stampSkip.style.opacity = 0;
                 } else if (currentX < -30) {
-                    const op = Math.min(1, (-currentX - 30) / 80);
-                    stampSkip.style.opacity = op;
+                    stampSkip.style.opacity = Math.min(1, (-currentX - 30) / 80);
                     stampSave.style.opacity = 0;
                 } else {
                     stampSave.style.opacity = 0;
@@ -1313,7 +1317,6 @@
                 handleSwipeRelease(card, currentX);
             });
 
-            // Mouse Drag Events (Desktop)
             card.addEventListener('mousedown', (e) => {
                 isCardDragging = true;
                 startX = e.clientX;
@@ -1330,12 +1333,10 @@
                 card.style.transform = `translate(${currentX}px, ${currentY * 0.4}px) rotate(${rotateDeg}deg)`;
 
                 if (currentX > 30) {
-                    const op = Math.min(1, (currentX - 30) / 80);
-                    stampSave.style.opacity = op;
+                    stampSave.style.opacity = Math.min(1, (currentX - 30) / 80);
                     stampSkip.style.opacity = 0;
                 } else if (currentX < -30) {
-                    const op = Math.min(1, (-currentX - 30) / 80);
-                    stampSkip.style.opacity = op;
+                    stampSkip.style.opacity = Math.min(1, (-currentX - 30) / 80);
                     stampSave.style.opacity = 0;
                 } else {
                     stampSave.style.opacity = 0;
@@ -1352,27 +1353,24 @@
         }
 
         function handleSwipeRelease(card, deltaX) {
-            const threshold = 85;
+            const threshold = 80;
             if (deltaX > threshold) {
-                // Swiped Right -> Save
                 card.classList.add('fly-right');
                 const item = scholarshipDeckData[currentDeckIndex];
-                saveCurrentFromDeck(item.name);
+                saveToWatchlist(item.name);
                 setTimeout(() => {
                     currentDeckIndex++;
                     currentX = 0;
                     renderDeckCard();
-                }, 280);
+                }, 260);
             } else if (deltaX < -threshold) {
-                // Swiped Left -> Skip
                 card.classList.add('fly-left');
                 setTimeout(() => {
                     currentDeckIndex++;
                     currentX = 0;
                     renderDeckCard();
-                }, 280);
+                }, 260);
             } else {
-                // Snap back to center
                 card.style.transform = 'translate(0, 0) rotate(0deg)';
                 const stampSave = document.getElementById('stampSave');
                 const stampSkip = document.getElementById('stampSkip');
@@ -1388,7 +1386,7 @@
 
             if (direction === 'right') {
                 card.classList.add('fly-right');
-                saveCurrentFromDeck(item.name);
+                saveToWatchlist(item.name);
             } else {
                 card.classList.add('fly-left');
             }
@@ -1397,7 +1395,7 @@
                 currentDeckIndex++;
                 currentX = 0;
                 renderDeckCard();
-            }, 280);
+            }, 260);
         }
 
         function openCurrentPortal() {
@@ -1408,26 +1406,34 @@
             }
         }
 
-        async function saveCurrentFromDeck(scholarshipName) {
-            confetti({ particleCount: 75, spread: 65, origin: { y: 0.7 } });
-            const email = document.getElementById('email').value.trim() || document.getElementById('docEmail').value.trim();
-            if (email) {
-                try {
-                    await fetch('/api/scholarships/save', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email: email, scholarship_name: scholarshipName })
-                    });
-                } catch(e) {
-                    console.log("Auto-save sync:", e);
-                }
-            }
-        }
-
         function resetDeck() {
             currentDeckIndex = 0;
             currentX = 0;
             renderDeckCard();
+        }
+
+        async function saveToWatchlist(scholarshipName, btnElement) {
+            confetti({ particleCount: 60, spread: 60, origin: { y: 0.7 } });
+            const email = document.getElementById('email').value.trim() || document.getElementById('docEmail').value.trim();
+            if (email) {
+                try {
+                    const res = await fetch('/api/scholarships/save', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: email, scholarship_name: scholarshipName })
+                    });
+                    const data = await res.json();
+                    if (btnElement && data.success) {
+                        btnElement.innerHTML = "<span>✅ تم تفعيل التذكيرات</span>";
+                        btnElement.className = "w-full bg-emerald-600 text-white text-xs font-bold py-2 rounded-xl transition flex items-center justify-center gap-1.5";
+                    }
+                } catch(e) {
+                    console.log("Watchlist save error:", e);
+                }
+            } else if (btnElement) {
+                alert("يرجى كتابة إيميلك في نموذج التسجيل أولاً لنتمكن من إرسال تذكيرات الموعد لك.");
+                document.getElementById('email').focus();
+            }
         }
 
         function switchRadarMode(mode) {
@@ -1452,35 +1458,35 @@
         function renderRadarGrid() {
             const grid = document.getElementById('radarGridView');
             grid.innerHTML = scholarshipDeckData.map(item => `
-                <div class="interactive-card glass-card-light dark:glass-card-dark rounded-2xl p-6 border border-slate-200 dark:border-slate-800 flex flex-col justify-between hover:border-emerald-500/40 transition duration-300">
+                <div class="interactive-card card-theme rounded-2xl p-6 border flex flex-col justify-between hover:border-emerald-500/40 transition duration-300">
                     <div>
                         <div class="flex justify-between items-start mb-3">
                             <span class="text-[11px] font-bold px-2.5 py-1 rounded-full border ${item.statusClass}">
-                                ${item.status}
+                                ${escapeHTML(item.status)}
                             </span>
                             <span class="bg-gradient-to-r from-emerald-500/15 to-teal-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 text-xs font-black px-2 py-0.5 rounded-md flex items-center gap-1 font-num">
                                 <i data-lucide="target" class="w-3.5 h-3.5"></i>
-                                <span>${item.matchScore}</span>
+                                <span>${escapeHTML(item.matchScore)}</span>
                             </span>
                         </div>
-                        <h3 class="text-lg font-black text-slate-900 dark:text-white mb-1">${item.name}</h3>
+                        <h3 class="text-lg font-black text-slate-900 dark:text-white mb-1">${escapeHTML(item.name)}</h3>
                         <p class="text-xs text-slate-500 dark:text-slate-400 mb-3 flex items-center gap-1">
                             <i data-lucide="map-pin" class="w-3.5 h-3.5 text-blue-500"></i>
-                            <span>${item.country} / ${item.university}</span>
+                            <span>${escapeHTML(item.country)} / ${escapeHTML(item.university)}</span>
                         </p>
-                        <div class="bg-slate-100 dark:bg-slate-900/60 p-3 rounded-xl text-xs mb-3 space-y-1.5">
+                        <div class="sub-card-theme p-3 rounded-xl text-xs mb-3 space-y-1.5 border">
                             <div class="text-amber-500 dark:text-amber-400 font-bold flex items-center gap-1">
                                 <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
-                                <span>الموعد النهائي: ${item.deadline}</span>
+                                <span>الموعد النهائي: ${escapeHTML(item.deadline)}</span>
                             </div>
-                            <div class="text-slate-500 dark:text-slate-400 text-[11px] flex items-start gap-1">
+                            <div class="text-[11px] leading-relaxed flex items-start gap-1">
                                 <i data-lucide="gift" class="w-3.5 h-3.5 text-emerald-500 mt-0.5 shrink-0"></i>
-                                <span>${item.coverage}</span>
+                                <span>${escapeHTML(item.coverage)}</span>
                             </div>
                         </div>
                     </div>
-                    <div class="space-y-2 pt-2 border-t border-slate-200/50 dark:border-slate-800/50">
-                        <button type="button" onclick="saveToWatchlist('${item.name}', this)" class="btn-interactive w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold py-2 rounded-xl border border-slate-300 dark:border-slate-700 transition flex items-center justify-center gap-1.5">
+                    <div class="space-y-2 pt-2 border-t border-slate-200/60 dark:border-slate-800/60">
+                        <button type="button" onclick="saveToWatchlist('${escapeHTML(item.name)}', this)" class="btn-interactive w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold py-2 rounded-xl border border-slate-300 dark:border-slate-700 transition flex items-center justify-center gap-1.5">
                             <span class="icon-hover"><i data-lucide="bell" class="w-3.5 h-3.5 text-emerald-500"></i></span>
                             <span>تفعيل تذكير الموعد (Reminder)</span>
                         </button>
@@ -1494,22 +1500,18 @@
             if (window.lucide) lucide.createIcons();
         }
 
-        // --- 9. SCROLL REVEAL OBSERVER (FADE & SLIDE UP) ---
+        // --- SCROLL OBSERVER ---
         function initScrollReveal() {
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('is-visible');
-                    }
+                    if (entry.isIntersecting) entry.target.classList.add('is-visible');
                 });
-            }, { threshold: 0.12 });
-
+            }, { threshold: 0.1 });
             document.querySelectorAll('.reveal-scroll').forEach(el => observer.observe(el));
         }
 
-        // Initialize on DOM Ready
         document.addEventListener('DOMContentLoaded', () => {
-            renderDeckCard();
+            loadLiveScholarships();
             initScrollReveal();
             if (window.lucide) lucide.createIcons();
         });

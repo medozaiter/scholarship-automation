@@ -105,25 +105,36 @@ def validate_name(name_str: str) -> str:
 
 def validate_gpa(gpa_str: str) -> str:
     """
-    Validates academic GPA / High school grade.
+    Strictly validates academic GPA / High school grade.
+    Prevents ANY letters, code, script tags, or symbols (only digits, dot, slash, percent).
     Accepts:
-    - Percentage: e.g. '85', '85%', '92.5%' (50% to 100%)
-    - 4.0 Scale: e.g. '3.5', '3.8/4.0', '3.2' (2.0 to 4.0)
+    - Percentage: e.g. '85', '85%', '92.5%' (40% to 100%)
+    - 4.0 Scale: e.g. '3.5', '3.8/4.0', '3.2' (1.5 to 4.0)
     - 5.0 Scale: e.g. '4.5', '4.2/5' (2.0 to 5.0)
-    - Qualitative: e.g. 'امتياز', 'جيد جداً', 'Excellent', 'Very Good'
-    Rejects nonsensical text, script injection, or SQL fragments!
+    - Qualitative terms: 'امتياز', 'جيد جداً', 'ممتاز'
+    Strictly blocks letters, code, XSS, or SQL injection.
     """
     if not gpa_str:
         return "85%"
 
     clean = gpa_str.strip()
 
-    # Reject obvious injection attacks
+    # Reject obvious injection attacks or control characters
     if SCRIPT_TAG_PATTERN.search(clean) or SQL_INJECTION_PATTERN.search(clean):
-        raise ValueError("حقل المعدل يحتوي على رموز غير مسموح بها.")
+        raise ValueError("حقل المعدل يحتوي على رموز غير مسموح بها أمنياً.")
 
-    if len(clean) > 25:
-        raise ValueError("حقل المعدل غير صالح (طويل جداً).")
+    # Check for accepted qualitative Arabic terms
+    accepted_terms = ["امتياز", "جيد جدا", "جيد جداً", "ممتاز", "جيد", "مقبول"]
+    if clean in accepted_terms:
+        return clean
+
+    # Strictly disallow Arabic letters or English letters in numeric GPA
+    if re.search(r"[a-zA-Z\u0600-\u06FF]", clean):
+        raise ValueError("حقل المعدل يجب أن يحتوي على أرقام فقط (مثلاً: 88% أو 3.6/4.0) ويمنع إدخال نصوص أو أحرف عشوائية.")
+
+    # Only allow digits, dot, percent, slash, spaces
+    if not re.match(r"^[0-9\.\s%/]+$", clean):
+        raise ValueError("حقل المعدل يحتوي على رموز خاصة غير مقبولة.")
 
     # Check for percentage e.g. 85 or 85% or 92.4%
     pct_match = re.search(r"^(\d{2,3}(?:\.\d{1,2})?)\s*%?$", clean)
@@ -142,17 +153,20 @@ def validate_gpa(gpa_str: str) -> str:
         if 1.5 <= val <= scale:
             return f"{val}/{int(scale)}"
 
-    # Accepted qualitative evaluations in Arabic/English
-    accepted_terms = [
-        "امتياز", "جيد جدا", "جيد جداً", "جيد", "مقبول",
-        "excellent", "very good", "good", "pass"
-    ]
-    if clean.lower() in accepted_terms:
-        return html.escape(clean, quote=True)
-
     raise ValueError(
-        "صيغة المعدل غير صحيحة. يرجى إدخال نسبة مئوية (مثلاً: 88%) أو معدل تراكمي (مثلاً: 3.6/4.0)."
+        "صيغة المعدل غير صحيحة. يرجى إدخال أرقام فقط (مثال: 88% أو 3.6/4.0)."
     )
+
+
+def validate_talents_experience(val: Optional[str]) -> str:
+    """
+    Sanitizes talents, volunteering, and extracurricular achievements.
+    Prevents scripts, XSS, and SQL injection while allowing natural descriptive Arabic/English text.
+    """
+    if not val:
+        return ""
+    clean = sanitize_text(val, max_length=400)
+    return clean
 
 
 def validate_password(password_str: str) -> str:

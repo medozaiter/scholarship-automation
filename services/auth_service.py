@@ -74,7 +74,8 @@ class AuthService:
         majors: Optional[List[str]] = None,
         gpa: str = "85%",
         english_level: str = "Intermediate",
-        country: str = "Palestine"
+        country: str = "Palestine",
+        talents_experience: str = ""
     ) -> Dict[str, Any]:
         """Registers a new student user with strict input validation."""
         email_clean = validate_email(email)
@@ -86,6 +87,7 @@ class AuthService:
         sanitized_degree = sanitize_text(degree, max_length=50) or "Undergraduate (Bachelor's)"
         sanitized_english = sanitize_text(english_level, max_length=50) or "Intermediate"
         sanitized_country = sanitize_text(country, max_length=50) or "Palestine"
+        sanitized_talents = sanitize_text(talents_experience, max_length=300) if talents_experience else ""
 
         users = self._load_users()
         if any(u.get("email", "").lower() == email_clean for u in users):
@@ -107,6 +109,7 @@ class AuthService:
             "gpa": gpa_clean,
             "english_level": sanitized_english,
             "country": sanitized_country,
+            "talents_experience": sanitized_talents,
             "saved_scholarships": [],
             "created_at": datetime.now().isoformat()
         }
