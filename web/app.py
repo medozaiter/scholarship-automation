@@ -2,7 +2,7 @@ import os
 import re
 import asyncio
 import logging
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from fastapi import FastAPI, BackgroundTasks, HTTPException, Query
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,6 +10,7 @@ from pydantic import BaseModel, field_validator
 
 from services.subscriber_service import SubscriberService
 from services.scholarship_engine import ScholarshipEngine
+from services.advisor_service import AdvisorService
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -19,8 +20,8 @@ INDEX_HTML_PATH = os.path.join(TEMPLATES_DIR, "index.html")
 
 app = FastAPI(
     title="MinhaTech AI - Global Scholarship Automation Engine",
-    description="Automated Scholarship Discovery, Verification & Email Dispatch Platform",
-    version="2.1.0"
+    description="Automated Scholarship Discovery, Verification, AI Advisor & Document Generator",
+    version="2.2.0"
 )
 
 app.add_middleware(
@@ -33,6 +34,7 @@ app.add_middleware(
 
 sub_service = SubscriberService()
 engine = ScholarshipEngine()
+advisor_service = AdvisorService()
 
 
 class SubscriptionRequest(BaseModel):
@@ -40,6 +42,9 @@ class SubscriptionRequest(BaseModel):
     full_name: Optional[str] = "Student"
     degree: str = "Undergraduate (Bachelor's)"
     majors: List[str]
+    gpa: Optional[str] = "85%"
+    english_level: Optional[str] = "Intermediate"
+    target_destinations: Optional[List[str]] = ["Europe", "Canada", "Turkey", "Any"]
     country: Optional[str] = "Palestine"
     send_welcome_report: Optional[bool] = True
 
@@ -52,12 +57,34 @@ class SubscriptionRequest(BaseModel):
         return clean
 
 
+class AdvisorChatRequest(BaseModel):
+    query: str
+    email: Optional[str] = None
+
+
+class DocumentGenerationRequest(BaseModel):
+    student_name: str = "Student"
+    email: str
+    degree: str = "Undergraduate"
+    major: str = "Software Engineering"
+    gpa: str = "85%"
+    scholarship_name: str = "Lester B. Pearson"
+    target_country: Optional[str] = "Europe"
+    send_to_email: Optional[bool] = True
+
+
+class SaveScholarshipRequest(BaseModel):
+    email: str
+    scholarship_name: str
+
+
 async def background_send_report(
     email: str,
     full_name: str,
     degree: str,
     majors: List[str],
-    country: str
+    country: str,
+    student_profile: Optional[Dict[str, Any]] = None
 ):
     """Sends an immediate welcome report in background without blocking web response."""
     try:
@@ -67,7 +94,8 @@ async def background_send_report(
             student_name=full_name,
             degree=degree,
             majors=majors,
-            country=country
+            country=country,
+            student_profile=student_profile
         )
         if ok:
             sub_service.update_last_sent(email)
@@ -87,13 +115,16 @@ async def serve_landing_page():
 
 @app.post("/api/subscribe")
 async def subscribe_student(req: SubscriptionRequest, background_tasks: BackgroundTasks):
-    """Registers a student for recurring weekly scholarship email reports."""
+    """Registers a student with comprehensive profile for recurring weekly scholarship email reports."""
     try:
         sub = sub_service.add_or_update(
             email=req.email,
             full_name=req.full_name or "Student",
             degree=req.degree,
             majors=req.majors,
+            gpa=req.gpa or "85%",
+            english_level=req.english_level or "Intermediate",
+            target_destinations=req.target_destinations or ["Any"],
             country=req.country or "Palestine"
         )
 
@@ -104,24 +135,82 @@ async def subscribe_student(req: SubscriptionRequest, background_tasks: Backgrou
                 full_name=req.full_name or "Student",
                 degree=req.degree,
                 majors=req.majors,
-                country=req.country or "Palestine"
+                country=req.country or "Palestine",
+                student_profile=sub
             )
 
         return JSONResponse(
             status_code=200,
             content={
                 "success": True,
-                "message": "تم تفعيل اشتراكك بنجاح! ستصلك أحدث المنح الموثقة دورياً في بريدك كل أسبوع.",
+                "message": "تم تفعيل اشتراكك وحساب نسبة التوافق بنجاح! ستصلك التقارير المحدثة أسبوعياً.",
                 "subscriber": {
                     "email": sub["email"],
                     "degree": sub["degree"],
                     "majors": sub["majors"],
+                    "gpa": sub["gpa"],
+                    "english_level": sub["english_level"],
                     "country": sub["country"]
                 }
             }
         )
     except Exception as e:
         logger.error(f"Subscription error: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.post("/api/advisor/consult")
+async def consult_advisor(req: AdvisorChatRequest):
+    """Real-time AI Scholarship Advisor answering free-form questions."""
+    profile = None
+    if req.email:
+        profile = sub_service.get_by_email(req.email)
+
+    res = await advisor_service.consult_ai_advisor(
+        student_query=req.query,
+        student_profile=profile
+    )
+    return res
+
+
+@app.post("/api/documents/generate")
+async def generate_documents(req: DocumentGenerationRequest, background_tasks: BackgroundTasks):
+    """Generates tailored Motivation Letter, Recommendation Letter, and Checklist."""
+    docs = await advisor_service.generate_smart_documents(
+        student_name=req.student_name,
+        degree=req.degree,
+        major=req.major,
+        gpa=req.gpa,
+        scholarship_name=req.scholarship_name,
+        target_country=req.target_country or "Europe"
+    )
+
+    if req.send_to_email:
+        background_tasks.add_task(
+            engine.send_application_kit_email,
+            recipient_email=req.email,
+            student_name=req.student_name,
+            scholarship_name=req.scholarship_name,
+            degree=req.degree,
+            major=req.major,
+            documents=docs
+        )
+
+    return {
+        "success": True,
+        "scholarship_name": req.scholarship_name,
+        "documents": docs,
+        "message": f"تم توليد حزمة التقديم لمنحة {req.scholarship_name} بنجاح!" + (" وتم إرسال نسخة إلى بريدك." if req.send_to_email else "")
+    }
+
+
+@app.post("/api/scholarships/save")
+async def save_scholarship(req: SaveScholarshipRequest):
+    """Saves scholarship to student's watchlist for deadline countdown reminders."""
+    try:
+        result = sub_service.toggle_saved_scholarship(req.email, req.scholarship_name)
+        return {"success": True, **result}
+    except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 

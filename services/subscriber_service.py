@@ -24,7 +24,11 @@ def _ensure_data_dir():
                     "Artificial Intelligence",
                     "Computer Science & IT"
                 ],
+                "gpa": "90%+",
+                "english_level": "IELTS 6.5+ / Advanced",
+                "target_destinations": ["Europe", "Canada", "Turkey"],
                 "country": "Palestine",
+                "saved_scholarships": ["Lester B. Pearson", "Stipendium Hungaricum"],
                 "created_at": datetime.now().isoformat(),
                 "last_sent_at": None,
                 "status": "active"
@@ -35,7 +39,7 @@ def _ensure_data_dir():
 
 
 class SubscriberService:
-    """Manages student email subscriptions for automated weekly scholarship reports."""
+    """Manages student profiles, criteria, and saved scholarship tracking."""
 
     def __init__(self):
         _ensure_data_dir()
@@ -53,15 +57,24 @@ class SubscriberService:
             logger.error(f"Error reading subscribers: {e}")
             return []
 
+    def get_by_email(self, email: str) -> Optional[Dict[str, Any]]:
+        """Finds a subscriber by email address."""
+        email_clean = email.strip().lower()
+        subs = self.get_all(active_only=False)
+        return next((s for s in subs if s.get("email", "").lower() == email_clean), None)
+
     def add_or_update(
         self,
         email: str,
         full_name: str = "",
         degree: str = "Undergraduate (Bachelor's)",
         majors: Optional[List[str]] = None,
+        gpa: str = "85%",
+        english_level: str = "Intermediate",
+        target_destinations: Optional[List[str]] = None,
         country: str = "Palestine"
     ) -> Dict[str, Any]:
-        """Adds a new student or updates existing preferences."""
+        """Adds or updates comprehensive student profile."""
         _ensure_data_dir()
         email_clean = email.strip().lower()
         if not email_clean or "@" not in email_clean:
@@ -69,6 +82,8 @@ class SubscriberService:
 
         if majors is None:
             majors = ["Computer Science", "Software Engineering"]
+        if target_destinations is None:
+            target_destinations = ["Europe", "Canada", "Turkey", "Any"]
 
         subs = self.get_all(active_only=False)
         existing = next((s for s in subs if s.get("email", "").lower() == email_clean), None)
@@ -78,29 +93,58 @@ class SubscriberService:
             existing["full_name"] = full_name or existing.get("full_name", "")
             existing["degree"] = degree
             existing["majors"] = majors
-            existing["country"] = country
+            existing["gpa"] = gpa or existing.get("gpa", "85%")
+            existing["english_level"] = english_level or existing.get("english_level", "Intermediate")
+            existing["target_destinations"] = target_destinations or existing.get("target_destinations", ["Any"])
+            existing["country"] = country or existing.get("country", "Palestine")
             existing["status"] = "active"
             existing["updated_at"] = now_str
             subscriber_record = existing
-            logger.info(f"Updated subscriber profile: {email_clean}")
+            logger.info(f"Updated student profile: {email_clean}")
         else:
             subscriber_record = {
                 "email": email_clean,
                 "full_name": full_name or "Student",
                 "degree": degree,
                 "majors": majors,
+                "gpa": gpa,
+                "english_level": english_level,
+                "target_destinations": target_destinations,
                 "country": country,
+                "saved_scholarships": [],
                 "created_at": now_str,
                 "last_sent_at": None,
                 "status": "active"
             }
             subs.append(subscriber_record)
-            logger.info(f"Added new subscriber: {email_clean}")
+            logger.info(f"Registered new student: {email_clean}")
 
         with open(SUBSCRIBERS_FILE, "w", encoding="utf-8") as f:
             json.dump(subs, f, ensure_ascii=False, indent=2)
 
         return subscriber_record
+
+    def toggle_saved_scholarship(self, email: str, scholarship_name: str) -> Dict[str, Any]:
+        """Saves or un-saves a scholarship for deadline alert tracking."""
+        _ensure_data_dir()
+        subs = self.get_all(active_only=False)
+        sub = next((s for s in subs if s.get("email", "").lower() == email.strip().lower()), None)
+        if not sub:
+            raise ValueError("Student email not registered.")
+
+        saved = sub.get("saved_scholarships", [])
+        if scholarship_name in saved:
+            saved.remove(scholarship_name)
+            is_saved = False
+        else:
+            saved.append(scholarship_name)
+            is_saved = True
+
+        sub["saved_scholarships"] = saved
+        with open(SUBSCRIBERS_FILE, "w", encoding="utf-8") as f:
+            json.dump(subs, f, ensure_ascii=False, indent=2)
+
+        return {"saved": is_saved, "all_saved": saved}
 
     def update_last_sent(self, email: str):
         """Updates timestamp of last delivered email."""

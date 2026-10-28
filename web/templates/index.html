@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منحة تك AI | دليل المنح الدراسية الذكي والأوتوميشن الأسبوعي 🎓</title>
-    <meta name="description" content="محرك ذكاء اصطناعي مستقل يبحث في الجامعات الرسمية، يدقق الشروط والمواعيد، ويرسل تقريراً أسبوعياً مفصلاً بـ 11 عاموداً إلى بريدك الإلكتروني مجاناً.">
+    <title>منحة تك AI | منظومة تتبع المنح الذكية، حساب التوافق، ومولد المستندات 🎓</title>
+    <meta name="description" content="محرك ذكاء اصطناعي شامل يبحث عن المنح الرسمية، يحسب نسبة التوافق لملفك، يذكرك بالمواعيد، ويولد خطاب الدافع والـ CV المخصص لكل منحة.">
 
     <!-- Tailwind CSS with Dark Mode Plugin Config -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -41,8 +41,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- Canvas Confetti -->
+    <!-- Canvas Confetti & Marked.js for Markdown Rendering -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <style>
         body {
@@ -50,7 +51,6 @@
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        /* Ambient Glow Backgrounds */
         .ambient-dark {
             background-color: #080c16;
             background-image: 
@@ -67,7 +67,6 @@
                 radial-gradient(at 50% 90%, rgba(243, 232, 255, 0.5) 0px, transparent 50%);
         }
 
-        /* Glassmorphism Cards */
         .glass-card-dark {
             background: rgba(15, 23, 42, 0.65);
             backdrop-filter: blur(20px);
@@ -84,28 +83,11 @@
             box-shadow: 0 20px 40px -15px rgba(148, 163, 184, 0.25);
         }
 
-        /* Interactive Active Chips */
-        .chip-active-dark {
-            background: linear-gradient(135deg, #2563eb, #3b82f6) !important;
-            color: #ffffff !important;
-            border-color: #60a5fa !important;
-            box-shadow: 0 0 16px rgba(37, 99, 235, 0.45);
-        }
-
-        .chip-active-light {
-            background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
-            color: #ffffff !important;
-            border-color: #2563eb !important;
-            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
-        }
-
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 4px; }
     </style>
 
-    <!-- Theme State Initializer -->
     <script>
         if (localStorage.theme === 'light') {
             document.documentElement.classList.remove('dark');
@@ -119,36 +101,35 @@
     <!-- TOP ANNOUNCEMENT BANNER -->
     <div class="bg-gradient-to-r from-blue-700 via-indigo-600 to-blue-700 text-white text-xs font-semibold py-2 px-4 text-center tracking-wide flex items-center justify-center gap-2 shadow-md">
         <span>🇵🇸</span>
-        <span>مبادرة مفتوحة المصدر ومجانية بالكامل لدعم وتمكين الطلبة في فلسطين والعالم العربي</span>
-        <span class="hidden sm:inline-block bg-white/20 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">تحديث 2026/2027</span>
+        <span>منظومة متكاملة لدعم الطلاب: حساب نسبة التوافق • تذكير المواعيد • توليد خطابات الدافع والـ CV المخصص</span>
+        <span class="hidden sm:inline-block bg-white/20 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">2026/2027</span>
     </div>
 
     <!-- MAIN NAVBAR -->
     <header class="sticky top-0 z-50 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-800/80 bg-white/70 dark:bg-slate-950/60 transition-colors duration-300">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3.5 flex justify-between items-center">
             
-            <!-- Logo & Brand Identity -->
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-xl shadow-lg shadow-blue-500/30 text-white">
                     🎓
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
-                        <span class="text-xl font-black tracking-tight text-slate-900 dark:text-white">منحة تك</span>
-                        <span class="bg-blue-500/10 dark:bg-blue-400/10 text-blue-600 dark:text-blue-400 text-[10px] font-extrabold px-2 py-0.5 rounded-md border border-blue-500/20">AI Engine</span>
+                        <span class="text-xl font-black tracking-tight text-slate-900 dark:text-white">منحة تك AI</span>
+                        <span class="bg-blue-500/10 dark:bg-blue-400/10 text-blue-600 dark:text-blue-400 text-[10px] font-extrabold px-2 py-0.5 rounded-md border border-blue-500/20">Scholarship Copilot</span>
                     </div>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">نظام التتبع والأوتوميشن الأسبوعي الذكي</p>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">المساعد الأكاديمي الذكي للقبول والمنح</p>
                 </div>
             </div>
 
-            <!-- Right Controls: Status, Theme Toggle, GitHub -->
-            <div class="flex items-center gap-2.5 sm:gap-3">
-                
-                <!-- Status Pill -->
-                <div class="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span>النظام متصل ويبحث أسبوعياً</span>
-                </div>
+            <div class="flex items-center gap-2 sm:gap-3">
+                <a href="#advisorSection" class="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 transition">
+                    <span>🤖</span> <span>المستشار الذكي</span>
+                </a>
+
+                <a href="#docSection" class="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/20 transition">
+                    <span>✍️</span> <span>توليد المستندات</span>
+                </a>
 
                 <!-- Dark / Light Mode Switcher -->
                 <button type="button" id="themeToggleBtn" onclick="toggleTheme()" class="p-2 sm:px-3 sm:py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700 transition flex items-center gap-1.5 text-xs font-bold" title="تبديل الوضع الليلي / النهاري">
@@ -156,208 +137,333 @@
                     <span class="hidden sm:inline" id="themeText">الوضع الليلي</span>
                 </button>
 
-                <!-- GitHub Repo Link -->
+                <!-- GitHub Repo -->
                 <a href="https://github.com/medozaiter/scholarship-automation" target="_blank" class="p-2 sm:px-3.5 sm:py-2 rounded-xl bg-slate-900 dark:bg-slate-800 text-white hover:bg-slate-800 dark:hover:bg-slate-700 border border-slate-700 text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
                     <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
                     <span class="hidden sm:inline">GitHub</span>
-                    <span class="bg-blue-600/30 text-blue-400 text-[10px] px-1.5 py-0.2 rounded font-mono">⭐ Star</span>
+                    <span class="bg-blue-600/30 text-blue-400 text-[10px] px-1.5 py-0.2 rounded font-mono">⭐</span>
                 </a>
             </div>
         </div>
     </header>
 
     <!-- HERO SECTION -->
-    <section class="max-w-5xl mx-auto px-4 pt-10 pb-6 text-center space-y-5">
+    <section class="max-w-5xl mx-auto px-4 pt-10 pb-6 text-center space-y-4">
         
-        <!-- Live Alert Badge -->
         <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 dark:bg-blue-400/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 text-xs sm:text-sm font-bold shadow-sm">
-            <span>✨ رادار المنح المفتوحة الآن لدورة 2026/2027</span>
+            <span>⚡ سجل مرة واحدة فقط • والذكاء الاصطناعي يتولى الباقي</span>
         </div>
 
-        <!-- Main Title -->
         <h1 class="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight leading-tight sm:leading-tight">
-            لا تفوّت أي منحة دراسية بعد اليوم<br>
+            منصتك المتكاملة للمنح العالمية<br>
             <span class="bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 dark:from-blue-400 dark:via-indigo-300 dark:to-purple-400 bg-clip-text text-transparent">
-                كل أسبوع في بريدك الإلكتروني أوتوماتيكياً 📩
+                تتبع ذكي • فحص التوافق • وتوليد خطابات الدافع 🎯
             </span>
         </h1>
 
-        <!-- Subtitle -->
         <p class="text-slate-600 dark:text-slate-300 text-sm sm:text-base md:text-lg max-w-3xl mx-auto leading-relaxed font-normal">
-            اكتب بريدك وتخصصك فقط، وسيتولى محرك الذكاء الاصطناعي البحث المستقل في المواقع الرسمية للجامعات والحكومات، استبعاد الروابط الميتة، وتجهيز جدول معتمد يضم <b>11 عاموداً تفصيلياً</b> وملف Excel يصلك بانتظام.
+            أدخل معدلك وتخصصك لمرة واحدة فقط؛ وسيقوم النظام بالبحث المستمر في المواقع الرسمية، حساب <b>نسبة توافق ملفك (Match Score)</b> لكل منحة، تذكيرك بالمواعيد قبل إغلاقها، وتوليد <b>خطاب الدافع والـ CV الاحترافي</b> بضغطة زر.
         </p>
 
-        <!-- Trust Metric Bar -->
-        <div class="flex flex-wrap items-center justify-center gap-3 sm:gap-6 pt-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
-            <div class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-900/60 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800">
-                <span>🛡️</span> <span>روابط حكومية وجامعية رسمية</span>
+        <!-- Feature Pillars -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 text-xs font-bold text-slate-600 dark:text-slate-300">
+            <div class="bg-slate-100 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200 dark:border-slate-800 text-center">
+                <span class="text-lg block mb-1">🎯</span>
+                <span>حساب نسبة التوافق (Match Score)</span>
             </div>
-            <div class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-900/60 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800">
-                <span>⚡</span> <span>تدقيق Google Gemini AI</span>
+            <div class="bg-slate-100 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200 dark:border-slate-800 text-center">
+                <span class="text-lg block mb-1">⏳</span>
+                <span>تذكير تلقائي بالمواعيد النهائية</span>
             </div>
-            <div class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-900/60 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800">
-                <span>📊</span> <span>جدول CSV مرفق بكل رسالة</span>
+            <div class="bg-slate-100 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200 dark:border-slate-800 text-center">
+                <span class="text-lg block mb-1">🤖</span>
+                <span>مستشار أكاديمي يجيب على استفساراتك</span>
             </div>
-            <div class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-900/60 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800">
-                <span>💰</span> <span>100% مجاني ومتاح للجميع</span>
+            <div class="bg-slate-100 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200 dark:border-slate-800 text-center">
+                <span class="text-lg block mb-1">✍️</span>
+                <span>توليد خطاب الدافع ونماذج التوصية</span>
             </div>
         </div>
     </section>
 
-    <!-- CORE SUBSCRIPTION CARD -->
+    <!-- CORE REGISTRATION CARD (FEATURE 1, 2, 3) -->
     <section class="max-w-4xl mx-auto px-4 py-8">
         <div id="formCard" class="glass-card-light dark:glass-card-dark rounded-3xl p-6 sm:p-10 border border-slate-200 dark:border-slate-800/80 shadow-2xl relative overflow-hidden transition-all duration-300">
             
-            <!-- Ambient Decorative Elements -->
-            <div class="absolute -top-28 -right-28 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
-            <div class="absolute -bottom-28 -left-28 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="mb-6 border-b border-slate-200/60 dark:border-slate-800 pb-4">
+                <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+                    <span>📋</span>
+                    <span>سجل ملفك الأكاديمي (مرة واحدة فقط)</span>
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">يستخدم النظام هذه البيانات لحساب نسبة التوافق واقتراح المنح وتوليد مستندات التقديم المخصصة لك.</p>
+            </div>
 
-            <form id="subscribeForm" class="space-y-7 relative z-10">
+            <form id="subscribeForm" class="space-y-6 relative z-10">
                 
-                <!-- Section 1: Email & Name -->
+                <!-- Email & Name -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
                         <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">
-                            البريد الإلكتروني لاستلام النتائج <span class="text-rose-500">*</span>
+                            البريد الإلكتروني لاستلام التقارير والمستندات <span class="text-rose-500">*</span>
                         </label>
-                        <div class="relative">
-                            <input type="email" id="email" required placeholder="example@gmail.com"
-                                class="w-full bg-white dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm font-medium transition shadow-sm">
-                            <span class="absolute left-3.5 top-3.5 text-slate-400">📧</span>
-                        </div>
-                        <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5">لن نرسل أي رسائل مزعجة إطلاقاً، فقط دليل المنح الأسبوعي.</p>
+                        <input type="email" id="email" required placeholder="example@gmail.com"
+                            class="w-full bg-white dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 text-sm font-medium transition shadow-sm">
                     </div>
 
                     <div>
                         <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">
-                            اسم الطالب (اختياري)
+                            اسم الطالب الكامل <span class="text-rose-500">*</span>
                         </label>
-                        <div class="relative">
-                            <input type="text" id="fullName" placeholder="مثلاً: مصطفى زعيتر"
-                                class="w-full bg-white dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm font-medium transition shadow-sm">
-                            <span class="absolute left-3.5 top-3.5 text-slate-400">👤</span>
-                        </div>
-                        <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5">لتخصيص ترويسة التقرير والرسائل باسمك الشخصي.</p>
+                        <input type="text" id="fullName" required placeholder="مثلاً: مصطفى زعيتر"
+                            class="w-full bg-white dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 text-sm font-medium transition shadow-sm">
                     </div>
                 </div>
 
-                <!-- Section 2: Degree Level (Radio Chips) -->
+                <!-- Degree Level -->
                 <div>
-                    <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 mb-3">
-                        المرحلة الدراسية المستهدفة <span class="text-rose-500">*</span>
+                    <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 mb-2.5">
+                        المرحلة الدراسية المطلوبة <span class="text-rose-500">*</span>
                     </label>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        
                         <button type="button" data-val="Undergraduate (Bachelor's)" class="degree-btn p-3.5 rounded-xl border border-blue-500 bg-blue-600 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-blue-500/20 transition">
-                            <span class="text-lg">🎓</span>
-                            <span>بكالوريوس (Undergraduate)</span>
+                            <span>🎓</span> <span>بكالوريوس (Undergraduate)</span>
                         </button>
-
                         <button type="button" data-val="Master's Degree" class="degree-btn p-3.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-900/60 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition">
-                            <span class="text-lg">📜</span>
-                            <span>ماجستير (Master's)</span>
+                            <span>📜</span> <span>ماجستير (Master's)</span>
                         </button>
-
                         <button type="button" data-val="PhD / Doctorate" class="degree-btn p-3.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-900/60 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition">
-                            <span class="text-lg">🔬</span>
-                            <span>دكتوراه (PhD)</span>
+                            <span>🔬</span> <span>دكتوراه (PhD)</span>
                         </button>
-
                     </div>
                 </div>
 
-                <!-- Section 3: Target Majors (Multi-Select Tags) -->
+                <!-- GPA & English Level -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">
+                            المعدل الأكاديمي (توجيهي / تراكمي) <span class="text-rose-500">*</span>
+                        </label>
+                        <input type="text" id="gpaInput" required placeholder="مثلاً: 88% أو 3.6/4.0"
+                            class="w-full bg-white dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 text-sm font-medium transition shadow-sm">
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">يُستخدم لحساب نسبة التوافق وفحص الشروط الدنيا للجامعات.</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">
+                            مستوى اللغة الإنجليزية
+                        </label>
+                        <select id="englishLevel" class="w-full bg-white dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 text-sm font-medium transition shadow-sm">
+                            <option value="IELTS 6.5+ / Advanced" selected>متقدم (IELTS 6.5+ أو TOEFL 90+)</option>
+                            <option value="IELTS 5.5 - 6.0 / Intermediate">متوسط (IELTS 5.5 - 6.0 أو ما يعادله)</option>
+                            <option value="Duolingo / Institutional Test">امتحان دولينجو أو امتحان قبول محلي</option>
+                            <option value="No Test / Seeking Language Year">لا يوجد امتحان حالياً (أبحث عن منح توفر سنة لغة مجانية)</option>
+                        </select>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">معظم المنح الحكومية تشمل سنة تحضيرية مجانية للغة.</p>
+                    </div>
+                </div>
+
+                <!-- Target Majors -->
                 <div>
-                    <div class="flex justify-between items-center mb-2.5">
+                    <div class="flex justify-between items-center mb-2">
                         <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200">
-                            التخصصات المستهدفة (انقر لتحديد تخصصاتك) <span class="text-rose-500">*</span>
+                            التخصصات المستهدفة <span class="text-rose-500">*</span>
                         </label>
                         <span class="text-[11px] text-blue-600 dark:text-blue-400 font-semibold">تحديد متعدد متاح</span>
                     </div>
 
-                    <!-- Category Quick Chips -->
                     <div class="flex flex-wrap gap-2 mb-3" id="majorChipsContainer">
                         <button type="button" data-major="Cybersecurity" class="major-chip px-3 py-1.5 rounded-lg border text-xs font-semibold transition">🛡️ الأمن السيبراني</button>
                         <button type="button" data-major="Software Engineering" class="major-chip px-3 py-1.5 rounded-lg border text-xs font-semibold transition">💻 هندسة البرمجيات</button>
                         <button type="button" data-major="Artificial Intelligence" class="major-chip px-3 py-1.5 rounded-lg border text-xs font-semibold transition">🤖 الذكاء الاصطناعي</button>
-                        <button type="button" data-major="Computer Science & IT" class="major-chip px-3 py-1.5 rounded-lg border text-xs font-semibold transition">🖥️ علوم الحاسوب وتكنولوجيا المعلومات</button>
-                        <button type="button" data-major="Medicine & Healthcare" class="major-chip px-3 py-1.5 rounded-lg border text-xs font-semibold transition">🩺 الطب البشري والعلوم الطبية</button>
-                        <button type="button" data-major="Dentistry" class="major-chip px-3 py-1.5 rounded-lg border text-xs font-semibold transition">🦷 طب الأسنان</button>
+                        <button type="button" data-major="Computer Science & IT" class="major-chip px-3 py-1.5 rounded-lg border text-xs font-semibold transition">🖥️ علوم الحاسوب</button>
+                        <button type="button" data-major="Medicine & Healthcare" class="major-chip px-3 py-1.5 rounded-lg border text-xs font-semibold transition">🩺 الطب البشري</button>
                         <button type="button" data-major="Pharmacy" class="major-chip px-3 py-1.5 rounded-lg border text-xs font-semibold transition">💊 الصيدلة</button>
-                        <button type="button" data-major="Civil & Electrical Engineering" class="major-chip px-3 py-1.5 rounded-lg border text-xs font-semibold transition">🏗️ الهندسة (مدني / كهرباء / ميكاترونكس)</button>
-                        <button type="button" data-major="Business Administration & MBA" class="major-chip px-3 py-1.5 rounded-lg border text-xs font-semibold transition">📈 إدارة الأعمال والتمويل</button>
-                        <button type="button" data-major="Data Science & Big Data" class="major-chip px-3 py-1.5 rounded-lg border text-xs font-semibold transition">📊 علم البيانات والبيانات الضخمة</button>
+                        <button type="button" data-major="Civil & Electrical Engineering" class="major-chip px-3 py-1.5 rounded-lg border text-xs font-semibold transition">🏗️ الهندسة</button>
+                        <button type="button" data-major="Business Administration & MBA" class="major-chip px-3 py-1.5 rounded-lg border text-xs font-semibold transition">📈 إدارة الأعمال</button>
                     </div>
 
-                    <!-- Custom Major Input -->
-                    <div class="relative">
-                        <input type="text" id="customMajor" placeholder="أو اكتب تخصصاتك الأخرى هنا مفصولة بفواصل (مثلاً: ترجمة، تمريض، هندسة عمارة)..."
-                            class="w-full bg-white dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 text-xs sm:text-sm font-medium transition">
-                        <span class="absolute left-3 top-2.5 text-xs text-slate-400">✏️</span>
-                    </div>
+                    <input type="text" id="customMajor" placeholder="أو اكتب تخصصاتك الأخرى مفصولة بفواصل (مثلاً: تمريض، ترجمة، معمار)..."
+                        class="w-full bg-white dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 text-xs sm:text-sm font-medium transition">
                 </div>
 
-                <!-- Section 4: Country & Instant Welcome -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 items-center pt-1">
+                <!-- Destination Countries & Origin -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">
+                            الوجهات الدراسية المفضلة
+                        </label>
+                        <select id="destination" class="w-full bg-white dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 text-sm font-medium transition shadow-sm">
+                            <option value="Any Country" selected>🌍 أي دولة (البحث عن أفضل المنح عالمياً)</option>
+                            <option value="Europe (EU)">🇪🇺 دول أوروبا (ألمانيا، المجر، بريطانيا، فرنسا، إيطاليا)</option>
+                            <option value="Canada & USA">🇨🇦 كندا والولايات المتحدة</option>
+                            <option value="Turkey">🇹🇷 تركيا (المنحة التركية الحكومية YTB)</option>
+                            <option value="East Asia">🇰🇷 شرق آسيا (كوريا الجنوبية GKS، اليابان MEXT)</option>
+                        </select>
+                    </div>
+
                     <div>
                         <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">
                             الدولة المؤهلة / الجنسية
                         </label>
-                        <select id="country" class="w-full bg-white dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 text-xs sm:text-sm font-semibold transition shadow-sm">
-                            <option value="Palestine" selected>🇵🇸 فلسطين (Palestine) - أولوية قصوى</option>
+                        <select id="country" class="w-full bg-white dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 text-sm font-semibold transition shadow-sm">
+                            <option value="Palestine" selected>🇵🇸 فلسطين (Palestine) - أولوية قصوى وكوتا مخصصة</option>
                             <option value="Jordan">🇯🇴 الأردن (Jordan)</option>
                             <option value="Egypt">🇪🇬 مصر (Egypt)</option>
                             <option value="Syria">🇸🇾 سوريا (Syria)</option>
                             <option value="Lebanon">🇱🇧 لبنان (Lebanon)</option>
                             <option value="Yemen">🇾🇪 اليمن (Yemen)</option>
-                            <option value="Iraq">🇮🇶 العراق (Iraq)</option>
-                            <option value="Sudan">🇸🇩 السودان (Sudan)</option>
-                            <option value="Morocco">🇲🇦 المغرب (Morocco)</option>
-                            <option value="Algeria">🇩🇿 الجزائر (Algeria)</option>
-                            <option value="Tunisia">🇹🇳 تونس (Tunisia)</option>
-                            <option value="International">🌍 طالب دولي (Any Arab/International Country)</option>
+                            <option value="International">🌍 طالب دولي آخر</option>
                         </select>
                     </div>
-
-                    <div class="pt-2 md:pt-6">
-                        <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 cursor-pointer hover:border-blue-500 transition">
-                            <input type="checkbox" id="sendWelcome" checked class="w-4 h-4 mt-0.5 rounded bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-0">
-                            <div>
-                                <span class="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 block">إرسال تقرير ترحيبي فوري إلى إيميلك الآن ⚡</span>
-                                <span class="text-[11px] text-slate-500 dark:text-slate-400">ستصلك أحدث الفرص المفتوحة فور إرسال النموذج للتأكد من وصول الرسائل.</span>
-                            </div>
-                        </label>
-                    </div>
                 </div>
 
-                <!-- Submit Action Button -->
-                <div class="pt-3">
+                <!-- Instant Welcome Toggle -->
+                <div class="pt-2">
+                    <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 cursor-pointer hover:border-blue-500 transition">
+                        <input type="checkbox" id="sendWelcome" checked class="w-4 h-4 mt-0.5 rounded bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-0">
+                        <div>
+                            <span class="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 block">أرسل لي التقرير الترحيبي الأول مع نسبة التوافق فوراً ⚡</span>
+                            <span class="text-[11px] text-slate-500 dark:text-slate-400">ستصلك أحدث 5 منح مطابقة لمعدلك وتخصصك في دقيقة واحدة للتأكد من نجاح الربط.</span>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Submit Button -->
+                <div>
                     <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-500 hover:to-indigo-500 text-white font-black py-4 px-6 rounded-2xl shadow-xl shadow-blue-500/25 transition transform active:scale-[0.99] flex items-center justify-center gap-2.5 text-base sm:text-lg">
-                        <span id="btnText">🚀 تفعيل الاشتراك واستلام التقرير الأسبوعي مجاناً</span>
+                        <span id="btnText">🚀 حفظ الملف وتفعيل التتبع الأسبوعي المجاني</span>
                         <div id="btnSpinner" class="hidden w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                     </button>
-                    <div class="flex items-center justify-center gap-4 text-[11px] text-slate-500 dark:text-slate-400 mt-3 font-medium">
-                        <span>🔒 تشفير وخصوصية تامة</span>
-                        <span>•</span>
-                        <span>📅 الموعد الأسبوعي: كل جمعة صباحاً</span>
-                        <span>•</span>
-                        <span>🚫 إلغاء الاشتراك بنقرة واحدة</span>
-                    </div>
+                    <p class="text-center text-xs text-slate-400 mt-2">🔒 بياناتك محفوظة بأمان تام. لا إعلانات ولا رسائل سبام.</p>
                 </div>
 
-                <!-- Dynamic Alert Toast -->
+                <!-- Alert Result Message -->
                 <div id="alertBox" class="hidden p-5 rounded-2xl text-sm font-bold transition shadow-lg"></div>
 
             </form>
         </div>
     </section>
 
-    <!-- LIVE SAMPLE RADAR (SCHOLARSHIP SHOWCASE) -->
+    <!-- FEATURE 5: AI SCHOLARSHIP ADVISOR (LIVE CONSOLE) -->
+    <section id="advisorSection" class="max-w-4xl mx-auto px-4 py-10">
+        <div class="glass-card-light dark:glass-card-dark rounded-3xl p-6 sm:p-10 border border-indigo-200/50 dark:border-indigo-500/20 shadow-xl relative overflow-hidden">
+            
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-indigo-600/10 dark:bg-indigo-400/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-2xl font-black">
+                    🤖
+                </div>
+                <div>
+                    <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">المستشار الأكاديمي الذكي (AI Advisor)</h2>
+                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">اطرح أي استفسار طبيعي باللغة العربية وسيقوم المستشار بتحليله وترشيح أفضل المنح والخطوات فوراً.</p>
+                </div>
+            </div>
+
+            <!-- Quick Preset Queries -->
+            <div class="flex flex-wrap gap-2 mb-4">
+                <span class="text-xs text-slate-400 font-semibold self-center ml-1">جرب الضغط:</span>
+                <button type="button" onclick="setQuery('معدلي 85 وهندسة برمجيات وأريد منحة في أوروبا')" class="preset-btn px-2.5 py-1 rounded-lg text-xs bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-indigo-500 border border-slate-300 dark:border-slate-700 transition">
+                    💡 معدلي 85 وهندسة برمجيات وبدي منحة بأوروبا
+                </button>
+                <button type="button" onclick="setQuery('منح بكالوريوس طب بشري ممولة بالكامل للطلاب من فلسطين')" class="preset-btn px-2.5 py-1 rounded-lg text-xs bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-indigo-500 border border-slate-300 dark:border-slate-700 transition">
+                    💡 منح طب بشري ممولة بالكامل
+                </button>
+                <button type="button" onclick="setQuery('ماجستير ذكاء اصطناعي وأمن سيبراني في كندا أو بريطانيا بدون اختبار لغة')" class="preset-btn px-2.5 py-1 rounded-lg text-xs bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-indigo-500 border border-slate-300 dark:border-slate-700 transition">
+                    💡 ماجستير AI بدون آيلتس
+                </button>
+            </div>
+
+            <!-- Query Input Box -->
+            <div class="space-y-3">
+                <div class="relative">
+                    <textarea id="advisorQuery" rows="3" placeholder="اكتب سؤالك هنا بالتفصيل (مثلاً: معدلي 89 توجيهي علمي وبدي أدرس أمن سيبراني في كندا أو تركيا، شو أفضل المنح المفتوحة حالياً وكيف أجهز حالي؟)..."
+                        class="w-full bg-white dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700 rounded-2xl p-4 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 text-sm font-medium transition"></textarea>
+                </div>
+                <div class="flex justify-end">
+                    <button type="button" id="consultBtn" onclick="askAdvisor()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 px-6 rounded-xl text-sm transition shadow-md shadow-indigo-600/20 flex items-center gap-2">
+                        <span id="consultBtnText">⚡ استشر الذكاء الاصطناعي الآن</span>
+                        <div id="consultSpinner" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Advisor Output Display -->
+            <div id="advisorOutput" class="hidden mt-6 p-6 rounded-2xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 text-sm leading-relaxed text-slate-800 dark:text-slate-200">
+                <div class="flex items-center gap-2 text-indigo-500 font-bold mb-3 pb-2 border-b border-slate-200 dark:border-slate-800">
+                    <span>💡</span> <span>توصية المستشار الأكاديمي:</span>
+                </div>
+                <div id="advisorMarkdown" class="prose dark:prose-invert max-w-none text-xs sm:text-sm"></div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- FEATURE 6: SMART APPLICATION DOCUMENTS GENERATOR -->
+    <section id="docSection" class="max-w-4xl mx-auto px-4 py-8">
+        <div class="glass-card-light dark:glass-card-dark rounded-3xl p-6 sm:p-10 border border-purple-200/50 dark:border-purple-500/20 shadow-xl relative overflow-hidden">
+            
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-purple-600/10 dark:bg-purple-400/10 text-purple-600 dark:text-purple-400 flex items-center justify-center text-2xl font-black">
+                    ✍️
+                </div>
+                <div>
+                    <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">مُولّد مستندات التقديم الذكية (Application Kit)</h2>
+                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">اختر منحتك المستهدفة وسيقوم الذكاء الاصطناعي بكتابة وتوليد خطاب الدافع ونموذج التوصية وقائمة التحقق فوراً.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">اختر المنحة المستهدفة</label>
+                    <select id="docScholarship" class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:border-purple-500">
+                        <option value="Lester B. Pearson Scholarship (University of Toronto)">Lester B. Pearson - كندا (جامعة تورنتو)</option>
+                        <option value="Stipendium Hungaricum Scholarship">Stipendium Hungaricum - منحة الحكومة المجرية</option>
+                        <option value="Türkiye Bursları Government Scholarship">Türkiye Bursları - المنحة التركية الحكومية</option>
+                        <option value="Chevening UK Master's Scholarship">Chevening Scholarships - منحة تشيفنينج البريطانية</option>
+                        <option value="Global Korea Scholarship (GKS)">Global Korea Scholarship (GKS) - منحة كوريا الجنوبية</option>
+                        <option value="DAAD Scholarship Germany">DAAD Scholarship - منحة داد للدراسات العليا بألمانيا</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">إيميلك لاستلام المستندات</label>
+                    <input type="email" id="docEmail" placeholder="your_email@gmail.com"
+                        class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:border-purple-500">
+                </div>
+            </div>
+
+            <button type="button" id="generateDocBtn" onclick="generateSmartDocs()" class="w-full bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-3 px-6 rounded-xl text-sm transition shadow-lg shadow-purple-600/20 flex items-center justify-center gap-2">
+                <span id="docBtnText">🪄 توليد خطاب الدافع ونماذج التقديم المخصصة وإرسالها لإيميلي</span>
+                <div id="docSpinner" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            </button>
+
+            <!-- Generated Docs Output Display -->
+            <div id="docResultBox" class="hidden mt-6 space-y-4">
+                <div class="flex border-b border-slate-200 dark:border-slate-800 text-xs font-bold gap-3 pb-2" id="docTabs">
+                    <button type="button" onclick="switchDocTab('motTab')" id="motTabBtn" class="text-purple-500 border-b-2 border-purple-500 pb-1">📝 خطاب الدافع (Motivation Letter)</button>
+                    <button type="button" onclick="switchDocTab('recTab')" id="recTabBtn" class="text-slate-400 hover:text-white pb-1">✍️ خطاب التوصية (Recommendation)</button>
+                    <button type="button" onclick="switchDocTab('chkTab')" id="chkTabBtn" class="text-slate-400 hover:text-white pb-1">📋 قائمة التحقق (Checklist)</button>
+                </div>
+
+                <div class="p-4 rounded-xl bg-slate-100 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-800 text-xs sm:text-sm font-mono overflow-x-auto max-h-80 overflow-y-auto">
+                    <pre id="docContentDisplay" class="whitespace-pre-wrap text-slate-800 dark:text-slate-200"></pre>
+                </div>
+
+                <div class="flex justify-between items-center text-xs text-slate-400">
+                    <span id="docSentNotice" class="text-emerald-500 font-bold">✅ تم إرسال نسخة كاملة إلى بريدك الإلكتروني!</span>
+                    <button type="button" onclick="copyCurrentDoc()" class="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 transition">
+                        📋 نسخ النص
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- LIVE SAMPLE RADAR (FEATURE 4: DEADLINE REMINDER & MATCH PREVIEW) -->
     <section class="max-w-6xl mx-auto px-4 py-12">
         <div class="text-center space-y-2 mb-10">
-            <span class="text-xs font-extrabold text-blue-600 dark:text-blue-400 tracking-wider uppercase bg-blue-500/10 px-3 py-1 rounded-full">معاينة حية للمنح النشطة</span>
-            <h2 class="text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white">أمثلة من الفرص التي يرصدها المحرك دورياً</h2>
-            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">نماذج موثقة ومطابقة لمعايير الأعمدة الـ 11 المعتمدة والمفتوحة لدورة 2026/2027</p>
+            <span class="text-xs font-extrabold text-blue-600 dark:text-blue-400 tracking-wider uppercase bg-blue-500/10 px-3 py-1 rounded-full">رادار المنح ونسب التوافق المباشرة</span>
+            <h2 class="text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white">أهم المنح النشطة الموصى بها هذا الأسبوع</h2>
+            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">احفظ أي منحة لتلقي تذكيرات مجانية قبل موعد الإغلاق بشهر وأسبوعين وأسبوع ويومين.</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -367,19 +473,23 @@
                 <div>
                     <div class="flex justify-between items-start mb-3">
                         <span class="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-[11px] font-bold px-2.5 py-1 rounded-full">🟢 مفتوح حالياً</span>
-                        <span class="text-xs font-bold text-rose-500">⏳ 6 نوفمبر 2026</span>
+                        <span class="bg-blue-600/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 text-xs font-bold px-2 py-0.5 rounded-md">🎯 94% توافق</span>
                     </div>
                     <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">Lester B. Pearson Scholarship</h3>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">📍 كندا / جامعة تورنتو (University of Toronto)</p>
-                    <ul class="text-xs space-y-2 text-slate-600 dark:text-slate-300 mb-6">
-                        <li class="flex items-center gap-1.5"><span>💰</span> <b>التمويل:</b> كامل (رسوم + سكن 4 سنوات + كتب)</li>
-                        <li class="flex items-center gap-1.5"><span>🎓</span> <b>المستوى:</b> بكالوريوس (هندسة وعلوم الحاسوب)</li>
-                        <li class="flex items-center gap-1.5"><span>🛂</span> <b>الفيزا:</b> دعم كامل بخطاب رسمي (PAL & LOA)</li>
-                    </ul>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">📍 كندا / جامعة تورنتو (U of T)</p>
+                    <div class="bg-slate-100 dark:bg-slate-900/60 p-2.5 rounded-lg text-xs mb-3 space-y-1">
+                        <div class="text-emerald-600 dark:text-emerald-400 font-bold">⏳ الموعد النهائي: 6 نوفمبر 2026</div>
+                        <div class="text-slate-500 dark:text-slate-400 text-[11px]">💰 تغطية 100%: رسوم + سكن كامل 4 سنوات + كتب</div>
+                    </div>
                 </div>
-                <a href="https://future.utoronto.ca/pearson/" target="_blank" class="w-full text-center bg-blue-600/10 dark:bg-blue-500/10 hover:bg-blue-600 hover:text-white text-blue-600 dark:text-blue-400 text-xs font-bold py-2.5 rounded-xl border border-blue-500/20 transition">
-                    🔗 البوابة الرسمية للمنحة
-                </a>
+                <div class="space-y-2 pt-2 border-t border-slate-200/50 dark:border-slate-800/50">
+                    <button type="button" onclick="saveToWatchlist('Lester B. Pearson', this)" class="w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold py-2 rounded-xl border border-slate-300 dark:border-slate-700 transition flex items-center justify-center gap-1.5">
+                        <span>🔔</span> <span>تفعيل تذكير الموعد (Reminder)</span>
+                    </button>
+                    <a href="https://future.utoronto.ca/pearson/" target="_blank" class="w-full text-center bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-2.5 rounded-xl transition block">
+                        🔗 البوابة الرسمية للتقديم
+                    </a>
+                </div>
             </div>
 
             <!-- Card 2: Stipendium Hungaricum -->
@@ -387,126 +497,46 @@
                 <div>
                     <div class="flex justify-between items-start mb-3">
                         <span class="bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 text-[11px] font-bold px-2.5 py-1 rounded-full">🔵 يفتح قريباً</span>
-                        <span class="text-xs font-bold text-rose-500">⏳ 15 يناير 2027</span>
+                        <span class="bg-blue-600/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 text-xs font-bold px-2 py-0.5 rounded-md">🎯 96% توافق</span>
                     </div>
                     <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">Stipendium Hungaricum</h3>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">📍 المجر / جامعات بودابست وديبريسين</p>
-                    <ul class="text-xs space-y-2 text-slate-600 dark:text-slate-300 mb-6">
-                        <li class="flex items-center gap-1.5"><span>💰</span> <b>التمويل:</b> كامل (إعفاء 100% + راتب + سكن)</li>
-                        <li class="flex items-center gap-1.5"><span>🎓</span> <b>المستوى:</b> بكالوريوس + ماجستير + دكتوراه</li>
-                        <li class="flex items-center gap-1.5"><span>🇵🇸</span> <b>الأهلية:</b> كوتا مخصصة للطلاب من فلسطين</li>
-                    </ul>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">📍 المجر / جامعات بودابست وديبريسين</p>
+                    <div class="bg-slate-100 dark:bg-slate-900/60 p-2.5 rounded-lg text-xs mb-3 space-y-1">
+                        <div class="text-indigo-600 dark:text-indigo-400 font-bold">⏳ الموعد النهائي: 15 يناير 2027</div>
+                        <div class="text-slate-500 dark:text-slate-400 text-[11px]">💰 إعفاء 100% من الرسوم + راتب شهري + سكن وتأمين</div>
+                    </div>
                 </div>
-                <a href="https://stipendiumhungaricum.hu/" target="_blank" class="w-full text-center bg-blue-600/10 dark:bg-blue-500/10 hover:bg-blue-600 hover:text-white text-blue-600 dark:text-blue-400 text-xs font-bold py-2.5 rounded-xl border border-blue-500/20 transition">
-                    🔗 البوابة الرسمية للمنحة
-                </a>
+                <div class="space-y-2 pt-2 border-t border-slate-200/50 dark:border-slate-800/50">
+                    <button type="button" onclick="saveToWatchlist('Stipendium Hungaricum', this)" class="w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold py-2 rounded-xl border border-slate-300 dark:border-slate-700 transition flex items-center justify-center gap-1.5">
+                        <span>🔔</span> <span>تفعيل تذكير الموعد (Reminder)</span>
+                    </button>
+                    <a href="https://stipendiumhungaricum.hu/" target="_blank" class="w-full text-center bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-2.5 rounded-xl transition block">
+                        🔗 البوابة الرسمية للتقديم
+                    </a>
+                </div>
             </div>
 
-            <!-- Card 3: Chevening UK -->
+            <!-- Card 3: Türkiye Bursları -->
             <div class="glass-card-light dark:glass-card-dark rounded-2xl p-6 border border-slate-200 dark:border-slate-800 flex flex-col justify-between hover:border-blue-500/50 transition duration-300">
                 <div>
                     <div class="flex justify-between items-start mb-3">
-                        <span class="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-[11px] font-bold px-2.5 py-1 rounded-full">🟢 مفتوح حالياً</span>
-                        <span class="text-xs font-bold text-rose-500">⏳ 5 نوفمبر 2026</span>
+                        <span class="bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 text-[11px] font-bold px-2.5 py-1 rounded-full">🔵 تفتح 10 يناير</span>
+                        <span class="bg-blue-600/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 text-xs font-bold px-2 py-0.5 rounded-md">🎯 92% توافق</span>
                     </div>
-                    <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">Chevening Scholarship</h3>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">📍 المملكة المتحدة / جميع الجامعات البريطانية</p>
-                    <ul class="text-xs space-y-2 text-slate-600 dark:text-slate-300 mb-6">
-                        <li class="flex items-center gap-1.5"><span>💰</span> <b>التمويل:</b> شامل الرسوم والمعيشة وتذاكر الطيران</li>
-                        <li class="flex items-center gap-1.5"><span>🎓</span> <b>المستوى:</b> ماجستير (Master's) لمدة عام كامل</li>
-                        <li class="flex items-center gap-1.5"><span>🛂</span> <b>الفيزا:</b> إعفاء ورعاية كاملة لتأشيرة بريطانيا</li>
-                    </ul>
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">Türkiye Bursları Government</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">📍 تركيا / جميع الجامعات التركية الحكومية</p>
+                    <div class="bg-slate-100 dark:bg-slate-900/60 p-2.5 rounded-lg text-xs mb-3 space-y-1">
+                        <div class="text-indigo-600 dark:text-indigo-400 font-bold">⏳ الموعد النهائي: 20 فبراير 2027</div>
+                        <div class="text-slate-500 dark:text-slate-400 text-[11px]">💰 إعفاء كامل + سكن جامعي + راتب + سنة لغة وتذاكر طيران</div>
+                    </div>
                 </div>
-                <a href="https://www.chevening.org/scholarships/" target="_blank" class="w-full text-center bg-blue-600/10 dark:bg-blue-500/10 hover:bg-blue-600 hover:text-white text-blue-600 dark:text-blue-400 text-xs font-bold py-2.5 rounded-xl border border-blue-500/20 transition">
-                    🔗 البوابة الرسمية للمنحة
-                </a>
-            </div>
-
-        </div>
-    </section>
-
-    <!-- HOW IT WORKS (3 SIMPLE STEPS) -->
-    <section class="max-w-5xl mx-auto px-4 py-12 border-t border-slate-200 dark:border-slate-800/60">
-        <div class="text-center space-y-2 mb-12">
-            <span class="text-xs font-extrabold text-indigo-600 dark:text-indigo-400 tracking-wider uppercase bg-indigo-500/10 px-3 py-1 rounded-full">آلية عمل النظام</span>
-            <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">كيف يعمل محرك المنح الذكي؟</h2>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            
-            <div class="text-center space-y-3">
-                <div class="w-14 h-14 mx-auto rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 flex items-center justify-center text-2xl font-black">
-                    1
-                </div>
-                <h3 class="text-base font-bold text-slate-900 dark:text-white">حدد تخصصك ومرحلتك</h3>
-                <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">أدخل بريدك واختر درجتك وتخصصاتك في 20 ثانية عبر النموذج بالأعلى.</p>
-            </div>
-
-            <div class="text-center space-y-3">
-                <div class="w-14 h-14 mx-auto rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 flex items-center justify-center text-2xl font-black">
-                    2
-                </div>
-                <h3 class="text-base font-bold text-slate-900 dark:text-white">فحص وتدقيق الروابط بالذكاء الاصطناعي</h3>
-                <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">يقوم المحرك بالبحث في بوابات الجامعات والوزارات الرسمية واستبعاد المنح المنتهية.</p>
-            </div>
-
-            <div class="text-center space-y-3">
-                <div class="w-14 h-14 mx-auto rounded-2xl bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 flex items-center justify-center text-2xl font-black">
-                    3
-                </div>
-                <h3 class="text-base font-bold text-slate-900 dark:text-white">استلام التقرير أسبوعياً ببريدك</h3>
-                <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">يصلك كل جمعة إيميل HTML متجاوب ومرفق بجدول Excel يضم الـ 11 عاموداً تفصيلياً.</p>
-            </div>
-
-        </div>
-    </section>
-
-    <!-- FAQ ACCORDION -->
-    <section class="max-w-3xl mx-auto px-4 py-12 border-t border-slate-200 dark:border-slate-800/60">
-        <div class="text-center space-y-2 mb-10">
-            <span class="text-xs font-extrabold text-blue-600 dark:text-blue-400 tracking-wider uppercase bg-blue-500/10 px-3 py-1 rounded-full">إجابات وتوضيحات</span>
-            <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">الأسئلة الأكثر شيوعاً (FAQ)</h2>
-        </div>
-
-        <div class="space-y-4" id="faqAccordion">
-            
-            <div class="glass-card-light dark:glass-card-dark rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-                <button type="button" class="faq-btn w-full p-4 sm:p-5 text-right font-bold text-sm sm:text-base flex justify-between items-center text-slate-900 dark:text-white">
-                    <span>هل الخدمة مجانية فعلاً وبدون أي رسوم؟</span>
-                    <span class="faq-icon text-lg transition-transform duration-200">➕</span>
-                </button>
-                <div class="faq-content hidden px-5 pb-5 text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed border-t border-slate-200/50 dark:border-slate-800/50 pt-3">
-                    نعم! الخدمة مجانية 100% ومفتوحة المصدر برخصة MIT، صُممت كعمل تطوعي لمساعدة الطلبة في فلسطين والعالم العربي للوصول إلى فرص التعليم العالي العالمية بأسهل طريقة.
-                </div>
-            </div>
-
-            <div class="glass-card-light dark:glass-card-dark rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-                <button type="button" class="faq-btn w-full p-4 sm:p-5 text-right font-bold text-sm sm:text-base flex justify-between items-center text-slate-900 dark:text-white">
-                    <span>ما هي الأعمدة الـ 11 التي يتضمنها التقرير الأسبوعي؟</span>
-                    <span class="faq-icon text-lg transition-transform duration-200">➕</span>
-                </button>
-                <div class="faq-content hidden px-5 pb-5 text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed border-t border-slate-200/50 dark:border-slate-800/50 pt-3">
-                    يتضمن التقرير بالإنجليزية: اسم المنحة، الدولة والجامعة، لغة الدراسة، حالة التقديم (مفتوح حالياً أو قريباً)، تاريخ الموعد النهائي، آلية التقديم، شروط المعدل واللغة، اختبارات القبول، دعم وتسهيلات الفيزا، مستوى التنافسية، ورابط التقديم الرسمي المباشر.
-                </div>
-            </div>
-
-            <div class="glass-card-light dark:glass-card-dark rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-                <button type="button" class="faq-btn w-full p-4 sm:p-5 text-right font-bold text-sm sm:text-base flex justify-between items-center text-slate-900 dark:text-white">
-                    <span>متى يفتح التقديم لمعظم هذه المنح وما هو التوقيت الأفضل؟</span>
-                    <span class="faq-icon text-lg transition-transform duration-200">➕</span>
-                </button>
-                <div class="faq-content hidden px-5 pb-5 text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed border-t border-slate-200/50 dark:border-slate-800/50 pt-3">
-                    معظم المنح الدولية الكبرى (مثل الحكومة المجرية والتركية والكورية وتورنتو) تفتح بواباتها بين شهري أكتوبر وفبراير من كل عام دراسي. لذلك متابعتك للتقرير الأسبوعي تضمن تقديمك في الأيام الأولى دون ضياع المواعيد النهائية.
-                </div>
-            </div>
-
-            <div class="glass-card-light dark:glass-card-dark rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-                <button type="button" class="faq-btn w-full p-4 sm:p-5 text-right font-bold text-sm sm:text-base flex justify-between items-center text-slate-900 dark:text-white">
-                    <span>كيف يمكنني إلغاء الاشتراك في أي وقت؟</span>
-                    <span class="faq-icon text-lg transition-transform duration-200">➕</span>
-                </button>
-                <div class="faq-content hidden px-5 pb-5 text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed border-t border-slate-200/50 dark:border-slate-800/50 pt-3">
-                    تحتوي كل رسالة إيميل أسبوعية تصلك على رابط سريع أسفل الرسالة لإلغاء الاشتراك بنقرة واحدة فوراً دون أي تعقيد.
+                <div class="space-y-2 pt-2 border-t border-slate-200/50 dark:border-slate-800/50">
+                    <button type="button" onclick="saveToWatchlist('Türkiye Bursları', this)" class="w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold py-2 rounded-xl border border-slate-300 dark:border-slate-700 transition flex items-center justify-center gap-1.5">
+                        <span>🔔</span> <span>تفعيل تذكير الموعد (Reminder)</span>
+                    </button>
+                    <a href="https://www.turkiyeburslari.gov.tr/" target="_blank" class="w-full text-center bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-2.5 rounded-xl transition block">
+                        🔗 البوابة الرسمية للتقديم
+                    </a>
                 </div>
             </div>
 
@@ -526,7 +556,7 @@
         </p>
     </footer>
 
-    <!-- INTERACTIVE JAVASCRIPT LOGIC -->
+    <!-- INTERACTIVE SCRIPT LOGIC -->
     <script>
         // --- 1. THEME SWITCHER (DARK / LIGHT) ---
         function toggleTheme() {
@@ -553,11 +583,9 @@
                 card.className = (isDark ? 'glass-card-dark' : 'glass-card-light') + ' rounded-3xl p-6 sm:p-10 border border-slate-200 dark:border-slate-800/80 shadow-2xl relative overflow-hidden transition-all duration-300';
             }
         }
-
-        // Initialize Theme UI on Load
         updateThemeButton();
 
-        // --- 2. DEGREE SELECTION LOGIC ---
+        // --- 2. DEGREE LEVEL BUTTONS ---
         let selectedDegree = "Undergraduate (Bachelor's)";
         document.querySelectorAll('.degree-btn').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -569,7 +597,7 @@
             });
         });
 
-        // --- 3. MAJORS CHIP SELECTION ---
+        // --- 3. MAJORS SELECTION ---
         let selectedMajors = ["Cybersecurity", "Software Engineering", "Artificial Intelligence"];
 
         function renderChips() {
@@ -597,25 +625,7 @@
         });
         renderChips();
 
-        // --- 4. FAQ ACCORDION TOGGLE ---
-        document.querySelectorAll('.faq-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const content = btn.nextElementSibling;
-                const icon = btn.querySelector('.faq-icon');
-                const isHidden = content.classList.contains('hidden');
-                
-                // Close other faqs
-                document.querySelectorAll('.faq-content').forEach(c => c.classList.add('hidden'));
-                document.querySelectorAll('.faq-icon').forEach(i => i.textContent = '➕');
-
-                if (isHidden) {
-                    content.classList.remove('hidden');
-                    icon.textContent = '➖';
-                }
-            });
-        });
-
-        // --- 5. FORM SUBMISSION & CONFETTI CELEBRATION ---
+        // --- 4. FORM SUBMISSION ---
         const form = document.getElementById('subscribeForm');
         const submitBtn = document.getElementById('submitBtn');
         const btnText = document.getElementById('btnText');
@@ -625,7 +635,6 @@
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            // Collect custom extra majors
             const customVal = document.getElementById('customMajor').value.trim();
             let finalMajors = [...selectedMajors];
             if (customVal) {
@@ -640,9 +649,8 @@
                 return;
             }
 
-            // Loading state
             submitBtn.disabled = true;
-            btnText.textContent = "جارٍ التحقق وتفعيل الأوتوميشن الذكي...";
+            btnText.textContent = "جارٍ حفظ ملفك وحساب درجات التوافق...";
             btnSpinner.classList.remove('hidden');
             alertBox.classList.add('hidden');
 
@@ -651,9 +659,15 @@
                 full_name: document.getElementById('fullName').value.trim() || "Student",
                 degree: selectedDegree,
                 majors: finalMajors,
+                gpa: document.getElementById('gpaInput').value.trim() || "85%",
+                english_level: document.getElementById('englishLevel').value,
+                target_destinations: [document.getElementById('destination').value],
                 country: document.getElementById('country').value,
                 send_welcome_report: document.getElementById('sendWelcome').checked
             };
+
+            // Pre-fill doc email
+            document.getElementById('docEmail').value = payload.email;
 
             try {
                 const res = await fetch('/api/subscribe', {
@@ -664,24 +678,17 @@
                 const data = await res.json();
 
                 if (res.ok && data.success) {
-                    // Trigger Confetti Celebration 🎉
-                    confetti({
-                        particleCount: 100,
-                        spread: 70,
-                        origin: { y: 0.6 }
-                    });
+                    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
 
                     alertBox.className = "p-5 rounded-2xl text-sm font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 text-center";
                     alertBox.innerHTML = `
-                        <div class="text-3xl mb-1.5">🎉 مبارك! تم تفعيل اشتراكك بنجاح</div>
+                        <div class="text-3xl mb-1.5">🎉 مبارك! تم حفظ ملفك بنجاح</div>
                         <div class="text-sm font-bold mb-1">${data.message}</div>
                         <div class="text-xs font-normal text-slate-600 dark:text-emerald-200/80">
-                            تفقد بريدك الإلكتروني الآن (صندوق الوارد Inbox أو غير الهام Spam) لرؤية أول تقرير مخصص لك.
+                            تم تفعيل التتبع الأسبوعي، وحساب نسبة التوافق لمعدلك (${payload.gpa})، وإرسال التقرير لبريدك.
                         </div>
                     `;
                     alertBox.classList.remove('hidden');
-                    form.reset();
-                    renderChips();
                 } else {
                     throw new Error(data.detail || data.message || "حدث خطأ أثناء حفظ الاشتراك.");
                 }
@@ -691,10 +698,169 @@
                 alertBox.classList.remove('hidden');
             } finally {
                 submitBtn.disabled = false;
-                btnText.textContent = "🚀 تفعيل الاشتراك واستلام التقرير الأسبوعي مجاناً";
+                btnText.textContent = "🚀 حفظ الملف وتفعيل التتبع الأسبوعي المجاني";
                 btnSpinner.classList.add('hidden');
             }
         });
+
+        // --- 5. AI SCHOLARSHIP ADVISOR LOGIC ---
+        function setQuery(text) {
+            document.getElementById('advisorQuery').value = text;
+        }
+
+        async function askAdvisor() {
+            const query = document.getElementById('advisorQuery').value.trim();
+            if (!query) {
+                alert("يرجى كتابة سؤالك أولاً");
+                return;
+            }
+
+            const btn = document.getElementById('consultBtn');
+            const btnText = document.getElementById('consultBtnText');
+            const spinner = document.getElementById('consultSpinner');
+            const outBox = document.getElementById('advisorOutput');
+            const outMarkdown = document.getElementById('advisorMarkdown');
+
+            btn.disabled = true;
+            btnText.textContent = "المستشار يحلل سؤالك...";
+            spinner.classList.remove('hidden');
+
+            try {
+                const emailVal = document.getElementById('email').value.trim();
+                const res = await fetch('/api/advisor/consult', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: query, email: emailVal || null })
+                });
+                const data = await res.json();
+
+                if (data.success && data.advice) {
+                    outMarkdown.innerHTML = marked.parse(data.advice);
+                    outBox.classList.remove('hidden');
+                    outBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                } else {
+                    alert("تعذر الحصول على إجابة حالياً: " + (data.advice || "خطأ غير متوقع"));
+                }
+            } catch (err) {
+                alert("حدث خطأ في الاتصال: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btnText.textContent = "⚡ استشر الذكاء الاصطناعي الآن";
+                spinner.classList.add('hidden');
+            }
+        }
+
+        // --- 6. SMART APPLICATION DOCUMENTS GENERATOR ---
+        let currentDocs = {};
+
+        async function generateSmartDocs() {
+            const email = document.getElementById('docEmail').value.trim() || document.getElementById('email').value.trim();
+            if (!email) {
+                alert("يرجى كتابة إيميلك لاستلام المستندات");
+                return;
+            }
+
+            const scholarship = document.getElementById('docScholarship').value;
+            const name = document.getElementById('fullName').value.trim() || "Student";
+            const gpa = document.getElementById('gpaInput').value.trim() || "85%";
+            const major = selectedMajors[0] || "Software Engineering";
+
+            const btn = document.getElementById('generateDocBtn');
+            const btnText = document.getElementById('docBtnText');
+            const spinner = document.getElementById('docSpinner');
+            const resultBox = document.getElementById('docResultBox');
+
+            btn.disabled = true;
+            btnText.textContent = "جارٍ صياغة وتوليد المستندات بالذكاء الاصطناعي...";
+            spinner.classList.remove('hidden');
+
+            try {
+                const res = await fetch('/api/documents/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        student_name: name,
+                        email: email,
+                        degree: selectedDegree,
+                        major: major,
+                        gpa: gpa,
+                        scholarship_name: scholarship,
+                        send_to_email: true
+                    })
+                });
+                const data = await res.json();
+
+                if (data.success && data.documents) {
+                    currentDocs = data.documents;
+                    switchDocTab('motTab');
+                    resultBox.classList.remove('hidden');
+                    resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    confetti({ particleCount: 50, spread: 60 });
+                } else {
+                    alert("تعذر توليد المستندات: " + (data.message || "خطأ"));
+                }
+            } catch (err) {
+                alert("حدث خطأ: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btnText.textContent = "🪄 توليد خطاب الدافع ونماذج التقديم المخصصة وإرسالها لإيميلي";
+                spinner.classList.add('hidden');
+            }
+        }
+
+        let activeTab = 'motTab';
+        function switchDocTab(tabName) {
+            activeTab = tabName;
+            const display = document.getElementById('docContentDisplay');
+            
+            document.getElementById('motTabBtn').className = (tabName === 'motTab') ? "text-purple-500 border-b-2 border-purple-500 pb-1 font-bold" : "text-slate-400 hover:text-white pb-1";
+            document.getElementById('recTabBtn').className = (tabName === 'recTab') ? "text-purple-500 border-b-2 border-purple-500 pb-1 font-bold" : "text-slate-400 hover:text-white pb-1";
+            document.getElementById('chkTabBtn').className = (tabName === 'chkTab') ? "text-purple-500 border-b-2 border-purple-500 pb-1 font-bold" : "text-slate-400 hover:text-white pb-1";
+
+            if (tabName === 'motTab') {
+                display.textContent = currentDocs.motivation_letter || "لا يوجد محتوى";
+            } else if (tabName === 'recTab') {
+                display.textContent = currentDocs.recommendation_letter || "لا يوجد محتوى";
+            } else {
+                display.textContent = currentDocs.checklist || "لا يوجد محتوى";
+            }
+        }
+
+        function copyCurrentDoc() {
+            const text = document.getElementById('docContentDisplay').textContent;
+            navigator.clipboard.writeText(text);
+            alert("تم نسخ المستند للحافظة بنجاح! 📋");
+        }
+
+        // --- 7. WATCHLIST DEADLINE REMINDER TOGGLE ---
+        async function saveToWatchlist(scholarshipName, btnElement) {
+            const email = document.getElementById('email').value.trim() || document.getElementById('docEmail').value.trim();
+            if (!email) {
+                alert("يرجى إدخال إيميلك في نموذج التسجيل أولاً لنتمكن من إرسال تنبيهات المواعيد إليك.");
+                document.getElementById('email').focus();
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/scholarships/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email, scholarship_name: scholarshipName })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    if (data.saved) {
+                        btnElement.className = "w-full bg-emerald-600 text-white text-xs font-bold py-2 rounded-xl transition flex items-center justify-center gap-1.5";
+                        btnElement.innerHTML = "<span>✅</span> <span>تم الحفظ (تذكيرات المواعيد مفعلة)</span>";
+                    } else {
+                        btnElement.className = "w-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold py-2 rounded-xl border border-slate-300 dark:border-slate-700 transition flex items-center justify-center gap-1.5";
+                        btnElement.innerHTML = "<span>🔔</span> <span>تفعيل تذكير الموعد (Reminder)</span>";
+                    }
+                }
+            } catch (err) {
+                alert("تعذر الحفظ: " + err.message);
+            }
+        }
     </script>
 </body>
 </html>

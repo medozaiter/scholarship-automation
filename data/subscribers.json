@@ -9,7 +9,18 @@
       "Artificial Intelligence",
       "Computer Science & IT"
     ],
+    "gpa": "90%+",
+    "english_level": "IELTS 6.5+ / Advanced",
+    "target_destinations": [
+      "Europe",
+      "Canada",
+      "Turkey"
+    ],
     "country": "Palestine",
+    "saved_scholarships": [
+      "Lester B. Pearson",
+      "Stipendium Hungaricum"
+    ],
     "created_at": "2026-10-28T10:00:00",
     "last_sent_at": null,
     "status": "active"

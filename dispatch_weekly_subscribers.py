@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 async def dispatch_all():
-    """Loops through all active subscribers and dispatches their tailored scholarship reports."""
+    """Loops through all active subscribers and dispatches their tailored scholarship reports with match scores."""
     sub_service = SubscriberService()
     engine = ScholarshipEngine()
 
@@ -34,7 +34,8 @@ async def dispatch_all():
                 student_name=full_name,
                 degree=degree,
                 majors=majors,
-                country=country
+                country=country,
+                student_profile=sub
             )
             if ok:
                 success_count += 1
