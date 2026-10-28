@@ -2,6 +2,7 @@
 ### محرك الذكاء الاصطناعي الشامل لتتبع وتدقيق وإرسال المنح الدراسية تلقائياً 🚀
 
 [![GitHub Workflow](https://img.shields.io/badge/GitHub%20Actions-Automated%20Weekly-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)](.github/workflows/weekly_scholarship.yml)
+[![FastAPI](https://img.shields.io/badge/FastAPI-Web%20App-009688?style=for-the-badge&logo=fastapi&logoColor=white)](web/app.py)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![Google Gemini AI](https://img.shields.io/badge/Google%20Gemini-3.5%20Flash%20Lite-orange?style=for-the-badge&logo=googlegemini&logoColor=white)](https://aistudio.google.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
@@ -12,27 +13,27 @@
 
 **Global Scholarship AI Tracker** هو نظام أوتوميشن ذكي ومفتوح المصدر، صُمم خصيصاً لمساعدة الطلاب (وبالأخص الطلاب من **فلسطين** والوطن العربي) في العثور على أحدث **المنح الدراسية للبكالوريوس والدراسات العليا** المفتوحة حالياً للتقديم أو التي تفتح في المستقبل القريب جداً.
 
-يقوم النظام بالبحث والتحقق المستقل واستبعاد المنح المنتهية أو غير الدقيقة، ثم يرسل تقريراً أسبوعياً مفصلاً وعالي الجودة إلى بريدك الإلكتروني بصيغة **HTML تفاعلية فخمة** ومرفق بجدول بيانات **CSV احترافي يضم 11 عاموداً معيارياً**.
+يقوم النظام بالبحث المستقل عبر الإنترنت والتحقق من المواقع الرسمية للجامعات والجهات المانحة، ثم يرسل تقريراً أسبوعياً مفصلاً إلى بريد كل طالب بصيغة **HTML تفاعلية فخمة** ومرفق بجدول بيانات **CSV احترافي يضم 11 عاموداً معيارياً باللغة الإنجليزية**.
 
 > [!TIP]
-> **يعمل النظام تلقائياً 100% في السحابة مجاناً عبر GitHub Actions دون الحاجة لترك جهازك أو لابتوبك قيد التشغيل!** كما يحتوي أيضاً على بوت تيليجرام تفاعلي اختياري.
+> **الآن مع منصة ويب عصرية متكاملة (Web App)!** يستطيع أي طالب الدخول من هاتفه، كتابة إيميله واختيار تخصصاته ومرحلته الدراسية (بكالوريوس / ماجستير / دكتوراه)، وسيتولى النظام أسبوعياً إرسال تقرير مخصص له مجاناً وبدون أي سيرفرات!
 
 ---
 
 ## ✨ المميزات الرئيسية (Key Features)
 
-* **📅 أوتوميشن أسبوعي بدون سيرفر (Zero-Server Architecture):**
-  يعمل تلقائياً كل أسبوع (يوم الجمعة) عبر **GitHub Actions**، أو عند الطلب بنقرة زر واحدة.
+* **🌐 منصة ويب تفاعلية وسريعة (Web Application):**
+  واجهة مستخدم عصرية باللغة العربية مبنية بـ **FastAPI & Tailwind CSS**، تتيح للطلاب التسجيل في 20 ثانية من أي متصفح هاتف أو كمبيوتر.
+* **📅 أوتوميشن أسبوعي لجميع المشتركين (Weekly Multi-Student Dispatcher):**
+  يعمل تلقائياً كل أسبوع (يوم الجمعة) عبر **GitHub Actions**، يمر على كافة الطلاب المسجلين ويبحث حياً وفق معايير كل طالب ثم يرسل له تقريره.
 * **📧 تقارير بريد إلكتروني فخمة (Luxury HTML Email):**
   تصميم متجاوب بالكامل يحتوي على كروت ملونة، حالات المنح (مفتوح حالياً / يفتح قريباً)، وتفاصيل التمويل، وشروط القبول، ودعم التأشيرة، وروابط التقديم الرسمية المباشرة.
 * **📊 جدول بيانات CSV معياري بـ 11 عاموداً:**
   مرفق تلقائياً مع كل رسالة بريد إلكتروني لتتمكن من فتحه في **Excel** أو **Google Sheets** بسهولة.
-* **🔍 فلترة وتدقيق صارم (Strict Verification):**
-  فحص دقيق للمواعيد النهائية (Deadlines)، استبعاد الروابط الميتة، وترتيب المنح تصاعدياً بحسب الأقرب إغلاقاً.
-* **🤖 دعم نماذج Google Gemini الذكية:**
-  يعتمد على نموذج `gemini-3.5-flash-lite` مع سلسلة تحويل احتياطية (Failover Chain) تضمن استمرارية الخدمة وسرعة الاستجابة.
+* **🔍 بحث حي ومستقل بالذكاء الاصطناعي:**
+  استخراج حي لأحدث المنح عبر محركات البحث وربطها بنماذج `Google Gemini` مع سلاسل تحويل احتياطية (Failover Chain) تضمن عدم توقف الخدمة.
 * **💬 بوت تيليجرام تفاعلي (Interactive Telegram Bot):**
-  نظام محادثة ذكي بأزرار مدمجة تتيح للطلاب البحث والفلترة حسب الدولة والتخصص والتسجيل في التنبيهات الفورية.
+  واجهة محادثة إضافية تتيح للطلاب البحث المباشر والاشتراك عبر تيليجرام.
 
 ---
 
@@ -46,87 +47,54 @@
 5. **Application Deadline** (تاريخ الموعد النهائي الدقيق).
 6. **Application Mechanism** (آلية التقديم: مدمج أو منفصل).
 7. **Academic & General Requirements** (المعدل المطلوب وشروط اللغة).
-8. **Standardized Tests** (شروط SAT / ACT أو اختبارات القبول المحلية).
+8. **Standardized Tests** (شروط SAT / ACT / GRE أو اختبارات القبول المحلية).
 9. **Visa Support & Facilitation** (تسهيلات التأشيرة وخطابات الدعم).
 10. **Competitiveness & Acceptance Rate** (مستوى التنافسية ونسبة القبول).
 11. **Direct Official Link** (الرابط المباشر للبوابة الرسمية).
 
 ---
 
-## 👥 دليل الطلاب: كيف تنسخ المشروع وتخصصه لنفسك في دقيقتين؟
-### (How to Fork & Customize for Any Student)
+## 🚀 تشغيل منصة الويب محلياً (Run Web App Locally)
 
-إذا كنت طالباً وتريد استخدام هذا النظام للبحث عن تخصصاتك الخاصة (مثل: الطب، الهندسة، إدارة الأعمال) أو لدولتك دون التأثير على المستودع الأصلي أو إعدادات صاحب المشروع، اتبع الخطوات البسيطة التالية:
+يمكنك تشغيل خادم الويب على جهازك واستقبال اشتراكات الطلاب فوراً:
 
-```mermaid
-flowchart LR
-    A["1. Fork المستودع"] --> B["2. عدل config.json"]
-    B --> C["3. أضف أسرارك في GitHub Secrets"]
-    C --> D["4. تفعيل Actions والاستلام أسبوعياً 🚀"]
+```bash
+# تشغيل خادم FastAPI
+uvicorn web.app:app --host 0.0.0.0 --port 8000 --reload
 ```
-
-### 1️⃣ الخطوة الأولى: نسخ المستودع (Fork)
-* في أعلى صفحة هذا المستودع على GitHub، اضغط على زر **Fork** (في الزاوية العلوية اليمنى).
-* اختر حسابك الشخصي واضغط **Create Fork**.
-* الآن أصبحت تملك نسختك المستقلة تماماً من المشروع على حسابك!
-
-### 2️⃣ الخطوة الثانية: تخصيص اهتماماتك عبر `config.json`
-* في نسختك الخاصة، افتح ملف `config.json` واضغط على أيقونة القلم ✏️ لتعديل الملف.
-* عدل البيانات بما يناسبك واحفظ التعديل (`Commit changes`):
-
-```json
-{
-  "student_profile": {
-    "full_name": "اسمك الكامل",
-    "degree": "Undergraduate (Bachelor's)",
-    "target_majors": [
-      "Cybersecurity",
-      "Software Engineering",
-      "Artificial Intelligence",
-      "Computer Science & IT"
-    ],
-    "country_of_origin": "Palestine",
-    "funding_preference": "Fully Funded (or Partial)"
-  },
-  "automation_settings": {
-    "send_weekly_email": true,
-    "recipient_email": "your_email@gmail.com",
-    "email_language": "ar",
-    "table_language": "en"
-  }
-}
-```
-
-### 3️⃣ الخطوة الثالثة: إضافة أسرار الأمان في GitHub Secrets
-لكي يتمكن GitHub Actions من إرسال الإيميل نيابة عنك بأمان ودون كشف كلمات مرورك:
-1. اذهب إلى تبويب **Settings** في مستودعك.
-2. من القائمة الجانبية، اختر **Secrets and variables** ثم اضغط على **Actions**.
-3. اضغط على الزر الأخضر **New repository secret** وأضف المتغيرات التالية:
-
-| اسم السر (Secret Name) | القيمة (Value) | الشرح |
-| :--- | :--- | :--- |
-| `SENDER_EMAIL` | بريدك في Gmail | الإيميل الذي سيقوم بإرسال التقرير |
-| `GMAIL_APP_PASSWORD` | كلمة مرور التطبيقات (16 حرف) | استخرجها مجاناً من [Google App Passwords](https://myaccount.google.com/apppasswords) *(يتطلب تفعيل التحقق بخطوتين)* |
-| `RECIPIENT_EMAIL` | إيميلك الشخصي | الإيميل الذي ترغب في استلام التقرير عليه |
-| `GEMINI_API_KEY` | مفتاح Gemini API | احصل عليه مجاناً فوراً من [Google AI Studio](https://aistudio.google.com/) |
-| `GEMINI_MODEL` | `gemini-3.5-flash-lite` | اختياري (القيمة الافتراضية الأسرع والأكثر استقراراً) |
-
-### 4️⃣ الخطوة الرابعة: تفعيل التشغيل التلقائي (GitHub Actions)
-1. انتقل إلى تبويب **Actions** في أعلى المستودع.
-2. اضغط على الزر الأخضر **I understand my workflows, go ahead and enable them**.
-3. **لتجربة الإرسال فوراً:** اختر workflow بعنوان **Weekly Scholarship Automation Report** من القائمة اليسرى، واضغط على **Run workflow** -> ثم **Run workflow**.
-4. تفقد صندوق الوارد في إيميلك بعد دقيقة واحدة، وستجد تقرير المنح الفاخر بانتظارك! 🎉
-5. سيعمل هذا الأوتوميشن بعد ذلك تلقائياً كل يوم جمعة في تمام الساعة 10:00 صباحاً بتوقيت القدس دون أي تدخل منك.
+افتح المتصفح على: **`http://localhost:8000`** وستظهر لك صفحة الهبوط التفاعلية الفاخرة! 🌟
 
 ---
 
-## 💻 التشغيل المحلي والتطوير على جهازك (Local Setup)
+## ☁️ نشر منصة الويب مجاناً على الإنترنت (1-Click Free Cloud Deploy)
 
-إذا كنت تفضل تشغيل المشروع محلياً على جهاز الكمبيوتر الخاص بك:
+يمكنك نشر المنصة على **[Render.com](https://render.com/)** أو **Vercel** مجاناً في دقيقة واحدة لتعمل طوال 24 ساعة:
+1. اربط حساب GitHub الخاص بك بموقع **Render.com**.
+2. اختر **New Web Service** وحدد مستودعك: `scholarship-automation`.
+3. اضبط أمر التشغيل: `uvicorn web.app:app --host 0.0.0.0 --port $PORT`.
+4. أضف المتغيرات البيئية (`GEMINI_API_KEY`, `SENDER_EMAIL`, `GMAIL_APP_PASSWORD`).
+5. ستحصل فوراً على رابط مباشر خاص بك (مثل: `https://scholarship-automation.onrender.com`) لتشاركه مع كل الطلاب!
 
-### المتطلبات الأساسية
-* مثبت لديك **Python 3.10+**.
-* حساب Gmail مفعل به التحقق بخطوتين.
+---
+
+## 👥 كيف يستفيد أي طالب في العالم من المنظومة؟
+
+```mermaid
+flowchart TD
+    A["1. الطالب يفتح صفحة الويب"] --> B["2. يدخل إيميله ويختار درجته وتخصصه"]
+    B --> C["3. حفظ الطالب في قاعدة المشتركين"]
+    C --> D["4. سير العمل الأسبوعي GitHub Actions يعمل كل جمعة"]
+    D --> E["5. محرك الذكاء الاصطناعي يبحث حياً وفق معايير كل طالب"]
+    E --> F["6. استلام تقرير HTML + جدول Excel في إيميل كل طالب 📩"]
+```
+
+1. **الاشتراك:** يدخل الطالب إلى صفحة الويب، يكتب إيميله، يختار (بكالوريوس / ماجستير / دكتوراه)، ويحدد تخصصاته، ويضغط "تفعيل الاشتراك".
+2. **التقرير الترحيبي:** يصله إيميل تأكيدي مع أول تقرير تجريبي لمطالعة الفرص المتاحة فوراً.
+3. **الأوتوميشن الأسبوعي:** كل يوم جمعة في تمام الساعة 10:00 صباحاً، يقوم GitHub Actions بتشغيل محرك الإرسال الجماعي `dispatch_weekly_subscribers.py` وتوصيل أحدث المنح الموثقة لكل طالب مجاناً.
+
+---
+
+## 💻 التشغيل والتطوير المحلي (Local Development)
 
 ### خطوات التثبيت والتشغيل
 1. **استنساخ المستودع:**
@@ -136,16 +104,10 @@ flowchart LR
    ```
 
 2. **إنشاء البيئة الافتراضية وتفعيلها:**
-   * **Windows:**
-     ```powershell
-     python -m venv venv
-     .\venv\Scripts\activate
-     ```
-   * **Linux / Mac:**
-     ```bash
-     python3 -m venv venv
-     source venv/bin/activate
-     ```
+   ```powershell
+   python -m venv venv
+   .\venv\Scripts\activate
+   ```
 
 3. **تثبيت الحزم المطلوبة:**
    ```bash
@@ -166,14 +128,14 @@ flowchart LR
    GEMINI_MODEL=gemini-3.5-flash-lite
    ```
 
-5. **تشغيل إرسال التقرير فوراً إلى الإيميل:**
+5. **تشغيل منصة الويب:**
    ```bash
-   python send_scholarship_report.py
+   uvicorn web.app:app --host 0.0.0.0 --port 8000 --reload
    ```
 
-6. **(اختياري) تشغيل بوت التيليجرام:**
+6. **تشغيل الإرسال الأسبوعي لكافة المشتركين يدوياً:**
    ```bash
-   python main.py
+   python dispatch_weekly_subscribers.py
    ```
 
 ---
@@ -181,23 +143,31 @@ flowchart LR
 ## 📂 هيكلية المشروع (Project Architecture)
 
 ```text
-scholarship-engine/
+scholarship-automation/
 ├── .github/
 │   └── workflows/
 │       └── weekly_scholarship.yml    # تشغيل الأوتوميشن الأسبوعي السحابي عبر GitHub Actions
-├── handlers/
-│   ├── conversation.py               # معالجة محادثات وأزرار بوت التيليجرام
-│   └── query_handler.py              # محرك استعلامات وتصنيفات المستخدم
+├── data/
+│   ├── subscribers.json              # سجل بيانات الطلاب المشتركين
+│   └── subscribers.example.json      # نموذج توضيحي لملف المشتركين
+├── web/
+│   ├── __init__.py
+│   └── app.py                        # خادم FastAPI + واجهة الويب التفاعلية (Landing Page)
 ├── services/
+│   ├── scholarship_engine.py         # محرك البحث الذكي والاستخراج المباشر بـ 11 عاموداً
+│   ├── subscriber_service.py         # خدمة إدارة اشتراكات الطلاب
 │   ├── gemini_service.py             # تكامل Google Gemini مع سلاسل التحويل التلقائي
 │   ├── search_service.py             # محرك البحث المخصص (DuckDuckGo + المصفوفات المحققة)
 │   ├── broadcast_service.py          # خدمة البث التلقائي في القنوات
 │   └── cache_service.py              # تخزين مؤقت للنتائج لتوفير استهلاك الـ API
-├── config.json                       # ملف تخصيص معايير المنح للطلاب
-├── config.example.json               # قالب توضيحي لملف الإعدادات
-├── send_scholarship_report.py        # المحرك الرئيسي لتوليد ملف الـ CSV وإرسال الإيميل
-├── main.py                           # نقطة انطلاق بوت التيليجرام التفاعلي
+├── dispatch_weekly_subscribers.py    # مشغل الإرسال الدوري الجماعي لجميع الطلاب المسجلين
+├── send_scholarship_report.py        # المحرك الفردي لإرسال تقرير مخصص
+├── config.json                       # ملف إعدادات الطالب الشخصي
+├── config.example.json               # قالب توضيحي للإعدادات
+├── main.py                           # بوت التيليجرام التفاعلي (اختياري)
 ├── requirements.txt                  # مكتبات بايثون المطلوبة
+├── Procfile                          # ملف تشغيل السحابة (Cloud Deployment)
+├── render.yaml                       # تكوين النشر بنقرة واحدة على Render
 ├── .env.example                      # نموذج لمتغيرات البيئة
 └── README.md                         # التوثيق الشامل ودليل الاستخدام
 ```
@@ -208,29 +178,13 @@ scholarship-engine/
 
 * جميع البيانات الحساسة (كلمات مرور التطبيقات ومفاتيح الـ API) مشفرة ومحمية عبر ملف `.gitignore` ولا يتم رفعها إطلاقاً إلى المستودع.
 * في بيئة GitHub Actions، تُحفظ الأسرار في **GitHub Encrypted Secrets** ولا يمكن لأي شخص الاطلاع عليها أو نسخها.
-* لا يتم تخزين أي رسائل أو بيانات خاصة بالطلبة على أي خوادم خارجية.
-
----
-
-## 🤝 المساهمة والتطوير (Contributing)
-
-نرحب بمساهمات جميع المطورين والطلاب! يمكنك:
-* اقتراح منح دراسية جديدة وموثوقة لإضافتها إلى القائمة.
-* تحسين تصاميم الإيميل والقوالب.
-* إضافة دعامات وتكاملات جديدة (مثل Discord، Slack، WhatsApp).
-
-```bash
-git checkout -b feature/amazing-feature
-git commit -m "Add new verified scholarship source"
-git push origin feature/amazing-feature
-# ثم افتح Pull Request
-```
+* لا يتم مشاركة أو بيع إيميلات الطلاب المسجلين نهائياً، وتستخدم حصراً لإرسال دليل المنح.
 
 ---
 
 ## 📄 الترخيص (License)
 
-هذا المشروع مرخص تحت رخصة **MIT** - لك كامل الحرية في استخدامه وتعديله ومشاركته لدعم الطلاب والتعليم.
+هذا المشروع مرخص تحت رخصة **MIT** - متاح مجاناً للجميع لدعم الطلاب والتعليم.
 
 ---
 

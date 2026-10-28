@@ -1,0 +1,28 @@
+[
+  {
+    "email": "student1@example.com",
+    "full_name": "Student One",
+    "degree": "Undergraduate (Bachelor's)",
+    "majors": [
+      "Cybersecurity",
+      "Software Engineering"
+    ],
+    "country": "Palestine",
+    "created_at": "2026-10-28T10:00:00",
+    "last_sent_at": null,
+    "status": "active"
+  },
+  {
+    "email": "student2@example.com",
+    "full_name": "Student Two",
+    "degree": "Master's Degree",
+    "majors": [
+      "Artificial Intelligence",
+      "Data Science"
+    ],
+    "country": "Jordan",
+    "created_at": "2026-10-28T10:00:00",
+    "last_sent_at": null,
+    "status": "active"
+  }
+]
