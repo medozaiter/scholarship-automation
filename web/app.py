@@ -30,6 +30,7 @@ logger = logging.getLogger(__name__)
 TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "templates")
 INDEX_HTML_PATH = os.path.join(TEMPLATES_DIR, "index.html")
 DASHBOARD_HTML_PATH = os.path.join(TEMPLATES_DIR, "dashboard.html")
+CSS_PATH = os.path.join(os.path.dirname(__file__), "static", "css", "scholarpilot.css")
 
 app = FastAPI(
     title="ScholarPilot AI - Your AI-Powered Scholarship Advisor",
@@ -316,6 +317,15 @@ async def serve_landing_page():
         with open(INDEX_HTML_PATH, "r", encoding="utf-8") as f:
             return HTMLResponse(content=f.read())
     return HTMLResponse(content="<h1>ScholarPilot AI - Your AI-Powered Scholarship Advisor</h1>")
+
+
+@app.get("/static/css/scholarpilot.css")
+async def serve_static_css():
+    """Serves the unified production-grade SaaS CSS design system."""
+    if os.path.exists(CSS_PATH):
+        with open(CSS_PATH, "r", encoding="utf-8") as f:
+            return Response(content=f.read(), media_type="text/css")
+    return Response(content="/* ScholarPilot AI Design System */", media_type="text/css")
 
 
 @app.get("/dashboard", response_class=HTMLResponse)

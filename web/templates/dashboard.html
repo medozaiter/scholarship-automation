@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ScholarPilot AI | لوحة التحكم وبوابة الحسابات 🎓</title>
+    <title>ScholarPilot AI | Student Portal & Intelligence Dashboard</title>
+    <meta name="description" content="ScholarPilot AI Student Workspace - Autonomous Scholarship Tracking, Admission Odds & Application Dossiers.">
 
     <!-- Tailwind CSS with Dark Mode -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -13,87 +14,34 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: {
+                        brand: {
                             50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd',
                             400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8',
-                            800: '#1e40af', 900: '#1e3a8a', 950: '#0f172a',
+                            800: '#1e40af', 900: '#1e3a8a', 950: '#0f172a'
                         }
                     },
-                    fontFamily: { cairo: ['Cairo', 'sans-serif'] }
+                    fontFamily: {
+                        sans: ['Tajawal', 'Cairo', 'Inter', 'sans-serif'],
+                        mono: ['Inter', 'Plus Jakarta Sans', 'monospace']
+                    }
                 }
             }
         }
     </script>
 
-    <!-- Google Fonts: Cairo, Tajawal, Inter & Plus Jakarta Sans -->
+    <!-- Google Fonts: Inter, Plus Jakarta Sans, Tajawal, Cairo -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700;800;900&family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Production Design Tokens -->
+    <link rel="stylesheet" href="/static/css/scholarpilot.css">
 
     <!-- Lucide Outlined Modern Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Canvas Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-
-    <style>
-        html { scroll-behavior: smooth; }
-        body { font-family: 'Tajawal', 'Cairo', 'Inter', sans-serif; transition: background-color 0.3s ease, color 0.3s ease; }
-        .font-num { font-family: 'Inter', 'Plus Jakarta Sans', sans-serif; }
-
-        /* Background ambients */
-        .ambient-dark {
-            background-color: #080c14;
-            background-image: 
-                radial-gradient(at 15% 15%, rgba(30, 58, 138, 0.28) 0px, transparent 55%),
-                radial-gradient(at 85% 20%, rgba(16, 185, 129, 0.15) 0px, transparent 50%);
-        }
-        .ambient-light {
-            background-color: #f8fafc;
-            background-image: 
-                radial-gradient(at 10% 10%, rgba(219, 234, 254, 0.8) 0px, transparent 55%),
-                radial-gradient(at 90% 15%, rgba(209, 250, 229, 0.6) 0px, transparent 50%);
-        }
-
-        /* Distinct cards in Light and Dark Mode */
-        .card-theme {
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
-            color: #0f172a;
-            box-shadow: 0 10px 30px -10px rgba(148, 163, 184, 0.25);
-        }
-        html.dark .card-theme {
-            background: #111827 !important;
-            border-color: #1f293d !important;
-            color: #f8fafc !important;
-            box-shadow: 0 15px 40px -15px rgba(0, 0, 0, 0.6) !important;
-        }
-
-        .sub-card-theme {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            color: #1e293b;
-        }
-        html.dark .sub-card-theme {
-            background: #162032 !important;
-            border-color: #24324a !important;
-            color: #e2e8f0 !important;
-        }
-
-        .icon-hover {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), stroke 0.2s ease;
-        }
-        .btn-interactive:hover .icon-hover {
-            transform: scale(1.15) rotate(-3deg);
-        }
-        .interactive-card {
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
-        }
-        .interactive-card:hover {
-            transform: translateY(-3px);
-        }
-    </style>
 
     <script>
         if (localStorage.theme === 'light') {
@@ -103,60 +51,67 @@
         }
     </script>
 </head>
-<body class="ambient-dark dark:ambient-dark text-slate-800 dark:text-slate-100 min-h-screen">
+<body class="min-h-screen selection:bg-blue-600 selection:text-white flex flex-col">
 
-    <!-- NAVBAR -->
-    <header class="sticky top-0 z-50 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-800/80 bg-white/85 dark:bg-slate-950/80">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex justify-between items-center">
+    <!-- ==================== TOP NAVIGATION ==================== -->
+    <header class="sticky top-0 z-50 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 bg-white/85 dark:bg-slate-950/85 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             
+            <!-- Brand Logo -->
             <div class="flex items-center gap-3">
-                <a href="/" class="flex items-center gap-2.5 text-slate-900 dark:text-white hover:opacity-90 transition">
-                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-700 via-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-600/30 border border-blue-400/20 icon-hover">
-                        <i data-lucide="graduation-cap" class="w-5 h-5 text-white"></i>
+                <a href="/" class="flex items-center gap-2.5 group">
+                    <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-sm shadow-blue-600/30 group-hover:bg-blue-700 transition">
+                        <i data-lucide="compass" class="w-5 h-5 text-white"></i>
                     </div>
-                    <div>
-                        <span class="text-lg font-black block leading-none">ScholarPilot AI</span>
-                        <span class="text-[10px] text-emerald-500 font-bold flex items-center gap-1 mt-1">
-                            <i data-lucide="sparkles" class="w-3 h-3"></i>
-                            <span>Your AI-Powered Scholarship Advisor</span>
-                        </span>
+                    <div class="flex flex-col">
+                        <span class="text-base font-extrabold tracking-tight text-slate-900 dark:text-white leading-none">ScholarPilot AI</span>
+                        <span class="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-1">Student Portal</span>
                     </div>
                 </a>
             </div>
 
+            <!-- Top Actions -->
             <div class="flex items-center gap-2.5">
-                <a href="/" class="btn-interactive px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 transition flex items-center gap-1.5">
-                    <span class="icon-hover"><i data-lucide="home" class="w-3.5 h-3.5 text-blue-500"></i></span>
-                    <span>الرئيسية</span>
+                <a href="/" class="sp-btn-secondary px-3 py-2 text-xs font-semibold flex items-center gap-1.5">
+                    <i data-lucide="home" class="w-3.5 h-3.5 text-blue-500"></i>
+                    <span class="hidden sm:inline">الرئيسية</span>
                 </a>
 
-                <button type="button" onclick="toggleTheme()" class="btn-interactive p-2 sm:px-3 sm:py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700 transition text-xs font-bold flex items-center gap-1.5">
-                    <span id="themeIcon" class="icon-hover"><i data-lucide="moon" class="w-3.5 h-3.5 text-amber-400"></i></span>
-                    <span class="hidden sm:inline" id="themeText">الوضع الليلي</span>
+                <!-- Theme Toggle -->
+                <button type="button" onclick="toggleTheme()" aria-label="Toggle visual theme" class="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 transition">
+                    <span id="themeIcon">
+                        <i data-lucide="moon" class="w-4 h-4 text-slate-400"></i>
+                    </span>
                 </button>
 
+                <!-- User Session Logout -->
                 <div id="userNavActions" class="hidden">
-                    <button type="button" onclick="logoutUser()" class="btn-interactive px-3 py-2 rounded-xl text-xs font-bold bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 transition flex items-center gap-1.5">
-                        <span class="icon-hover"><i data-lucide="log-out" class="w-3.5 h-3.5"></i></span>
+                    <button type="button" onclick="logoutUser()" class="sp-btn-secondary px-3 py-2 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:border-rose-500/30 flex items-center gap-1.5">
+                        <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
                         <span>تسجيل الخروج</span>
                     </button>
                 </div>
             </div>
+
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+    <!-- ==================== MAIN CONTENT AREA ==================== -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
         
-        <!-- AUTH GATE -->
+        <!-- 1. AUTHENTICATION GATE (When logged out) -->
         <div id="authGate" class="max-w-md mx-auto my-8">
-            <div class="card-theme rounded-3xl p-6 sm:p-8 border shadow-2xl">
+            <div class="sp-card p-6 sm:p-8">
                 
-                <div class="flex border-b border-slate-200 dark:border-slate-800 text-sm font-bold mb-6 pb-2 gap-4">
-                    <button type="button" id="tabLoginBtn" onclick="switchAuthTab('login')" class="text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 pb-1 flex-1 text-center font-bold">
-                        🔑 تسجيل الدخول
+                <!-- Tab Controls -->
+                <div class="flex border-b border-slate-200 dark:border-slate-800 text-xs font-bold mb-6 gap-3 pb-2">
+                    <button type="button" id="tabLoginBtn" onclick="switchAuthTab('login')" class="text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 pb-2 flex-1 text-center font-bold flex items-center justify-center gap-1.5">
+                        <i data-lucide="log-in" class="w-4 h-4"></i>
+                        <span>تسجيل الدخول</span>
                     </button>
-                    <button type="button" id="tabRegBtn" onclick="switchAuthTab('register')" class="text-slate-400 hover:text-slate-300 pb-1 flex-1 text-center">
-                        ✨ إنشاء حساب جديد
+                    <button type="button" id="tabRegBtn" onclick="switchAuthTab('register')" class="text-slate-400 hover:text-slate-200 pb-2 flex-1 text-center flex items-center justify-center gap-1.5">
+                        <i data-lucide="user-plus" class="w-4 h-4"></i>
+                        <span>إنشاء حساب طالب</span>
                     </button>
                 </div>
 
@@ -164,17 +119,30 @@
                 <form id="loginForm" class="space-y-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">البريد الإلكتروني</label>
-                        <input type="email" id="loginEmail" required maxlength="100" placeholder="example@gmail.com"
-                            oninput="this.value = this.value.replace(/[^a-zA-Z0-9@._-]/g, '')"
-                            class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-blue-500">
+                        <div class="relative">
+                            <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
+                                <i data-lucide="mail" class="w-4 h-4"></i>
+                            </span>
+                            <input type="email" id="loginEmail" required maxlength="100" placeholder="student@example.com"
+                                oninput="this.value = this.value.replace(/[^a-zA-Z0-9@._-]/g, '')"
+                                class="sp-input pr-9 font-latin">
+                        </div>
                     </div>
+
                     <div>
                         <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">كلمة المرور</label>
-                        <input type="password" id="loginPassword" required minlength="6" maxlength="128" placeholder="••••••••"
-                            class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-blue-500">
+                        <div class="relative">
+                            <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
+                                <i data-lucide="lock" class="w-4 h-4"></i>
+                            </span>
+                            <input type="password" id="loginPassword" required minlength="6" maxlength="128" placeholder="••••••••"
+                                class="sp-input pr-9 font-latin">
+                        </div>
                     </div>
-                    <button type="submit" id="loginSubmitBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl text-sm transition shadow-lg shadow-blue-600/25">
-                        🚀 دخول إلى حسابي
+
+                    <button type="submit" id="loginSubmitBtn" class="sp-btn-primary w-full py-3 text-xs sm:text-sm font-bold flex items-center justify-center gap-2">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                        <span>دخول إلى حسابي</span>
                     </button>
                 </form>
 
@@ -182,25 +150,43 @@
                 <form id="regForm" class="hidden space-y-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">الاسم الكامل</label>
-                        <input type="text" id="regName" required minlength="2" maxlength="60" placeholder="مثلاً: مصطفى زعيتر"
-                            oninput="this.value = this.value.replace(/[^a-zA-Z\u0600-\u06FF\s.\-']/g, '')"
-                            class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-blue-500">
+                        <div class="relative">
+                            <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
+                                <i data-lucide="user" class="w-4 h-4"></i>
+                            </span>
+                            <input type="text" id="regName" required minlength="2" maxlength="60" placeholder="مثلاً: مصطفى زعيتر"
+                                oninput="this.value = this.value.replace(/[^a-zA-Z\u0600-\u06FF\s.\-']/g, '')"
+                                class="sp-input pr-9">
+                        </div>
                     </div>
+
                     <div>
                         <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">البريد الإلكتروني</label>
-                        <input type="email" id="regEmail" required maxlength="100" placeholder="example@gmail.com"
-                            oninput="this.value = this.value.replace(/[^a-zA-Z0-9@._-]/g, '')"
-                            class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-blue-500">
+                        <div class="relative">
+                            <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
+                                <i data-lucide="mail" class="w-4 h-4"></i>
+                            </span>
+                            <input type="email" id="regEmail" required maxlength="100" placeholder="student@example.com"
+                                oninput="this.value = this.value.replace(/[^a-zA-Z0-9@._-]/g, '')"
+                                class="sp-input pr-9 font-latin">
+                        </div>
                     </div>
+
                     <div>
                         <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">كلمة المرور (6 أحرف فأكثر)</label>
-                        <input type="password" id="regPassword" required minlength="6" maxlength="128" placeholder="••••••••"
-                            class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-blue-500">
+                        <div class="relative">
+                            <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
+                                <i data-lucide="lock" class="w-4 h-4"></i>
+                            </span>
+                            <input type="password" id="regPassword" required minlength="6" maxlength="128" placeholder="••••••••"
+                                class="sp-input pr-9 font-latin">
+                        </div>
                     </div>
+
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المرحلة</label>
-                            <select id="regDegree" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-2 text-xs text-slate-900 dark:text-white">
+                            <select id="regDegree" class="sp-input text-xs">
                                 <option value="Undergraduate (Bachelor's)">بكالوريوس</option>
                                 <option value="Master's Degree">ماجستير</option>
                                 <option value="PhD / Doctorate">دكتوراه</option>
@@ -208,101 +194,122 @@
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المعدل (أرقام فقط)</label>
-                            <input type="text" id="regGpa" maxlength="15" placeholder="88% أو 3.6"
+                            <input type="text" id="regGpa" maxlength="15" placeholder="88% أو 3.7"
                                 onkeypress="return /[0-9.%/]/.test(event.key)"
                                 oninput="this.value = this.value.replace(/[^0-9.%/]/g, '')"
-                                class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-2 text-xs text-slate-900 dark:text-white font-num">
+                                class="sp-input text-xs font-latin tabular-nums">
                         </div>
                     </div>
+
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">التخصص</label>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">التخصص الأكاديمي</label>
                         <input type="text" id="regMajor" maxlength="80" placeholder="هندسة برمجيات، أمن سيبراني..."
                             oninput="this.value = this.value.replace(/[<>{}\`$]/g, '')"
-                            class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-blue-500">
+                            class="sp-input text-xs">
                     </div>
+
                     <div>
                         <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المواهب والخبرات السابقة</label>
                         <input type="text" id="regTalents" maxlength="200" placeholder="مشاريع، هاكاثونات، تطوع..."
                             oninput="this.value = this.value.replace(/[<>{}\`$]/g, '')"
-                            class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-500">
+                            class="sp-input text-xs">
                     </div>
-                    <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3 rounded-xl text-sm transition shadow-lg shadow-blue-600/25">
-                        ✨ إنشاء الحساب والتفعيل فوراً
+
+                    <button type="submit" class="sp-btn-primary w-full py-3 text-xs sm:text-sm font-bold flex items-center justify-center gap-2">
+                        <i data-lucide="check" class="w-4 h-4"></i>
+                        <span>إنشاء الحساب وتفعيل المتابعة</span>
                     </button>
                 </form>
 
                 <div id="authAlert" class="hidden mt-4 p-3 rounded-xl text-xs font-bold"></div>
+
             </div>
         </div>
 
-        <!-- LOGGED-IN DASHBOARD -->
-        <div id="dashboardView" class="hidden space-y-8">
+        <!-- 2. AUTHENTICATED STUDENT DASHBOARD -->
+        <div id="dashboardView" class="hidden space-y-6">
             
-            <div class="card-theme rounded-3xl p-6 sm:p-8 border flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <!-- User Welcome Banner -->
+            <div class="sp-card p-6 sm:p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <span id="roleBadge" class="bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 text-xs font-bold px-3 py-1 rounded-full mb-2 inline-block">حساب طالب مؤكد</span>
-                    <h1 class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
-                        مرحباً بك، <span id="userDisplayName">...</span> 👋
+                    <div class="flex items-center gap-2 mb-2">
+                        <span id="roleBadge" class="sp-badge sp-badge-info">حساب طالب موثق</span>
+                        <span class="sp-badge sp-badge-success">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span>التتبع الآلي نشط</span>
+                        </span>
+                    </div>
+
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                        مرحباً بك، <span id="userDisplayName">...</span>
                     </h1>
                     <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1" id="userSubText">
-                        ملفك الأكاديمي مسجل ونظام الأوتوميشن يتابع المنح الجديدة المطابقة لك أسبوعياً.
+                        ملفك الأكاديمي مسجل ويقوم المحرك بفحص المنح الجديدة المطابقة لك دورياً دون أي تدخل يدوي.
                     </p>
                 </div>
 
                 <div class="flex flex-wrap gap-2.5">
-                    <button type="button" onclick="triggerMyReport()" class="btn-interactive bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-blue-600/20">
-                        <span class="icon-hover"><i data-lucide="mail-check" class="w-4 h-4 text-emerald-300"></i></span>
+                    <button type="button" onclick="triggerMyReport()" class="sp-btn-primary px-4 py-2.5 text-xs font-bold flex items-center gap-2">
+                        <i data-lucide="send" class="w-3.5 h-3.5"></i>
                         <span>إرسال تقريري المخصص لإيميلي الآن</span>
                     </button>
-                    <a href="/#docSection" class="btn-interactive bg-purple-600 hover:bg-purple-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-purple-600/20">
-                        <span class="icon-hover"><i data-lucide="file-pen" class="w-4 h-4 text-purple-200"></i></span>
+                    <a href="/#docSection" class="sp-btn-secondary px-4 py-2.5 text-xs font-bold flex items-center gap-2">
+                        <i data-lucide="file-text" class="w-3.5 h-3.5 text-purple-500"></i>
                         <span>توليد خطاب دافع</span>
                     </a>
                 </div>
             </div>
 
-            <!-- Stats Grid -->
+            <!-- Key Metrics Grid -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="interactive-card card-theme p-5 rounded-2xl border">
+                <div class="sp-card p-5">
                     <div class="flex items-center justify-between mb-2">
                         <span class="text-xs text-slate-400 font-bold block">المرحلة الدراسية</span>
                         <i data-lucide="graduation-cap" class="w-4 h-4 text-blue-500"></i>
                     </div>
-                    <span id="statDegree" class="text-base font-extrabold block">-</span>
+                    <span id="statDegree" class="text-base font-extrabold block text-slate-900 dark:text-white">-</span>
                 </div>
-                <div class="interactive-card card-theme p-5 rounded-2xl border">
+
+                <div class="sp-card p-5">
                     <div class="flex items-center justify-between mb-2">
                         <span class="text-xs text-slate-400 font-bold block">المعدل الأكاديمي</span>
                         <i data-lucide="award" class="w-4 h-4 text-emerald-500"></i>
                     </div>
-                    <span id="statGpa" class="text-base font-extrabold text-emerald-500 font-num block">-</span>
+                    <span id="statGpa" class="text-base font-extrabold text-emerald-600 dark:text-emerald-400 font-latin tabular-nums block">-</span>
                 </div>
-                <div class="interactive-card card-theme p-5 rounded-2xl border">
+
+                <div class="sp-card p-5">
                     <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs text-slate-400 font-bold block">التخصص المستهدف</span>
+                        <span class="text-xs text-slate-400 font-bold block">التخصص الأكاديمي</span>
                         <i data-lucide="cpu" class="w-4 h-4 text-indigo-500"></i>
                     </div>
-                    <span id="statMajor" class="text-base font-extrabold text-blue-500 block">-</span>
+                    <span id="statMajor" class="text-base font-extrabold text-blue-600 dark:text-blue-400 block">-</span>
                 </div>
-                <div class="interactive-card card-theme p-5 rounded-2xl border">
+
+                <div class="sp-card p-5">
                     <div class="flex items-center justify-between mb-2">
                         <span class="text-xs text-slate-400 font-bold block">المنح المحفوظة للمتابعة</span>
                         <i data-lucide="bookmark" class="w-4 h-4 text-purple-500"></i>
                     </div>
-                    <span id="statSavedCount" class="text-base font-extrabold text-purple-500 font-num block">0 منح</span>
+                    <span id="statSavedCount" class="text-base font-extrabold text-purple-600 dark:text-purple-400 font-latin block">0 منح</span>
                 </div>
             </div>
 
-            <!-- WATCHLIST -->
-            <div class="card-theme rounded-3xl p-6 sm:p-8 border space-y-4">
-                <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
+            <!-- WATCHLIST & DEADLINE REMINDERS -->
+            <div class="sp-card p-6 sm:p-8 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4 gap-2">
                     <div>
-                        <h2 class="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
-                            <i data-lucide="bell" class="w-5 h-5 text-emerald-500"></i>
-                            <span>قائمة متابعة المنح وتذكير المواعيد</span>
+                        <h2 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                            <i data-lucide="bell" class="w-4 h-4 text-emerald-500"></i>
+                            <span>قائمة متابعة المنح وتنبيهات المواعيد</span>
                         </h2>
-                        <p class="text-xs text-slate-400 mt-0.5">المنح التي قمت بحفظها لتلقي تذكيرات قبل الموعد النهائي بشهر، أسبوعين، أسبوع، ويومين.</p>
+                        <p class="text-xs text-slate-400 mt-0.5">المنح المحفوظة لتلقي إشعارات قبل الموعد النهائي بشهر، أسبوعين، أسبوع، ويومين.</p>
                     </div>
+
+                    <a href="/#radarSection" class="sp-btn-secondary px-3 py-1.5 text-xs font-semibold self-start sm:self-auto flex items-center gap-1.5">
+                        <i data-lucide="plus" class="w-3.5 h-3.5 text-blue-500"></i>
+                        <span>إضافة منح من الرادار</span>
+                    </a>
                 </div>
 
                 <div id="savedScholarshipsList" class="space-y-3 pt-2"></div>
@@ -312,6 +319,12 @@
 
     </main>
 
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="py-6 border-t border-slate-200/80 dark:border-slate-800/80 text-center text-xs text-slate-500 dark:text-slate-400">
+        <p class="font-latin">ScholarPilot AI &copy; 2026 | Your AI-Powered Scholarship Advisor</p>
+    </footer>
+
+    <!-- ==================== DASHBOARD JAVASCRIPT LOGIC ==================== -->
     <script>
         function escapeHTML(str) {
             if (str === null || str === undefined) return '';
@@ -328,19 +341,15 @@
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
             updateThemeButton();
         }
+
         function updateThemeButton() {
             const isDark = document.documentElement.classList.contains('dark');
-            document.body.className = isDark 
-                ? 'ambient-dark dark:ambient-dark text-slate-100 min-h-screen'
-                : 'ambient-light text-slate-800 min-h-screen';
             const themeIcon = document.getElementById('themeIcon');
             if (themeIcon) {
                 themeIcon.innerHTML = isDark 
-                    ? '<i data-lucide="moon" class="w-3.5 h-3.5 text-amber-400"></i>' 
-                    : '<i data-lucide="sun" class="w-3.5 h-3.5 text-amber-500"></i>';
+                    ? '<i data-lucide="sun" class="w-4 h-4 text-amber-400"></i>' 
+                    : '<i data-lucide="moon" class="w-4 h-4 text-slate-600"></i>';
             }
-            const txt = document.getElementById('themeText');
-            if (txt) txt.textContent = isDark ? 'الوضع الليلي' : 'الوضع النهاري';
             if (window.lucide) lucide.createIcons();
         }
         updateThemeButton();
@@ -351,11 +360,12 @@
             document.getElementById('regForm').classList.toggle('hidden', isLogin);
             
             document.getElementById('tabLoginBtn').className = isLogin 
-                ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 pb-1 flex-1 text-center font-bold" 
-                : "text-slate-400 hover:text-slate-300 pb-1 flex-1 text-center";
+                ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 pb-2 flex-1 text-center font-bold flex items-center justify-center gap-1.5" 
+                : "text-slate-400 hover:text-slate-200 pb-2 flex-1 text-center flex items-center justify-center gap-1.5";
             document.getElementById('tabRegBtn').className = !isLogin 
-                ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 pb-1 flex-1 text-center font-bold" 
-                : "text-slate-400 hover:text-slate-300 pb-1 flex-1 text-center";
+                ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 pb-2 flex-1 text-center font-bold flex items-center justify-center gap-1.5" 
+                : "text-slate-400 hover:text-slate-200 pb-2 flex-1 text-center flex items-center justify-center gap-1.5";
+            if (window.lucide) lucide.createIcons();
         }
 
         let currentUser = null;
@@ -373,6 +383,7 @@
         }
         checkSession();
 
+        // Login Form
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const alertBox = document.getElementById('authAlert');
@@ -396,17 +407,18 @@
                     renderDashboard(currentUser);
                     confetti({ particleCount: 70, spread: 60 });
                 } else {
-                    alertBox.className = "mt-4 p-3 rounded-xl text-xs font-bold bg-rose-500/15 text-rose-500 border border-rose-500/30";
+                    alertBox.className = "mt-4 p-3 rounded-xl text-xs font-bold sp-badge-danger block";
                     alertBox.textContent = data.detail || "البريد الإلكتروني أو كلمة المرور غير صحيحة.";
                     alertBox.classList.remove('hidden');
                 }
             } catch(err) {
-                alertBox.className = "mt-4 p-3 rounded-xl text-xs font-bold bg-rose-500/15 text-rose-500";
+                alertBox.className = "mt-4 p-3 rounded-xl text-xs font-bold sp-badge-danger block";
                 alertBox.textContent = "حدث خطأ في الاتصال: " + err.message;
                 alertBox.classList.remove('hidden');
             }
         });
 
+        // Register Form
         document.getElementById('regForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const alertBox = document.getElementById('authAlert');
@@ -433,14 +445,14 @@
                     currentUser = data.user;
                     localStorage.setItem('minha_user', JSON.stringify(currentUser));
                     renderDashboard(currentUser);
-                    confetti({ particleCount: 90, spread: 70 });
+                    confetti({ particleCount: 80, spread: 60 });
                 } else {
-                    alertBox.className = "mt-4 p-3 rounded-xl text-xs font-bold bg-rose-500/15 text-rose-500 border border-rose-500/30";
-                    alertBox.textContent = data.detail || "تعذر التسجيل.";
+                    alertBox.className = "mt-4 p-3 rounded-xl text-xs font-bold sp-badge-danger block";
+                    alertBox.textContent = data.detail || "تعذر إتمام التسجيل.";
                     alertBox.classList.remove('hidden');
                 }
             } catch(err) {
-                alertBox.className = "mt-4 p-3 rounded-xl text-xs font-bold bg-rose-500/15 text-rose-500";
+                alertBox.className = "mt-4 p-3 rounded-xl text-xs font-bold sp-badge-danger block";
                 alertBox.textContent = "خطأ: " + err.message;
                 alertBox.classList.remove('hidden');
             }
@@ -462,19 +474,22 @@
             const list = document.getElementById('savedScholarshipsList');
             if (saved.length === 0) {
                 list.innerHTML = `
-                    <div class="text-center p-6 text-xs text-slate-400 sub-card-theme rounded-xl">
-                        لم تقم بحفظ أي منح للمتابعة بعد. يمكنك زيارة <a href="/#radarSection" class="text-blue-500 font-bold underline">رادار المنح</a> والضغط على "تفعيل تذكير الموعد".
+                    <div class="text-center p-8 text-xs text-slate-400 sp-subcard">
+                        <i data-lucide="bookmark" class="w-8 h-8 text-slate-400 mx-auto mb-2 opacity-50"></i>
+                        <p class="font-semibold text-slate-600 dark:text-slate-300 mb-1">لم تقم بحفظ أي منح للمتابعة بعد</p>
+                        <p>يمكنك استعراض <a href="/#radarSection" class="text-blue-500 font-bold hover:underline">رادار المنح المفتوحة</a> والضغط على "تفعيل تذكير الموعد".</p>
                     </div>
                 `;
             } else {
                 list.innerHTML = saved.map((s, idx) => `
-                    <div class="flex justify-between items-center p-3.5 rounded-xl sub-card-theme border text-xs">
-                        <div class="flex items-center gap-2">
-                            <span class="w-6 h-6 rounded-full bg-blue-600/10 text-blue-500 flex items-center justify-center font-bold">#${idx+1}</span>
-                            <span class="font-bold text-slate-900 dark:text-white">${escapeHTML(s)}</span>
+                    <div class="flex justify-between items-center p-4 rounded-xl sp-subcard text-xs">
+                        <div class="flex items-center gap-3">
+                            <span class="w-6 h-6 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold font-latin">#${idx+1}</span>
+                            <span class="font-bold text-slate-900 dark:text-white text-sm">${escapeHTML(s)}</span>
                         </div>
-                        <span class="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold px-2.5 py-1 rounded-md">
-                            🔔 تذكيرات المواعيد نشطة
+                        <span class="sp-badge sp-badge-success">
+                            <i data-lucide="bell" class="w-3 h-3"></i>
+                            <span>تذكيرات المواعيد نشطة</span>
                         </span>
                     </div>
                 `).join('');
@@ -503,7 +518,7 @@
                 });
                 const data = await res.json();
                 if (data.success) {
-                    alert("✅ تم إرسال تقريرك الأسبوعي بنجاح إلى إيميلك!");
+                    alert("تم إرسال تقريرك الأسبوعي بنجاح إلى إيميلك المسجل.");
                     confetti({ particleCount: 50 });
                 }
             } catch(e) {

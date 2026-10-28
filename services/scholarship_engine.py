@@ -382,9 +382,9 @@ Ensure output is strictly valid JSON:
                     d_obj = datetime.strptime(date_match.group(0), "%Y-%m-%d").date()
                     days_left = (d_obj - date.today()).days
                     if days_left > 0:
-                        countdown_badge = f"<span style='background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; font-size: 11px; padding: 2px 7px; border-radius: 4px; margin-right: 6px; font-weight: bold;'>⏳ بقي {days_left} يوماً!</span>"
+                        countdown_badge = f"<span style='background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; font-size: 11px; padding: 2px 7px; border-radius: 4px; margin-right: 6px; font-weight: bold;'>متبقي {days_left} يوماً</span>"
                     elif days_left == 0:
-                        countdown_badge = "<span style='background: #dc2626; color: #ffffff; font-size: 11px; padding: 2px 7px; border-radius: 4px; margin-right: 6px; font-weight: bold;'>🚨 اليوم الأخير!</span>"
+                        countdown_badge = "<span style='background: #dc2626; color: #ffffff; font-size: 11px; padding: 2px 7px; border-radius: 4px; margin-right: 6px; font-weight: bold;'>اليوم الأخير للتقديم</span>"
                 except Exception:
                     pass
 
@@ -396,7 +396,7 @@ Ensure output is strictly valid JSON:
                     <div>
                         <span style="background: #eff6ff; color: #1d4ed8; font-size: 12px; font-weight: bold; padding: 4px 8px; border-radius: 6px; margin-left: 8px;">#{idx}</span>
                         <h3 style="display: inline; margin: 0; font-size: 18px; color: #0f172a;">{s.get('name')}</h3>
-                        <div style="color: #64748b; font-size: 13.5px; margin-top: 4px;">📍 <b>{s.get('country_institution')}</b> | لغة الدراسة: <b>{s.get('language')}</b></div>
+                        <div style="color: #64748b; font-size: 13.5px; margin-top: 4px;"><b>{s.get('country_institution')}</b> | لغة الدراسة: <b>{s.get('language')}</b></div>
                     </div>
                     <div style="text-align: left;">
                         <span style="background: {status_color}15; color: {status_color}; font-size: 12px; font-weight: bold; padding: 4px 10px; border-radius: 20px; border: 1px solid {status_color};">
@@ -412,40 +412,40 @@ Ensure output is strictly valid JSON:
                 <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 16px; margin-bottom: 14px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                         <span style="font-size: 14px; font-weight: bold; color: {score_color};">
-                            🎯 نسبة توافق ملفك: <b>{score_num}%</b> ({match_data['badge']})
+                            نسبة توافق ملفك: <b>{score_num}%</b> ({match_data['badge']})
                         </span>
                         <span style="font-size: 11px; color: #64748b;">مُحلل بواسطة AI Match Score</span>
                     </div>
                     <div style="font-size: 12.5px; color: #334155; line-height: 1.6;">
-                        <div style="color: #166534; margin-bottom: 3px;">✅ <b>أبرز نقاط القوة:</b> {' • '.join(match_data['strengths'])}</div>
-                        <div style="color: #b45309;">⚠️ <b>متطلبات واجب مراعاتها:</b> {' • '.join(match_data['missing_requirements'])}</div>
+                        <div style="color: #166534; margin-bottom: 3px;"><b>أبرز نقاط القوة:</b> {' • '.join(match_data['strengths'])}</div>
+                        <div style="color: #b45309;"><b>متطلبات واجب مراعاتها:</b> {' • '.join(match_data['missing_requirements'])}</div>
                     </div>
                 </div>
 
                 <!-- 11 Column Detailed Data Table -->
                 <table style="width: 100%; border-collapse: collapse; font-size: 13.5px; color: #334155;">
                     <tr>
-                        <td style="padding: 6px 0; width: 25%; font-weight: bold; color: #475569;">💰 التمويل والتغطية:</td>
+                        <td style="padding: 6px 0; width: 25%; font-weight: bold; color: #475569;">التمويل والتغطية:</td>
                         <td style="padding: 6px 0;">{s.get('funding', 'تغطية دراسية كاملة أو جزئية')}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 6px 0; font-weight: bold; color: #475569;">📋 آلية التقديم:</td>
+                        <td style="padding: 6px 0; font-weight: bold; color: #475569;">آلية التقديم:</td>
                         <td style="padding: 6px 0;">{s.get('mechanism', 'تقديم عبر البوابة الرسمية')}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 6px 0; font-weight: bold; color: #475569;">🎓 شروط القبول:</td>
+                        <td style="padding: 6px 0; font-weight: bold; color: #475569;">شروط القبول:</td>
                         <td style="padding: 6px 0;">{s.get('requirements', 'المعدل الأكاديمي المطلوب ومتطلبات اللغة')}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 6px 0; font-weight: bold; color: #475569;">📝 الاختبارات المعيارية:</td>
+                        <td style="padding: 6px 0; font-weight: bold; color: #475569;">الاختبارات المعيارية:</td>
                         <td style="padding: 6px 0;">{s.get('tests', 'غير مشروط أو اختياري')}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 6px 0; font-weight: bold; color: #475569;">🛂 دعم التأشيرة (Visa):</td>
+                        <td style="padding: 6px 0; font-weight: bold; color: #475569;">دعم التأشيرة (Visa):</td>
                         <td style="padding: 6px 0;">{s.get('visa_support', 'توفير وثائق القبول الرسمية لدعم الفيزا')}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 6px 0; font-weight: bold; color: #475569;">📊 التنافسية:</td>
+                        <td style="padding: 6px 0; font-weight: bold; color: #475569;">التنافسية:</td>
                         <td style="padding: 6px 0;"><span style="color: #b45309; font-weight: bold;">{s.get('competitiveness', 'عالي')}</span></td>
                     </tr>
                 </table>
@@ -454,10 +454,10 @@ Ensure output is strictly valid JSON:
                 <div style="margin-top: 14px; text-align: left; padding-top: 12px; border-top: 1px dashed #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                     <div>
                         <a href="{s.get('official_link')}" target="_blank" style="background: #2563eb; color: #ffffff; text-decoration: none; padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: bold; display: inline-block;">
-                            🔗 الانتقال لبوابة التقديم الرسمية
+                            الانتقال لبوابة التقديم الرسمية
                         </a>
                     </div>
-                    <span style="font-size: 11.5px; color: #94a3b8;">⚠️ تأكد من الشروط وتاريخ الإغلاق النهائي بالبوابة الرسمية</span>
+                    <span style="font-size: 11.5px; color: #94a3b8;">تأكد من الشروط وتاريخ الإغلاق النهائي بالبوابة الرسمية</span>
                 </div>
             </div>
             """
@@ -474,20 +474,20 @@ Ensure output is strictly valid JSON:
             <div style="max-width: 820px; margin: 0 auto;">
                 
                 <!-- Header Banner -->
-                <div style="background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: #ffffff; border-radius: 16px; padding: 30px; text-align: center; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(37,99,235,0.2);">
+                <div style="background: #1e3a8a; color: #ffffff; border-radius: 16px; padding: 30px; text-align: center; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(37,99,235,0.2);">
                     <span style="background: rgba(255,255,255,0.2); font-size: 12px; font-weight: bold; padding: 4px 12px; border-radius: 20px; text-transform: uppercase;">تقرير أسبوعي ذكي | Personalized Scholarship Digest</span>
-                    <h1 style="margin: 14px 0 8px 0; font-size: 24px;">دليل منح {degree} المتوافقة معك 🎓</h1>
+                    <h1 style="margin: 14px 0 8px 0; font-size: 24px;">دليل منح {degree} المتوافقة معك</h1>
                     <p style="margin: 0; font-size: 15px; opacity: 0.95;">
                         عزيزي الطالب <b>{student_name}</b> | التخصصات: <b>{majors_str}</b> | معدلك: <b>{profile_data.get('gpa', 'غير محدد')}</b>
                     </p>
                     <div style="margin-top: 14px; font-size: 13px; opacity: 0.85;">
-                        📅 تاريخ الفحص: <b>{now_str}</b> | إجمالي الفرص المطابقة: <b>{len(scholarships)} منح</b>
+                        تاريخ الفحص: <b>{now_str}</b> | إجمالي الفرص المطابقة: <b>{len(scholarships)} منح</b>
                     </div>
                 </div>
 
                 <!-- Mandatory Advisory Notice -->
                 <div style="background: #fffbeb; border-right: 4px solid #f59e0b; padding: 14px 18px; border-radius: 8px; margin-bottom: 24px; font-size: 13.5px; color: #92400e;">
-                    ⚠️ <b>تنبيه هام للطلبة:</b> رتّب المحرك هذه الفرص تنازلياً بحسب نسبة التوافق وقرب الموعد النهائي (Deadline). نرجو مراجعة الشروط والمواعيد المحدثة عبر الرابط الرسمي لكل منحة مباشرة قبل إغلاق بوابات التقديم.
+                    <b>تنبيه هام للطلبة:</b> رتّب المحرك هذه الفرص تنازلياً بحسب نسبة التوافق وقرب الموعد النهائي (Deadline). نرجو مراجعة الشروط والمواعيد المحدثة عبر الرابط الرسمي لكل منحة مباشرة قبل إغلاق بوابات التقديم.
                 </div>
 
                 <!-- Scholarships List -->
@@ -495,7 +495,7 @@ Ensure output is strictly valid JSON:
 
                 <!-- CSV Attachment Notice -->
                 <div style="background: #f1f5f9; border: 1px dashed #cbd5e1; border-radius: 10px; padding: 16px; text-align: center; margin-top: 24px; font-size: 13.5px; color: #475569;">
-                    📎 <b>مرفق مع هذا الإيميل:</b> ملف جدول بيانات كامل <code>scholarships_report.csv</code> يحتوي على الأعمدة الـ 11 باللغة الإنجليزية لتتمكن من فتحه وتصفحه عبر Excel في أي وقت.
+                    <b>مرفق مع هذا الإيميل:</b> ملف جدول بيانات كامل <code>scholarships_report.csv</code> يحتوي على الأعمدة الـ 11 باللغة الإنجليزية لتتمكن من فتحه وتصفحه عبر Excel في أي وقت.
                 </div>
 
                 <!-- Footer -->
@@ -541,7 +541,7 @@ Ensure output is strictly valid JSON:
         html_content = self.build_html_report(scholarships, student_name, degree, majors, country, student_profile)
 
         msg = EmailMessage()
-        msg["Subject"] = f"🎓 دليل منح {degree} المتوافقة معك | تقرير أسبوعي ({datetime.now().strftime('%d-%m-%Y')})"
+        msg["Subject"] = f"دليل منح {degree} المتوافقة معك | تقرير أسبوعي ({datetime.now().strftime('%d-%m-%Y')})"
         msg["From"] = f"Scholarship Tracker <{sender_email}>"
         msg["To"] = recipient_email
 
@@ -608,8 +608,8 @@ Ensure output is strictly valid JSON:
         gmail_password = gmail_password.replace(" ", "").strip()
 
         msg = EmailMessage()
-        msg["Subject"] = f"📁 حزمة مستندات التقديم الذكية | منحة {scholarship_name} ({student_name})"
-        msg["From"] = f"Scholarship Assistant <{sender_email}>"
+        msg["Subject"] = f"حزمة مستندات التقديم الذكية | منحة {scholarship_name} ({student_name})"
+        msg["From"] = f"ScholarPilot AI <{sender_email}>"
         msg["To"] = recipient_email
 
         body_html = f"""
@@ -618,7 +618,7 @@ Ensure output is strictly valid JSON:
         <head><meta charset="utf-8"></head>
         <body style="font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f8fafc; padding: 20px; color: #0f172a;">
             <div style="max-width: 750px; margin: 0 auto; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 30px;">
-                <h2 style="color: #1e3a8a; margin-top: 0;">📁 حزمة مستندات التقديم الذكية المخصصة لك</h2>
+                <h2 style="color: #1e3a8a; margin-top: 0;">حزمة مستندات التقديم الذكية المخصصة لك</h2>
                 <p>مرحباً <b>{student_name}</b>، تم توليد وتخصيص مستندات التقديم الخاصة بك لمنحة <b>{scholarship_name}</b> ({degree} في {major}):</p>
                 
                 <div style="background: #f1f5f9; padding: 18px; border-radius: 8px; margin: 20px 0;">

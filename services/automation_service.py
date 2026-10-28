@@ -20,12 +20,12 @@ DEFAULT_LIVE_SCHOLARSHIPS = [
         "id": "pearson",
         "name": "Lester B. Pearson Scholarship",
         "university": "جامعة تورنتو (University of Toronto)",
-        "country": "كندا 🇨🇦",
+        "country": "كندا (Canada)",
         "degree": "Undergraduate (بكالوريوس)",
         "matchScore": "96%",
-        "matchLabel": "توافق استثنائي 🌟",
-        "status": "🟢 مفتوح حالياً للتقديم",
-        "statusClass": "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+        "matchLabel": "توافق استثنائي",
+        "status": "مفتوح حالياً للتقديم",
+        "statusClass": "sp-badge-success",
         "deadline": "2026-11-06",
         "deadline_display": "6 نوفمبر 2026",
         "deadlineDays": "متبقي أسبوع واحد",
@@ -38,12 +38,12 @@ DEFAULT_LIVE_SCHOLARSHIPS = [
         "id": "hungaricum",
         "name": "Stipendium Hungaricum Scholarship",
         "university": "جامعات المجر الحكومية (بودابست، ديبريسين، زيجد)",
-        "country": "المجر (الاتحاد الأوروبي) 🇭🇺",
+        "country": "المجر (الاتحاد الأوروبي)",
         "degree": "بكالوريوس • ماجستير • دكتوراه",
         "matchScore": "95%",
-        "matchLabel": "توافق مرتفع جداً 🎯",
-        "status": "🔵 تفتح للتقديم قريباً",
-        "statusClass": "bg-blue-500/10 text-blue-500 border-blue-500/20",
+        "matchLabel": "توافق مرتفع جداً",
+        "status": "تفتح للتقديم قريباً",
+        "statusClass": "sp-badge-info",
         "deadline": "2027-01-15",
         "deadline_display": "15 يناير 2027",
         "deadlineDays": "يفتح خلال شهرين",
@@ -56,12 +56,12 @@ DEFAULT_LIVE_SCHOLARSHIPS = [
         "id": "turkiye",
         "name": "Türkiye Bursları Government",
         "university": "كافة الجامعات التركية الحكومية الرائدة (METU, Boğaziçi)",
-        "country": "تركيا 🇹🇷",
+        "country": "تركيا (Turkey)",
         "degree": "كافة المراحل (بكالوريوس ودراسات عليا)",
         "matchScore": "93%",
-        "matchLabel": "كوتا خاصة للطلبة الفلسطينيين 🇹🇷",
-        "status": "🔵 تفتح 10 يناير 2027",
-        "statusClass": "bg-blue-500/10 text-blue-500 border-blue-500/20",
+        "matchLabel": "كوتا سنوية خاصة",
+        "status": "تفتح 10 يناير 2027",
+        "statusClass": "sp-badge-info",
         "deadline": "2027-02-20",
         "deadline_display": "20 فبراير 2027",
         "deadlineDays": "فرصة سنوية كبرى",
@@ -74,12 +74,12 @@ DEFAULT_LIVE_SCHOLARSHIPS = [
         "id": "chevening",
         "name": "Chevening UK Government Scholarship",
         "university": "جامعات المملكة المتحدة (أكسفورد، كامبريدج، إمبريال، UCL)",
-        "country": "بريطانيا 🇬🇧",
+        "country": "بريطانيا (UK)",
         "degree": "Master's Degree (ماجستير)",
         "matchScore": "90%",
-        "matchLabel": "برنامج القادة والتميز 👑",
-        "status": "🟢 مفتوح حالياً",
-        "statusClass": "bg-amber-500/10 text-amber-500 border-amber-500/20",
+        "matchLabel": "برنامج القادة والتميز",
+        "status": "مفتوح حالياً",
+        "statusClass": "sp-badge-warning",
         "deadline": "2026-11-05",
         "deadline_display": "5 نوفمبر 2026",
         "deadlineDays": "أيام معدودة للإغلاق",
@@ -92,12 +92,12 @@ DEFAULT_LIVE_SCHOLARSHIPS = [
         "id": "gks",
         "name": "Global Korea Scholarship (GKS)",
         "university": "أفضل الجامعات الكورية في سيئول والمدن الكبرى (SNU, KAIST)",
-        "country": "كوريا الجنوبية 🇰🇷",
+        "country": "كوريا الجنوبية (South Korea)",
         "degree": "بكالوريوس وماجستير ودكتوراه",
         "matchScore": "91%",
-        "matchLabel": "تطور تكنولوجي وأكاديمي 🚀",
-        "status": "🔵 التقديم السنوي عبر السفارة",
-        "statusClass": "bg-indigo-500/10 text-indigo-500 border-indigo-500/20",
+        "matchLabel": "تطور تكنولوجي وأكاديمي",
+        "status": "التقديم السنوي عبر السفارة",
+        "statusClass": "sp-badge-info",
         "deadline": "2027-03-25",
         "deadline_display": "مارس 2027",
         "deadlineDays": "تفتح في الربيع",
@@ -110,12 +110,12 @@ DEFAULT_LIVE_SCHOLARSHIPS = [
         "id": "daad",
         "name": "DAAD Scholarships Germany",
         "university": "جامعات ألمانيا التقنية والبحثية (TUM, LMU, Heidelberg)",
-        "country": "ألمانيا 🇩🇪",
+        "country": "ألمانيا (Germany)",
         "degree": "Master's & PhD (دراسات عليا)",
         "matchScore": "95%",
-        "matchLabel": "توافق استثنائي 🇩🇪",
-        "status": "🟢 مفتوح حسب التخصص",
-        "statusClass": "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+        "matchLabel": "توافق استثنائي",
+        "status": "مفتوح حسب التخصص",
+        "statusClass": "sp-badge-success",
         "deadline": "2026-12-15",
         "deadline_display": "15 ديسمبر 2026",
         "deadlineDays": "مستمر حسب البرنامج",
@@ -128,12 +128,12 @@ DEFAULT_LIVE_SCHOLARSHIPS = [
         "id": "erasmus",
         "name": "Erasmus Mundus Joint Masters (EMJM)",
         "university": "اتحاد جامعات أوروبية متعددة (فرنسا، ألمانيا، إسبانيا، إيطاليا)",
-        "country": "الاتحاد الأوروبي 🇪🇺",
+        "country": "الاتحاد الأوروبي (Europe)",
         "degree": "Master's Degree (ماجستير مشترك)",
         "matchScore": "94%",
-        "matchLabel": "دراسة في 2 إلى 3 دول أوروبية 🌍",
-        "status": "🔵 تفتح للتقديم الآن تدريجياً",
-        "statusClass": "bg-blue-500/10 text-blue-500 border-blue-500/20",
+        "matchLabel": "دراسة في 2 إلى 3 دول أوروبية",
+        "status": "تفتح للتقديم الآن تدريجياً",
+        "statusClass": "sp-badge-info",
         "deadline": "2027-01-20",
         "deadline_display": "20 يناير 2027",
         "deadlineDays": "برامج متعددة",
@@ -212,8 +212,8 @@ class AutomationService:
                             "degree": "بكالوريوس / ماجستير",
                             "matchScore": "92%",
                             "matchLabel": "فرصة جديدة تم رصدها آلياً ⚡",
-                            "status": "🟢 مفتوح رسمياً",
-                            "statusClass": "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+                            "status": "مفتوح رسمياً",
+                            "statusClass": "sp-badge-success",
                             "deadline": item.get("deadline", "2027-01-30"),
                             "deadline_display": item.get("deadline", "2027"),
                             "deadlineDays": "تحقق من الرابط",
@@ -345,23 +345,23 @@ class AutomationService:
 
         gmail_password = gmail_password.replace(" ", "").strip()
         msg = EmailMessage()
-        msg["Subject"] = f"⏰ تذكير موعد نهائي: باقي {days_remaining} أيام على إغلاق منحة {scholarship_name}!"
+        msg["Subject"] = f"تذكير بالموعد النهائي: باقي {days_remaining} أيام على إغلاق التقديم لمنحة {scholarship_name}"
         msg["From"] = f"ScholarPilot AI <{sender_email}>"
         msg["To"] = recipient_email
 
         html = f"""
         <div dir="rtl" style="font-family: Arial, sans-serif; background-color: #090d16; color: #f8fafc; padding: 25px; border-radius: 16px;">
-            <div style="background: linear-gradient(135deg, #1e3a8a, #059669); padding: 20px; border-radius: 12px; text-align: center; color: white;">
-                <h2>🔔 تذكير باقتراب الموعد النهائي للمنحة</h2>
+            <div style="background: #1e3a8a; padding: 20px; border-radius: 12px; text-align: center; color: white;">
+                <h2>تذكير باقتراب الموعد النهائي للمنحة</h2>
             </div>
             <div style="padding: 20px; background: rgba(255,255,255,0.05); margin-top: 15px; border-radius: 12px;">
                 <p>مرحباً <b>{student_name}</b>،</p>
-                <p>نود تذكيرك بأن المنحة التي قمت بحفظها في حسابك: <b style="color: #60a5fa;">{scholarship_name}</b></p>
-                <p style="font-size: 16px; color: #f59e0b;">⏳ باقي على موعد إغلاق التقديم: <b>{days_remaining} يوماً فقط</b> (تاريخ الإغلاق: {deadline_date}).</p>
-                <p>يرجى إكمال وتدقيق أوراقك الأكاديمية وخطاب الدافع فوراً والتقديم عبر البوابة الرسمية قبل إغلاق النظام.</p>
+                <p>نود تذكيرك بأن المنحة المحفوظة في ملفك: <b style="color: #60a5fa;">{scholarship_name}</b></p>
+                <p style="font-size: 16px; color: #f59e0b;">باقي على موعد إغلاق التقديم: <b>{days_remaining} يوماً فقط</b> (تاريخ الإغلاق: {deadline_date}).</p>
+                <p>يرجى إكمال وتدقيق أوراقك الأكاديمية وخطاب الدافع فوراً والتقديم عبر البوابة الرسمية قبل انتهاء المهلة.</p>
                 <div style="text-align: center; margin: 25px 0;">
-                    <a href="{link}" target="_blank" style="background: #10b981; color: white; padding: 12px 25px; border-radius: 8px; text-decoration: none; font-weight: bold;">
-                        🚀 التقديم الآن عبر البوابة الرسمية
+                    <a href="{link}" target="_blank" style="background: #2563eb; color: white; padding: 12px 25px; border-radius: 8px; text-decoration: none; font-weight: bold;">
+                        التقديم الآن عبر البوابة الرسمية
                     </a>
                 </div>
             </div>
@@ -376,7 +376,7 @@ class AutomationService:
                 server.starttls()
                 server.login(sender_email, gmail_password)
                 server.send_message(msg)
-                logger.info(f"✅ Reminder delivered to {recipient_email}")
+                logger.info(f"Reminder delivered to {recipient_email}")
         except Exception as e:
             logger.error(f"Failed to send reminder email: {e}")
 
@@ -389,7 +389,7 @@ async def start_automation_daemon():
     - Checks weekly subscription cycles.
     """
     automation = AutomationService()
-    logger.info("🚀 Automation Daemon started. All tasks will run automatically in background.")
+    logger.info("Automation Daemon started. All tasks will run automatically in background.")
 
     while True:
         try:

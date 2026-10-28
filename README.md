@@ -1,152 +1,116 @@
----
-title: MinhaTech AI - Global Scholarship Engine
-emoji: 🎓
-colorFrom: blue
-colorTo: indigo
-sdk: docker
-app_port: 7860
-pinned: false
----
+# ScholarPilot AI | Your AI-Powered Scholarship Advisor
 
-# 🎓 منحة تك AI | MinhaTech AI Copilot
-### المنظومة الذكية لتتبع المنح، حساب نسبة التوافق، وتوليد مستندات التقديم 🚀
+The Autonomous Scholarship Intelligence Platform that automatically monitors global accredited scholarships, computes applicant admission odds, drafts institutional dossiers, and delivers weekly personalized digests directly to student inboxes.
 
-[![GitHub Workflow](https://img.shields.io/badge/GitHub%20Actions-Automated%20Weekly-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)](.github/workflows/weekly_scholarship.yml)
-[![FastAPI](https://img.shields.io/badge/FastAPI-Web%20App-009688?style=for-the-badge&logo=fastapi&logoColor=white)](web/app.py)
-[![Google Gemini AI](https://img.shields.io/badge/Google%20Gemini-3.5%20Flash%20Lite-orange?style=for-the-badge&logo=googlegemini&logoColor=white)](https://aistudio.google.com/)
-[![Dark / Light Mode](https://img.shields.io/badge/Theme-Dark%20%26%20Light-purple?style=for-the-badge)](#)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
+[![FastAPI](https://img.shields.io/badge/FastAPI-Production%20Ready-009688?style=flat-square&logo=fastapi&logoColor=white)](web/app.py)
+[![Google Gemini API](https://img.shields.io/badge/Google%20Gemini-3.5%20Flash%20Lite-2563eb?style=flat-square&logo=googlegemini&logoColor=white)](https://ai.google.dev/)
+[![Render](https://img.shields.io/badge/Render-Deploy%20Ready-46e3b7?style=flat-square&logo=render&logoColor=black)](render.yaml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-slate?style=flat-square)](LICENSE)
 
 ---
 
-## 🌟 نظرة عامة (Overview)
+## Executive Overview
 
-**منحة تك AI (MinhaTech AI Copilot)** هي منصة ذكاء اصطناعي شاملة ومفتوحة المصدر، صُممت لمساعدة الطلاب في **فلسطين والعالم العربي** على تحقيق أحلامهم الأكاديمية في الخارج.
+ScholarPilot AI is a production-grade, 100% autonomous scholarship platform built to democratize higher education opportunities for ambitious international students, with special priority allocation for students in Palestine and emerging regions.
 
-يدخل الطالب بياناته **مرة واحدة فقط** (التخصص، المعدل، الدولة، مرحلة الدراسة، ومستوى اللغة)، ثم تتولى المنظومة كل شيء بالخلفية:
-1. **جلب المنح الرسمية المفتوحة دورياً** واستبعاد الروابط المنتهية.
-2. **حساب نسبة توافق ملفك الأكاديمي (Match Score %)** لكل منحة، وتنبيهك بالمتطلبات الناقصة.
-3. **إرسال تقرير أسبوعي مخصص (Personalized Digest)** بأفضل 5 فرص مناسبة لك في إيميل HTML فاخر مع ملف Excel.
-4. **تذكيرك التلقائي بالمواعيد النهائية (Deadline Reminders)** قبل إغلاق بوابات التقديم بشهر وأسبوعين وأسبوع ويومين.
-5. **مستشار أكاديمي مباشر بالذكاء الاصطناعي (AI Advisor)** للإجابة على استفساراتك ووضع خطة التقديم.
-6. **مُولّد مستندات التقديم الذكية (Smart Documents Generator)** لكتابة خطاب الدافع (Motivation Letter)، نموذج التوصية الأكاديمية، وقائمة التحقق المخصصة لكل منحة.
+Students register their academic profile once (degree, GPA, major, extracurriculars, and country of residence). The autonomous background engine handles the rest without human intervention:
 
----
-
-## 🚀 المميزات والوظائف الـ 6 الرئيسية (Core Modules)
-
-### 1️⃣ التنبيه الذكي للمنح (Smart Scholarship Alert)
-يسجل الطالب ملفه الأكاديمي (التخصص، المعدل التراكمي، مستوى اللغة، الدرجة العلمية، والوجهات المفضلة). يبحث النظام دورياً بالإنترنت ويرسل تنبيهاً فور توفر منحة جديدة مطابقة أو اقتراب موعد إغلاقها.
-
-### 2️⃣ التقرير الأسبوعي المخصص (Personalized Scholarship Digest)
-بدلاً من استقبال عشرات الرسائل العشوائية، يتلقى الطالب رسالة أسبوعية واحدة كل جمعة صباحاً تحتوي:
-* أفضل 5 منح مناسبة تماماً لتخصصه ومعدله.
-* بطاقة **نسبة التوافق (Match Score %)**.
-* قائمة **المتطلبات الواجب مراعاتها والنواقص**.
-* شارة عد تنازلي للموعد النهائي (مثلاً: بقي 12 يوماً!).
-
-### 3️⃣ محرك حساب نسبة التوافق (Scholarship Match Score Engine)
-تحليل دقيق يقارن معدل الطالب الأكاديمي، كفاءة اللغة الإنجليزية، الأهلية الجغرافية، والتخصص المطلوب مع شروط المنحة لحساب نسبة مئوية واقعية (مثلاً: 94% توافق عالي) مع تحديد نقاط القوة.
-
-### 4️⃣ رادار وتذكير المواعيد النهائية (Deadline Reminder System)
-عند حفظ أي منحة في قائمة المتابعة، يرسل النظام تنبيهات متدرجة:
-* قبل شهر
-* قبل أسبوعين
-* قبل أسبوع
-* قبل يومين (تنبيه نهائي)
-
-### 5️⃣ المستشار الأكاديمي بالذكاء الاصطناعي (AI Scholarship Advisor)
-مربع استشارة مباشر على الموقع؛ يكتب الطالب استفساره بحرية (مثلاً: *"معدلي 85 وهندسة برمجيات وأريد منحة في أوروبا"*). يقوم Gemini AI بتحليل الاستفسار وترشيح أفضل المنح الحكومية وخطة التقديم والخطوات الفورية.
-
-### 6️⃣ مُولّد مستندات التقديم الذكية (Smart Application Documents Generator)
-بمجرد اختيار المنحة المستهدفة، يولد النظام تلقائياً:
-* **خطاب دافع احترافي مخصص (Motivation Letter / SOP)** يعكس تخصص ومعدل الطالب.
-* **نموذج خطاب توصية أكاديمي (Academic Recommendation Letter)** جاهز لتوقيع الأساتذة.
-* **قائمة التحقق المسبقة (Pre-Flight Application Checklist)** بجميع الأوراق المطلوبة.
-* إمكانية إرسال الحزمة كاملة فوراً إلى إيميل الطالب بنقرة واحدة!
+1. **Autonomous Live Ingestion & Verification**: Periodically monitors, parses, and validates flagship global opportunities (DAAD, Chevening, Fulbright, Stipendium Hungaricum, Turkiye Burslari, Lester B. Pearson, GKS).
+2. **Predictive Admission Probability & Match Scoring**: Computes admission odds based on GPA benchmarks, leadership activities, hackathons, and country quotas.
+3. **Automated Weekly Email Digests**: Automatically prepares and dispatches comprehensive weekly scholarship reports with official application links and deadlines.
+4. **Deadline Countdown Reminders**: Monitored deadlines automatically trigger alert notifications at 30, 14, 7, and 2-day milestones.
+5. **Interactive AI Academic Advisor**: Conversational advisor model answering student queries concisely with zero fluff.
+6. **Smart Institutional Application Dossier Studio**: Instantly drafts Statement of Purpose / Motivation Letters, Academic CVs, Professor Recommendation templates, and Verification Checklists formatted with official letterheads.
 
 ---
 
-## 📋 الأعمدة الـ 11 في جدول التقرير (11-Column Matrix)
-
-يتضمن كل تقرير تفاصيل دقيقة باللغة الإنجليزية:
-1. **Scholarship & Provider Name** (اسم المنحة والجهة المانحة).
-2. **Country / Institution** (الدولة والجامعة المستضيفة).
-3. **Language of Instruction** (لغة الدراسة والبرامج التحضيرية).
-4. **Application Status** (الحالة: مفتوح حالياً Open Now أو يفتح قريباً).
-5. **Application Deadline** (تاريخ الموعد النهائي الدقيق).
-6. **Application Mechanism** (آلية التقديم: مدمج أو منفصل).
-7. **Academic & General Requirements** (المعدل المطلوب وشروط اللغة).
-8. **Standardized Tests** (شروط SAT / ACT / GRE أو اختبارات القبول).
-9. **Visa Support & Facilitation** (تسهيلات التأشيرة وخطابات الدعم الرسمية).
-10. **Competitiveness & Acceptance Rate** (مستوى التنافسية ونسبة القبول).
-11. **Direct Official Link** (الرابط المباشر للبوابة الرسمية).
-
----
-
-## 🖥️ تشغيل المنصة محلياً (Run Locally)
-
-```bash
-# 1. تفعيل البيئة وتثبيت الحزم
-pip install -r requirements.txt
-
-# 2. تشغيل خادم FastAPI
-uvicorn web.app:app --host 0.0.0.0 --port 8000 --reload
-```
-افتح المتصفح على: **`http://localhost:8000`** 🌟
-
----
-
-## 📂 هيكلية المشروع (Project Architecture)
+## Architecture & Directory Layout
 
 ```text
 scholarship-automation/
-├── .github/
-│   └── workflows/
-│       └── weekly_scholarship.yml    # الأوتوميشن السحابي الأسبوعي عبر GitHub Actions
 ├── data/
-│   ├── subscribers.json              # قاعدة بيانات الطلاب وسجلات التوافق
-│   └── subscribers.example.json      # نموذج توضيحي لملف المشتركين
-├── web/
-│   ├── templates/
-│   │   └── index.html                # واجهة الويب الفاخرة (Dark/Light + AI Advisor + Doc Generator)
-│   ├── __init__.py
-│   └── app.py                        # خادم واجهات برمجة التطبيقات (FastAPI)
+│   ├── live_scholarships.json       # Live synced roster of verified global opportunities
+│   ├── subscribers.json             # Student registry, tracking preferences, and match profiles
+│   └── users.json                   # Authenticated student records (Argon2 / SHA-256 + salt)
 ├── services/
-│   ├── advisor_service.py            # محرك حساب نسبة التوافق + المستشار الذكي + توليد المستندات
-│   ├── scholarship_engine.py         # محرك البحث والاستخراج المباشر للأعمدة الـ 11 والتقارير
-│   ├── subscriber_service.py         # إدارة ملفات وتفضيلات الطلبة وتذكيرات المواعيد
-│   ├── gemini_service.py             # تكامل Google Gemini مع سلاسل التحويل التلقائي
-│   ├── search_service.py             # محرك البحث المخصص (DuckDuckGo Scraper)
-│   ├── broadcast_service.py          # خدمة البث في القنوات
-│   └── cache_service.py              # تخزين مؤقت لتوفير استهلاك الـ API
-├── dispatch_weekly_subscribers.py    # مشغل الإرسال الدوري لكافة الطلاب المسجلين
-├── send_scholarship_report.py        # المحرك الفردي لإرسال تقرير مخصص
-├── config.json                       # ملف إعدادات الطالب الشخصي
-├── requirements.txt                  # مكتبات بايثون المطلوبة
-├── Procfile                          # ملف تشغيل السحابة
-├── render.yaml                       # تكوين النشر بنقرة واحدة على Render
-├── .env.example                      # نموذج لمتغيرات البيئة
-└── README.md                         # التوثيق الشامل ودليل الاستخدام
+│   ├── advisor_service.py           # Gemini AI consultation, admission odds, and document architecture
+│   ├── auth_service.py              # Strict student authentication, registration, and credential hashing
+│   ├── automation_service.py        # Background daemon handling automated email dispatches & deadlines
+│   ├── scholarship_engine.py        # HTML / CSV report compiler and SMTP delivery engine
+│   ├── security_utils.py            # Strict input validation filters (GPA numeric regex, XSS sanitization)
+│   └── subscriber_service.py        # Subscriber management and watchlist tracking
+├── web/
+│   ├── static/
+│   │   └── css/
+│   │       └── scholarpilot.css     # Production SaaS design system tokens, themes, and animations
+│   ├── templates/
+│   │   ├── dashboard.html           # Authenticated student workspace, metrics, and watchlist
+│   │   └── index.html               # Public landing page, card swiper, AI advisor, and document studio
+│   └── app.py                       # FastAPI application, REST endpoints, and security middleware
+├── tests/
+│   └── test_automation_suite.py     # End-to-end integration and security test suite
+├── render.yaml                      # One-click Render infrastructure deployment spec
+├── Dockerfile                       # Containerized production runtime
+├── requirements.txt                 # Python dependencies
+└── README.md                        # Documentation and architecture guide
 ```
 
 ---
 
-## 🔒 الأمان والخصوصية (Security & Privacy)
+## Design System & UX Standards
 
-* جميع البيانات الحساسة (كلمات مرور التطبيقات ومفاتيح الـ API) مشفرة ومحمية عبر ملف `.gitignore`.
-* تُحفظ الأسرار في GitHub Secrets المشفرة أثناء التشغيل السحابي.
-* لا يتم مشاركة بيانات أو إيميلات الطلبة إطلاقاً.
+The ScholarPilot AI interface adheres to high-end SaaS product design principles (Linear, Stripe, Vercel, Revolut):
 
----
-
-## 📄 الترخيص (License)
-
-هذا المشروع مرخص تحت رخصة **MIT** - متاح مجاناً للجميع لدعم الطلاب والتعليم.
+* **Color Palette**: Clean white surfaces and soft slate canvas in Light Mode; deep neutral charcoal in Dark Mode with zero diffuse glow or garish gradients.
+* **Typography**: Clean scale pairing `Inter` and `Plus Jakarta Sans` for Latin numerals with `Tajawal` and `Cairo` for legible Arabic presentation.
+* **Iconography**: 100% SVG icon system powered by Lucide. Zero emojis across navigation, buttons, forms, alerts, headers, cards, or emails.
+* **Accessibility**: Strict WCAG AA compliance with visible `:focus-visible` rings, high contrast ratios, and semantic HTML elements.
+* **States**: Explicit skeleton loaders during API latency, empty state illustrations, and interactive feedback.
 
 ---
 
-<div align="center">
-  <b>صُمم بحب لدعم الطلاب الطموحين في فلسطين وحول العالم 🇵🇸🎓</b><br>
-  تم تطويره وإدارته بواسطة <a href="https://github.com/medozaiter"><b>Mustafa AbuZaiter</b></a>
-</div>
+## Local Setup & Development
+
+### 1. Prerequisites
+* Python 3.10+
+* Google Gemini API Key (optional for mock fallback, recommended for live AI responses)
+
+### 2. Installation
+```bash
+# Clone the repository
+git clone https://github.com/medozaiter/scholarship-automation.git
+cd scholarship-automation
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Configure environment variables
+cp .env.example .env
+```
+
+### 3. Execution
+```bash
+uvicorn web.app:app --host 0.0.0.0 --port 7860 --reload
+```
+Navigate to `http://localhost:7860` to access the platform.
+
+### 4. Running Verification Test Suite
+```bash
+python tests/test_automation_suite.py
+```
+
+---
+
+## Security & Verification
+
+* **Input Sanitization**: Strict regex whitelisting for numeric GPA fields, character limits, and text sanitizers preventing XSS and script injection.
+* **Authentication**: Salted SHA-256 password hashing with dedicated student session management.
+* **Headers**: Production security middleware injecting `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, and strict referrer policies.
+
+---
+
+## License
+
+This project is licensed under the MIT License - open and accessible to empower students worldwide.
+
+Developed and maintained by [Mustafa AbuZaiter](https://github.com/medozaiter).
