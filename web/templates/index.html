@@ -337,13 +337,6 @@
 
                     <!-- Hidden Talents Field (Preserving backwards compatibility) -->
                     <input type="hidden" id="talentsInput" value="">
-                            <div class="flex items-center justify-between font-bold">
-                                <span id="probScore" class="text-xs">احتمالية القبول التقديرية: 88%</span>
-                                <span id="matchPercent" class="font-latin text-xs">نسبة التوافق: 94%</span>
-                            </div>
-                            <p id="probAdvice" class="text-[11px] leading-relaxed text-emerald-800 dark:text-emerald-200"></p>
-                        </div>
-                    </div>
 
                     <!-- Target Majors Selection -->
                     <div>
@@ -392,6 +385,32 @@
                         <input type="text" id="customMajor" maxlength="100" placeholder="أو اكتب تخصصاتك الأخرى مفصولة بفواصل (تمريض، ترجمة، كيمياء...)"
                             oninput="this.value = this.value.replace(/[<>{}\`$]/g, '')"
                             class="sp-input text-xs">
+                    </div>
+
+                    <!-- Admission Probability Calculator Callout & Result Box -->
+                    <div class="sp-subcard p-4 rounded-xl border border-blue-500/20 bg-blue-500/5 space-y-3">
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="sparkles" class="w-4 h-4 text-blue-500"></i>
+                                <div>
+                                    <span class="text-xs font-bold text-slate-800 dark:text-slate-200 block">فحص وتوقع نسبة القبول التقديرية</span>
+                                    <span class="text-[11px] text-slate-400">تقييم احتمالية قبولك الفورية بناءً على تخصصك ومعدلك والكوتا</span>
+                                </div>
+                            </div>
+                            <button type="button" onclick="calculateInstantProbability()" class="sp-btn-secondary px-3.5 py-2 text-xs font-bold flex items-center gap-1.5 text-blue-600 dark:text-blue-400 shrink-0">
+                                <i data-lucide="calculator" class="w-3.5 h-3.5"></i>
+                                <span>احسب وتوقع نسبة قبولي الآن</span>
+                            </button>
+                        </div>
+
+                        <!-- Instant Probability Result Box -->
+                        <div id="probabilityBox" class="hidden p-3.5 rounded-xl sp-badge-success space-y-1 block w-full text-right">
+                            <div class="flex items-center justify-between font-bold">
+                                <span id="probScore" class="text-xs">احتمالية القبول التقديرية: 88%</span>
+                                <span id="matchPercent" class="font-latin text-xs">توافق الشروط: 94%</span>
+                            </div>
+                            <p id="probAdvice" class="text-[11px] leading-relaxed text-emerald-800 dark:text-emerald-200"></p>
+                        </div>
                     </div>
 
                     <!-- Welcome Email Checkbox -->
