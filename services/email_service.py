@@ -618,13 +618,19 @@ async def dispatch_email(
             logger.warning(f"Resend API dispatch error: {e}. Trying SMTP fallback...")
             _last_dispatch_meta["error_detail"] = f"فشل اتصال Resend: {str(e)[:160]}"
 
-    # 2. Secondary Provider: SMTP (Gmail / Custom)
+    # 2. Secondary Provider: Universal SMTP (Gmail / Brevo / Outlook / Custom)
     smtp_user = os.getenv("SENDER_EMAIL") or os.getenv("EMAIL_USER")
-    smtp_pass = os.getenv("GMAIL_APP_PASSWORD") or os.getenv("EMAIL_PASS")
+    smtp_pass = os.getenv("GMAIL_APP_PASSWORD") or os.getenv("EMAIL_PASS") or os.getenv("SMTP_PASS")
+    smtp_host = os.getenv("SMTP_HOST", "smtp.gmail.com").strip()
+    try:
+        smtp_port = int(os.getenv("SMTP_PORT", "587"))
+    except ValueError:
+        smtp_port = 587
 
     if smtp_user and smtp_pass:
         smtp_pass = smtp_pass.replace(" ", "").strip()
-        logger.info(f"Dispatching email to {clean_to} via SMTP (smtp.gmail.com)...")
+        provider_name = "Gmail SMTP" if "gmail" in smtp_host.lower() else f"SMTP ({smtp_host})"
+        logger.info(f"Dispatching email to {clean_to} via {provider_name} [{smtp_host}:{smtp_port}]...")
         msg = EmailMessage()
         msg["Subject"] = clean_sub
         msg["From"] = sanitize_email_header(f"ScholarPilot AI <{smtp_user}>")
@@ -647,29 +653,30 @@ async def dispatch_email(
                 msg.add_attachment(raw_bytes, maintype="text", subtype=subtype, filename=filename)
 
         try:
-            with smtplib.SMTP("smtp.gmail.com", 587, timeout=20) as server:
+            with smtplib.SMTP(smtp_host, smtp_port, timeout=20) as server:
                 server.starttls()
                 server.login(smtp_user, smtp_pass)
                 server.send_message(msg)
-                logger.info(f"✅ Delivered successfully to {clean_to} via SMTP TLS!")
+                logger.info(f"✅ Delivered successfully to {clean_to} via {provider_name} TLS!")
                 _last_dispatch_meta["success"] = True
-                _last_dispatch_meta["provider"] = "Gmail SMTP"
+                _last_dispatch_meta["provider"] = provider_name
                 _last_dispatch_meta["error_detail"] = None
                 return True
         except Exception as e:
-            logger.error(f"SMTP TLS failed: {e}. Trying SSL port 465...")
+            logger.error(f"SMTP TLS ({smtp_host}:{smtp_port}) failed: {e}. Trying fallback...")
             try:
-                with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=20) as server:
+                ssl_port = 465 if smtp_port == 587 else smtp_port
+                with smtplib.SMTP_SSL(smtp_host, ssl_port, timeout=20) as server:
                     server.login(smtp_user, smtp_pass)
                     server.send_message(msg)
-                    logger.info(f"✅ Delivered successfully to {clean_to} via SMTP SSL!")
+                    logger.info(f"✅ Delivered successfully to {clean_to} via {provider_name} SSL!")
                     _last_dispatch_meta["success"] = True
-                    _last_dispatch_meta["provider"] = "Gmail SMTP"
+                    _last_dispatch_meta["provider"] = provider_name
                     _last_dispatch_meta["error_detail"] = None
                     return True
             except Exception as e2:
-                logger.error(f"SMTP SSL also failed: {e2}")
-                _last_dispatch_meta["error_detail"] = f"فشل إرسال SMTP: {str(e2)[:160]}"
+                logger.error(f"SMTP SSL ({smtp_host}) also failed: {e2}")
+                _last_dispatch_meta["error_detail"] = f"فشل إرسال SMTP ({smtp_host}): {str(e2)[:160]}"
 
     # 3. Fallback: If in production with RESEND_API_KEY configured and failed, report delivery failure
     if resend_api_key or os.getenv("RENDER"):
