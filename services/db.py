@@ -8,7 +8,7 @@ import os
 import json
 import logging
 from datetime import datetime
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List, Union
 from contextlib import contextmanager
 
 logger = logging.getLogger("scholarpilot.db")
@@ -23,6 +23,8 @@ DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
 USERS_JSON = os.path.join(DATA_DIR, "users.json")
 SUBSCRIBERS_JSON = os.path.join(DATA_DIR, "subscribers.json")
 SCHOLARSHIPS_JSON = os.path.join(DATA_DIR, "live_scholarships.json")
+IN_APP_NOTIFICATIONS_JSON = os.path.join(DATA_DIR, "in_app_notifications.json")
+NOTIFICATION_EVENTS_JSON = os.path.join(DATA_DIR, "notification_events.json")
 
 # Try importing SQLAlchemy
 HAS_SQLALCHEMY = False
@@ -33,6 +35,8 @@ UserDB = None
 SubscriberDB = None
 LiveScholarshipDB = None
 NotificationHistoryDB = None
+InAppNotificationDB = None
+NotificationEventDB = None
 
 try:
     from sqlalchemy import (
@@ -60,6 +64,12 @@ try:
         country = Column(String(100), default="Palestine")
         talents_experience = Column(Text, default="")
         saved_scholarships = Column(JSON, default=list)
+        # Notification & Matching Preferences
+        preferred_countries = Column(JSON, default=list)
+        funding_type = Column(String(50), default="Any")
+        email_notifications = Column(Boolean, default=True)
+        telegram_notifications = Column(Boolean, default=False)
+        telegram_chat_id = Column(String(100), nullable=True)
         created_at = Column(String(50), default=lambda: datetime.now().isoformat())
 
         def to_dict(self) -> Dict[str, Any]:
@@ -76,6 +86,11 @@ try:
                 "country": self.country,
                 "talents_experience": self.talents_experience or "",
                 "saved_scholarships": self.saved_scholarships or [],
+                "preferred_countries": self.preferred_countries or [],
+                "funding_type": self.funding_type or "Any",
+                "email_notifications": self.email_notifications if self.email_notifications is not None else True,
+                "telegram_notifications": self.telegram_notifications if self.telegram_notifications is not None else False,
+                "telegram_chat_id": self.telegram_chat_id,
                 "created_at": self.created_at
             }
 
@@ -93,6 +108,12 @@ try:
         country = Column(String(100), default="Palestine")
         talents_experience = Column(Text, default="")
         saved_scholarships = Column(JSON, default=list)
+        # Notification & Matching Preferences
+        preferred_countries = Column(JSON, default=list)
+        funding_type = Column(String(50), default="Any")
+        email_notifications = Column(Boolean, default=True)
+        telegram_notifications = Column(Boolean, default=False)
+        telegram_chat_id = Column(String(100), nullable=True)
         created_at = Column(String(50), default=lambda: datetime.now().isoformat())
         last_sent_at = Column(String(50), nullable=True)
         status = Column(String(50), default="active")
@@ -109,6 +130,11 @@ try:
                 "country": self.country,
                 "talents_experience": self.talents_experience or "",
                 "saved_scholarships": self.saved_scholarships or [],
+                "preferred_countries": self.preferred_countries or [],
+                "funding_type": self.funding_type or "Any",
+                "email_notifications": self.email_notifications if self.email_notifications is not None else True,
+                "telegram_notifications": self.telegram_notifications if self.telegram_notifications is not None else False,
+                "telegram_chat_id": self.telegram_chat_id,
                 "created_at": self.created_at,
                 "last_sent_at": self.last_sent_at,
                 "status": self.status
@@ -176,6 +202,56 @@ try:
                 "sent_at": self.sent_at,
                 "status": self.status,
                 "details": self.details or {}
+            }
+
+    class InAppNotificationDB(Base):
+        __tablename__ = "in_app_notifications"
+
+        id = Column(Integer, primary_key=True, autoincrement=True)
+        recipient = Column(String(120), index=True, nullable=False)
+        title = Column(String(255), nullable=False)
+        message = Column(Text, nullable=False)
+        type = Column(String(50), default="match")  # match, deadline, digest, system
+        scholarship_id = Column(String(100), nullable=True)
+        link = Column(String(500), nullable=True)
+        is_read = Column(Boolean, default=False)
+        created_at = Column(String(50), default=lambda: datetime.now().isoformat())
+
+        def to_dict(self) -> Dict[str, Any]:
+            return {
+                "id": self.id,
+                "recipient": self.recipient,
+                "title": self.title,
+                "message": self.message,
+                "type": self.type,
+                "scholarship_id": self.scholarship_id,
+                "link": self.link,
+                "is_read": self.is_read,
+                "created_at": self.created_at
+            }
+
+    class NotificationEventDB(Base):
+        __tablename__ = "notification_events"
+
+        id = Column(Integer, primary_key=True, autoincrement=True)
+        recipient = Column(String(120), index=True, nullable=False)
+        notification_type = Column(String(50), nullable=False)
+        channel = Column(String(30), default="email")  # email, in_app, telegram
+        target_id = Column(String(200), index=True, nullable=False)
+        status = Column(String(50), default="created")  # created, sent, delivered, opened, clicked
+        timestamp = Column(String(50), default=lambda: datetime.now().isoformat())
+        meta = Column(JSON, default=dict)
+
+        def to_dict(self) -> Dict[str, Any]:
+            return {
+                "id": self.id,
+                "recipient": self.recipient,
+                "notification_type": self.notification_type,
+                "channel": self.channel,
+                "target_id": self.target_id,
+                "status": self.status,
+                "timestamp": self.timestamp,
+                "meta": self.meta or {}
             }
 
     # Connect to PostgreSQL (Neon) or fallback to SQLite
@@ -477,3 +553,460 @@ def get_notification_history(limit: int = 50) -> List[Dict[str, Any]]:
             pass
 
     return []
+
+
+def create_in_app_notification(
+    recipient: str,
+    title: str,
+    message: str,
+    notif_type: str = "match",
+    scholarship_id: Optional[str] = None,
+    link: Optional[str] = None
+) -> Dict[str, Any]:
+    """Creates a new in-app notification with dual DB + JSON persistence."""
+    clean_rec = recipient.strip().lower()
+    now_iso = datetime.now().isoformat()
+    record = {
+        "id": int(datetime.now().timestamp() * 1000),
+        "recipient": clean_rec,
+        "title": title,
+        "message": message,
+        "type": notif_type,
+        "scholarship_id": scholarship_id,
+        "link": link or "",
+        "is_read": False,
+        "created_at": now_iso
+    }
+
+    if is_db_available() and InAppNotificationDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    db_obj = InAppNotificationDB(
+                        recipient=clean_rec,
+                        title=title,
+                        message=message,
+                        type=notif_type,
+                        scholarship_id=scholarship_id,
+                        link=link or "",
+                        is_read=False,
+                        created_at=now_iso
+                    )
+                    db.add(db_obj)
+                    db.flush()
+                    record["id"] = db_obj.id
+        except Exception as e:
+            logger.error(f"Error persisting in-app notification to DB: {e}")
+
+    # Mirror to JSON file
+    try:
+        os.makedirs(DATA_DIR, exist_ok=True)
+        items = []
+        if os.path.exists(IN_APP_NOTIFICATIONS_JSON):
+            try:
+                with open(IN_APP_NOTIFICATIONS_JSON, "r", encoding="utf-8") as f:
+                    items = json.load(f)
+            except Exception:
+                items = []
+        items.insert(0, record)
+        if len(items) > 1000:
+            items = items[:1000]
+        temp_file = IN_APP_NOTIFICATIONS_JSON + ".tmp"
+        with open(temp_file, "w", encoding="utf-8") as f:
+            json.dump(items, f, ensure_ascii=False, indent=2)
+        os.replace(temp_file, IN_APP_NOTIFICATIONS_JSON)
+    except Exception as je:
+        logger.error(f"Error writing in_app_notifications JSON: {je}")
+
+    return record
+
+
+def get_in_app_notifications(
+    recipient: str,
+    limit: int = 50,
+    unread_only: bool = False
+) -> List[Dict[str, Any]]:
+    """Retrieves in-app notifications for a student, newest first."""
+    clean_rec = recipient.strip().lower()
+    if is_db_available() and InAppNotificationDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    q = db.query(InAppNotificationDB).filter(InAppNotificationDB.recipient == clean_rec)
+                    if unread_only:
+                        q = q.filter(InAppNotificationDB.is_read == False)
+                    items = q.order_by(InAppNotificationDB.id.desc()).limit(limit).all()
+                    if items:
+                        return [item.to_dict() for item in items]
+        except Exception as e:
+            logger.debug(f"DB load in-app notifications error: {e}")
+
+    if os.path.exists(IN_APP_NOTIFICATIONS_JSON):
+        try:
+            with open(IN_APP_NOTIFICATIONS_JSON, "r", encoding="utf-8") as f:
+                items = json.load(f)
+                matched = [
+                    it for it in items
+                    if it.get("recipient", "").lower() == clean_rec
+                    and (not unread_only or not it.get("is_read", False))
+                ]
+                return matched[:limit]
+        except Exception:
+            pass
+    return []
+
+
+def mark_notification_as_read(recipient: str, notification_id: Union[int, str]) -> bool:
+    """Marks a single notification as read."""
+    clean_rec = recipient.strip().lower()
+    updated = False
+
+    if is_db_available() and InAppNotificationDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    try:
+                        n_id = int(notification_id)
+                        db_notif = db.query(InAppNotificationDB).filter(
+                            InAppNotificationDB.id == n_id,
+                            InAppNotificationDB.recipient == clean_rec
+                        ).first()
+                        if db_notif:
+                            db_notif.is_read = True
+                            updated = True
+                    except (ValueError, TypeError):
+                        pass
+        except Exception as e:
+            logger.error(f"DB mark notification read error: {e}")
+
+    if os.path.exists(IN_APP_NOTIFICATIONS_JSON):
+        try:
+            with open(IN_APP_NOTIFICATIONS_JSON, "r", encoding="utf-8") as f:
+                items = json.load(f)
+            str_id = str(notification_id)
+            for it in items:
+                if it.get("recipient", "").lower() == clean_rec and str(it.get("id")) == str_id:
+                    it["is_read"] = True
+                    updated = True
+                    break
+            if updated:
+                temp_file = IN_APP_NOTIFICATIONS_JSON + ".tmp"
+                with open(temp_file, "w", encoding="utf-8") as f:
+                    json.dump(items, f, ensure_ascii=False, indent=2)
+                os.replace(temp_file, IN_APP_NOTIFICATIONS_JSON)
+        except Exception as je:
+            logger.error(f"JSON mark notification read error: {je}")
+
+    return updated
+
+
+def mark_all_notifications_as_read(recipient: str) -> int:
+    """Marks all notifications for a recipient as read and returns the count."""
+    clean_rec = recipient.strip().lower()
+    count = 0
+
+    if is_db_available() and InAppNotificationDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    db_items = db.query(InAppNotificationDB).filter(
+                        InAppNotificationDB.recipient == clean_rec,
+                        InAppNotificationDB.is_read == False
+                    ).all()
+                    for item in db_items:
+                        item.is_read = True
+                        count += 1
+        except Exception as e:
+            logger.error(f"DB mark all notifications read error: {e}")
+
+    if os.path.exists(IN_APP_NOTIFICATIONS_JSON):
+        try:
+            with open(IN_APP_NOTIFICATIONS_JSON, "r", encoding="utf-8") as f:
+                items = json.load(f)
+            json_count = 0
+            for it in items:
+                if it.get("recipient", "").lower() == clean_rec and not it.get("is_read", False):
+                    it["is_read"] = True
+                    json_count += 1
+            if json_count > 0:
+                count = max(count, json_count)
+                temp_file = IN_APP_NOTIFICATIONS_JSON + ".tmp"
+                with open(temp_file, "w", encoding="utf-8") as f:
+                    json.dump(items, f, ensure_ascii=False, indent=2)
+                os.replace(temp_file, IN_APP_NOTIFICATIONS_JSON)
+        except Exception as je:
+            logger.error(f"JSON mark all notifications read error: {je}")
+
+    return count
+
+
+def get_unread_notification_count(recipient: str) -> int:
+    """Returns the number of unread notifications for a student."""
+    clean_rec = recipient.strip().lower()
+    if is_db_available() and InAppNotificationDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    return db.query(InAppNotificationDB).filter(
+                        InAppNotificationDB.recipient == clean_rec,
+                        InAppNotificationDB.is_read == False
+                    ).count()
+        except Exception as e:
+            logger.debug(f"DB count unread notifications error: {e}")
+
+    if os.path.exists(IN_APP_NOTIFICATIONS_JSON):
+        try:
+            with open(IN_APP_NOTIFICATIONS_JSON, "r", encoding="utf-8") as f:
+                items = json.load(f)
+                return sum(1 for it in items if it.get("recipient", "").lower() == clean_rec and not it.get("is_read", False))
+        except Exception:
+            pass
+    return 0
+
+
+def record_notification_event(
+    recipient: str,
+    notification_type: str,
+    channel: str,
+    target_id: str,
+    status: str = "created",
+    meta: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
+    """Tracks notification lifecycle: created -> sent -> delivered -> opened -> clicked."""
+    clean_rec = recipient.strip().lower()
+    now_iso = datetime.now().isoformat()
+    record = {
+        "id": int(datetime.now().timestamp() * 1000),
+        "recipient": clean_rec,
+        "notification_type": notification_type,
+        "channel": channel,
+        "target_id": target_id,
+        "status": status,
+        "timestamp": now_iso,
+        "meta": meta or {}
+    }
+
+    if is_db_available() and NotificationEventDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    db_obj = NotificationEventDB(
+                        recipient=clean_rec,
+                        notification_type=notification_type,
+                        channel=channel,
+                        target_id=target_id,
+                        status=status,
+                        timestamp=now_iso,
+                        meta=meta or {}
+                    )
+                    db.add(db_obj)
+                    db.flush()
+                    record["id"] = db_obj.id
+        except Exception as e:
+            logger.error(f"Error persisting notification event to DB: {e}")
+
+    # Mirror to JSON file
+    try:
+        os.makedirs(DATA_DIR, exist_ok=True)
+        items = []
+        if os.path.exists(NOTIFICATION_EVENTS_JSON):
+            try:
+                with open(NOTIFICATION_EVENTS_JSON, "r", encoding="utf-8") as f:
+                    items = json.load(f)
+            except Exception:
+                items = []
+        items.insert(0, record)
+        if len(items) > 1000:
+            items = items[:1000]
+        temp_file = NOTIFICATION_EVENTS_JSON + ".tmp"
+        with open(temp_file, "w", encoding="utf-8") as f:
+            json.dump(items, f, ensure_ascii=False, indent=2)
+        os.replace(temp_file, NOTIFICATION_EVENTS_JSON)
+    except Exception as je:
+        logger.error(f"Error writing notification_events JSON: {je}")
+
+    return record
+
+
+def get_notification_events(recipient: Optional[str] = None, limit: int = 100) -> List[Dict[str, Any]]:
+    """Retrieves notification lifecycle events."""
+    clean_rec = recipient.strip().lower() if recipient else None
+    if is_db_available() and NotificationEventDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    q = db.query(NotificationEventDB)
+                    if clean_rec:
+                        q = q.filter(NotificationEventDB.recipient == clean_rec)
+                    items = q.order_by(NotificationEventDB.id.desc()).limit(limit).all()
+                    if items:
+                        return [item.to_dict() for item in items]
+        except Exception as e:
+            logger.debug(f"DB load notification events error: {e}")
+
+    if os.path.exists(NOTIFICATION_EVENTS_JSON):
+        try:
+            with open(NOTIFICATION_EVENTS_JSON, "r", encoding="utf-8") as f:
+                items = json.load(f)
+                if clean_rec:
+                    items = [it for it in items if it.get("recipient", "").lower() == clean_rec]
+                return items[:limit]
+        except Exception:
+            pass
+    return []
+
+
+def get_user_preferences(email: str) -> Dict[str, Any]:
+    """Retrieves user notification & matching preferences."""
+    clean_rec = email.strip().lower()
+    defaults = {
+        "preferred_countries": ["Turkey", "Germany", "Canada", "Europe", "Any"],
+        "funding_type": "Any",
+        "email_notifications": True,
+        "telegram_notifications": False,
+        "telegram_chat_id": "",
+        "degree": "Undergraduate (Bachelor's)",
+        "majors": ["Software Engineering", "Artificial Intelligence"]
+    }
+
+    if is_db_available():
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    u = None
+                    if UserDB is not None:
+                        u = db.query(UserDB).filter(UserDB.email == clean_rec).first()
+                    if not u and SubscriberDB is not None:
+                        u = db.query(SubscriberDB).filter(SubscriberDB.email == clean_rec).first()
+                    if u:
+                        return {
+                            "preferred_countries": getattr(u, "preferred_countries", None) or defaults["preferred_countries"],
+                            "funding_type": getattr(u, "funding_type", None) or defaults["funding_type"],
+                            "email_notifications": getattr(u, "email_notifications", True) if getattr(u, "email_notifications", None) is not None else True,
+                            "telegram_notifications": getattr(u, "telegram_notifications", False) if getattr(u, "telegram_notifications", None) is not None else False,
+                            "telegram_chat_id": getattr(u, "telegram_chat_id", None) or "",
+                            "degree": getattr(u, "degree", None) or defaults["degree"],
+                            "majors": getattr(u, "majors", None) or defaults["majors"]
+                        }
+        except Exception as e:
+            logger.debug(f"DB get_user_preferences error: {e}")
+
+    # Fallback to subscribers.json / users.json
+    for path in [USERS_JSON, SUBSCRIBERS_JSON]:
+        if os.path.exists(path):
+            try:
+                with open(path, "r", encoding="utf-8") as f:
+                    records = json.load(f)
+                matched = next((r for r in records if r.get("email", "").lower() == clean_rec), None)
+                if matched:
+                    return {
+                        "preferred_countries": matched.get("preferred_countries") or matched.get("target_destinations") or defaults["preferred_countries"],
+                        "funding_type": matched.get("funding_type") or defaults["funding_type"],
+                        "email_notifications": matched.get("email_notifications", True),
+                        "telegram_notifications": matched.get("telegram_notifications", False),
+                        "telegram_chat_id": matched.get("telegram_chat_id", ""),
+                        "degree": matched.get("degree") or defaults["degree"],
+                        "majors": matched.get("majors") or defaults["majors"]
+                    }
+            except Exception:
+                pass
+
+    return defaults
+
+
+def update_user_preferences(email: str, preferences: Dict[str, Any]) -> bool:
+    """Updates user notification & matching preferences across DB and JSON stores."""
+    clean_rec = email.strip().lower()
+    if not clean_rec or "@" not in clean_rec:
+        return False
+
+    pref_countries = preferences.get("preferred_countries")
+    funding_type = preferences.get("funding_type")
+    email_notifs = preferences.get("email_notifications")
+    tg_notifs = preferences.get("telegram_notifications")
+    tg_chat_id = preferences.get("telegram_chat_id")
+    degree = preferences.get("degree")
+    majors = preferences.get("majors")
+
+    # Update in Database
+    if is_db_available():
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    for Model in [UserDB, SubscriberDB]:
+                        if Model is not None:
+                            obj = db.query(Model).filter(Model.email == clean_rec).first()
+                            if obj:
+                                if pref_countries is not None:
+                                    obj.preferred_countries = pref_countries
+                                if funding_type is not None:
+                                    obj.funding_type = funding_type
+                                if email_notifs is not None:
+                                    obj.email_notifications = email_notifs
+                                if tg_notifs is not None:
+                                    obj.telegram_notifications = tg_notifs
+                                if tg_chat_id is not None:
+                                    obj.telegram_chat_id = tg_chat_id
+                                if degree is not None:
+                                    obj.degree = degree
+                                if majors is not None:
+                                    obj.majors = majors
+        except Exception as e:
+            logger.error(f"Error updating preferences in DB: {e}")
+
+    # Mirror update to JSON files
+    for path in [USERS_JSON, SUBSCRIBERS_JSON]:
+        if os.path.exists(path):
+            try:
+                with open(path, "r", encoding="utf-8") as f:
+                    records = json.load(f)
+                updated = False
+                for r in records:
+                    if r.get("email", "").lower() == clean_rec:
+                        if pref_countries is not None:
+                            r["preferred_countries"] = pref_countries
+                            r["target_destinations"] = pref_countries
+                        if funding_type is not None:
+                            r["funding_type"] = funding_type
+                        if email_notifs is not None:
+                            r["email_notifications"] = email_notifs
+                        if tg_notifs is not None:
+                            r["telegram_notifications"] = tg_notifs
+                        if tg_chat_id is not None:
+                            r["telegram_chat_id"] = tg_chat_id
+                        if degree is not None:
+                            r["degree"] = degree
+                        if majors is not None:
+                            r["majors"] = majors
+                        updated = True
+                if not updated and path == SUBSCRIBERS_JSON:
+                    new_rec = {
+                        "email": clean_rec,
+                        "full_name": "Student",
+                        "degree": degree or "Undergraduate (Bachelor's)",
+                        "majors": majors or ["Software Engineering"],
+                        "gpa": "85%",
+                        "english_level": "Intermediate",
+                        "target_destinations": pref_countries or ["Any"],
+                        "preferred_countries": pref_countries or ["Any"],
+                        "funding_type": funding_type or "Any",
+                        "email_notifications": email_notifs if email_notifs is not None else True,
+                        "telegram_notifications": tg_notifs if tg_notifs is not None else False,
+                        "telegram_chat_id": tg_chat_id or "",
+                        "country": "Palestine",
+                        "saved_scholarships": [],
+                        "created_at": datetime.now().isoformat(),
+                        "status": "active"
+                    }
+                    records.append(new_rec)
+                    updated = True
+
+                if updated:
+                    temp_file = path + ".tmp"
+                    with open(temp_file, "w", encoding="utf-8") as f:
+                        json.dump(records, f, ensure_ascii=False, indent=2)
+                    os.replace(temp_file, path)
+            except Exception as je:
+                logger.error(f"Error updating preferences in {path}: {je}")
+
+    return True

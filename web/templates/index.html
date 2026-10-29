@@ -103,6 +103,12 @@
                     </span>
                 </button>
 
+                <!-- Notifications Center Link -->
+                <a href="/notifications" class="relative p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 transition flex items-center justify-center" title="مركز التنبيهات">
+                    <i data-lucide="bell" class="w-4 h-4 text-blue-500"></i>
+                    <span id="indexNotifBadge" class="hidden absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-[10px] font-black flex items-center justify-center">0</span>
+                </a>
+
                 <!-- Student Dashboard Link -->
                 <a href="/dashboard" class="sp-btn-secondary px-3.5 py-2 text-xs font-semibold flex items-center gap-1.5">
                     <i data-lucide="user" class="w-4 h-4 text-blue-600 dark:text-blue-400"></i>
@@ -2477,6 +2483,18 @@ ${cleanBody}
 
         document.addEventListener('DOMContentLoaded', () => {
             loadLiveScholarships();
+            const savedEmail = localStorage.getItem('scholarpilot_user_email') || 'medo.msz.2006@gmail.com';
+            fetch(`/api/notifications?email=${encodeURIComponent(savedEmail)}&unread_only=true&limit=1`)
+                .then(r => r.json())
+                .then(d => {
+                    if (d.success && d.unread_count > 0) {
+                        const b = document.getElementById('indexNotifBadge');
+                        if (b) {
+                            b.textContent = d.unread_count > 9 ? '9+' : d.unread_count;
+                            b.classList.remove('hidden');
+                        }
+                    }
+                }).catch(() => {});
             if (window.lucide) lucide.createIcons();
         });
     </script>

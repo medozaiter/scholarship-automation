@@ -88,6 +88,11 @@
                     <i data-lucide="sparkles" class="w-3.5 h-3.5 text-blue-500"></i>
                     <span class="hidden sm:inline">المستشار الذكي</span>
                 </a>
+                <a href="/notifications" class="relative sp-btn-secondary px-3 py-2 text-xs font-semibold flex items-center gap-1.5" title="مركز التنبيهات">
+                    <i data-lucide="bell" class="w-3.5 h-3.5 text-blue-500"></i>
+                    <span class="hidden sm:inline">التنبيهات</span>
+                    <span id="navNotifBadge" class="hidden absolute -top-1.5 -right-1.5 w-4 h-4 bg-red-500 text-white rounded-full text-[10px] font-black flex items-center justify-center">0</span>
+                </a>
 
                 <!-- Theme Toggle -->
                 <button type="button" onclick="toggleTheme()" aria-label="Toggle visual theme" class="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 transition">
@@ -383,6 +388,119 @@
                 <div id="savedScholarshipsList" class="space-y-3 pt-2"></div>
             </div>
 
+            <!-- NOTIFICATIONS & ALERTS CENTER PREVIEW -->
+            <div class="sp-card p-6 sm:p-8 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4 gap-2">
+                    <div>
+                        <h2 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                            <i data-lucide="bell" class="w-4 h-4 text-blue-500"></i>
+                            <span>مركز التنبيهات المباشرة والإشعارات</span>
+                            <span id="dashUnreadPill" class="hidden px-2 py-0.5 rounded-full text-[11px] font-black bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800">0 جديدة</span>
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">آخر الفرص المكتشفة وتذكيرات المواعيد المطابقة لملفك الأكاديمي.</p>
+                    </div>
+
+                    <a href="/notifications" class="sp-btn-secondary px-3 py-1.5 text-xs font-semibold self-start sm:self-auto flex items-center gap-1.5 text-blue-600 dark:text-blue-400">
+                        <span>عرض كافة التنبيهات</span>
+                        <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+                    </a>
+                </div>
+
+                <div id="dashboardNotificationsList" class="space-y-2.5 pt-1">
+                    <div class="text-center py-6 text-slate-400 text-xs">
+                        <i data-lucide="loader-2" class="w-5 h-5 animate-spin mx-auto text-blue-500 mb-2"></i>
+                        <span>جاري تحميل التنبيهات...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NOTIFICATION & MATCHING PREFERENCES -->
+            <div class="sp-card p-6 sm:p-8 space-y-5 border border-slate-200 dark:border-slate-800">
+                <div class="border-b border-slate-200 dark:border-slate-800 pb-4">
+                    <h2 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <i data-lucide="sliders" class="w-4 h-4 text-indigo-500"></i>
+                        <span>إعدادات وتفضيلات التنبيهات الذكية</span>
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-0.5">خصص قنوات استلام الإشعارات (إيميل / تليجرام) ومعايير تصفية المنح المطابقة.</p>
+                </div>
+
+                <form id="preferencesForm" onsubmit="savePreferences(event)" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Channel 1: Email Notifications Toggle -->
+                        <div class="p-4 rounded-xl sp-subcard flex items-center justify-between">
+                            <div>
+                                <div class="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                                    <i data-lucide="mail" class="w-4 h-4 text-blue-500"></i>
+                                    <span>تنبيهات البريد الإلكتروني</span>
+                                </div>
+                                <div class="text-[11px] text-slate-400 mt-0.5">إرسال تقارير المطابقة والنشرة الأسبوعية وتذكير المواعيد لإيميلك</div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="prefEmailToggle" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                        </div>
+
+                        <!-- Channel 2: Telegram Notifications Toggle -->
+                        <div class="p-4 rounded-xl sp-subcard flex items-center justify-between">
+                            <div>
+                                <div class="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                                    <i data-lucide="send" class="w-4 h-4 text-cyan-500"></i>
+                                    <span>تنبيهات تليجرام الفورية</span>
+                                </div>
+                                <div class="text-[11px] text-slate-400 mt-0.5">إرسال الفرص العاجلة والمواعيد مباشرة لرقم الـ Chat ID على تليجرام</div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="prefTelegramToggle" onchange="toggleTelegramInput()" class="sr-only peer">
+                                <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-600"></div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Telegram Chat ID Input (Visible if telegram enabled) -->
+                    <div id="telegramChatIdRow" class="hidden p-4 rounded-xl bg-cyan-500/5 border border-cyan-500/20 space-y-2">
+                        <label class="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                            <i data-lucide="message-square" class="w-3.5 h-3.5 text-cyan-400"></i>
+                            <span>معرّف محادثة تليجرام (Telegram Chat ID)</span>
+                        </label>
+                        <input type="text" id="prefTelegramChatId" placeholder="مثال: 123456789 (يمكنك الحصول عليه من بوت @userinfobot)" class="sp-input text-xs w-full">
+                        <p class="text-[11px] text-slate-400">تصلك التنبيهات عبر بوت المنصة فور توفر فرص مطابقة لملفك الأكاديمي.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                        <!-- Preferred Countries -->
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                                <i data-lucide="globe" class="w-3.5 h-3.5 text-blue-500"></i>
+                                <span>الدول ووجهات الابتعاث المفضلة</span>
+                            </label>
+                            <input type="text" id="prefCountries" placeholder="Turkey, Germany, Canada, Europe, Any" class="sp-input text-xs w-full">
+                            <p class="text-[10px] text-slate-400">افصل بين الدول بفواصل (مثل: Turkey, Canada, Germany أو Any للكل).</p>
+                        </div>
+
+                        <!-- Funding Type Preference -->
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                                <i data-lucide="dollar-sign" class="w-3.5 h-3.5 text-emerald-500"></i>
+                                <span>نوع التمويل المطلوب</span>
+                            </label>
+                            <select id="prefFunding" class="sp-input text-xs w-full">
+                                <option value="Any">كافة أنواع التمويل (كامل وجزئي)</option>
+                                <option value="Full">تمويل كامل 100% فقط (مع الرسوم والمعيشة)</option>
+                                <option value="Partial">منح إعفاء دراسي جزئي أو كامل للرسوم</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-end pt-2">
+                        <button type="submit" id="savePrefBtn" class="sp-btn-primary px-5 py-2.5 text-xs font-bold flex items-center gap-2">
+                            <i data-lucide="save" class="w-3.5 h-3.5"></i>
+                            <span>حفظ التفضيلات وتحديث المطابقة</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
         </div>
 
     </main>
@@ -635,7 +753,156 @@
                 `).join('');
             }
 
+            if (user && user.email) {
+                loadUserPreferences(user.email);
+                loadDashboardNotifications(user.email);
+            }
+
             if (window.lucide) lucide.createIcons();
+        }
+
+        function toggleTelegramInput() {
+            const isChecked = document.getElementById('prefTelegramToggle').checked;
+            const row = document.getElementById('telegramChatIdRow');
+            if (row) row.classList.toggle('hidden', !isChecked);
+        }
+
+        async function loadUserPreferences(email) {
+            if (!email) return;
+            try {
+                const res = await fetch(`/api/user/preferences?email=${encodeURIComponent(email)}`);
+                const data = await res.json();
+                if (data.success && data.preferences) {
+                    const p = data.preferences;
+                    const emailToggle = document.getElementById('prefEmailToggle');
+                    if (emailToggle) emailToggle.checked = p.email_notifications !== false;
+
+                    const tgToggle = document.getElementById('prefTelegramToggle');
+                    if (tgToggle) tgToggle.checked = !!p.telegram_notifications;
+
+                    const tgChatInput = document.getElementById('prefTelegramChatId');
+                    if (tgChatInput) tgChatInput.value = p.telegram_chat_id || '';
+
+                    const countriesInput = document.getElementById('prefCountries');
+                    if (countriesInput && p.preferred_countries && Array.isArray(p.preferred_countries)) {
+                        countriesInput.value = p.preferred_countries.join(', ');
+                    }
+
+                    const fundingSelect = document.getElementById('prefFunding');
+                    if (fundingSelect && p.funding_type) {
+                        fundingSelect.value = p.funding_type;
+                    }
+
+                    toggleTelegramInput();
+                }
+            } catch (err) {
+                console.error("Error loading preferences:", err);
+            }
+        }
+
+        async function savePreferences(event) {
+            event.preventDefault();
+            if (!currentUser || !currentUser.email) return;
+            const saveBtn = document.getElementById('savePrefBtn');
+            const originalContent = saveBtn.innerHTML;
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = `<span>جارٍ الحفظ...</span>`;
+
+            const countriesStr = document.getElementById('prefCountries').value;
+            const countries = countriesStr.split(',').map(c => c.trim()).filter(Boolean);
+
+            const payload = {
+                email: currentUser.email,
+                preferred_countries: countries.length > 0 ? countries : ["Any"],
+                funding_type: document.getElementById('prefFunding').value,
+                email_notifications: document.getElementById('prefEmailToggle').checked,
+                telegram_notifications: document.getElementById('prefTelegramToggle').checked,
+                telegram_chat_id: document.getElementById('prefTelegramChatId').value.trim()
+            };
+
+            try {
+                const res = await fetch('/api/user/preferences', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast('success', 'تم حفظ التفضيلات بنجاح!', 'تم تحديث معايير المطابقة وتفضيلات قنوات الإشعارات بنجاح.');
+                } else {
+                    showToast('error', 'خطأ في الحفظ', data.detail || 'تعذر حفظ التفضيلات');
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('error', 'فشل الاتصال', 'تعذر الاتصال بالخادم لحفظ التفضيلات');
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = originalContent;
+                if (window.lucide) lucide.createIcons();
+            }
+        }
+
+        async function loadDashboardNotifications(email) {
+            if (!email) return;
+            try {
+                const res = await fetch(`/api/notifications?email=${encodeURIComponent(email)}&limit=5`);
+                const data = await res.json();
+                if (data.success) {
+                    const unread = data.unread_count || 0;
+                    const badge = document.getElementById('navNotifBadge');
+                    if (badge) {
+                        if (unread > 0) {
+                            badge.textContent = unread > 9 ? '9+' : unread;
+                            badge.classList.remove('hidden');
+                        } else {
+                            badge.classList.add('hidden');
+                        }
+                    }
+
+                    const pill = document.getElementById('dashUnreadPill');
+                    if (pill) {
+                        if (unread > 0) {
+                            pill.textContent = `${unread} جديدة`;
+                            pill.classList.remove('hidden');
+                        } else {
+                            pill.classList.add('hidden');
+                        }
+                    }
+
+                    const list = document.getElementById('dashboardNotificationsList');
+                    if (list) {
+                        if (!data.notifications || data.notifications.length === 0) {
+                            list.innerHTML = `
+                                <div class="text-center py-6 text-slate-400 text-xs">
+                                    <i data-lucide="bell-off" class="w-6 h-6 mx-auto mb-1 text-slate-500"></i>
+                                    <span>لا توجد تنبيهات جديدة حالياً. سيتولى الرادار إعلامك فور توفر فرص مطابقة.</span>
+                                </div>
+                            `;
+                        } else {
+                            list.innerHTML = data.notifications.slice(0, 3).map(n => {
+                                const isUnread = !n.is_read;
+                                return `
+                                    <div class="p-3 rounded-xl sp-subcard flex items-start justify-between gap-3 text-xs ${isUnread ? 'border-r-4 border-r-blue-500' : 'opacity-80'}">
+                                        <div class="flex items-start gap-2.5">
+                                            <div class="w-7 h-7 rounded-lg ${n.type && n.type.includes('deadline') ? 'bg-amber-500/10 text-amber-500' : 'bg-blue-500/10 text-blue-500'} flex items-center justify-center shrink-0 mt-0.5">
+                                                <i data-lucide="${n.type && n.type.includes('deadline') ? 'clock' : 'target'}" class="w-3.5 h-3.5"></i>
+                                            </div>
+                                            <div>
+                                                <h4 class="font-bold text-slate-900 dark:text-white">${escapeHTML(n.title)}</h4>
+                                                <p class="text-slate-500 dark:text-slate-400 text-[11px] mt-0.5 line-clamp-2">${escapeHTML(n.message)}</p>
+                                            </div>
+                                        </div>
+                                        ${n.link ? `<a href="${n.link}" target="_blank" class="shrink-0 text-blue-600 dark:text-blue-400 font-bold hover:underline flex items-center gap-1"><span>فتح</span><i data-lucide="external-link" class="w-3 h-3"></i></a>` : ''}
+                                    </div>
+                                `;
+                            }).join('');
+                        }
+                    }
+                    if (window.lucide) lucide.createIcons();
+                }
+            } catch (err) {
+                console.error("Error loading dashboard notifications:", err);
+            }
         }
 
         // Modern Glassmorphism Animated Toast

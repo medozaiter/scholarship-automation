@@ -412,24 +412,25 @@ class AutomationService:
     async def match_and_notify_students_for_new_scholarships(
         self,
         new_scholarships: List[Dict[str, Any]],
-        match_threshold: float = 80.0
+        match_threshold: float = 75.0
     ) -> Dict[str, Any]:
         """
         Automatic Student Matching & Notification Engine:
-        Evaluates newly discovered scholarships against all active students.
-        Calculates 5-D Match Scores, ranks matches, and dispatches personalized alert
-        emails with detailed reasons why the scholarship is a strong match.
-        Guarantees idempotency via NotificationHistory.
+        Evaluates newly discovered scholarships against all active students and user preferences.
+        Considers: Degree, Country, Category/Field of study, Funding type, and Keywords.
+        Dispatches multi-channel notifications (In-App, Email, Telegram) via async NotificationQueue.
+        Guarantees strict deduplication (never alerts twice for the same scholarship).
         """
         from services.advisor_service import AdvisorService
-        from services.email_service import dispatch_email
-        from services.db import is_notification_sent, record_notification
+        from services.email_service import render_new_match_template
+        from services.notification_queue import enqueue_notification
+        from services.db import is_notification_sent, get_user_preferences
 
         advisor = AdvisorService()
         students = self._get_all_active_students()
         logger.info(f"Matching {len(new_scholarships)} new scholarships against {len(students)} active students...")
 
-        total_alerts_sent = 0
+        total_alerts_queued = 0
 
         for student in students:
             email = student.get("email")
@@ -441,113 +442,95 @@ class AutomationService:
             majors = student.get("majors") or ["Software Engineering"]
             degree = student.get("degree") or "Undergraduate (Bachelor's)"
 
+            # Load extended preferences
+            prefs = get_user_preferences(email)
+            pref_countries = [c.lower() for c in prefs.get("preferred_countries", ["any"])]
+            pref_funding = prefs.get("funding_type", "Any").lower()
+            email_enabled = prefs.get("email_notifications", True)
+            telegram_enabled = prefs.get("telegram_notifications", False)
+            telegram_chat_id = (prefs.get("telegram_chat_id") or "").strip()
+
             for sch in new_scholarships:
                 sch_id = sch.get("id") or str(abs(hash(sch.get("name", ""))))
                 sch_name = sch.get("name", "منحة دراسية جديدة")
+                sch_country = (sch.get("country") or "").lower()
+                sch_coverage = (sch.get("coverage") or "").lower()
 
-                # Idempotency check: Don't notify the same student twice for the same scholarship
+                # Preference Check: Country
+                if "any" not in pref_countries and "كل الدول" not in pref_countries:
+                    country_match = any(pc in sch_country for pc in pref_countries)
+                    if not country_match:
+                        continue
+
+                # Preference Check: Funding
+                if pref_funding in ["full", "كامل", "تغطية كاملة"] and "100%" not in sch_coverage and "كامل" not in sch_coverage:
+                    continue
+
+                # Deduplication key across channels
                 notification_target = f"new_match_alert_{sch_id}_{email.lower()}"
                 if is_notification_sent(email, "new_scholarship_alert", notification_target):
                     continue
 
-                # 5-D Match Score calculation
+                # 5-D Match Score calculation (Degree, Major, GPA, Country, Prerequisites)
                 match_res = advisor.calculate_smart_match(student, sch)
                 score = match_res.get("match_score", 0.0)
 
                 if score >= match_threshold:
                     logger.info(f"🎯 High Match found: {sch_name} ({score}%) for {email}")
-                    strengths_html = "".join([f"<li style='margin-bottom:6px;'>{s}</li>" for s in match_res.get("strengths", [])]) or "<li>توافق أكاديمي مباشر مع ملفك المسجل.</li>"
                     link = sch.get("link") or sch.get("official_link", "https://scholarpilot-ai-mkac.onrender.com")
 
-                    subject = f"🎯 رصد منحة جديدة متوافقة مع ملفك بنسبة {score}%: {sch_name}"
-                    html_content = f"""
-                    <!DOCTYPE html>
-                    <html dir="rtl" lang="ar">
-                    <head>
-                      <meta charset="utf-8">
-                      <style>
-                        body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f172a; margin: 0; padding: 20px; color: #f8fafc; }}
-                        .card {{ max-width: 620px; margin: 0 auto; background: #1e293b; border-radius: 18px; border: 1px solid #334155; padding: 32px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }}
-                        .score-pill {{ display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 9999px; font-weight: 800; font-size: 13px; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); margin-bottom: 16px; }}
-                        .title {{ font-size: 22px; font-weight: 800; color: #ffffff; margin: 0 0 14px 0; line-height: 1.4; }}
-                        .desc {{ font-size: 14px; color: #94a3b8; line-height: 1.6; margin-bottom: 20px; }}
-                        .info-box {{ background: #0f172a; border-radius: 12px; padding: 18px; border: 1px solid #334155; margin-bottom: 22px; }}
-                        .info-row {{ display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #1e293b; font-size: 13px; }}
-                        .reasons {{ background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 12px; padding: 16px; margin-bottom: 24px; font-size: 13px; color: #cbd5e1; }}
-                        .btn {{ display: inline-block; background: #2563eb; color: #ffffff !important; text-decoration: none; padding: 13px 32px; border-radius: 10px; font-weight: 800; font-size: 14px; text-align: center; box-shadow: 0 4px 12px rgba(37,99,235,0.3); }}
-                        .footer {{ text-align: center; font-size: 11px; color: #64748b; margin-top: 28px; line-height: 1.5; }}
-                      </style>
-                    </head>
-                    <body>
-                      <div class="card">
-                        <span class="score-pill">⚡ فرصة جديدة تم رصدها آلياً | توافق {score}%</span>
-                        <h1 class="title">{sch_name}</h1>
-                        <p class="desc">مرحباً {name}، رصد محرك الذكاء الاصطناعي لمنصة ScholarPilot AI فرصة منحة دراسية جديدة مطابقة بدقة لملفك الأكاديمي المسجل لدينا.</p>
-                        
-                        <div class="info-box">
-                          <div class="info-row">
-                            <span style="color:#94a3b8;">المؤسسة والدولة:</span>
-                            <strong style="color:#ffffff;">{sch.get('university', sch.get('country', 'International'))} ({sch.get('country', 'دولي')})</strong>
-                          </div>
-                          <div class="info-row">
-                            <span style="color:#94a3b8;">المرحلة الأكاديمية:</span>
-                            <strong style="color:#38bdf8;">{sch.get('degree', degree)}</strong>
-                          </div>
-                          <div class="info-row">
-                            <span style="color:#94a3b8;">التغطية المالية:</span>
-                            <strong style="color:#34d399;">{sch.get('coverage', 'تمويل كامل أو جزئي')}</strong>
-                          </div>
-                          <div class="info-row" style="border-bottom:none;">
-                            <span style="color:#94a3b8;">الموعد النهائي:</span>
-                            <strong style="color:#f59e0b;">{sch.get('deadline_display', sch.get('deadline', 'راجع البوابة'))}</strong>
-                          </div>
-                        </div>
+                    # 1. ALWAYS Queue In-App Notification
+                    await enqueue_notification(
+                        channel="in_app",
+                        recipient=email,
+                        notification_type="new_scholarship_alert",
+                        target_id=f"in_app_{notification_target}",
+                        payload={
+                            "title": f"🎯 منحة مطابقة لملفك: {sch_name} ({int(score)}%)",
+                            "message": f"اكتشف رادار المنح منحة جديدة متوافقة مع تخصصك في {sch.get('country', '')}. الموعد النهائي: {sch.get('deadline_display', sch.get('deadline', 'قريباً'))}",
+                            "type": "match",
+                            "scholarship_id": sch_id,
+                            "link": link
+                        }
+                    )
 
-                        <div class="reasons">
-                          <strong style="color:#60a5fa; display:block; margin-bottom:8px;">💡 لماذا تناسبك هذه المنحة بالتحديد؟</strong>
-                          <ul style="margin:0; padding-right:20px; line-height:1.6;">
-                            {strengths_html}
-                            <li>معدلك الحالي ({gpa}) وتخصصك في ({majors[0] if majors else 'تخصصك'}) يمنحانك أهلية تنافسية قوية.</li>
-                          </ul>
-                        </div>
-
-                        <div style="text-align: center;">
-                          <a href="{link}" target="_blank" class="btn">الانتقال لبوابة التقديم الرسمية ↗</a>
-                        </div>
-
-                        <div class="footer">
-                          تم إرسال هذا التنبيه الشخصي التلقائي بناءً على إعدادات حسابك في منصة ScholarPilot AI.<br>
-                          يقوم النظام بمراقبة المواعيد النهائية وإرسال التنبيهات دورياً بدون أي تدخل يدوي.
-                        </div>
-                      </div>
-                    </body>
-                    </html>
-                    """
-                    text_content = f"مرحباً {name}، تم رصد منحة جديدة متوافقة معك بنسبة {score}%: {sch_name}. رابط التقديم: {link}"
-
-                    try:
-                        ok = await dispatch_email(
-                            to_email=email,
-                            subject=subject,
-                            html_content=html_content,
-                            text_content=text_content
+                    # 2. Queue Email Notification if user preference is ON
+                    if email_enabled:
+                        html_content, text_content = render_new_match_template(
+                            student_name=name,
+                            scholarship=sch,
+                            match_score=int(score),
+                            reasons=match_res.get("strengths", [])
                         )
-                        if ok:
-                            total_alerts_sent += 1
-                            record_notification(
-                                recipient=email,
-                                notification_type="new_scholarship_alert",
-                                target_id=notification_target,
-                                subject=subject,
-                                status="sent",
-                                details={"scholarship_id": sch_id, "score": score}
-                            )
-                    except Exception as err:
-                        logger.error(f"Error dispatching new match alert to {email}: {err}")
-                    
-                    await asyncio.sleep(1.5)  # Provider rate-limiting safeguard
+                        email_ok = await enqueue_notification(
+                            channel="email",
+                            recipient=email,
+                            notification_type="new_scholarship_alert",
+                            target_id=notification_target,
+                            payload={
+                                "subject": f"🎯 رصد منحة جديدة متوافقة مع ملفك بنسبة {int(score)}%: {sch_name}",
+                                "html_content": html_content,
+                                "text_content": text_content,
+                                "details": {"scholarship_id": sch_id, "score": score}
+                            }
+                        )
+                        if email_ok:
+                            total_alerts_queued += 1
 
-        return {"alerts_sent": total_alerts_sent}
+                    # 3. Queue Telegram Notification if user enabled Telegram
+                    if telegram_enabled and telegram_chat_id:
+                        await enqueue_notification(
+                            channel="telegram",
+                            recipient=telegram_chat_id,
+                            notification_type="new_scholarship_alert",
+                            target_id=f"tg_{notification_target}",
+                            payload={
+                                "chat_id": telegram_chat_id,
+                                "scholarship": sch
+                            }
+                        )
+
+        return {"alerts_queued": total_alerts_queued}
 
     # ==========================================================================
     # 4 & 6. WEEKLY AUTOMATED REPORTS (RECURRING 7-DAY PERSONALIZED DIGESTS)
@@ -559,7 +542,8 @@ class AutomationService:
         generates and delivers their personalized 5-D report automatically.
         Guarantees idempotency per calendar week to prevent spam.
         """
-        from services.db import is_notification_sent, record_notification
+        from services.db import is_notification_sent, record_notification, get_user_preferences
+        from services.notification_queue import enqueue_notification
 
         students = self._get_all_active_students()
         now = datetime.now()
@@ -595,31 +579,51 @@ class AutomationService:
             if should_send:
                 logger.info(f"Automated Weekly Digest triggering for: {email}")
                 try:
-                    ok = await self.engine.send_personalized_report(
-                        recipient_email=email,
-                        student_name=student.get("full_name", "Student"),
-                        degree=student.get("degree", "Undergraduate (Bachelor's)"),
-                        majors=student.get("majors", ["Software Engineering"]),
-                        country=student.get("country", "Palestine"),
-                        student_profile=student
+                    # Enqueue in-app digest notification
+                    await enqueue_notification(
+                        channel="in_app",
+                        recipient=email,
+                        notification_type="weekly_digest",
+                        target_id=f"in_app_{week_key}",
+                        payload={
+                            "title": f"📬 صدرت النشرة الأسبوعية للمنح (أسبوع {current_week_num})",
+                            "message": f"تم تجهيز حصاد المنح الأسبوعية الجديدة المتطابقة مع تخصصك ومعاييرك الأكاديمية.",
+                            "type": "digest",
+                            "scholarship_id": None,
+                            "link": "/notifications"
+                        }
                     )
-                    if ok:
+
+                    prefs = get_user_preferences(email)
+                    if prefs.get("email_notifications", True):
+                        ok = await self.engine.send_personalized_report(
+                            recipient_email=email,
+                            student_name=student.get("full_name", "Student"),
+                            degree=student.get("degree", "Undergraduate (Bachelor's)"),
+                            majors=student.get("majors", ["Software Engineering"]),
+                            country=student.get("country", "Palestine"),
+                            student_profile=student
+                        )
+                        if ok:
+                            dispatched += 1
+                            self.sub_service.update_last_sent(email)
+                            record_notification(
+                                recipient=email,
+                                notification_type="weekly_digest",
+                                target_id=week_key,
+                                subject=f"دليل المنح الأسبوعي المخصص (أسبوع {current_week_num})",
+                                status="sent",
+                                details={"week": current_week_num, "year": now.year}
+                            )
+                        else:
+                            failed += 1
+                    else:
                         dispatched += 1
                         self.sub_service.update_last_sent(email)
-                        record_notification(
-                            recipient=email,
-                            notification_type="weekly_digest",
-                            target_id=week_key,
-                            subject=f"دليل المنح الأسبوعي المخصص (أسبوع {current_week_num})",
-                            status="sent",
-                            details={"week": current_week_num, "year": now.year}
-                        )
-                    else:
-                        failed += 1
                 except Exception as e:
                     failed += 1
                     logger.error(f"Auto-dispatch error for {email}: {e}")
-                await asyncio.sleep(2)  # rate limit pause
+                await asyncio.sleep(0.5)
 
         return {
             "dispatched": dispatched,
@@ -637,7 +641,8 @@ class AutomationService:
         Sends personalized reminders at key milestones: 30, 14, 7, 3, 1 days remaining.
         Guarantees idempotency via NotificationHistory so reminders are sent once per milestone.
         """
-        from services.db import is_notification_sent, record_notification
+        from services.db import is_notification_sent, record_notification, get_user_preferences
+        from services.notification_queue import enqueue_notification
 
         students = self._get_all_active_students()
         scholarships = self.get_live_scholarships()
@@ -679,25 +684,58 @@ class AutomationService:
                             continue
 
                         logger.info(f"⏰ Dispatching deadline reminder for '{sch_name}' to {email} ({days_remaining} days left)")
-                        ok = await self._send_reminder_email(
-                            recipient_email=email,
-                            student_name=student.get("full_name", "Student"),
-                            scholarship_name=sch_name,
-                            days_remaining=days_remaining,
-                            deadline_date=dl_str,
-                            link=matched.get("link") or matched.get("official_link", "https://scholarpilot-ai-mkac.onrender.com")
+
+                        # 1. Enqueue In-App notification
+                        await enqueue_notification(
+                            channel="in_app",
+                            recipient=email,
+                            notification_type="deadline_reminder",
+                            target_id=f"in_app_{reminder_key}",
+                            payload={
+                                "title": f"⚠️ تذكير موعد نهائي: متبقي {days_remaining} أيام لمنحة {sch_name}",
+                                "message": f"الموعد النهائي المحدد لإغلاق التقديم هو {dl_str}. سارع باستكمال وثائقك الرسمية.",
+                                "type": "deadline",
+                                "scholarship_id": matched.get("id"),
+                                "link": matched.get("link")
+                            }
                         )
-                        if ok:
-                            reminders_sent += 1
-                            record_notification(
-                                recipient=email,
-                                notification_type="deadline_reminder",
-                                target_id=reminder_key,
-                                subject=f"تنبيه بالموعد النهائي: متبقي {days_remaining} أيام لمنحة {sch_name}",
-                                status="sent",
-                                details={"days_remaining": days_remaining, "scholarship": sch_name, "deadline": dl_str}
+
+                        prefs = get_user_preferences(email)
+                        # 2. Enqueue Email notification if enabled
+                        if prefs.get("email_notifications", True):
+                            ok = await self._send_reminder_email(
+                                recipient_email=email,
+                                student_name=student.get("full_name", "Student"),
+                                scholarship=matched,
+                                days_remaining=days_remaining,
+                                deadline_date=dl_str,
+                                link=matched.get("link") or matched.get("official_link", "https://scholarpilot-ai-mkac.onrender.com")
                             )
-                        await asyncio.sleep(1.5)
+                            if ok:
+                                reminders_sent += 1
+                                record_notification(
+                                    recipient=email,
+                                    notification_type="deadline_reminder",
+                                    target_id=reminder_key,
+                                    subject=f"تنبيه بالموعد النهائي: متبقي {days_remaining} أيام لمنحة {sch_name}",
+                                    status="sent",
+                                    details={"days_remaining": days_remaining, "scholarship": sch_name, "deadline": dl_str}
+                                )
+
+                        # 3. Enqueue Telegram reminder if enabled
+                        if prefs.get("telegram_notifications", False) and prefs.get("telegram_chat_id"):
+                            await enqueue_notification(
+                                channel="telegram",
+                                recipient=prefs["telegram_chat_id"],
+                                notification_type="deadline_reminder",
+                                target_id=f"tg_{reminder_key}",
+                                payload={
+                                    "chat_id": prefs["telegram_chat_id"],
+                                    "text": f"⚠️ <b>تذكير باقتراب الموعد النهائي!</b>\nمنحة: <b>{sch_name}</b>\nمتبقي: <b>{days_remaining} أيام</b> (الموعد: {dl_str})\n🔗 <a href='{matched.get('link')}'>رابط التقديم الرسمي</a>"
+                                }
+                            )
+
+                        await asyncio.sleep(0.5)
                 except Exception as e:
                     logger.debug(f"Could not parse deadline date {dl_str}: {e}")
 
@@ -707,69 +745,27 @@ class AutomationService:
         self,
         recipient_email: str,
         student_name: str,
-        scholarship_name: str,
+        scholarship: Dict[str, Any],
         days_remaining: int,
         deadline_date: str,
         link: str
     ) -> bool:
         """Dispatches an urgent, beautifully styled personalized reminder email."""
-        from services.email_service import dispatch_email
+        from services.email_service import dispatch_email, render_deadline_reminder_template
         clean_name = sanitize_text(student_name)
-        clean_sch = sanitize_text(scholarship_name)
-        urgency_color = "#dc2626" if days_remaining <= 3 else "#d97706"
-        urgency_bg = "#fef2f2" if days_remaining <= 3 else "#fffbeb"
+        sch_name = scholarship.get("name", "منحة دراسية")
 
-        html_content = f"""
-        <!DOCTYPE html>
-        <html dir="rtl" lang="ar">
-        <head>
-          <meta charset="utf-8">
-          <style>
-            body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f172a; margin: 0; padding: 20px; color: #f8fafc; }}
-            .card {{ max-width: 600px; margin: 0 auto; background: #1e293b; border-radius: 16px; border: 1px solid #334155; padding: 30px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5); }}
-            .badge {{ display: inline-block; padding: 6px 14px; border-radius: 20px; font-weight: bold; font-size: 13px; background: {urgency_bg}; color: {urgency_color}; border: 1px solid {urgency_color}40; margin-bottom: 16px; }}
-            .title {{ font-size: 22px; font-weight: 800; color: #ffffff; margin: 0 0 12px 0; }}
-            .desc {{ font-size: 14px; color: #94a3b8; line-height: 1.6; margin-bottom: 24px; }}
-            .info-box {{ background: #0f172a; border-radius: 12px; padding: 16px; border: 1px solid #334155; margin-bottom: 24px; }}
-            .info-row {{ display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #1e293b; font-size: 13px; }}
-            .btn {{ display: inline-block; background: #2563eb; color: #ffffff !important; text-decoration: none; padding: 12px 28px; border-radius: 10px; font-weight: bold; font-size: 14px; text-align: center; }}
-            .footer {{ text-align: center; font-size: 11px; color: #64748b; margin-top: 24px; }}
-          </style>
-        </head>
-        <body>
-          <div class="card">
-            <span class="badge">⏰ تنبيه موعد نهائي اقترب ({days_remaining} أيام متبقية)</span>
-            <h1 class="title">تذكير بخصوص منحة {clean_sch}</h1>
-            <p class="desc">مرحباً {clean_name}، نود تذكيرك بأن الموعد النهائي المحدد لتقديم الطلب الرسمي يقترب، لتفادي إغلاق البوابة وضياع فرصة المنافسة.</p>
-            <div class="info-box">
-              <div class="info-row">
-                <span style="color:#94a3b8;">المنحة:</span>
-                <strong style="color:#ffffff;">{clean_sch}</strong>
-              </div>
-              <div class="info-row">
-                <span style="color:#94a3b8;">الموعد النهائي:</span>
-                <strong style="color:{urgency_color};">{deadline_date}</strong>
-              </div>
-              <div class="info-row" style="border-bottom:none;">
-                <span style="color:#94a3b8;">الوقت المتبقي:</span>
-                <strong style="color:{urgency_color};">{days_remaining} يوماً</strong>
-              </div>
-            </div>
-            <div style="text-align: center;">
-              <a href="{link}" target="_blank" class="btn">الانتقال لرابط التقديم الرسمي ↗</a>
-            </div>
-            <div class="footer">
-              تم إرسال هذا التنبيه التلقائي عبر نظام المتابعة الذكية لمنصة ScholarPilot AI.
-            </div>
-          </div>
-        </body>
-        </html>
-        """
+        html_content, text_content = render_deadline_reminder_template(
+            student_name=clean_name,
+            scholarship=scholarship,
+            days_left=days_remaining,
+            milestone="استكمال ورفع الوثائق النهائية"
+        )
         return await dispatch_email(
             to_email=recipient_email,
-            subject=f"تذكير بالموعد النهائي: متبقي {days_remaining} أيام على إغلاق التقديم لمنحة {clean_sch}",
+            subject=f"تذكير بالموعد النهائي: متبقي {days_remaining} أيام على إغلاق التقديم لمنحة {sch_name}",
             html_content=html_content,
-            text_content=f"مرحباً {clean_name}، نود تذكيرك بأن الموعد النهائي لمنحة {clean_sch} يغلق بتاريخ {deadline_date} (متبقي {days_remaining} يوماً). رابط التقديم: {link}"
+            text_content=text_content
         )
 
     def get_automation_status(self) -> Dict[str, Any]:

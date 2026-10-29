@@ -37,6 +37,7 @@ TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "templates")
 INDEX_HTML_PATH = os.path.join(TEMPLATES_DIR, "index.html")
 DASHBOARD_HTML_PATH = os.path.join(TEMPLATES_DIR, "dashboard.html")
 ASSISTANT_HTML_PATH = os.path.join(TEMPLATES_DIR, "assistant.html")
+NOTIFICATIONS_HTML_PATH = os.path.join(TEMPLATES_DIR, "notifications.html")
 CSS_PATH = os.path.join(os.path.dirname(__file__), "static", "css", "scholarpilot.css")
 
 app = FastAPI(
@@ -141,12 +142,19 @@ automation_service = AutomationService()
 
 @app.on_event("startup")
 async def startup_event():
-    """Initializes database schema migrations and starts background daemon."""
+    """Initializes database schema migrations, notification queue, and background daemon."""
     logger.info("Initializing database migrations and tables...")
     try:
         init_db_and_migrate()
     except Exception as e:
         logger.error(f"Database initialization warning: {e}")
+
+    logger.info("Starting Asynchronous Notification Queue Worker...")
+    try:
+        from services.notification_queue import start_notification_worker
+        start_notification_worker()
+    except Exception as e:
+        logger.error(f"Notification worker start error: {e}")
 
     logger.info("Initializing 100% Automated Background Scholarship & Email Daemon...")
     asyncio.create_task(start_automation_daemon())
@@ -354,6 +362,31 @@ class SaveScholarshipRequest(BaseModel):
         return sanitize_text(v, max_length=120)
 
 
+class UpdatePreferencesRequest(BaseModel):
+    email: str
+    preferred_countries: Optional[List[str]] = None
+    funding_type: Optional[str] = "Any"
+    email_notifications: Optional[bool] = True
+    telegram_notifications: Optional[bool] = False
+    telegram_chat_id: Optional[str] = None
+    degree: Optional[str] = None
+    majors: Optional[List[str]] = None
+
+    @field_validator("email")
+    @classmethod
+    def check_email(cls, v: str) -> str:
+        return validate_email(v)
+
+
+class ReadNotificationRequest(BaseModel):
+    email: str
+
+    @field_validator("email")
+    @classmethod
+    def check_email(cls, v: str) -> str:
+        return validate_email(v)
+
+
 class ChancesRequest(BaseModel):
     email: Optional[str] = None
     scholarship_name: Optional[str] = None
@@ -502,6 +535,15 @@ async def serve_assistant_page():
         with open(ASSISTANT_HTML_PATH, "r", encoding="utf-8") as f:
             return HTMLResponse(content=f.read())
     return HTMLResponse(content="<h1>المستشار الأكاديمي الذكي - ScholarPilot AI Assistant</h1>")
+
+
+@app.get("/notifications", response_class=HTMLResponse)
+async def serve_notifications_page():
+    """Serves the dedicated notification center page."""
+    if os.path.exists(NOTIFICATIONS_HTML_PATH):
+        with open(NOTIFICATIONS_HTML_PATH, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    return HTMLResponse(content="<h1>مركز التنبيهات - ScholarPilot AI</h1>")
 
 
 @app.post("/api/auth/register")
@@ -775,6 +817,89 @@ async def trigger_full_automation_cycle(background_tasks: BackgroundTasks):
         "success": True,
         "message": "تم بدء دورة الأتمتة الكاملة (استكشاف المنح، مطابقة الطلاب، التذكيرات، والتقارير الأسبوعية) بنجاح في الخلفية."
     }
+
+
+# =====================================================================
+# IN-APP NOTIFICATIONS & USER PREFERENCES API
+# =====================================================================
+
+@app.get("/api/notifications")
+async def get_notifications_api(
+    email: Optional[str] = None,
+    limit: int = 50,
+    unread_only: bool = False
+):
+    """Returns in-app notifications and unread count for a student."""
+    from services.db import get_in_app_notifications, get_unread_notification_count
+    if not email:
+        return {"success": True, "notifications": [], "unread_count": 0}
+    clean_email = email.strip().lower()
+    items = get_in_app_notifications(clean_email, limit=limit, unread_only=unread_only)
+    unread = get_unread_notification_count(clean_email)
+    return {"success": True, "notifications": items, "unread_count": unread}
+
+
+@app.post("/api/notifications/{notification_id}/read")
+async def mark_notification_read_api(
+    notification_id: str,
+    req: ReadNotificationRequest
+):
+    """Marks a single notification as read."""
+    from services.db import mark_notification_as_read
+    ok = mark_notification_as_read(req.email, notification_id)
+    return {"success": ok}
+
+
+@app.post("/api/notifications/read-all")
+async def mark_all_notifications_read_api(req: ReadNotificationRequest):
+    """Marks all notifications for a student as read."""
+    from services.db import mark_all_notifications_as_read
+    count = mark_all_notifications_as_read(req.email)
+    return {"success": True, "marked_count": count}
+
+
+@app.get("/api/user/preferences")
+async def get_user_preferences_api(email: str):
+    """Returns user notification & matching preferences."""
+    from services.db import get_user_preferences
+    if not email or "@" not in email:
+        raise HTTPException(status_code=400, detail="البريد الإلكتروني غير صالح")
+    prefs = get_user_preferences(email)
+    return {"success": True, "preferences": prefs}
+
+
+@app.post("/api/user/preferences")
+async def update_user_preferences_api(req: UpdatePreferencesRequest):
+    """Updates user notification & matching preferences."""
+    from services.db import update_user_preferences
+    payload = {
+        "preferred_countries": req.preferred_countries,
+        "funding_type": req.funding_type,
+        "email_notifications": req.email_notifications,
+        "telegram_notifications": req.telegram_notifications,
+        "telegram_chat_id": req.telegram_chat_id,
+        "degree": req.degree,
+        "majors": req.majors
+    }
+    ok = update_user_preferences(req.email, payload)
+    if not ok:
+        raise HTTPException(status_code=400, detail="تعذر حفظ التفضيلات")
+    return {"success": True, "message": "تم حفظ تفضيلاتك بنجاح!"}
+
+
+@app.get("/api/notifications/events")
+async def get_notification_events_api(email: Optional[str] = None, limit: int = 50):
+    """Returns notification lifecycle tracking events (created, sent, delivered, opened, clicked)."""
+    from services.db import get_notification_events
+    events = get_notification_events(recipient=email, limit=limit)
+    return {"success": True, "events": events}
+
+
+@app.get("/api/notifications/queue/status")
+async def get_queue_status_api():
+    """Returns notification queue runtime metrics."""
+    from services.notification_queue import get_queue_status
+    return {"success": True, "queue": get_queue_status()}
 
 
 @app.post("/api/advisor/chat")
