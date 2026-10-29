@@ -36,6 +36,7 @@ logger = logging.getLogger(__name__)
 TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "templates")
 INDEX_HTML_PATH = os.path.join(TEMPLATES_DIR, "index.html")
 DASHBOARD_HTML_PATH = os.path.join(TEMPLATES_DIR, "dashboard.html")
+ASSISTANT_HTML_PATH = os.path.join(TEMPLATES_DIR, "assistant.html")
 CSS_PATH = os.path.join(os.path.dirname(__file__), "static", "css", "scholarpilot.css")
 
 app = FastAPI(
@@ -288,12 +289,20 @@ class LoginRequest(BaseModel):
 class AdvisorChatRequest(BaseModel):
     query: str
     email: Optional[str] = None
+    scholarship_id: Optional[str] = None
     history: Optional[List[Dict[str, str]]] = None
 
     @field_validator("query")
     @classmethod
     def clean_query(cls, v: str) -> str:
         return sanitize_advisor_query(v)
+
+    @field_validator("scholarship_id")
+    @classmethod
+    def clean_sch_id(cls, v: Optional[str]) -> Optional[str]:
+        if v and v.strip():
+            return sanitize_text(v, max_length=100)
+        return None
 
     @field_validator("email")
     @classmethod
@@ -484,6 +493,15 @@ async def serve_dashboard():
         with open(DASHBOARD_HTML_PATH, "r", encoding="utf-8") as f:
             return HTMLResponse(content=f.read())
     return HTMLResponse(content="<h1>لوحة التحكم</h1>")
+
+
+@app.get("/assistant", response_class=HTMLResponse)
+async def serve_assistant_page():
+    """Serves the dedicated full-page ChatGPT-like AI Scholarship Assistant."""
+    if os.path.exists(ASSISTANT_HTML_PATH):
+        with open(ASSISTANT_HTML_PATH, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    return HTMLResponse(content="<h1>المستشار الأكاديمي الذكي - ScholarPilot AI Assistant</h1>")
 
 
 @app.post("/api/auth/register")
@@ -698,6 +716,22 @@ async def get_live_scholarships():
         return {"success": False, "count": 0, "scholarships": []}
 
 
+@app.get("/api/scholarships/details/{scholarship_id}")
+@app.get("/api/scholarships/{scholarship_id}")
+async def get_scholarship_by_id(scholarship_id: str):
+    """Returns detailed attributes and application portal for a specific scholarship."""
+    clean_id = sanitize_text(scholarship_id, max_length=100).lower()
+    if clean_id == "live":
+        return await get_live_scholarships()
+    items = automation_service.get_live_scholarships()
+    matched = next((s for s in items if s.get("id", "").lower() == clean_id), None)
+    if not matched:
+        matched = next((s for s in advisor_service.catalog if s.get("id", "").lower() == clean_id), None)
+    if not matched:
+        raise HTTPException(status_code=404, detail="المنحة غير موجودة.")
+    return {"success": True, "scholarship": matched}
+
+
 @app.get("/api/automation/status")
 async def get_automation_telemetry():
     """Returns autonomous engine status, monitored scholarship counts, student reach, and notification logs."""
@@ -746,7 +780,7 @@ async def trigger_full_automation_cycle(background_tasks: BackgroundTasks):
 @app.post("/api/advisor/chat")
 @app.post("/api/advisor/consult")
 async def consult_advisor(req: AdvisorChatRequest, request: Request):
-    """Real-time AI Scholarship Advisor answering concisely with multi-turn dialect understanding and profile awareness."""
+    """Real-time AI Scholarship Advisor answering concisely with multi-turn dialect understanding, token optimization, and profile/scholarship awareness."""
     try:
         safe_email = _get_verified_profile_email(request, req.email)
         profile = advisor_service.resolve_student_profile(email=safe_email)
@@ -754,7 +788,8 @@ async def consult_advisor(req: AdvisorChatRequest, request: Request):
             student_query=req.query,
             student_profile=profile,
             chat_history=req.history,
-            email=safe_email
+            email=safe_email,
+            scholarship_id=req.scholarship_id
         )
         return res
     except ValueError as ve:
