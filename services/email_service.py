@@ -532,7 +532,12 @@ async def dispatch_email(
     """
     global _last_dispatch_meta
     resend_api_key = os.getenv("RESEND_API_KEY")
-    sender_name_email = os.getenv("RESEND_FROM_EMAIL") or os.getenv("SENDER_EMAIL") or "ScholarPilot AI <onboarding@resend.dev>"
+    resend_from_env = os.getenv("RESEND_FROM_EMAIL", "").strip()
+    if resend_from_env and "@gmail.com" not in resend_from_env.lower():
+        sender_name_email = resend_from_env
+    else:
+        sender_name_email = "ScholarPilot AI <onboarding@resend.dev>"
+
     clean_to = sanitize_email_header(to_email)
     clean_sub = sanitize_email_header(subject)
 
@@ -556,7 +561,7 @@ async def dispatch_email(
     if custom_headers:
         deliverability_headers.update(custom_headers)
 
-    # 1. Primary Cloud Provider: Resend HTTP REST API
+    # 1. Primary Cloud Provider: Resend HTTP REST API (Port 443)
     if resend_api_key and len(resend_api_key.strip()) > 5:
         logger.info(f"Dispatching email to {clean_to} via Resend API...")
         headers = {
@@ -589,7 +594,7 @@ async def dispatch_email(
             payload["attachments"] = resend_attachments
 
         try:
-            async with httpx.AsyncClient(timeout=15.0) as client:
+            async with httpx.AsyncClient(timeout=10.0) as client:
                 res = await client.post(RESEND_API_URL, headers=headers, json=payload)
                 if res.status_code in [200, 201]:
                     logger.info(f"✅ Delivered successfully to {clean_to} via Resend API (ID: {res.json().get('id')})")
@@ -601,24 +606,51 @@ async def dispatch_email(
                     logger.warning(f"Resend API returned HTTP {res.status_code}: {err_text}")
                     _last_dispatch_meta["raw_resend_error"] = err_text
                     if "only send testing emails to your own email" in err_text:
-                        logger.warning(
-                            "Resend Free Tier Restriction: When using onboarding@resend.dev, "
-                            "emails can only be delivered to the account owner's email address. "
-                            "To send to any recipient, add Gmail SMTP credentials (SENDER_EMAIL & GMAIL_APP_PASSWORD) "
-                            "or verify a custom domain in Resend."
-                        )
                         _last_dispatch_meta["error_detail"] = (
-                            "حساب Resend التجريبي الحالي (onboarding@resend.dev) مخصص للاختبار ويرسل فقط إلى البريد المالك للحساب المسجل به في Resend. "
-                            "لتفعيل إرسال التقارير لجميع إيميلات الطلاب والزوار، يرجى تفعيل مفتاح Gmail App Password في لوحة Render."
+                            "حساب Resend المجاني التجريبي مخصص للإرسال لبريد المالك فقط. "
+                            "للإرسال لأي طالب في العالم عبر Render، يرجى تفعيل مفتاح Brevo API أو توثيق دومين في Resend."
                         )
                         _last_dispatch_meta["hint"] = "resend_sandbox_restriction"
                     else:
-                        _last_dispatch_meta["error_detail"] = f"مزود Resend رد بالخطأ ({res.status_code}): {err_text[:160]}"
+                        _last_dispatch_meta["error_detail"] = f"Resend API ({res.status_code}): {err_text[:160]}"
         except Exception as e:
-            logger.warning(f"Resend API dispatch error: {e}. Trying SMTP fallback...")
+            logger.warning(f"Resend API dispatch error: {e}")
             _last_dispatch_meta["error_detail"] = f"فشل اتصال Resend: {str(e)[:160]}"
 
-    # 2. Secondary Provider: Universal SMTP (Gmail / Brevo / Outlook / Custom)
+    # 2. Secondary Cloud Provider: Brevo HTTP REST API (Port 443 - Unrestricted on Render)
+    brevo_api_key = os.getenv("BREVO_API_KEY")
+    if brevo_api_key and len(brevo_api_key.strip()) > 5:
+        logger.info(f"Dispatching email to {clean_to} via Brevo HTTP REST API...")
+        brevo_sender_email = os.getenv("BREVO_SENDER_EMAIL") or os.getenv("SENDER_EMAIL") or "scholarpilot.ai@gmail.com"
+        brevo_sender_name = os.getenv("BREVO_SENDER_NAME") or "ScholarPilot AI"
+        brevo_payload = {
+            "sender": {"name": brevo_sender_name, "email": brevo_sender_email},
+            "to": [{"email": clean_to}],
+            "subject": clean_sub,
+            "htmlContent": html_content
+        }
+        if text_content:
+            brevo_payload["textContent"] = text_content
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                res_b = await client.post(
+                    "https://api.brevo.com/v3/smtp/email",
+                    headers={"api-key": brevo_api_key.strip(), "Content-Type": "application/json"},
+                    json=brevo_payload
+                )
+                if res_b.status_code in [200, 201]:
+                    logger.info(f"✅ Delivered successfully to {clean_to} via Brevo HTTP API!")
+                    _last_dispatch_meta["success"] = True
+                    _last_dispatch_meta["provider"] = "Brevo HTTP API"
+                    _last_dispatch_meta["error_detail"] = None
+                    return True
+                else:
+                    logger.warning(f"Brevo API error {res_b.status_code}: {res_b.text}")
+                    _last_dispatch_meta["error_detail"] = f"Brevo API ({res_b.status_code}): {res_b.text[:160]}"
+        except Exception as eb:
+            logger.warning(f"Brevo HTTP API dispatch exception: {eb}")
+
+    # 3. Tertiary Provider: Universal SMTP (Works locally or on non-blocking hosts)
     smtp_user = os.getenv("SENDER_EMAIL") or os.getenv("EMAIL_USER")
     smtp_pass = os.getenv("GMAIL_APP_PASSWORD") or os.getenv("EMAIL_PASS") or os.getenv("SMTP_PASS")
     smtp_host = os.getenv("SMTP_HOST", "smtp.gmail.com").strip()
@@ -653,7 +685,7 @@ async def dispatch_email(
                 msg.add_attachment(raw_bytes, maintype="text", subtype=subtype, filename=filename)
 
         try:
-            with smtplib.SMTP(smtp_host, smtp_port, timeout=20) as server:
+            with smtplib.SMTP(smtp_host, smtp_port, timeout=5) as server:
                 server.starttls()
                 server.login(smtp_user, smtp_pass)
                 server.send_message(msg)
@@ -663,20 +695,12 @@ async def dispatch_email(
                 _last_dispatch_meta["error_detail"] = None
                 return True
         except Exception as e:
-            logger.error(f"SMTP TLS ({smtp_host}:{smtp_port}) failed: {e}. Trying fallback...")
-            try:
-                ssl_port = 465 if smtp_port == 587 else smtp_port
-                with smtplib.SMTP_SSL(smtp_host, ssl_port, timeout=20) as server:
-                    server.login(smtp_user, smtp_pass)
-                    server.send_message(msg)
-                    logger.info(f"✅ Delivered successfully to {clean_to} via {provider_name} SSL!")
-                    _last_dispatch_meta["success"] = True
-                    _last_dispatch_meta["provider"] = provider_name
-                    _last_dispatch_meta["error_detail"] = None
-                    return True
-            except Exception as e2:
-                logger.error(f"SMTP SSL ({smtp_host}) also failed: {e2}")
-                _last_dispatch_meta["error_detail"] = f"فشل إرسال SMTP ({smtp_host}): {str(e2)[:160]}"
+            err_msg = str(e)
+            logger.error(f"SMTP TLS ({smtp_host}:{smtp_port}) failed: {e}")
+            if "101" in err_msg or "unreachable" in err_msg.lower():
+                _last_dispatch_meta["error_detail"] = "خادم الاستضافة Render يحظر منافذ SMTP (Port 587/465). يرجى استخدام Brevo API أو توثيق دومين Resend."
+            else:
+                _last_dispatch_meta["error_detail"] = f"فشل إرسال SMTP: {err_msg[:160]}"
 
     # 3. Fallback: If in production with RESEND_API_KEY configured and failed, report delivery failure
     if resend_api_key or os.getenv("RENDER"):
