@@ -85,7 +85,12 @@
             <!-- Desktop Nav Links -->
             <nav class="hidden md:flex items-center gap-1 text-xs font-semibold text-slate-600 dark:text-slate-300">
                 <a href="#matchSection" class="px-3 py-2 rounded-lg hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">الاشتراك الأسبوعي وتوقع القبول</a>
-                <a href="#radarSection" class="px-3 py-2 rounded-lg hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">رادار المنح المفتوحة</a>
+                <button type="button" onclick="openRadarCatalogModal()" class="px-3 py-2 rounded-lg hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition flex items-center gap-1.5 font-bold text-slate-700 dark:text-slate-200 group" title="تصفح فهرس رادار المنح وتصنيفاتها فورياً">
+                    <i data-lucide="layers" class="w-4 h-4 text-blue-500 group-hover:scale-110 transition-transform"></i>
+                    <span>رادار المنح المفتوحة</span>
+                    <span id="navRadarCountBadge" class="sp-badge sp-badge-info text-[10px] font-latin font-bold px-1.5 py-0.2">31</span>
+                    <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400 group-hover:translate-y-0.5 transition-transform"></i>
+                </button>
                 <a href="/assistant" class="px-3 py-2 rounded-lg text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition flex items-center gap-1.5 font-bold">
                     <i data-lucide="sparkles" class="w-3.5 h-3.5 text-blue-500"></i>
                     <span>المستشار الذكي</span>
@@ -101,6 +106,12 @@
                     <span id="themeIcon">
                         <i data-lucide="moon" class="w-4 h-4 text-slate-400"></i>
                     </span>
+                </button>
+
+                <!-- Quick Scholarship Catalog Button (Instant One-Click Modal) -->
+                <button type="button" onclick="openRadarCatalogModal()" aria-label="فهرس المنح السريع وتصنيفاتها" class="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 transition flex items-center justify-center relative group" title="فهرس المنح السريع وتصنيفاتها">
+                    <i data-lucide="layers" class="w-4 h-4 text-blue-500 group-hover:scale-110 transition-transform"></i>
+                    <span id="quickCatalogBadge" class="hidden sm:inline-flex absolute -top-1 -right-1 w-4 h-4 bg-blue-600 text-white rounded-full text-[9px] font-bold items-center justify-center">31</span>
                 </button>
 
                 <!-- Notifications Center Link -->
@@ -487,14 +498,14 @@
             </div>
 
             <!-- DEGREE FILTER TABS (3 Degree Categories + All) -->
-            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-2.5 rounded-2xl sp-subcard border border-slate-200/80 dark:border-slate-800/80">
+            <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 p-2.5 rounded-2xl sp-subcard border border-slate-200/80 dark:border-slate-800/80">
                 <div class="flex flex-wrap items-center gap-2">
                     <!-- All -->
                     <button type="button" id="degreeFilterAll" onclick="setRadarDegreeFilter('all')"
                         class="radar-filter-btn px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 bg-blue-600 text-white shadow-sm border border-blue-600">
                         <i data-lucide="layers" class="w-4 h-4"></i>
                         <span>كافة المنح المفتوحة</span>
-                        <span id="badgeCountAll" class="px-2 py-0.5 rounded-full text-[10px] bg-white/20 text-white font-latin font-bold">7</span>
+                        <span id="badgeCountAll" class="px-2 py-0.5 rounded-full text-[10px] bg-white/20 text-white font-latin font-bold">31</span>
                     </button>
 
                     <!-- Bachelor's -->
@@ -502,7 +513,7 @@
                         class="radar-filter-btn px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 border border-transparent hover:border-slate-300 dark:hover:border-slate-700">
                         <i data-lucide="graduation-cap" class="w-4 h-4 text-emerald-500"></i>
                         <span>منح البكالوريوس (Bachelor's)</span>
-                        <span id="badgeCountBachelor" class="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-latin font-bold">4</span>
+                        <span id="badgeCountBachelor" class="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-latin font-bold">20</span>
                     </button>
 
                     <!-- Master's -->
@@ -510,7 +521,7 @@
                         class="radar-filter-btn px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 border border-transparent hover:border-slate-300 dark:hover:border-slate-700">
                         <i data-lucide="scroll" class="w-4 h-4 text-indigo-500"></i>
                         <span>منح الماجستير (Master's)</span>
-                        <span id="badgeCountMaster" class="px-2 py-0.5 rounded-full text-[10px] bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-latin font-bold">6</span>
+                        <span id="badgeCountMaster" class="px-2 py-0.5 rounded-full text-[10px] bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-latin font-bold">11</span>
                     </button>
 
                     <!-- PhD -->
@@ -518,13 +529,24 @@
                         class="radar-filter-btn px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 border border-transparent hover:border-slate-300 dark:hover:border-slate-700">
                         <i data-lucide="microscope" class="w-4 h-4 text-purple-500"></i>
                         <span>منح الدكتوراه (PhD)</span>
-                        <span id="badgeCountPhd" class="px-2 py-0.5 rounded-full text-[10px] bg-purple-500/10 text-purple-600 dark:text-purple-400 font-latin font-bold">4</span>
+                        <span id="badgeCountPhd" class="px-2 py-0.5 rounded-full text-[10px] bg-purple-500/10 text-purple-600 dark:text-purple-400 font-latin font-bold">8</span>
                     </button>
                 </div>
 
-                <div class="text-xs text-slate-500 dark:text-slate-400 px-2 flex items-center gap-1.5 self-center">
-                    <i data-lucide="filter" class="w-3.5 h-3.5 text-blue-500"></i>
-                    <span>تصفية فورية حسب الدرجة العلمية</span>
+                <!-- Quick Catalog & In-Page View Mode Toggle -->
+                <div class="flex items-center gap-2 self-stretch sm:self-auto justify-end pt-2 lg:pt-0 border-t lg:border-t-0 border-slate-200 dark:border-slate-800">
+                    <!-- Open Full Catalog Modal -->
+                    <button type="button" onclick="openRadarCatalogModal()" class="sp-btn-secondary px-3.5 py-2 text-xs font-bold flex items-center gap-2 hover:border-blue-500/50 shadow-xs transition" title="عرض كافة المنح وتصنيفاتها الـ 3 في نافذة مدمجة بدون تمرير">
+                        <i data-lucide="list-filter" class="w-4 h-4 text-blue-500"></i>
+                        <span>فهرس المنح السريع</span>
+                        <span id="catalogSectionCountBadge" class="px-1.5 py-0.2 rounded-full text-[10px] bg-blue-500/10 text-blue-600 dark:text-blue-400 font-latin font-bold">31</span>
+                    </button>
+
+                    <!-- In-page View Mode Toggle (Grid Cards vs Compact List) -->
+                    <button type="button" id="radarViewToggleBtn" onclick="toggleRadarViewMode()" class="sp-btn-secondary px-3.5 py-2 text-xs font-bold flex items-center gap-1.5 hover:border-blue-500/50 transition" title="التبديل بين عرض البطاقات الكبيرة وعرض القائمة المدمجة">
+                        <i id="radarViewToggleIcon" data-lucide="layout-list" class="w-4 h-4 text-slate-500 dark:text-slate-400"></i>
+                        <span id="radarViewToggleText">قائمة مدمجة</span>
+                    </button>
                 </div>
             </div>
 
@@ -825,6 +847,7 @@
             const countMaster = scholarshipDeckData.filter(s => matchesDegree(s, 'master')).length;
             const countPhd = scholarshipDeckData.filter(s => matchesDegree(s, 'phd')).length;
 
+            // Page radar badges
             const elAll = document.getElementById('badgeCountAll');
             const elBach = document.getElementById('badgeCountBachelor');
             const elMast = document.getElementById('badgeCountMaster');
@@ -834,7 +857,256 @@
             if (elBach) elBach.textContent = countBachelor;
             if (elMast) elMast.textContent = countMaster;
             if (elPhd) elPhd.textContent = countPhd;
+
+            // Navbar & Section badges
+            const navB = document.getElementById('navRadarCountBadge');
+            if (navB) navB.textContent = countAll;
+            const quickB = document.getElementById('quickCatalogBadge');
+            if (quickB) quickB.textContent = countAll;
+            const secB = document.getElementById('catalogSectionCountBadge');
+            if (secB) secB.textContent = countAll;
+
+            // Modal catalog badges
+            const mAll = document.getElementById('modalBadgeCountAll');
+            const mBach = document.getElementById('modalBadgeCountBachelor');
+            const mMast = document.getElementById('modalBadgeCountMaster');
+            const mPhd = document.getElementById('modalBadgeCountPhd');
+            const mTot = document.getElementById('modalCatalogCountBadge');
+
+            if (mAll) mAll.textContent = countAll;
+            if (mBach) mBach.textContent = countBachelor;
+            if (mMast) mMast.textContent = countMaster;
+            if (mPhd) mPhd.textContent = countPhd;
+            if (mTot) mTot.textContent = countAll;
         }
+
+        // =====================================================================
+        // RADAR VIEW MODE CONTROLLER (GRID VS COMPACT LIST)
+        // =====================================================================
+        let radarViewMode = localStorage.getItem('scholarpilot_radar_view') || 'grid';
+
+        function updateRadarViewToggleUI() {
+            const btnText = document.getElementById('radarViewToggleText');
+            const btnIcon = document.getElementById('radarViewToggleIcon');
+            if (btnText && btnIcon) {
+                if (radarViewMode === 'list') {
+                    btnText.textContent = 'عرض البطاقات';
+                    btnIcon.setAttribute('data-lucide', 'grid');
+                } else {
+                    btnText.textContent = 'قائمة مدمجة';
+                    btnIcon.setAttribute('data-lucide', 'layout-list');
+                }
+                if (window.lucide) lucide.createIcons();
+            }
+        }
+
+        function toggleRadarViewMode() {
+            radarViewMode = radarViewMode === 'grid' ? 'list' : 'grid';
+            localStorage.setItem('scholarpilot_radar_view', radarViewMode);
+            updateRadarViewToggleUI();
+            renderRadarGrid();
+        }
+
+        // =====================================================================
+        // QUICK SCHOLARSHIP CATALOG MODAL CONTROLLER
+        // =====================================================================
+        let activeModalDegreeFilter = 'all';
+
+        function openRadarCatalogModal(initialDegree = null) {
+            const modal = document.getElementById('radarCatalogModal');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.classList.add('overflow-hidden');
+
+            if (initialDegree) {
+                setModalDegreeFilter(initialDegree);
+            } else {
+                setModalDegreeFilter(activeRadarDegreeFilter || 'all');
+            }
+
+            const sInput = document.getElementById('modalSearchInput');
+            if (sInput) {
+                sInput.value = '';
+                setTimeout(() => sInput.focus(), 80);
+            }
+
+            updateRadarBadgeCounts();
+            renderModalCatalogList();
+        }
+
+        function closeRadarCatalogModal() {
+            const modal = document.getElementById('radarCatalogModal');
+            if (!modal) return;
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.classList.remove('overflow-hidden');
+        }
+
+        function setModalDegreeFilter(degree) {
+            activeModalDegreeFilter = degree;
+            const buttons = {
+                all: document.getElementById('modalFilterAll'),
+                bachelor: document.getElementById('modalFilterBachelor'),
+                master: document.getElementById('modalFilterMaster'),
+                phd: document.getElementById('modalFilterPhd')
+            };
+
+            const activeClasses = "bg-blue-600 text-white shadow-xs border-transparent";
+            const inactiveClasses = "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border-slate-200 dark:border-slate-800";
+
+            Object.entries(buttons).forEach(([k, btn]) => {
+                if (!btn) return;
+                if (k === degree) {
+                    btn.className = `modal-degree-btn px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${activeClasses}`;
+                } else {
+                    btn.className = `modal-degree-btn px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 border ${inactiveClasses}`;
+                }
+            });
+
+            renderModalCatalogList();
+        }
+
+        function filterModalCatalogSearch() {
+            renderModalCatalogList();
+        }
+
+        function renderModalCatalogList() {
+            const list = document.getElementById('radarCatalogModalList');
+            if (!list) return;
+
+            const query = (document.getElementById('modalSearchInput')?.value || '').trim().toLowerCase();
+            
+            const filtered = scholarshipDeckData.filter(item => {
+                const matchesCat = matchesDegree(item, activeModalDegreeFilter);
+                if (!matchesCat) return false;
+                if (!query) return true;
+                const text = ((item.name || '') + ' ' + (item.country || '') + ' ' + (item.university || '') + ' ' + (item.coverage || '')).toLowerCase();
+                return text.includes(query);
+            });
+
+            const summaryEl = document.getElementById('modalListSummary');
+            if (summaryEl) {
+                summaryEl.textContent = `عرض ${filtered.length} من أصل ${scholarshipDeckData.length} منحة دراسية معتمدة`;
+            }
+
+            if (filtered.length === 0) {
+                list.innerHTML = `
+                    <div class="p-8 text-center text-slate-500 dark:text-slate-400 space-y-2">
+                        <i data-lucide="layers" class="w-8 h-8 mx-auto text-blue-400"></i>
+                        <div class="text-sm font-bold text-slate-800 dark:text-slate-200">لم يتم العثور على منح تطابق هذا البحث أو التصنيف</div>
+                        <button type="button" onclick="setModalDegreeFilter('all'); document.getElementById('modalSearchInput').value=''; filterModalCatalogSearch();" class="sp-btn-secondary px-3 py-1.5 text-xs font-bold inline-flex items-center gap-1.5 mt-2">
+                            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                            <span>إعادة ضبط التصفية</span>
+                        </button>
+                    </div>
+                `;
+                if (window.lucide) lucide.createIcons();
+                return;
+            }
+
+            list.innerHTML = filtered.map((item, idx) => {
+                const isBachelor = matchesDegree(item, 'bachelor');
+                const isMaster = matchesDegree(item, 'master');
+                const isPhd = matchesDegree(item, 'phd');
+
+                let degreeBadges = '';
+                if (isBachelor) {
+                    degreeBadges += `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"><i data-lucide="graduation-cap" class="w-3 h-3"></i> بكالوريوس</span>`;
+                }
+                if (isMaster) {
+                    degreeBadges += `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20"><i data-lucide="scroll" class="w-3 h-3"></i> ماجستير</span>`;
+                }
+                if (isPhd) {
+                    degreeBadges += `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20"><i data-lucide="microscope" class="w-3 h-3"></i> دكتوراه</span>`;
+                }
+
+                const portalUrl = (item.link && item.link !== '#' && item.link.trim() !== '') ? item.link : (OFFICIAL_PORTALS[item.id] || '#');
+
+                return `
+                <div class="sp-subcard p-3 sm:p-4 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 hover:border-blue-500/40 transition-colors group">
+                    <div class="flex items-start gap-3 min-w-0 flex-1">
+                        <span class="w-6 h-6 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 font-latin font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                            ${idx + 1}
+                        </span>
+                        <div class="min-w-0 space-y-1">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <h4 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white group-hover:text-blue-500 transition-colors truncate">
+                                    ${escapeHTML(item.name)}
+                                </h4>
+                                <span class="sp-badge ${item.statusClass} text-[10px] py-0.2">
+                                    ${escapeHTML(item.status)}
+                                </span>
+                                <span class="sp-badge sp-badge-info font-latin font-bold text-[10px] py-0.2">
+                                    ${escapeHTML(item.matchScore)}
+                                </span>
+                            </div>
+                            <div class="text-[11px] text-slate-500 dark:text-slate-400 flex flex-wrap items-center gap-x-3 gap-y-1">
+                                <span class="flex items-center gap-1">
+                                    <i data-lucide="map-pin" class="w-3 h-3 text-blue-500 shrink-0"></i>
+                                    <span>${escapeHTML(item.country)} · ${escapeHTML(item.university)}</span>
+                                </span>
+                                <span class="text-amber-600 dark:text-amber-400 font-semibold flex items-center gap-1">
+                                    <i data-lucide="calendar" class="w-3 h-3 shrink-0"></i>
+                                    <span>الموعد: ${escapeHTML(item.deadline)}</span>
+                                </span>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-1 pt-0.5">
+                                ${degreeBadges}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex items-center gap-1.5 self-end sm:self-center shrink-0">
+                        <button type="button" onclick="openAssistantSidePanel('${escapeHTML(item.id)}', '${escapeHTML(item.name)}'); closeRadarCatalogModal();" class="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 transition" title="استشارة المستشار الذكي حول هذه المنحة">
+                            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                        </button>
+                        <button type="button" onclick="jumpToScholarshipCard('${escapeHTML(item.id)}')" class="sp-btn-secondary px-3 py-1.5 text-xs font-bold flex items-center gap-1" title="الانتقال إلى بطاقة المنحة في الصفحة">
+                            <i data-lucide="crosshair" class="w-3 h-3 text-blue-500"></i>
+                            <span>عرض بالصفحة</span>
+                        </button>
+                        <a href="${portalUrl}" target="_blank" rel="noopener noreferrer" class="sp-btn-primary px-3 py-1.5 text-xs font-bold flex items-center gap-1" title="فتح البوابة الرسمية للتقديم">
+                            <span>البوابة الرسمية</span>
+                            <i data-lucide="arrow-up-right" class="w-3 h-3"></i>
+                        </a>
+                    </div>
+                </div>
+                `;
+            }).join('');
+
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function jumpToScholarshipCard(id) {
+            closeRadarCatalogModal();
+            const item = scholarshipDeckData.find(s => s.id === id);
+            if (item && !matchesDegree(item, activeRadarDegreeFilter)) {
+                setRadarDegreeFilter('all');
+            }
+            setTimeout(() => {
+                const el = document.getElementById('scholarship-card-' + id);
+                if (el) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    el.classList.add('ring-4', 'ring-blue-500', 'ring-offset-2', 'transition-all');
+                    setTimeout(() => {
+                        el.classList.remove('ring-4', 'ring-blue-500', 'ring-offset-2');
+                    }, 2500);
+                } else {
+                    document.getElementById('radarSection')?.scrollIntoView({ behavior: 'smooth' });
+                }
+            }, 120);
+        }
+
+        // Close on Esc key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('radarCatalogModal');
+                if (modal && !modal.classList.contains('hidden')) {
+                    closeRadarCatalogModal();
+                }
+            }
+        });
 
         function setRadarDegreeFilter(degree) {
             activeRadarDegreeFilter = degree;
@@ -1002,6 +1274,7 @@
             }
 
             updateRadarBadgeCounts();
+            updateRadarViewToggleUI();
             renderRadarGrid();
         }
 
@@ -1331,6 +1604,7 @@
             const filtered = scholarshipDeckData.filter(item => matchesDegree(item, activeRadarDegreeFilter));
 
             if (filtered.length === 0) {
+                grid.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6";
                 grid.innerHTML = `
                     <div class="col-span-1 md:col-span-2 lg:col-span-3 sp-card p-12 text-center flex flex-col items-center justify-center">
                         <div class="w-14 h-14 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center mb-4">
@@ -1348,76 +1622,153 @@
                 return;
             }
 
-            grid.innerHTML = filtered.map(item => {
-                const isBachelor = matchesDegree(item, 'bachelor');
-                const isMaster = matchesDegree(item, 'master');
-                const isPhd = matchesDegree(item, 'phd');
+            if (radarViewMode === 'list') {
+                grid.className = "flex flex-col gap-3";
+                grid.innerHTML = filtered.map((item, idx) => {
+                    const isBachelor = matchesDegree(item, 'bachelor');
+                    const isMaster = matchesDegree(item, 'master');
+                    const isPhd = matchesDegree(item, 'phd');
 
-                let degreeBadges = '';
-                if (isBachelor) {
-                    degreeBadges += `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"><i data-lucide="graduation-cap" class="w-3 h-3"></i> بكالوريوس</span>`;
-                }
-                if (isMaster) {
-                    degreeBadges += `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20"><i data-lucide="scroll" class="w-3 h-3"></i> ماجستير</span>`;
-                }
-                if (isPhd) {
-                    degreeBadges += `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20"><i data-lucide="microscope" class="w-3 h-3"></i> دكتوراه</span>`;
-                }
+                    let degreeBadges = '';
+                    if (isBachelor) {
+                        degreeBadges += `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"><i data-lucide="graduation-cap" class="w-3 h-3"></i> بكالوريوس</span>`;
+                    }
+                    if (isMaster) {
+                        degreeBadges += `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-[10px] font-bold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20"><i data-lucide="scroll" class="w-3 h-3"></i> ماجستير</span>`;
+                    }
+                    if (isPhd) {
+                        degreeBadges += `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-[10px] font-bold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20"><i data-lucide="microscope" class="w-3 h-3"></i> دكتوراه</span>`;
+                    }
 
-                const portalUrl = (item.link && item.link !== '#' && item.link.trim() !== '') ? item.link : (OFFICIAL_PORTALS[item.id] || '#');
+                    const portalUrl = (item.link && item.link !== '#' && item.link.trim() !== '') ? item.link : (OFFICIAL_PORTALS[item.id] || '#');
 
-                return `
-                <div class="sp-card p-6 flex flex-col justify-between sp-card-hover group">
-                    <div>
-                        <div class="flex justify-between items-start mb-3">
-                            <span class="sp-badge ${item.statusClass}">
-                                ${escapeHTML(item.status)}
+                    return `
+                    <div id="scholarship-card-${escapeHTML(item.id)}" class="sp-card p-4 sm:p-5 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 sp-card-hover group">
+                        <div class="flex items-start gap-3.5 flex-1 min-w-0">
+                            <span class="w-7 h-7 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 font-latin font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                                ${idx + 1}
                             </span>
-                            <span class="sp-badge sp-badge-info font-latin font-bold">
-                                ${escapeHTML(item.matchScore)}
-                            </span>
-                        </div>
-                        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1 group-hover:text-blue-500 transition-colors">${escapeHTML(item.name)}</h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-3 flex items-center gap-1.5">
-                            <i data-lucide="map-pin" class="w-3.5 h-3.5 text-blue-500 shrink-0"></i>
-                            <span>${escapeHTML(item.country)} · ${escapeHTML(item.university)}</span>
-                        </p>
-
-                        <!-- Degree Badges with Icons -->
-                        <div class="flex flex-wrap items-center gap-1.5 mb-3">
-                            ${degreeBadges}
-                        </div>
-
-                        <div class="sp-subcard p-3 rounded-xl text-xs mb-3 space-y-1.5">
-                            <div class="text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1.5">
-                                <i data-lucide="calendar" class="w-3.5 h-3.5 shrink-0"></i>
-                                <span>الموعد النهائي: ${escapeHTML(item.deadline)}</span>
+                            <div class="space-y-1.5 min-w-0 flex-1">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <h3 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white group-hover:text-blue-500 transition-colors truncate">
+                                        ${escapeHTML(item.name)}
+                                    </h3>
+                                    <span class="sp-badge ${item.statusClass} text-[10px]">
+                                        ${escapeHTML(item.status)}
+                                    </span>
+                                    <span class="sp-badge sp-badge-info font-latin font-bold text-[10px]">
+                                        ${escapeHTML(item.matchScore)}
+                                    </span>
+                                </div>
+                                <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
+                                    <span class="flex items-center gap-1">
+                                        <i data-lucide="map-pin" class="w-3.5 h-3.5 text-blue-500 shrink-0"></i>
+                                        <span>${escapeHTML(item.country)} · ${escapeHTML(item.university)}</span>
+                                    </span>
+                                    <span class="text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1">
+                                        <i data-lucide="calendar" class="w-3.5 h-3.5 shrink-0"></i>
+                                        <span>الموعد: ${escapeHTML(item.deadline)}</span>
+                                    </span>
+                                    <span class="text-slate-600 dark:text-slate-300 text-[11px] hidden sm:flex items-center gap-1">
+                                        <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-500 shrink-0"></i>
+                                        <span class="truncate max-w-xs">${escapeHTML(item.coverage)}</span>
+                                    </span>
+                                </div>
+                                <div class="flex flex-wrap items-center gap-1.5 pt-0.5">
+                                    ${degreeBadges}
+                                </div>
                             </div>
-                            <div class="text-[11px] leading-relaxed flex items-start gap-1.5 text-slate-600 dark:text-slate-300">
-                                <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-500 mt-0.5 shrink-0"></i>
-                                <span>${escapeHTML(item.coverage)}</span>
-                            </div>
                         </div>
-                    </div>
-                    <div class="space-y-2 pt-3 border-t border-slate-200 dark:border-slate-800">
-                        <div class="grid grid-cols-2 gap-2">
-                            <button type="button" onclick="saveToWatchlist('${escapeHTML(item.name)}', this)" class="sp-btn-secondary py-2 text-xs font-bold flex items-center justify-center gap-1.5">
+
+                        <div class="flex items-center gap-2 self-end lg:self-center shrink-0">
+                            <button type="button" onclick="saveToWatchlist('${escapeHTML(item.name)}', this)" class="sp-btn-secondary p-2.5 text-xs font-bold" title="تفعيل التذكير">
                                 <i data-lucide="bell" class="w-3.5 h-3.5 text-blue-500"></i>
-                                <span>تفعيل التذكير</span>
                             </button>
-                            <button type="button" onclick="openAssistantSidePanel('${escapeHTML(item.id)}', '${escapeHTML(item.name)}')" class="sp-btn-secondary py-2 text-xs font-bold flex items-center justify-center gap-1.5 hover:border-blue-500/50">
+                            <button type="button" onclick="openAssistantSidePanel('${escapeHTML(item.id)}', '${escapeHTML(item.name)}')" class="sp-btn-secondary px-3 py-2 text-xs font-bold flex items-center gap-1.5 hover:border-blue-500/50" title="اسأل المستشار">
                                 <i data-lucide="sparkles" class="w-3.5 h-3.5 text-blue-500"></i>
                                 <span>اسأل المستشار</span>
                             </button>
+                            <a href="${portalUrl}" target="_blank" rel="noopener noreferrer" class="sp-btn-primary px-3.5 py-2 text-xs font-bold flex items-center gap-1.5 shadow-xs" title="البوابة الرسمية للتقديم">
+                                <span>البوابة الرسمية</span>
+                                <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+                            </a>
                         </div>
-                        <a href="${portalUrl}" target="_blank" rel="noopener noreferrer" class="sp-btn-primary w-full text-center py-2.5 text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition-all duration-200 hover:shadow-md">
-                            <span>البوابة الرسمية للتقديم</span>
-                            <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
-                        </a>
                     </div>
-                </div>
-                `;
-            }).join('');
+                    `;
+                }).join('');
+            } else {
+                grid.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6";
+                grid.innerHTML = filtered.map(item => {
+                    const isBachelor = matchesDegree(item, 'bachelor');
+                    const isMaster = matchesDegree(item, 'master');
+                    const isPhd = matchesDegree(item, 'phd');
+
+                    let degreeBadges = '';
+                    if (isBachelor) {
+                        degreeBadges += `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"><i data-lucide="graduation-cap" class="w-3 h-3"></i> بكالوريوس</span>`;
+                    }
+                    if (isMaster) {
+                        degreeBadges += `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20"><i data-lucide="scroll" class="w-3 h-3"></i> ماجستير</span>`;
+                    }
+                    if (isPhd) {
+                        degreeBadges += `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20"><i data-lucide="microscope" class="w-3 h-3"></i> دكتوراه</span>`;
+                    }
+
+                    const portalUrl = (item.link && item.link !== '#' && item.link.trim() !== '') ? item.link : (OFFICIAL_PORTALS[item.id] || '#');
+
+                    return `
+                    <div id="scholarship-card-${escapeHTML(item.id)}" class="sp-card p-6 flex flex-col justify-between sp-card-hover group">
+                        <div>
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="sp-badge ${item.statusClass}">
+                                    ${escapeHTML(item.status)}
+                                </span>
+                                <span class="sp-badge sp-badge-info font-latin font-bold">
+                                    ${escapeHTML(item.matchScore)}
+                                </span>
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1 group-hover:text-blue-500 transition-colors">${escapeHTML(item.name)}</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mb-3 flex items-center gap-1.5">
+                                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-blue-500 shrink-0"></i>
+                                <span>${escapeHTML(item.country)} · ${escapeHTML(item.university)}</span>
+                            </p>
+
+                            <!-- Degree Badges with Icons -->
+                            <div class="flex flex-wrap items-center gap-1.5 mb-3">
+                                ${degreeBadges}
+                            </div>
+
+                            <div class="sp-subcard p-3 rounded-xl text-xs mb-3 space-y-1.5">
+                                <div class="text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1.5">
+                                    <i data-lucide="calendar" class="w-3.5 h-3.5 shrink-0"></i>
+                                    <span>الموعد النهائي: ${escapeHTML(item.deadline)}</span>
+                                </div>
+                                <div class="text-[11px] leading-relaxed flex items-start gap-1.5 text-slate-600 dark:text-slate-300">
+                                    <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-500 mt-0.5 shrink-0"></i>
+                                    <span>${escapeHTML(item.coverage)}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-2 pt-3 border-t border-slate-200 dark:border-slate-800">
+                            <div class="grid grid-cols-2 gap-2">
+                                <button type="button" onclick="saveToWatchlist('${escapeHTML(item.name)}', this)" class="sp-btn-secondary py-2 text-xs font-bold flex items-center justify-center gap-1.5">
+                                    <i data-lucide="bell" class="w-3.5 h-3.5 text-blue-500"></i>
+                                    <span>تفعيل التذكير</span>
+                                </button>
+                                <button type="button" onclick="openAssistantSidePanel('${escapeHTML(item.id)}', '${escapeHTML(item.name)}')" class="sp-btn-secondary py-2 text-xs font-bold flex items-center justify-center gap-1.5 hover:border-blue-500/50">
+                                    <i data-lucide="sparkles" class="w-3.5 h-3.5 text-blue-500"></i>
+                                    <span>اسأل المستشار</span>
+                                </button>
+                            </div>
+                            <a href="${portalUrl}" target="_blank" rel="noopener noreferrer" class="sp-btn-primary w-full text-center py-2.5 text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition-all duration-200 hover:shadow-md">
+                                <span>البوابة الرسمية للتقديم</span>
+                                <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+                            </a>
+                        </div>
+                    </div>
+                    `;
+                }).join('');
+            }
 
             if (window.lucide) lucide.createIcons();
         }
@@ -1597,8 +1948,99 @@
                     }
                 }).catch(() => {});
             if (window.lucide) lucide.createIcons();
+            updateRadarViewToggleUI();
         });
     </script>
+
+    <!-- ==================== QUICK RADAR SCHOLARSHIPS CATALOG MODAL ==================== -->
+    <div id="radarCatalogModal" class="fixed inset-0 z-[70] hidden items-center justify-center p-3 sm:p-6 bg-slate-950/75 backdrop-blur-md transition-all duration-200" onclick="if(event.target === this) closeRadarCatalogModal();">
+        <div class="relative w-full max-w-4xl bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[92vh] sm:max-h-[85vh] animate-in fade-in zoom-in-95 duration-200">
+            
+            <!-- Modal Header -->
+            <header class="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-md flex items-center justify-between shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+                        <i data-lucide="layers" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 class="text-base sm:text-lg font-black text-slate-900 dark:text-white">فهرس رادار المنح المفتوحة (2026/2027)</h3>
+                            <span id="modalCatalogCountBadge" class="sp-badge sp-badge-info text-xs font-latin font-bold">31</span>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">تصفح فوري وشامل لكافة المنح مصنفة حسب الدرجات العلمية مع روابط التقديم الرسمية المباشرة دون الحاجة للتمرير</p>
+                    </div>
+                </div>
+
+                <button type="button" onclick="closeRadarCatalogModal()" class="p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition" aria-label="إغلاق النافذة">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </header>
+
+            <!-- Filter Bar: The 3 Classification Icons + All + Instant Search -->
+            <div class="p-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 space-y-3 shrink-0">
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
+                    <!-- The 3 Classification Buttons + All -->
+                    <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                        <!-- All -->
+                        <button type="button" id="modalFilterAll" onclick="setModalDegreeFilter('all')" class="modal-degree-btn px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-blue-600 text-white shadow-xs">
+                            <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+                            <span>كافة المنح</span>
+                            <span id="modalBadgeCountAll" class="px-1.5 py-0.2 rounded-full text-[10px] bg-white/20 text-white font-latin font-bold">31</span>
+                        </button>
+
+                        <!-- Bachelor's -->
+                        <button type="button" id="modalFilterBachelor" onclick="setModalDegreeFilter('bachelor')" class="modal-degree-btn px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800">
+                            <i data-lucide="graduation-cap" class="w-3.5 h-3.5 text-emerald-500"></i>
+                            <span>بكالوريوس</span>
+                            <span id="modalBadgeCountBachelor" class="px-1.5 py-0.2 rounded-full text-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-latin font-bold">20</span>
+                        </button>
+
+                        <!-- Master's -->
+                        <button type="button" id="modalFilterMaster" onclick="setModalDegreeFilter('master')" class="modal-degree-btn px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800">
+                            <i data-lucide="scroll" class="w-3.5 h-3.5 text-indigo-500"></i>
+                            <span>ماجستير</span>
+                            <span id="modalBadgeCountMaster" class="px-1.5 py-0.2 rounded-full text-[10px] bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-latin font-bold">11</span>
+                        </button>
+
+                        <!-- PhD -->
+                        <button type="button" id="modalFilterPhd" onclick="setModalDegreeFilter('phd')" class="modal-degree-btn px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800">
+                            <i data-lucide="microscope" class="w-3.5 h-3.5 text-purple-500"></i>
+                            <span>دكتوراه</span>
+                            <span id="modalBadgeCountPhd" class="px-1.5 py-0.2 rounded-full text-[10px] bg-purple-500/10 text-purple-600 dark:text-purple-400 font-latin font-bold">8</span>
+                        </button>
+                    </div>
+
+                    <!-- Instant Search Bar -->
+                    <div class="relative flex-1 sm:max-w-xs">
+                        <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute top-1/2 -translate-y-1/2 right-3 pointer-events-none"></i>
+                        <input type="text" id="modalSearchInput" oninput="filterModalCatalogSearch()" placeholder="بحث سريع بالاسم أو الدولة..." class="sp-input text-xs py-1.5 pr-8 pl-3 w-full">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Body: The Entire List (Scrollable) -->
+            <div id="radarCatalogModalList" class="flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800 p-2 sm:p-4 space-y-2">
+                <!-- Injected via JavaScript -->
+            </div>
+
+            <!-- Modal Footer -->
+            <footer class="p-3 sm:p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/80 flex items-center justify-between text-xs shrink-0">
+                <span id="modalListSummary" class="text-slate-500 dark:text-slate-400 font-medium">
+                    يتم عرض كافة المنح المعتمدة المفتوحة لدورة 2026/2027
+                </span>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="closeRadarCatalogModal(); document.getElementById('radarSection')?.scrollIntoView({ behavior: 'smooth' });" class="sp-btn-secondary px-3.5 py-1.5 text-xs font-bold flex items-center gap-1.5">
+                        <i data-lucide="arrow-down" class="w-3.5 h-3.5 text-blue-500"></i>
+                        <span>النزول لقسم الرادار</span>
+                    </button>
+                    <button type="button" onclick="closeRadarCatalogModal()" class="sp-btn-primary px-4 py-1.5 text-xs font-bold">
+                        <span>إغلاق</span>
+                    </button>
+                </div>
+            </footer>
+
+        </div>
+    </div>
 
     <!-- ==================== SPLIT SCREEN SIDE PANEL DRAWER (OPTION B) ==================== -->
     <aside id="assistantSidePanel" class="fixed top-0 right-0 h-full w-full sm:w-[460px] lg:w-[480px] z-[60] bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col transition-transform duration-300 translate-x-full">
@@ -1616,7 +2058,7 @@
                     </h3>
                     <!-- Context Pill -->
                     <div id="sidePanelContextPill" class="hidden items-center gap-1 text-[11px] text-blue-600 dark:text-blue-400 font-bold truncate">
-                        <span>🎯</span>
+                        <i data-lucide="target" class="w-3.5 h-3.5 text-blue-500"></i>
                         <span id="sidePanelContextText" class="truncate">المنحة</span>
                         <button type="button" onclick="clearSidePanelContext()" title="إلغاء التخصيص" class="hover:text-rose-500 text-slate-400 mr-1">✕</button>
                     </div>
@@ -1643,7 +2085,7 @@
                     AI
                 </div>
                 <div class="p-3.5 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 max-w-[88%] text-xs shadow-xs space-y-2">
-                    <p class="font-bold text-slate-900 dark:text-white">أهلاً بك في المستشار الذكي! 🎓</p>
+                    <p class="font-bold text-slate-900 dark:text-white">أهلاً بك في المستشار الذكي</p>
                     <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
                         يمكنك تصفح رادار المنح على اليسار ومحادثتي هنا مباشرة دون مغادرة الصفحة. اسألني عن مواعيد المنح، شروطها، أو اختر سؤالاً سريعاً من المقترحات بالأسفل:
                     </p>
