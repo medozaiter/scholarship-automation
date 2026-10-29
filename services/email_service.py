@@ -90,11 +90,8 @@ def _email_wrapper(title: str, preheader: str, body_html: str, cta_url: str = ""
     <tr>
       <td align="center">
         <div class="container" style="max-width: 600px; background-color: #111827; border: 1px solid #1f2937; border-radius: 12px;">
-          <div class="header" style="background-color: #0f172a; padding: 24px; text-align: center; border-bottom: 1px solid #1f2937;">
-            <div style="font-size: 22px; font-weight: bold; color: #ffffff; letter-spacing: 0.5px;">
-              🎓 Scholar<span style="color: #3b82f6;">Pilot</span> AI
-            </div>
-            <div style="font-size: 12px; color: #94a3b8; margin-top: 4px;">المستشار الأكاديمي الذكي لاقتناص المنح الدراسية</div>
+          <div class="header" style="background-color: #0f172a; padding: 0; text-align: center; border-bottom: 1px solid #1f2937; overflow: hidden; border-top-left-radius: 12px; border-top-right-radius: 12px;">
+            <img src="https://scholarpilot-ai-mkac.onrender.com/static/img/scholarpilot_email_banner.jpg" alt="ScholarPilot AI" style="width: 100%; max-width: 600px; height: auto; display: block; border-top-left-radius: 12px; border-top-right-radius: 12px;" />
           </div>
           <div class="content" style="padding: 28px 24px; color: #e2e8f0; direction: rtl; text-align: right;">
             {body_html}
