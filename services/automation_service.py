@@ -34,7 +34,7 @@ DEFAULT_LIVE_SCHOLARSHIPS = [
         "deadlineDays": "متبقي أسبوع واحد",
         "coverage": "تغطية كاملة 100%: الرسوم الدراسية + السكن الجامعي الكامل 4 سنوات + تكلفة الكتب والتأمين",
         "requirements": "المعدل الأكاديمي 85%+، شهادة الثانوية العامة، رسالة ترشيح من المدرسة، إثبات القيادة المجتمعية",
-        "link": "https://future.utoronto.ca/pearson/",
+        "link": "https://future.utoronto.ca/pearson/about/#apply",
         "is_active": True
     },
     {
@@ -54,7 +54,7 @@ DEFAULT_LIVE_SCHOLARSHIPS = [
         "deadlineDays": "يفتح خلال شهرين",
         "coverage": "إعفاء دراسي 100% + راتب شهري + سكن جامعي مجاني + تأمين صحي شامل",
         "requirements": "معدل 80%+ للبكالوريوس، شهادة إتمام مرحلة سابقة، خطاب دافع وفحص طبي رسمي",
-        "link": "https://stipendiumhungaricum.hu/",
+        "link": "https://apply.stipendiumhungaricum.hu/",
         "is_active": True
     },
     {
@@ -74,7 +74,7 @@ DEFAULT_LIVE_SCHOLARSHIPS = [
         "deadlineDays": "فرصة سنوية كبرى",
         "coverage": "رسوم مجانية 100% + راتب شهري + سكن جامعي + سنة تحضيرية للغة وتذاكر طيران",
         "requirements": "حد أدنى 70% للبكالوريوس (90% للطب البشري)، رسائل توصية، وخطاب نوايا قوي",
-        "link": "https://www.turkiyeburslari.gov.tr/",
+        "link": "https://tbbs.turkiyeburslari.gov.tr/",
         "is_active": True
     },
     {
@@ -94,7 +94,7 @@ DEFAULT_LIVE_SCHOLARSHIPS = [
         "deadlineDays": "أيام معدودة للإغلاق",
         "coverage": "تمويل كامل بنسبة 100% + راتب شهري للمعيشة في بريطانيا + تذاكر طيران ذهاب وعودة",
         "requirements": "درجة البكالوريوس بتقدير جيد جداً على الأقل، سنتان خبرة مهنية، 4 مقالات قيادية",
-        "link": "https://www.chevening.org/scholarships/",
+        "link": "https://www.chevening.org/apply/",
         "is_active": True
     },
     {
@@ -114,7 +114,7 @@ DEFAULT_LIVE_SCHOLARSHIPS = [
         "deadlineDays": "تفتح في الربيع",
         "coverage": "رسوم دراسية كاملة + راتب شهري 1,000,000 وون + سنة لغة كورية وتذاكر طيران",
         "requirements": "معدل تراكمي أعلى من 80%، فحص طبي، خطة دراسية وبيان شخصي باللغة الإنجليزية",
-        "link": "https://www.studyinkorea.go.kr/",
+        "link": "https://www.studyinkorea.go.kr/en/scholarship/gksNoticeList.do",
         "is_active": True
     },
     {
@@ -134,7 +134,7 @@ DEFAULT_LIVE_SCHOLARSHIPS = [
         "deadlineDays": "مستمر حسب البرنامج",
         "coverage": "راتب شهري 934 يورو + تأمين صحي شامل + بدل سفر وتكاليف الأبحاث والمراجع",
         "requirements": "درجة بكالوريوس لا يتجاوز عمرها 6 سنوات، سنتان خبرة عمل، وخطاب دافع أكاديمي",
-        "link": "https://www.daad.de/en/",
+        "link": "https://www2.daad.de/deutschland/stipendium/datenbank/en/21148-scholarship-database/",
         "is_active": True
     },
     {
@@ -154,7 +154,7 @@ DEFAULT_LIVE_SCHOLARSHIPS = [
         "deadlineDays": "برامج متعددة",
         "coverage": "إعفاء دراسي كامل 100% + راتب شهري 1,400 يورو لمدة عامين + تذاكر سفر وبدل إقامة",
         "requirements": "شهادة البكالوريوس، سيرة ذاتية Europass، رسالتا توصية، ومقال دافع لكل تخصص",
-        "link": "https://erasmus-plus.ec.europa.eu/opportunities/opportunities-for-individuals/students/erasmus-mundus-joint-masters",
+        "link": "https://www.eacea.ec.europa.eu/scholarships/erasmus-mundus-catalogue_en",
         "is_active": True
     }
 ]
@@ -249,6 +249,17 @@ class AutomationService:
                                     link=itm.get("link") or itm.get("official_link"),
                                     is_active=itm.get("is_active", True)
                                 ))
+                            else:
+                                if itm.get("link"):
+                                    existing.link = itm.get("link")
+                                if itm.get("deadline"):
+                                    existing.deadline = itm.get("deadline")
+                                if itm.get("deadline_display"):
+                                    existing.deadline_display = itm.get("deadline_display")
+                                if itm.get("status"):
+                                    existing.status = itm.get("status")
+                                if itm.get("coverage"):
+                                    existing.coverage = itm.get("coverage")
             except Exception as e:
                 logger.debug(f"DB save live scholarships error: {e}")
 

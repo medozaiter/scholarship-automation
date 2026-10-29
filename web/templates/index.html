@@ -476,6 +476,48 @@
                 </div>
             </div>
 
+            <!-- DEGREE FILTER TABS (3 Degree Categories + All) -->
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-2.5 rounded-2xl sp-subcard border border-slate-200/80 dark:border-slate-800/80">
+                <div class="flex flex-wrap items-center gap-2">
+                    <!-- All -->
+                    <button type="button" id="degreeFilterAll" onclick="setRadarDegreeFilter('all')"
+                        class="radar-filter-btn px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 bg-blue-600 text-white shadow-sm border border-blue-600">
+                        <i data-lucide="layers" class="w-4 h-4"></i>
+                        <span>كافة المنح المفتوحة</span>
+                        <span id="badgeCountAll" class="px-2 py-0.5 rounded-full text-[10px] bg-white/20 text-white font-latin font-bold">7</span>
+                    </button>
+
+                    <!-- Bachelor's -->
+                    <button type="button" id="degreeFilterBachelor" onclick="setRadarDegreeFilter('bachelor')"
+                        class="radar-filter-btn px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 border border-transparent hover:border-slate-300 dark:hover:border-slate-700">
+                        <i data-lucide="graduation-cap" class="w-4 h-4 text-emerald-500"></i>
+                        <span>منح البكالوريوس (Bachelor's)</span>
+                        <span id="badgeCountBachelor" class="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-latin font-bold">4</span>
+                    </button>
+
+                    <!-- Master's -->
+                    <button type="button" id="degreeFilterMaster" onclick="setRadarDegreeFilter('master')"
+                        class="radar-filter-btn px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 border border-transparent hover:border-slate-300 dark:hover:border-slate-700">
+                        <i data-lucide="scroll" class="w-4 h-4 text-indigo-500"></i>
+                        <span>منح الماجستير (Master's)</span>
+                        <span id="badgeCountMaster" class="px-2 py-0.5 rounded-full text-[10px] bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-latin font-bold">6</span>
+                    </button>
+
+                    <!-- PhD -->
+                    <button type="button" id="degreeFilterPhd" onclick="setRadarDegreeFilter('phd')"
+                        class="radar-filter-btn px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 border border-transparent hover:border-slate-300 dark:hover:border-slate-700">
+                        <i data-lucide="microscope" class="w-4 h-4 text-purple-500"></i>
+                        <span>منح الدكتوراه (PhD)</span>
+                        <span id="badgeCountPhd" class="px-2 py-0.5 rounded-full text-[10px] bg-purple-500/10 text-purple-600 dark:text-purple-400 font-latin font-bold">4</span>
+                    </button>
+                </div>
+
+                <div class="text-xs text-slate-500 dark:text-slate-400 px-2 flex items-center gap-1.5 self-center">
+                    <i data-lucide="filter" class="w-3.5 h-3.5 text-blue-500"></i>
+                    <span>تصفية فورية حسب الدرجة العلمية</span>
+                </div>
+            </div>
+
             <!-- SCHOLARSHIP GRID VIEW (CLEAN DIRECT DISPLAY) -->
             <div id="radarGridView" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- Injected via Live JS -->
@@ -1797,26 +1839,102 @@ ${cleanBody}
         let currentDeckIndex = 0;
         let isCardDragging = false;
         let startX = 0, startY = 0, currentX = 0, currentY = 0;
+        let activeRadarDegreeFilter = 'all';
+
+        const OFFICIAL_PORTALS = {
+            pearson: "https://future.utoronto.ca/pearson/about/#apply",
+            hungaricum: "https://apply.stipendiumhungaricum.hu/",
+            turkiye: "https://tbbs.turkiyeburslari.gov.tr/",
+            chevening: "https://www.chevening.org/apply/",
+            gks: "https://www.studyinkorea.go.kr/en/scholarship/gksNoticeList.do",
+            daad: "https://www2.daad.de/deutschland/stipendium/datenbank/en/21148-scholarship-database/",
+            erasmus: "https://www.eacea.ec.europa.eu/scholarships/erasmus-mundus-catalogue_en"
+        };
+
+        function matchesDegree(item, filter) {
+            if (!filter || filter === 'all') return true;
+            const targetDegrees = Array.isArray(item.target_degrees) ? item.target_degrees.join(' ').toLowerCase() : '';
+            const text = ((item.degree || '') + ' ' + targetDegrees + ' ' + (item.name || '')).toLowerCase();
+
+            if (filter === 'bachelor') {
+                return text.includes('bachelor') || text.includes('undergraduate') || text.includes('بكالوريوس') || text.includes('كافة المراحل');
+            }
+            if (filter === 'master') {
+                return text.includes('master') || text.includes('ماجستير') || text.includes('دراسات عليا') || text.includes('كافة المراحل');
+            }
+            if (filter === 'phd') {
+                return text.includes('phd') || text.includes('doctorate') || text.includes('دكتوراه') || text.includes('دراسات عليا') || text.includes('كافة المراحل');
+            }
+            return true;
+        }
+
+        function updateRadarBadgeCounts() {
+            const countAll = scholarshipDeckData.length;
+            const countBachelor = scholarshipDeckData.filter(s => matchesDegree(s, 'bachelor')).length;
+            const countMaster = scholarshipDeckData.filter(s => matchesDegree(s, 'master')).length;
+            const countPhd = scholarshipDeckData.filter(s => matchesDegree(s, 'phd')).length;
+
+            const elAll = document.getElementById('badgeCountAll');
+            const elBach = document.getElementById('badgeCountBachelor');
+            const elMast = document.getElementById('badgeCountMaster');
+            const elPhd = document.getElementById('badgeCountPhd');
+
+            if (elAll) elAll.textContent = countAll;
+            if (elBach) elBach.textContent = countBachelor;
+            if (elMast) elMast.textContent = countMaster;
+            if (elPhd) elPhd.textContent = countPhd;
+        }
+
+        function setRadarDegreeFilter(degree) {
+            activeRadarDegreeFilter = degree;
+
+            const buttons = {
+                all: document.getElementById('degreeFilterAll'),
+                bachelor: document.getElementById('degreeFilterBachelor'),
+                master: document.getElementById('degreeFilterMaster'),
+                phd: document.getElementById('degreeFilterPhd')
+            };
+
+            const activeClasses = "bg-blue-600 text-white shadow-sm border-blue-600";
+            const inactiveClasses = "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 border-transparent hover:border-slate-300 dark:hover:border-slate-700";
+
+            Object.entries(buttons).forEach(([key, btn]) => {
+                if (!btn) return;
+                if (key === degree) {
+                    btn.className = `radar-filter-btn px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 ${activeClasses}`;
+                } else {
+                    btn.className = `radar-filter-btn px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 ${inactiveClasses}`;
+                }
+            });
+
+            renderRadarGrid();
+        }
 
         async function loadLiveScholarships() {
             try {
                 const res = await fetch('/api/scholarships/live');
                 const data = await res.json();
                 if (data.success && data.scholarships && data.scholarships.length > 0) {
-                    scholarshipDeckData = data.scholarships.map(s => ({
-                        id: s.id,
-                        name: s.name,
-                        university: s.target_university || s.country,
-                        country: s.country,
-                        degree: s.degree,
-                        matchScore: s.admission_probability || s.match_score || "92%",
-                        matchLabel: "توافق مرتفع",
-                        status: s.status || "مفتوح حالياً",
-                        statusClass: "sp-badge-success",
-                        deadline: s.deadline || "مفتوح الآن",
-                        coverage: s.coverage || "تمويل دراسي وسكن وراتب شهري",
-                        link: s.official_link || "#"
-                    }));
+                    scholarshipDeckData = data.scholarships.map(s => {
+                        const fallbackUrl = OFFICIAL_PORTALS[s.id] || "#";
+                        const directLink = (s.link && s.link !== '#' && s.link.trim() !== '') ? s.link : fallbackUrl;
+                        return {
+                            id: s.id,
+                            name: s.name,
+                            university: s.target_university || s.university || s.country,
+                            country: s.country,
+                            degree: s.degree,
+                            target_degrees: s.target_degrees || [],
+                            matchScore: s.admission_probability || s.matchScore || s.match_score || "92%",
+                            matchLabel: s.matchLabel || "توافق مرتفع",
+                            status: s.status || "مفتوح حالياً",
+                            statusClass: s.statusClass || "sp-badge-success",
+                            deadline: s.deadline_display || s.deadline || "مفتوح الآن",
+                            coverage: s.coverage || "تمويل دراسي وسكن وراتب شهري",
+                            requirements: s.requirements || "",
+                            link: directLink
+                        };
+                    });
                 }
             } catch(e) {
                 console.warn("Live fetch fallback:", e);
@@ -1825,47 +1943,114 @@ ${cleanBody}
             if (!scholarshipDeckData.length) {
                 scholarshipDeckData = [
                     {
+                        id: "pearson",
                         name: "Lester B. Pearson Scholarship",
-                        university: "University of Toronto",
-                        country: "كندا",
-                        degree: "بكالوريوس (Undergraduate)",
+                        university: "جامعة تورنتو (University of Toronto)",
+                        country: "كندا (Canada)",
+                        degree: "Undergraduate (بكالوريوس)",
+                        target_degrees: ["Undergraduate (Bachelor's)", "بكالوريوس"],
                         matchScore: "96%",
                         matchLabel: "توافق استثنائي",
                         status: "مفتوح حالياً للتقديم",
                         statusClass: "sp-badge-success",
-                        deadline: "نوفمبر 2026",
+                        deadline: "6 نوفمبر 2026",
                         coverage: "تغطية كاملة 100%: الرسوم الدراسية + السكن الجامعي 4 سنوات + تكلفة الكتب والتأمين",
-                        link: "https://future.utoronto.ca/pearson/"
+                        link: "https://future.utoronto.ca/pearson/about/#apply"
                     },
                     {
+                        id: "hungaricum",
                         name: "Stipendium Hungaricum Scholarship",
-                        university: "الجامعات الحكومية الهنغارية الرائدة",
+                        university: "جامعات المجر الحكومية (بودابست، ديبريسين، زيجد)",
                         country: "المجر (الاتحاد الأوروبي)",
                         degree: "بكالوريوس • ماجستير • دكتوراه",
+                        target_degrees: ["Undergraduate (Bachelor's)", "Master's Degree", "PhD / Doctorate", "بكالوريوس", "ماجستير", "دكتوراه"],
                         matchScore: "95%",
                         matchLabel: "فرصة كبرى مع كوتا خاصة",
                         status: "تفتح للتقديم قريباً",
                         statusClass: "sp-badge-info",
                         deadline: "15 يناير 2027",
                         coverage: "إعفاء دراسي 100% + راتب شهري + سكن جامعي مجاني + تأمين صحي شامل",
-                        link: "https://stipendiumhungaricum.hu/"
+                        link: "https://apply.stipendiumhungaricum.hu/"
                     },
                     {
+                        id: "turkiye",
                         name: "Türkiye Bursları Government Scholarship",
-                        university: "الجامعات التركية الحكومية الرائدة",
-                        country: "تركيا",
+                        university: "كافة الجامعات التركية الحكومية الرائدة (METU, Boğaziçi)",
+                        country: "تركيا (Turkey)",
                         degree: "كافة المراحل (بكالوريوس ودراسات عليا)",
+                        target_degrees: ["Undergraduate (Bachelor's)", "Master's Degree", "PhD / Doctorate", "بكالوريوس", "ماجستير", "دكتوراه"],
                         matchScore: "93%",
-                        matchLabel: "كوتا سنوية للطلاب العرب",
+                        matchLabel: "كوتا سنوية خاصة",
                         status: "تفتح 10 يناير 2027",
                         statusClass: "sp-badge-info",
                         deadline: "20 فبراير 2027",
                         coverage: "رسوم مجانية 100% + راتب شهري + سكن جامعي + سنة لغة وتذاكر طيران",
-                        link: "https://www.turkiyeburslari.gov.tr/"
+                        link: "https://tbbs.turkiyeburslari.gov.tr/"
+                    },
+                    {
+                        id: "chevening",
+                        name: "Chevening UK Government Scholarship",
+                        university: "جامعات المملكة المتحدة (أكسفورد، كامبريدج، إمبريال)",
+                        country: "بريطانيا (UK)",
+                        degree: "Master's Degree (ماجستير)",
+                        target_degrees: ["Master's Degree", "ماجستير"],
+                        matchScore: "90%",
+                        matchLabel: "برنامج القادة والتميز",
+                        status: "مفتوح حالياً",
+                        statusClass: "sp-badge-warning",
+                        deadline: "5 نوفمبر 2026",
+                        coverage: "تمويل كامل 100% + راتب شهري للمعيشة في بريطانيا + تذاكر طيران",
+                        link: "https://www.chevening.org/apply/"
+                    },
+                    {
+                        id: "gks",
+                        name: "Global Korea Scholarship (GKS)",
+                        university: "جامعات كوريا الجنوبية (SNU, KAIST)",
+                        country: "كوريا الجنوبية (South Korea)",
+                        degree: "بكالوريوس وماجستير ودكتوراه",
+                        target_degrees: ["Undergraduate (Bachelor's)", "Master's Degree", "PhD / Doctorate", "بكالوريوس", "ماجستير", "دكتوراه"],
+                        matchScore: "91%",
+                        matchLabel: "تطور تكنولوجي وأكاديمي",
+                        status: "التقديم السنوي عبر السفارة",
+                        statusClass: "sp-badge-info",
+                        deadline: "مارس 2027",
+                        coverage: "رسوم دراسية كاملة + راتب شهري 1,000,000 وون + سنة لغة وتذاكر طيران",
+                        link: "https://www.studyinkorea.go.kr/en/scholarship/gksNoticeList.do"
+                    },
+                    {
+                        id: "daad",
+                        name: "DAAD Scholarships Germany",
+                        university: "جامعات ألمانيا التقنية والبحثية (TUM, LMU, Heidelberg)",
+                        country: "ألمانيا (Germany)",
+                        degree: "Master's & PhD (دراسات عليا)",
+                        target_degrees: ["Master's Degree", "PhD / Doctorate", "ماجستير", "دكتوراه"],
+                        matchScore: "95%",
+                        matchLabel: "توافق استثنائي",
+                        status: "مفتوح حسب التخصص",
+                        statusClass: "sp-badge-success",
+                        deadline: "15 ديسمبر 2026",
+                        coverage: "راتب شهري 934 يورو + تأمين صحي شامل + بدل سفر وتكاليف الأبحاث",
+                        link: "https://www2.daad.de/deutschland/stipendium/datenbank/en/21148-scholarship-database/"
+                    },
+                    {
+                        id: "erasmus",
+                        name: "Erasmus Mundus Joint Masters (EMJM)",
+                        university: "اتحاد جامعات أوروبية متعددة (فرنسا، ألمانيا، إسبانيا)",
+                        country: "الاتحاد الأوروبي (Europe)",
+                        degree: "Master's Degree (ماجستير مشترك)",
+                        target_degrees: ["Master's Degree", "ماجستير"],
+                        matchScore: "94%",
+                        matchLabel: "دراسة في دولتين أو ثلاث دول أوروبية",
+                        status: "تفتح للتقديم تدريجياً",
+                        statusClass: "sp-badge-info",
+                        deadline: "20 يناير 2027",
+                        coverage: "إعفاء كامل 100% + راتب شهري 1,400 يورو لمدة عامين + تذاكر سفر",
+                        link: "https://www.eacea.ec.europa.eu/scholarships/erasmus-mundus-catalogue_en"
                     }
                 ];
             }
 
+            updateRadarBadgeCounts();
             renderRadarGrid();
         }
 
@@ -2190,8 +2375,48 @@ ${cleanBody}
 
         function renderRadarGrid() {
             const grid = document.getElementById('radarGridView');
-            grid.innerHTML = scholarshipDeckData.map(item => `
-                <div class="sp-card p-6 flex flex-col justify-between sp-card-hover">
+            if (!grid) return;
+
+            const filtered = scholarshipDeckData.filter(item => matchesDegree(item, activeRadarDegreeFilter));
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-1 md:col-span-2 lg:col-span-3 sp-card p-12 text-center flex flex-col items-center justify-center">
+                        <div class="w-14 h-14 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center mb-4">
+                            <i data-lucide="layers" class="w-7 h-7"></i>
+                        </div>
+                        <h3 class="text-base font-bold text-slate-900 dark:text-white mb-1">لا توجد منح متوفرة لهذه المرحلة حالياً</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-4 max-w-md">يقوم النظام الآلي بفحص البوابات الرسمية دورياً وإضافة أي منح جديدة يتم الإعلان عنها فوراً.</p>
+                        <button type="button" onclick="setRadarDegreeFilter('all')" class="sp-btn-primary px-5 py-2 text-xs font-bold flex items-center gap-2">
+                            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                            <span>عرض كافة المراحل الدراسية</span>
+                        </button>
+                    </div>
+                `;
+                if (window.lucide) lucide.createIcons();
+                return;
+            }
+
+            grid.innerHTML = filtered.map(item => {
+                const isBachelor = matchesDegree(item, 'bachelor');
+                const isMaster = matchesDegree(item, 'master');
+                const isPhd = matchesDegree(item, 'phd');
+
+                let degreeBadges = '';
+                if (isBachelor) {
+                    degreeBadges += `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"><i data-lucide="graduation-cap" class="w-3 h-3"></i> بكالوريوس</span>`;
+                }
+                if (isMaster) {
+                    degreeBadges += `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20"><i data-lucide="scroll" class="w-3 h-3"></i> ماجستير</span>`;
+                }
+                if (isPhd) {
+                    degreeBadges += `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20"><i data-lucide="microscope" class="w-3 h-3"></i> دكتوراه</span>`;
+                }
+
+                const portalUrl = (item.link && item.link !== '#' && item.link.trim() !== '') ? item.link : (OFFICIAL_PORTALS[item.id] || '#');
+
+                return `
+                <div class="sp-card p-6 flex flex-col justify-between sp-card-hover group">
                     <div>
                         <div class="flex justify-between items-start mb-3">
                             <span class="sp-badge ${item.statusClass}">
@@ -2201,14 +2426,20 @@ ${cleanBody}
                                 ${escapeHTML(item.matchScore)}
                             </span>
                         </div>
-                        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">${escapeHTML(item.name)}</h3>
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1 group-hover:text-blue-500 transition-colors">${escapeHTML(item.name)}</h3>
                         <p class="text-xs text-slate-500 dark:text-slate-400 mb-3 flex items-center gap-1.5">
-                            <i data-lucide="map-pin" class="w-3.5 h-3.5 text-blue-500"></i>
+                            <i data-lucide="map-pin" class="w-3.5 h-3.5 text-blue-500 shrink-0"></i>
                             <span>${escapeHTML(item.country)} · ${escapeHTML(item.university)}</span>
                         </p>
+
+                        <!-- Degree Badges with Icons -->
+                        <div class="flex flex-wrap items-center gap-1.5 mb-3">
+                            ${degreeBadges}
+                        </div>
+
                         <div class="sp-subcard p-3 rounded-xl text-xs mb-3 space-y-1.5">
                             <div class="text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1.5">
-                                <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+                                <i data-lucide="calendar" class="w-3.5 h-3.5 shrink-0"></i>
                                 <span>الموعد النهائي: ${escapeHTML(item.deadline)}</span>
                             </div>
                             <div class="text-[11px] leading-relaxed flex items-start gap-1.5 text-slate-600 dark:text-slate-300">
@@ -2222,13 +2453,15 @@ ${cleanBody}
                             <i data-lucide="bell" class="w-3.5 h-3.5 text-blue-500"></i>
                             <span>تفعيل تذكير الموعد (Reminder)</span>
                         </button>
-                        <a href="${item.link}" target="_blank" class="sp-btn-primary w-full text-center py-2.5 text-xs font-bold flex items-center justify-center gap-1.5">
+                        <a href="${portalUrl}" target="_blank" rel="noopener noreferrer" class="sp-btn-primary w-full text-center py-2.5 text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition-all duration-200 hover:shadow-md">
                             <span>البوابة الرسمية للتقديم</span>
                             <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
                         </a>
                     </div>
                 </div>
-            `).join('');
+                `;
+            }).join('');
+
             if (window.lucide) lucide.createIcons();
         }
 
