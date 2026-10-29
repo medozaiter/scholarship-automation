@@ -2464,10 +2464,10 @@ ${cleanBody}
                                 <i data-lucide="bell" class="w-3.5 h-3.5 text-blue-500"></i>
                                 <span>تفعيل التذكير</span>
                             </button>
-                            <a href="/assistant?scholarship=${item.id}" class="sp-btn-secondary py-2 text-xs font-bold flex items-center justify-center gap-1.5 hover:border-blue-500/50">
+                            <button type="button" onclick="openAssistantSidePanel('${escapeHTML(item.id)}', '${escapeHTML(item.name)}')" class="sp-btn-secondary py-2 text-xs font-bold flex items-center justify-center gap-1.5 hover:border-blue-500/50">
                                 <i data-lucide="sparkles" class="w-3.5 h-3.5 text-blue-500"></i>
                                 <span>اسأل المستشار</span>
-                            </a>
+                            </button>
                         </div>
                         <a href="${portalUrl}" target="_blank" rel="noopener noreferrer" class="sp-btn-primary w-full text-center py-2.5 text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition-all duration-200 hover:shadow-md">
                             <span>البوابة الرسمية للتقديم</span>
@@ -2479,6 +2479,166 @@ ${cleanBody}
             }).join('');
 
             if (window.lucide) lucide.createIcons();
+        }
+
+        // =====================================================================
+        // OPTION B: SPLIT SCREEN SIDE PANEL CONTROLLER
+        // =====================================================================
+        let currentSidePanelScholarship = null;
+        let sidePanelHistory = [];
+
+        function toggleAssistantSidePanel(forceState) {
+            const panel = document.getElementById('assistantSidePanel');
+            if (!panel) return;
+            const isClosed = panel.classList.contains('translate-x-full');
+            const shouldOpen = forceState !== undefined ? forceState : isClosed;
+
+            if (shouldOpen) {
+                panel.classList.remove('translate-x-full');
+                panel.classList.add('translate-x-0');
+                const inp = document.getElementById('sidePanelInput');
+                if (inp) setTimeout(() => inp.focus(), 200);
+            } else {
+                panel.classList.add('translate-x-full');
+                panel.classList.remove('translate-x-0');
+            }
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function openAssistantSidePanel(schId, schName) {
+            currentSidePanelScholarship = { id: schId, name: schName };
+            const pill = document.getElementById('sidePanelContextPill');
+            const txt = document.getElementById('sidePanelContextText');
+            if (pill && txt) {
+                txt.textContent = schName || schId;
+                pill.classList.remove('hidden');
+                pill.classList.add('flex');
+            }
+            toggleAssistantSidePanel(true);
+
+            // Append context system message to side panel feed
+            const container = document.getElementById('sidePanelMessages');
+            if (container) {
+                const note = document.createElement('div');
+                note.className = 'p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs text-blue-700 dark:text-blue-300 flex items-center justify-between gap-2 animate-fade-in';
+                note.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="sparkles" class="w-4 h-4 text-blue-500 shrink-0"></i>
+                        <span>تم توجيه الاستشارة نحو: <strong>${escapeHTML(schName)}</strong></span>
+                    </div>
+                    <button type="button" onclick="clearSidePanelContext()" class="text-[11px] underline text-slate-500 hover:text-slate-800 dark:hover:text-white">إلغاء</button>
+                `;
+                container.appendChild(note);
+                container.scrollTop = container.scrollHeight;
+                if (window.lucide) lucide.createIcons();
+            }
+        }
+
+        function clearSidePanelContext() {
+            currentSidePanelScholarship = null;
+            const pill = document.getElementById('sidePanelContextPill');
+            if (pill) {
+                pill.classList.add('hidden');
+                pill.classList.remove('flex');
+            }
+        }
+
+        function expandToDedicatedPage() {
+            const schParam = currentSidePanelScholarship ? `?scholarship=${encodeURIComponent(currentSidePanelScholarship.id)}` : '';
+            window.location.href = `/assistant${schParam}`;
+        }
+
+        async function sendSidePanelMessage(textOverride) {
+            const inp = document.getElementById('sidePanelInput');
+            const query = (textOverride || (inp ? inp.value : '')).trim();
+            if (!query) return;
+
+            if (inp && !textOverride) inp.value = '';
+
+            const container = document.getElementById('sidePanelMessages');
+            const typing = document.getElementById('sidePanelTyping');
+
+            // Render User Bubble
+            if (container) {
+                const uMsg = document.createElement('div');
+                uMsg.className = 'flex items-start gap-2.5 justify-end';
+                uMsg.innerHTML = `
+                    <div class="p-3.5 rounded-2xl bg-blue-600 text-white max-w-[85%] text-xs shadow-xs leading-relaxed">
+                        ${escapeHTML(query)}
+                    </div>
+                    <div class="w-7 h-7 rounded-xl bg-blue-600/20 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-xs shrink-0 font-latin">
+                        You
+                    </div>
+                `;
+                container.appendChild(uMsg);
+                container.scrollTop = container.scrollHeight;
+            }
+
+            // Show Typing Indicator
+            if (typing) typing.classList.remove('hidden');
+
+            const savedEmail = localStorage.getItem('scholarpilot_user_email') || 'medo.msz.2006@gmail.com';
+            const schId = currentSidePanelScholarship ? currentSidePanelScholarship.id : null;
+
+            try {
+                const res = await fetch('/api/advisor/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        query: query,
+                        email: savedEmail,
+                        scholarship_id: schId,
+                        history: sidePanelHistory
+                    })
+                });
+
+                if (typing) typing.classList.add('hidden');
+
+                if (!res.ok) throw new Error('تعذر معالجة الاستشارة حالياً');
+                const data = await res.json();
+
+                // Save turn
+                sidePanelHistory.push({ role: 'user', text: query });
+                sidePanelHistory.push({ role: 'assistant', text: data.advice || '' });
+                if (sidePanelHistory.length > 8) sidePanelHistory = sidePanelHistory.slice(-8);
+
+                // Render AI Bubble
+                if (container) {
+                    const aiMsg = document.createElement('div');
+                    aiMsg.className = 'flex items-start gap-2.5';
+
+                    const badgeHtml = data.zero_token_direct
+                        ? '<span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-500/20">⚡ استجابة فورية موثقة (Zero-Token Fact)</span>'
+                        : (data.cached ? '<span class="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-600 dark:text-blue-400 font-bold border border-blue-500/20">⚡ استجابة سريعة محفوظة (Cache Hit)</span>' : '');
+
+                    aiMsg.innerHTML = `
+                        <div class="w-7 h-7 rounded-xl bg-gradient-to-tr from-blue-600 to-cyan-500 text-white flex items-center justify-center font-bold text-xs shrink-0 font-latin shadow-xs">
+                            AI
+                        </div>
+                        <div class="p-4 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 max-w-[88%] text-xs shadow-xs space-y-2">
+                            <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-700/50 pb-1.5">
+                                <span class="font-bold text-slate-900 dark:text-white">ScholarPilot AI</span>
+                                ${badgeHtml}
+                            </div>
+                            <div class="markdown-body leading-relaxed text-slate-700 dark:text-slate-200 space-y-2">
+                                ${marked.parse(data.advice || '')}
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(aiMsg);
+                    container.scrollTop = container.scrollHeight;
+                    if (window.lucide) lucide.createIcons();
+                }
+            } catch (err) {
+                if (typing) typing.classList.add('hidden');
+                if (container) {
+                    const errMsg = document.createElement('div');
+                    errMsg.className = 'p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-600 dark:text-rose-400';
+                    errMsg.textContent = err.message || 'حدث خطأ في الاتصال، يرجى إعادة المحاولة.';
+                    container.appendChild(errMsg);
+                    container.scrollTop = container.scrollHeight;
+                }
+            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -2499,6 +2659,93 @@ ${cleanBody}
         });
     </script>
 
+    <!-- ==================== SPLIT SCREEN SIDE PANEL DRAWER (OPTION B) ==================== -->
+    <aside id="assistantSidePanel" class="fixed top-0 right-0 h-full w-full sm:w-[460px] lg:w-[480px] z-[60] bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col transition-transform duration-300 translate-x-full">
+        <!-- Side Panel Header -->
+        <header class="p-3.5 border-b border-slate-200 dark:border-slate-800 bg-slate-50/90 dark:bg-slate-900/90 backdrop-blur-md flex items-center justify-between shrink-0">
+            <div class="flex items-center gap-2.5 min-w-0">
+                <div class="relative w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+                    <i data-lucide="sparkles" class="w-4 h-4 text-white"></i>
+                    <span class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 border border-white dark:border-slate-900"></span>
+                </div>
+                <div class="min-w-0">
+                    <h3 class="text-xs font-black text-slate-900 dark:text-white flex items-center gap-1.5 truncate">
+                        <span>المستشار الذكي</span>
+                        <span class="text-[10px] font-latin font-bold text-blue-600 dark:text-blue-400 bg-blue-500/10 px-1.5 py-0.2 rounded">Split View</span>
+                    </h3>
+                    <!-- Context Pill -->
+                    <div id="sidePanelContextPill" class="hidden items-center gap-1 text-[11px] text-blue-600 dark:text-blue-400 font-bold truncate">
+                        <span>🎯</span>
+                        <span id="sidePanelContextText" class="truncate">المنحة</span>
+                        <button type="button" onclick="clearSidePanelContext()" title="إلغاء التخصيص" class="hover:text-rose-500 text-slate-400 mr-1">✕</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Header Action Controls -->
+            <div class="flex items-center gap-1.5">
+                <button type="button" onclick="expandToDedicatedPage()" title="توسيع للشاشة الكاملة (Option A)" class="sp-btn-secondary px-2.5 py-1.5 text-xs font-bold flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:border-blue-500">
+                    <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i>
+                    <span class="hidden sm:inline">شاشة كاملة</span>
+                </button>
+                <button type="button" onclick="toggleAssistantSidePanel(false)" title="إغلاق اللوحة الجانبية" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Messages Scroll Container -->
+        <div id="sidePanelMessages" class="flex-1 overflow-y-auto chat-scroll p-4 space-y-3.5">
+            <!-- Assistant Greeting -->
+            <div class="flex items-start gap-2.5">
+                <div class="w-7 h-7 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0 font-latin shadow-xs">
+                    AI
+                </div>
+                <div class="p-3.5 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 max-w-[88%] text-xs shadow-xs space-y-2">
+                    <p class="font-bold text-slate-900 dark:text-white">أهلاً بك في المستشار الذكي! 🎓</p>
+                    <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
+                        يمكنك تصفح رادار المنح على اليسار ومحادثتي هنا مباشرة دون مغادرة الصفحة. اسألني عن مواعيد المنح، شروطها، أو اختر سؤالاً سريعاً من المقترحات بالأسفل:
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Typing Indicator -->
+        <div id="sidePanelTyping" class="hidden px-4 py-2 shrink-0 flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400">
+            <span class="w-2 h-2 rounded-full bg-blue-500 animate-ping"></span>
+            <span class="text-[11px] font-semibold">المستشار يحلل البيانات ويجهز الإجابة...</span>
+        </div>
+
+        <!-- 4 Required Suggested Quick Actions -->
+        <div class="shrink-0 p-2.5 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+            <div class="text-[10px] font-bold text-slate-400 mb-1.5">استفسارات سريعة مقترحة:</div>
+            <div class="grid grid-cols-2 gap-1.5 text-xs">
+                <button type="button" onclick="sendSidePanelMessage('ابحث لي عن منح تناسب ملفي')" class="px-2 py-1.5 rounded-lg sp-subcard hover:border-blue-500 text-slate-700 dark:text-slate-300 text-[11px] font-bold text-right truncate transition">
+                    🎓 ابحث لي عن منح تناسب ملفي
+                </button>
+                <button type="button" onclick="sendSidePanelMessage('منح ممولة بالكامل 100%')" class="px-2 py-1.5 rounded-lg sp-subcard hover:border-blue-500 text-slate-700 dark:text-slate-300 text-[11px] font-bold text-right truncate transition">
+                    🌍 منح ممولة بالكامل 100%
+                </button>
+                <button type="button" onclick="sendSidePanelMessage('منح تقترب مواعيد إغلاقها')" class="px-2 py-1.5 rounded-lg sp-subcard hover:border-blue-500 text-slate-700 dark:text-slate-300 text-[11px] font-bold text-right truncate transition">
+                    📅 منح تقترب مواعيد إغلاقها
+                </button>
+                <button type="button" onclick="sendSidePanelMessage('أفضل المنح لملفي الأكاديمي')" class="px-2 py-1.5 rounded-lg sp-subcard hover:border-blue-500 text-slate-700 dark:text-slate-300 text-[11px] font-bold text-right truncate transition">
+                    💰 أفضل المنح لملفي الأكاديمي
+                </button>
+            </div>
+        </div>
+
+        <!-- Input Bar -->
+        <footer class="p-3 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shrink-0">
+            <form onsubmit="event.preventDefault(); sendSidePanelMessage();" class="flex items-center gap-2">
+                <input type="text" id="sidePanelInput" placeholder="اكتب سؤالك هنا (مثلاً: ما هو موعد منحة بيرسون؟)..." class="sp-input text-xs py-2 px-3 flex-1">
+                <button type="submit" class="sp-btn-primary px-3.5 py-2 text-xs font-bold flex items-center justify-center shrink-0">
+                    <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                </button>
+            </form>
+        </footer>
+    </aside>
+
     <!-- ==================== FLOATING AI ASSISTANT BUTTON ==================== -->
     <aside class="fixed bottom-6 right-6 z-50 group flex items-center gap-3">
         <!-- Modern Floating Tooltip -->
@@ -2510,9 +2757,9 @@ ${cleanBody}
             <span class="text-[10px] text-slate-300">مستشارك الأكاديمي الذكي المتاح 24/7</span>
         </div>
 
-        <!-- Floating Button -->
-        <a href="/assistant" aria-label="Ask ScholarPilot AI"
-           class="relative w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-500 text-white flex items-center justify-center shadow-lg shadow-blue-500/30 hover:shadow-cyan-500/50 hover:scale-105 active:scale-95 transition-all duration-300 border border-white/20 group">
+        <!-- Floating Button (Toggles Split Screen Mode Option B) -->
+        <button type="button" onclick="toggleAssistantSidePanel()" aria-label="Ask ScholarPilot AI"
+           class="relative w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-500 text-white flex items-center justify-center shadow-lg shadow-blue-500/30 hover:shadow-cyan-500/50 hover:scale-105 active:scale-95 transition-all duration-300 border border-white/20 group cursor-pointer">
             <!-- Pulsing Halo Animation -->
             <span class="absolute inset-0 rounded-2xl bg-blue-500/40 animate-ping opacity-40 pointer-events-none"></span>
             
@@ -2520,7 +2767,7 @@ ${cleanBody}
             
             <!-- Online status green dot -->
             <span class="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-slate-900"></span>
-        </a>
+        </button>
     </aside>
 </body>
 </html>

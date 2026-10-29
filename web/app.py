@@ -299,6 +299,7 @@ class AdvisorChatRequest(BaseModel):
     email: Optional[str] = None
     scholarship_id: Optional[str] = None
     history: Optional[List[Dict[str, str]]] = None
+    profile: Optional[Dict[str, Any]] = None
 
     @field_validator("query")
     @classmethod
@@ -908,7 +909,7 @@ async def consult_advisor(req: AdvisorChatRequest, request: Request):
     """Real-time AI Scholarship Advisor answering concisely with multi-turn dialect understanding, token optimization, and profile/scholarship awareness."""
     try:
         safe_email = _get_verified_profile_email(request, req.email)
-        profile = advisor_service.resolve_student_profile(email=safe_email)
+        profile = advisor_service.resolve_student_profile(email=safe_email, explicit_profile=req.profile)
         res = await advisor_service.consult_ai_advisor(
             student_query=req.query,
             student_profile=profile,

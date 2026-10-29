@@ -464,5 +464,29 @@
             loadNotifications();
         });
     </script>
+
+    <!-- ==================== FLOATING AI ASSISTANT BUTTON ==================== -->
+    <aside class="fixed bottom-6 right-6 z-50 group flex items-center gap-3">
+        <!-- Modern Floating Tooltip -->
+        <div class="pointer-events-none opacity-0 group-hover:opacity-100 translate-x-3 group-hover:translate-x-0 transition-all duration-300 shadow-xl rounded-xl px-3.5 py-2 bg-slate-900/95 dark:bg-slate-800/95 text-white border border-slate-700/60 backdrop-blur-md hidden sm:flex flex-col text-right">
+            <span class="text-xs font-bold flex items-center gap-1.5 text-blue-400">
+                <i data-lucide="sparkles" class="w-3.5 h-3.5 text-cyan-400"></i>
+                <span>Ask ScholarPilot AI</span>
+            </span>
+            <span class="text-[10px] text-slate-300">مستشارك الأكاديمي الذكي المتاح 24/7</span>
+        </div>
+
+        <!-- Floating Button -->
+        <a href="/assistant" aria-label="Ask ScholarPilot AI"
+           class="relative w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-500 text-white flex items-center justify-center shadow-lg shadow-blue-500/30 hover:shadow-cyan-500/50 hover:scale-105 active:scale-95 transition-all duration-300 border border-white/20 group">
+            <!-- Pulsing Halo Animation -->
+            <span class="absolute inset-0 rounded-2xl bg-blue-500/40 animate-ping opacity-40 pointer-events-none"></span>
+            
+            <i data-lucide="sparkles" class="w-6 h-6 text-white group-hover:rotate-12 transition-transform duration-300"></i>
+            
+            <!-- Online status green dot -->
+            <span class="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-slate-900"></span>
+        </a>
+    </aside>
 </body>
 </html>
