@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ScholarPilot AI | Student Portal & Intelligence Dashboard</title>
-    <meta name="description" content="ScholarPilot AI Student Workspace - Autonomous Scholarship Tracking, Admission Odds & Automated Weekly Digests.">
+    <title>ScholarPilot AI | بوابة الطالب والهوية الأكاديمية</title>
+    <meta name="description" content="ScholarPilot AI Student Workspace - الهوية الأكاديمية الموثقة، تتبع المنح الآلي، وحساب نسب القبول.">
     <!-- SVG Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%232563eb'/><stop offset='50%' stop-color='%234f46e5'/><stop offset='100%' stop-color='%2306b6d4'/></linearGradient></defs><rect width='100' height='100' rx='24' fill='url(%23g)'/><path d='M50 20 L82 36 L50 52 L18 36 Z' fill='%23ffffff'/><path d='M26 44 L26 62 Q50 78 74 62 L74 44 L50 56 Z' fill='%23e0e7ff'/><circle cx='82' cy='42' r='4' fill='%2338bdf8'/><path d='M82 46 L82 66' stroke='%2338bdf8' stroke-width='3' stroke-linecap='round'/></svg>">
 
@@ -31,7 +31,7 @@
         }
     </script>
 
-    <!-- Google Fonts: Inter, Plus Jakarta Sans, Tajawal, Cairo -->
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -39,7 +39,7 @@
     <!-- Production Design Tokens -->
     <link rel="stylesheet" href="/static/css/scholarpilot.css">
 
-    <!-- Lucide Outlined Modern Icons -->
+    <!-- Lucide Outlined Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <!-- Canvas Confetti -->
@@ -53,7 +53,7 @@
         }
     </script>
 </head>
-<body class="min-h-screen selection:bg-blue-600 selection:text-white flex flex-col relative">
+<body class="min-h-screen selection:bg-blue-600 selection:text-white flex flex-col relative bg-slate-950 text-slate-100">
 
     <!-- Toast Notification Container -->
     <div id="toastContainer" class="fixed top-5 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none flex flex-col items-center gap-2 max-w-md w-full px-4"></div>
@@ -66,20 +66,17 @@
             <div class="flex items-center gap-3">
                 <a href="/" class="flex items-center gap-3 group">
                     <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 flex items-center justify-center text-white shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform shrink-0">
-                        <svg class="w-6 h-6 text-white drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-                            <path d="M6 12v5c3 3 9 3 12 0v-5"/>
-                        </svg>
+                        <i data-lucide="graduation-cap" class="w-5 h-5 text-white"></i>
                     </div>
                     <div class="flex flex-col">
                         <span class="text-base font-black tracking-tight text-slate-900 dark:text-white leading-none">ScholarPilot <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 dark:from-blue-400 dark:to-cyan-400">AI</span></span>
-                        <span class="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-1">Student Portal • بوابة الطالب</span>
+                        <span class="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-1">بوابة الطالب • الهوية الأكاديمية</span>
                     </div>
                 </a>
             </div>
 
             <!-- Top Actions -->
-            <div class="flex items-center gap-2.5">
+            <div class="flex items-center gap-2 sm:gap-2.5">
                 <a href="/" class="sp-btn-secondary px-3 py-2 text-xs font-semibold flex items-center gap-1.5">
                     <i data-lucide="home" class="w-3.5 h-3.5 text-blue-500"></i>
                     <span class="hidden sm:inline">الرئيسية</span>
@@ -103,13 +100,13 @@
 
                 <!-- User Session Logout & Email Display -->
                 <div id="userNavActions" class="hidden flex items-center gap-2">
-                    <div class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 text-xs shadow-xs">
-                        <i data-lucide="mail" class="w-3.5 h-3.5 text-blue-500"></i>
-                        <span id="navUserEmail" class="font-latin font-bold text-slate-700 dark:text-slate-300"></span>
-                    </div>
+                    <a id="navPublicProfileBtn" href="/profile" target="_blank" class="hidden sm:flex sp-btn-secondary px-3 py-2 text-xs font-bold text-cyan-600 dark:text-cyan-400 hover:border-cyan-500/30 items-center gap-1.5">
+                        <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                        <span>ملفي العام</span>
+                    </a>
                     <button type="button" onclick="logoutUser()" class="sp-btn-secondary px-3 py-2 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:border-rose-500/30 flex items-center gap-1.5">
                         <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
-                        <span>تسجيل الخروج</span>
+                        <span>خروج</span>
                     </button>
                 </div>
             </div>
@@ -118,7 +115,7 @@
     </header>
 
     <!-- ==================== MAIN CONTENT AREA ==================== -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-6">
         
         <!-- 1. AUTHENTICATION GATE (When logged out) -->
         <div id="authGate" class="max-w-md mx-auto my-8">
@@ -161,6 +158,16 @@
                         </div>
                     </div>
 
+                    <div class="flex items-center justify-between text-xs pt-0.5">
+                        <label class="flex items-center gap-2 cursor-pointer text-slate-600 dark:text-slate-400">
+                            <input type="checkbox" id="loginRememberMe" class="rounded border-slate-700 text-blue-600 focus:ring-blue-500">
+                            <span>تذكرني على هذا الجهاز (30 يوماً)</span>
+                        </label>
+                        <button type="button" onclick="openForgotPasswordModal()" class="text-blue-600 dark:text-blue-400 font-bold hover:underline">
+                            نسيت كلمة المرور؟
+                        </button>
+                    </div>
+
                     <button type="submit" id="loginSubmitBtn" class="sp-btn-primary w-full py-3 text-xs sm:text-sm font-bold flex items-center justify-center gap-2">
                         <i data-lucide="log-in" class="w-4 h-4"></i>
                         <span>تسجيل الدخول</span>
@@ -194,6 +201,19 @@
                     </div>
 
                     <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">اسم المستخدم للملف الأكاديمي (اختياري)</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400 font-latin text-xs">
+                                @
+                            </span>
+                            <input type="text" id="regUsername" maxlength="35" placeholder="ahmed-cs"
+                                oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9_-]/g, '')"
+                                class="sp-input pr-9 font-latin text-xs">
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-0.5">سيكون رابط ملفك العام: scholarpilot.com/profile/username</p>
+                    </div>
+
+                    <div>
                         <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">كلمة المرور</label>
                         <div class="relative">
                             <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
@@ -207,36 +227,24 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المرحلة الدراسية</label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
-                                    <i data-lucide="graduation-cap" class="w-4 h-4"></i>
-                                </span>
-                                <select id="regDegree" class="sp-input pr-9 text-xs">
-                                    <option value="ثانوية عامة (High School)">ثانوية عامة (High School)</option>
-                                    <option value="Undergraduate (Bachelor's)" selected>بكالوريوس (Bachelor's)</option>
-                                    <option value="Master's Degree">ماجستير (Master's)</option>
-                                    <option value="PhD / Doctorate">دكتوراه (PhD / Doctorate)</option>
-                                </select>
-                            </div>
+                            <select id="regDegree" class="sp-input text-xs">
+                                <option value="ثانوية عامة (High School)">ثانوية عامة (High School)</option>
+                                <option value="Undergraduate (Bachelor's)" selected>بكالوريوس (Bachelor's)</option>
+                                <option value="Master's Degree">ماجستير (Master's)</option>
+                                <option value="PhD / Doctorate">دكتوراه (PhD / Doctorate)</option>
+                            </select>
                         </div>
 
                         <div>
                             <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المعدل التراكمي</label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
-                                    <i data-lucide="percent" class="w-4 h-4"></i>
-                                </span>
-                                <input type="text" id="regGpa" maxlength="15" placeholder="مثال: 90% أو 3.8"
-                                    onkeypress="return /[0-9.%/]/.test(event.key)"
-                                    oninput="this.value = this.value.replace(/[^0-9.%/]/g, '')"
-                                    class="sp-input pr-9 text-xs font-latin tabular-nums">
-                            </div>
+                            <input type="text" id="regGpa" maxlength="15" placeholder="مثال: 90% أو 3.8"
+                                class="sp-input text-xs font-latin tabular-nums">
                         </div>
                     </div>
 
                     <button type="submit" class="sp-btn-primary w-full py-3 text-xs sm:text-sm font-bold flex items-center justify-center gap-2">
                         <i data-lucide="check" class="w-4 h-4"></i>
-                        <span>إنشاء حساب جديد</span>
+                        <span>إنشاء الحساب وتفعيل الهوية</span>
                     </button>
                 </form>
 
@@ -248,266 +256,632 @@
         <!-- 2. AUTHENTICATED STUDENT DASHBOARD -->
         <div id="dashboardView" class="hidden space-y-6">
             
-            <!-- User Welcome Banner -->
+            <!-- User Welcome Banner with Academic Profile Card -->
             <div class="sp-card p-6 sm:p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <div class="flex items-center gap-2 mb-2">
-                        <span id="roleBadge" class="sp-badge sp-badge-info">حساب طالب موثق</span>
-                        <span class="sp-badge sp-badge-success">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                            <span>التتبع الآلي نشط</span>
-                        </span>
+                <div class="flex items-start gap-4">
+                    <!-- Avatar Preview -->
+                    <div id="dashAvatarBox" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-black text-xl sm:text-2xl flex items-center justify-center shadow-lg border-2 border-white/20 shrink-0 overflow-hidden font-latin">
+                        <span id="dashAvatarInitials">SP</span>
+                        <img id="dashAvatarImg" src="" alt="Avatar" class="hidden w-full h-full object-cover">
                     </div>
 
-                    <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex flex-wrap items-center gap-2">
-                        <span>مرحباً بك،</span>
-                        <span id="userDisplayName">...</span>
-                    </h1>
-                    <div class="flex flex-wrap items-center gap-2 mt-2">
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-blue-500/10 border border-blue-500/20 text-xs font-bold text-blue-600 dark:text-blue-400 font-latin shadow-sm">
-                            <i data-lucide="mail" class="w-3.5 h-3.5 text-blue-500"></i>
-                            <span id="userDisplayEmail">user@example.com</span>
-                        </span>
-                        <span id="userDisplayCountryBadge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 text-xs text-slate-600 dark:text-slate-300">
-                            <i data-lucide="map-pin" class="w-3 h-3 text-slate-400"></i>
-                            <span id="userDisplayCountryText">Palestine</span>
-                        </span>
+                    <div>
+                        <div class="flex flex-wrap items-center gap-2 mb-1.5">
+                            <span id="roleBadge" class="sp-badge sp-badge-info">حساب طالب موثق</span>
+                            <span id="emailVerifyBadge" class="sp-badge sp-badge-success">
+                                <i data-lucide="shield-check" class="w-3 h-3"></i>
+                                <span id="emailVerifyText">بريد موثق</span>
+                            </span>
+                        </div>
+
+                        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex flex-wrap items-center gap-2">
+                            <span>مرحباً بك،</span>
+                            <span id="userDisplayName">...</span>
+                        </h1>
+                        <div class="flex flex-wrap items-center gap-2 mt-2">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-blue-500/10 border border-blue-500/20 text-xs font-bold text-blue-600 dark:text-blue-400 font-latin shadow-sm">
+                                <i data-lucide="mail" class="w-3.5 h-3.5 text-blue-500"></i>
+                                <span id="userDisplayEmail">user@example.com</span>
+                            </span>
+                            <span id="userHandleBadge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 text-xs font-latin font-bold text-cyan-600 dark:text-cyan-400">
+                                <span>@</span><span id="userDisplayHandle">student</span>
+                            </span>
+                            <span id="userDisplayCountryBadge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 text-xs text-slate-600 dark:text-slate-300">
+                                <i data-lucide="map-pin" class="w-3 h-3 text-slate-400"></i>
+                                <span id="userDisplayCountryText">Palestine</span>
+                            </span>
+                        </div>
                     </div>
-                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-2" id="userSubText">
-                        ملفك الأكاديمي مسجل ويقوم المحرك بفحص المنح الجديدة المطابقة لك دورياً دون أي تدخل يدوي.
-                    </p>
                 </div>
 
-                <div class="flex flex-wrap gap-2.5">
-                    <button type="button" onclick="triggerMyReport()" class="sp-btn-primary px-4 py-2.5 text-xs font-bold flex items-center gap-2">
-                        <i data-lucide="send" class="w-3.5 h-3.5"></i>
-                        <span>إرسال تقريري المخصص لإيميلي الآن</span>
-                    </button>
-                    <a href="/#radarSection" class="sp-btn-secondary px-4 py-2.5 text-xs font-bold flex items-center gap-2">
-                        <i data-lucide="radar" class="w-3.5 h-3.5 text-blue-500"></i>
-                        <span>استعراض رادار المنح المتاحة</span>
+                <div class="flex flex-wrap gap-2.5 self-start md:self-auto">
+                    <a id="btnViewPublicProfile" href="/profile" target="_blank" class="sp-btn-primary px-4 py-2.5 text-xs font-bold flex items-center gap-2 shadow-sm">
+                        <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                        <span>عرض ملفي الأكاديمي العام</span>
                     </a>
+                    <button type="button" onclick="triggerMyReport()" class="sp-btn-secondary px-4 py-2.5 text-xs font-bold flex items-center gap-2">
+                        <i data-lucide="send" class="w-3.5 h-3.5 text-blue-500"></i>
+                        <span>إرسال تقريري المخصص لإيميلي</span>
+                    </button>
                 </div>
             </div>
 
-            <!-- Key Metrics Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="sp-card p-5">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs text-slate-400 font-bold block">المرحلة الدراسية</span>
-                        <i data-lucide="graduation-cap" class="w-4 h-4 text-blue-500"></i>
-                    </div>
-                    <span id="statDegree" class="text-base font-extrabold block text-slate-900 dark:text-white">-</span>
-                </div>
-
-                <div class="sp-card p-5">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs text-slate-400 font-bold block">المعدل الأكاديمي</span>
-                        <i data-lucide="award" class="w-4 h-4 text-emerald-500"></i>
-                    </div>
-                    <span id="statGpa" class="text-base font-extrabold text-emerald-600 dark:text-emerald-400 font-latin tabular-nums block">-</span>
-                </div>
-
-                <div class="sp-card p-5">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs text-slate-400 font-bold block">التخصص الأكاديمي</span>
-                        <i data-lucide="cpu" class="w-4 h-4 text-indigo-500"></i>
-                    </div>
-                    <span id="statMajor" class="text-base font-extrabold text-blue-600 dark:text-blue-400 block">-</span>
-                </div>
-
-                <div class="sp-card p-5">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs text-slate-400 font-bold block">المنح المحفوظة للمتابعة</span>
-                        <i data-lucide="bookmark" class="w-4 h-4 text-purple-500"></i>
-                    </div>
-                    <span id="statSavedCount" class="text-base font-extrabold text-purple-600 dark:text-purple-400 font-latin block">0 منح</span>
-                </div>
-            </div>
-
-            <!-- AI ADVISOR WORKSPACE LAUNCHER -->
-            <div class="sp-card p-6 sm:p-7 space-y-4 border border-blue-500/20 bg-gradient-to-r from-blue-500/5 to-indigo-500/5">
+            <!-- PROFILE COMPLETENESS WIDGET -->
+            <div id="completenessWidget" class="sp-card p-6 border border-blue-500/30 bg-gradient-to-r from-blue-500/5 via-indigo-500/5 to-cyan-500/5 space-y-4">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-sm">
+                        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-black shrink-0">
                             <i data-lucide="sparkles" class="w-5 h-5"></i>
                         </div>
                         <div>
-                            <h2 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">المستشار الأكاديمي الذكي المتاح 24/7</h2>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">تحليل فوري لملفك الأكاديمي، مراجعة الـ CV، حساب نسب القبول، وصياغة المراسلات الرسمية.</p>
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-sm font-bold text-slate-900 dark:text-white">مؤشر اكتمال الهوية والملف الأكاديمي</h3>
+                                <span id="completenessBadgeText" class="sp-badge sp-badge-info text-[10px]">ملف قيد الإعداد</span>
+                            </div>
+                            <p class="text-xs text-blue-600 dark:text-blue-400 font-semibold mt-0.5">الملفات الأكثر اكتمالاً تحصل على ترشيحات منح أدق وأسرع</p>
                         </div>
                     </div>
 
-                    <a href="/assistant" class="sp-btn-primary px-4 py-2 text-xs font-bold flex items-center gap-2 self-start sm:self-auto shadow-sm">
-                        <span>فتح جلسة المستشار الآن</span>
-                        <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
-                    </a>
+                    <div class="flex items-center gap-2 font-latin font-black text-xl text-blue-600 dark:text-blue-400">
+                        <span id="completenessNum">0%</span>
+                    </div>
                 </div>
 
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
-                    <a href="/assistant?q=احسب لي نسبة قبولي التقديرية" class="p-3 rounded-xl sp-subcard hover:border-blue-500/40 text-center transition block">
-                        <i data-lucide="bar-chart-2" class="w-4 h-4 text-indigo-500 mx-auto mb-1"></i>
-                        <span class="text-xs font-bold text-slate-800 dark:text-slate-200 block">فحص نسبة قبولي</span>
-                        <span class="text-[10px] text-slate-400">توقعات الذكاء الاصطناعي</span>
-                    </a>
-                    <a href="/assistant?q=مراجعة وتدقيق السيرة الذاتية CV" class="p-3 rounded-xl sp-subcard hover:border-blue-500/40 text-center transition block">
-                        <i data-lucide="file-text" class="w-4 h-4 text-purple-500 mx-auto mb-1"></i>
-                        <span class="text-xs font-bold text-slate-800 dark:text-slate-200 block">تدقيق السيرة الذاتية</span>
-                        <span class="text-[10px] text-slate-400">تقييم الـ CV وملاحظات</span>
-                    </a>
-                    <a href="/assistant?q=قارن بين أفضل منحتين متوافقتين مع ملفي" class="p-3 rounded-xl sp-subcard hover:border-blue-500/40 text-center transition block">
-                        <i data-lucide="scale" class="w-4 h-4 text-amber-500 mx-auto mb-1"></i>
-                        <span class="text-xs font-bold text-slate-800 dark:text-slate-200 block">مقارنة المنح</span>
-                        <span class="text-[10px] text-slate-400">جدول مالي وأكاديمي</span>
-                    </a>
-                    <a href="/assistant?q=صياغة إيميل رسمي لمنسق المنحة" class="p-3 rounded-xl sp-subcard hover:border-blue-500/40 text-center transition block">
-                        <i data-lucide="mail" class="w-4 h-4 text-blue-500 mx-auto mb-1"></i>
-                        <span class="text-xs font-bold text-slate-800 dark:text-slate-200 block">صياغة إيميل رسمي</span>
-                        <span class="text-[10px] text-slate-400">مراسلة الأساتذة واللجان</span>
-                    </a>
+                <!-- Progress Bar -->
+                <div class="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-2.5 overflow-hidden">
+                    <div id="completenessBar" class="bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-400 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+
+                <!-- Actionable Checklist of Missing Attributes -->
+                <div id="missingChecklistContainer" class="pt-1">
+                    <span class="text-[11px] font-bold text-slate-400 block mb-2">خطوات مقترحة لرفع دقة الترشيح إلى 100%:</span>
+                    <div id="missingFieldsList" class="flex flex-wrap gap-2"></div>
                 </div>
             </div>
 
-            <!-- WATCHLIST & DEADLINE REMINDERS -->
-            <div class="sp-card p-6 sm:p-8 space-y-4">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4 gap-2">
-                    <div>
-                        <h2 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                            <i data-lucide="bell" class="w-4 h-4 text-emerald-500"></i>
-                            <span>قائمة متابعة المنح وتنبيهات المواعيد</span>
-                        </h2>
-                        <p class="text-xs text-slate-400 mt-0.5">المنح المحفوظة لتلقي تنبيهات بريدية آلية ذكية عند 30، 14، 7، 3، و 1 يوم قبل الموعد النهائي رسمياً.</p>
-                    </div>
-
-                    <a href="/#radarSection" class="sp-btn-secondary px-3 py-1.5 text-xs font-semibold self-start sm:self-auto flex items-center gap-1.5">
-                        <i data-lucide="plus" class="w-3.5 h-3.5 text-blue-500"></i>
-                        <span>إضافة منح من الرادار</span>
-                    </a>
-                </div>
-
-                <div id="savedScholarshipsList" class="space-y-3 pt-2"></div>
+            <!-- NAVIGATION TABS -->
+            <div class="flex border-b border-slate-200 dark:border-slate-800 gap-2 sm:gap-4 overflow-x-auto pb-1 text-xs sm:text-sm font-bold">
+                <button type="button" id="tabProfileNav" onclick="switchMainTab('profile')" class="tab-btn px-4 py-2.5 rounded-xl border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 flex items-center gap-2">
+                    <i data-lucide="user" class="w-4 h-4"></i>
+                    <span>الملف الأكاديمي والهوية</span>
+                </button>
+                <button type="button" id="tabWatchlistNav" onclick="switchMainTab('watchlist')" class="tab-btn px-4 py-2.5 rounded-xl text-slate-400 hover:text-slate-200 flex items-center gap-2">
+                    <i data-lucide="bookmark" class="w-4 h-4"></i>
+                    <span>المنح المحفوظة ورادار المتابعة</span>
+                </button>
+                <button type="button" id="tabNotifsNav" onclick="switchMainTab('notifs')" class="tab-btn px-4 py-2.5 rounded-xl text-slate-400 hover:text-slate-200 flex items-center gap-2">
+                    <i data-lucide="bell" class="w-4 h-4"></i>
+                    <span>مركز التنبيهات</span>
+                </button>
+                <button type="button" id="tabSettingsNav" onclick="switchMainTab('settings')" class="tab-btn px-4 py-2.5 rounded-xl text-slate-400 hover:text-slate-200 flex items-center gap-2">
+                    <i data-lucide="settings" class="w-4 h-4"></i>
+                    <span>إعدادات الحساب والأمان</span>
+                </button>
             </div>
 
-            <!-- NOTIFICATIONS & ALERTS CENTER PREVIEW -->
-            <div class="sp-card p-6 sm:p-8 space-y-4">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4 gap-2">
-                    <div>
-                        <h2 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                            <i data-lucide="bell" class="w-4 h-4 text-blue-500"></i>
-                            <span>مركز التنبيهات المباشرة والإشعارات</span>
-                            <span id="dashUnreadPill" class="hidden px-2 py-0.5 rounded-full text-[11px] font-black bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800">0 جديدة</span>
-                        </h2>
-                        <p class="text-xs text-slate-400 mt-0.5">آخر الفرص المكتشفة وتذكيرات المواعيد المطابقة لملفك الأكاديمي.</p>
+            <!-- ==================== TAB 1: ACADEMIC PROFILE & IDENTITY ==================== -->
+            <div id="tabContentProfile" class="space-y-6">
+                <form id="profileEditForm" onsubmit="saveAcademicProfile(event)" class="space-y-6">
+                    
+                    <!-- Basic Information Card -->
+                    <div class="sp-card p-6 sm:p-7 space-y-4">
+                        <div class="border-b border-slate-200 dark:border-slate-800 pb-3 flex items-center gap-2">
+                            <i data-lucide="user-check" class="w-4 h-4 text-blue-500"></i>
+                            <h2 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white">البيانات الأساسية والهوية</h2>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">الاسم الكامل</label>
+                                <input type="text" id="editFullName" required class="sp-input text-xs w-full">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">اسم المستخدم (المعرّف العام)</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400 font-latin text-xs">@</span>
+                                    <input type="text" id="editUsername" required maxlength="40" class="sp-input pr-8 text-xs font-latin w-full">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">الدولة</label>
+                                <input type="text" id="editCountry" class="sp-input text-xs w-full" placeholder="Palestine">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المدينة</label>
+                                <input type="text" id="editCity" class="sp-input text-xs w-full" placeholder="مثال: غزة، رام الله، القدس">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">رابط الصورة الشخصية (Avatar URL)</label>
+                                <input type="url" id="editAvatarUrl" class="sp-input text-xs font-latin w-full" placeholder="https://example.com/avatar.jpg">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">رابط صورة الغلاف (Cover Banner URL)</label>
+                                <input type="url" id="editCoverUrl" class="sp-input text-xs font-latin w-full" placeholder="https://example.com/cover.jpg">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">النبذة التعريفية والأكاديمية (Bio / About Me)</label>
+                            <textarea id="editBio" rows="3" class="sp-input text-xs w-full" placeholder="اكتب نبذة مختصرة عن اهتماماتك الأكاديمية، طموحك البحثي، ومشاريعك..."></textarea>
+                        </div>
                     </div>
 
-                    <a href="/notifications" class="sp-btn-secondary px-3 py-1.5 text-xs font-semibold self-start sm:self-auto flex items-center gap-1.5 text-blue-600 dark:text-blue-400">
-                        <span>عرض كافة التنبيهات</span>
-                        <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
-                    </a>
+                    <!-- Academic Roadmap Card -->
+                    <div class="sp-card p-6 sm:p-7 space-y-4">
+                        <div class="border-b border-slate-200 dark:border-slate-800 pb-3 flex items-center gap-2">
+                            <i data-lucide="graduation-cap" class="w-4 h-4 text-emerald-500"></i>
+                            <h2 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white">المسار الأكاديمي والتحصيل</h2>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">الجامعة / المؤسسة التعليمية</label>
+                                <input type="text" id="editUniversity" class="sp-input text-xs w-full" placeholder="مثال: الجامعة الإسلامية بغزة">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المرحلة الدراسية</label>
+                                <select id="editDegree" class="sp-input text-xs w-full">
+                                    <option value="ثانوية عامة (High School)">ثانوية عامة (High School)</option>
+                                    <option value="Undergraduate (Bachelor's)">بكالوريوس (Bachelor's)</option>
+                                    <option value="Master's Degree">ماجستير (Master's)</option>
+                                    <option value="PhD / Doctorate">دكتوراه (PhD / Doctorate)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">سنة التخرج المتوقعة</label>
+                                <input type="text" id="editGradYear" class="sp-input text-xs font-latin w-full" placeholder="2027">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">التخصص الأكاديمي</label>
+                                <input type="text" id="editMajor" class="sp-input text-xs w-full" placeholder="Software Engineering">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المعدل التراكمي (GPA)</label>
+                                <input type="text" id="editGpa" class="sp-input text-xs font-latin tabular-nums w-full" placeholder="90%">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">مستوى اللغة الإنجليزية</label>
+                                <input type="text" id="editEnglish" class="sp-input text-xs w-full" placeholder="IELTS 6.5+ / Advanced">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Skills & Extracurricular Card -->
+                    <div class="sp-card p-6 sm:p-7 space-y-4">
+                        <div class="border-b border-slate-200 dark:border-slate-800 pb-3 flex items-center gap-2">
+                            <i data-lucide="code" class="w-4 h-4 text-indigo-500"></i>
+                            <h2 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white">المهارات، اللغات، واهتمامات المنح</h2>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المهارات التقنية والبحثية (مفصولة بفواصل)</label>
+                                <input type="text" id="editSkills" class="sp-input text-xs w-full" placeholder="Python, Cybersecurity, Machine Learning, Data Analysis">
+                                <p class="text-[10px] text-slate-400 mt-0.5">افصل بين المهارات بفاصلة (,)</p>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">اللغات ومستوياتها</label>
+                                <input type="text" id="editLanguages" class="sp-input text-xs w-full" placeholder="العربية (اللغة الأم)، English (Advanced)">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">وجهات الابتعاث المستهدفة (Target Countries)</label>
+                                <input type="text" id="editTargetCountries" class="sp-input text-xs w-full" placeholder="Germany, Canada, Turkey, United Kingdom">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المنح المهتم بها (Scholarship Interests)</label>
+                                <input type="text" id="editSchInterests" class="sp-input text-xs w-full" placeholder="DAAD, Chevening, Stipendium Hungaricum">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Professional & Social Networks Card (9 Platforms) -->
+                    <div class="sp-card p-6 sm:p-7 space-y-4">
+                        <div class="border-b border-slate-200 dark:border-slate-800 pb-3 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="share-2" class="w-4 h-4 text-cyan-500"></i>
+                                <h2 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white">الشبكات المهنية ووسائل التواصل</h2>
+                            </div>
+                            <span class="text-[11px] text-slate-400">تظهر في ملفك العام للأكاديميين والمشرفين</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1.5">
+                                    <i data-lucide="phone-call" class="w-3.5 h-3.5 text-emerald-500"></i>
+                                    <span>WhatsApp</span>
+                                </label>
+                                <input type="text" id="socWhatsapp" class="sp-input text-xs font-latin w-full" placeholder="+970590000000">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1.5">
+                                    <i data-lucide="linkedin" class="w-3.5 h-3.5 text-sky-500"></i>
+                                    <span>LinkedIn</span>
+                                </label>
+                                <input type="url" id="socLinkedin" class="sp-input text-xs font-latin w-full" placeholder="https://linkedin.com/in/username">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1.5">
+                                    <i data-lucide="github" class="w-3.5 h-3.5 text-purple-400"></i>
+                                    <span>GitHub</span>
+                                </label>
+                                <input type="url" id="socGithub" class="sp-input text-xs font-latin w-full" placeholder="https://github.com/username">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1.5">
+                                    <i data-lucide="facebook" class="w-3.5 h-3.5 text-blue-500"></i>
+                                    <span>Facebook</span>
+                                </label>
+                                <input type="url" id="socFacebook" class="sp-input text-xs font-latin w-full" placeholder="https://facebook.com/username">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1.5">
+                                    <i data-lucide="instagram" class="w-3.5 h-3.5 text-pink-500"></i>
+                                    <span>Instagram</span>
+                                </label>
+                                <input type="url" id="socInstagram" class="sp-input text-xs font-latin w-full" placeholder="https://instagram.com/username">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1.5">
+                                    <i data-lucide="twitter" class="w-3.5 h-3.5 text-sky-400"></i>
+                                    <span>X (Twitter)</span>
+                                </label>
+                                <input type="url" id="socTwitter" class="sp-input text-xs font-latin w-full" placeholder="https://x.com/username">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1.5">
+                                    <i data-lucide="send" class="w-3.5 h-3.5 text-cyan-400"></i>
+                                    <span>Telegram</span>
+                                </label>
+                                <input type="text" id="socTelegram" class="sp-input text-xs font-latin w-full" placeholder="@username أو رابط">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1.5">
+                                    <i data-lucide="briefcase" class="w-3.5 h-3.5 text-amber-500"></i>
+                                    <span>معرض الأعمال (Portfolio)</span>
+                                </label>
+                                <input type="url" id="socPortfolio" class="sp-input text-xs font-latin w-full" placeholder="https://myportfolio.dev">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1.5">
+                                    <i data-lucide="globe" class="w-3.5 h-3.5 text-blue-400"></i>
+                                    <span>الموقع الشخصي (Website)</span>
+                                </label>
+                                <input type="url" id="socWebsite" class="sp-input text-xs font-latin w-full" placeholder="https://mywebsite.com">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Save Profile Button -->
+                    <div class="flex items-center justify-end">
+                        <button type="submit" id="saveProfileBtn" class="sp-btn-primary px-6 py-3 text-xs sm:text-sm font-bold flex items-center gap-2 shadow-lg shadow-blue-500/20">
+                            <i data-lucide="save" class="w-4 h-4"></i>
+                            <span>حفظ وتحديث الملف الأكاديمي</span>
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+
+            <!-- ==================== TAB 2: WATCHLIST & DEADLINE REMINDERS ==================== -->
+            <div id="tabContentWatchlist" class="hidden space-y-6">
+                <!-- Key Metrics Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="sp-card p-5">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs text-slate-400 font-bold block">المرحلة الدراسية</span>
+                            <i data-lucide="graduation-cap" class="w-4 h-4 text-blue-500"></i>
+                        </div>
+                        <span id="statDegree" class="text-base font-extrabold block text-slate-900 dark:text-white">-</span>
+                    </div>
+
+                    <div class="sp-card p-5">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs text-slate-400 font-bold block">المعدل الأكاديمي</span>
+                            <i data-lucide="award" class="w-4 h-4 text-emerald-500"></i>
+                        </div>
+                        <span id="statGpa" class="text-base font-extrabold text-emerald-600 dark:text-emerald-400 font-latin tabular-nums block">-</span>
+                    </div>
+
+                    <div class="sp-card p-5">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs text-slate-400 font-bold block">التخصص الأكاديمي</span>
+                            <i data-lucide="cpu" class="w-4 h-4 text-indigo-500"></i>
+                        </div>
+                        <span id="statMajor" class="text-base font-extrabold text-blue-600 dark:text-blue-400 block">-</span>
+                    </div>
+
+                    <div class="sp-card p-5">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs text-slate-400 font-bold block">المنح المحفوظة للمتابعة</span>
+                            <i data-lucide="bookmark" class="w-4 h-4 text-purple-500"></i>
+                        </div>
+                        <span id="statSavedCount" class="text-base font-extrabold text-purple-600 dark:text-purple-400 font-latin block">0 منح</span>
+                    </div>
                 </div>
 
-                <div id="dashboardNotificationsList" class="space-y-2.5 pt-1">
-                    <div class="text-center py-6 text-slate-400 text-xs">
-                        <i data-lucide="loader-2" class="w-5 h-5 animate-spin mx-auto text-blue-500 mb-2"></i>
-                        <span>جاري تحميل التنبيهات...</span>
+                <!-- WATCHLIST & DEADLINE REMINDERS -->
+                <div class="sp-card p-6 sm:p-8 space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4 gap-2">
+                        <div>
+                            <h2 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                <i data-lucide="bell" class="w-4 h-4 text-emerald-500"></i>
+                                <span>قائمة متابعة المنح وتنبيهات المواعيد</span>
+                            </h2>
+                            <p class="text-xs text-slate-400 mt-0.5">المنح المحفوظة لتلقي تنبيهات بريدية آلية ذكية عند 30، 14، 7، 3، و 1 يوم قبل الموعد النهائي رسمياً.</p>
+                        </div>
+
+                        <a href="/#radarSection" class="sp-btn-secondary px-3 py-1.5 text-xs font-semibold self-start sm:self-auto flex items-center gap-1.5">
+                            <i data-lucide="plus" class="w-3.5 h-3.5 text-blue-500"></i>
+                            <span>إضافة منح من الرادار</span>
+                        </a>
+                    </div>
+
+                    <div id="savedScholarshipsList" class="space-y-3 pt-2"></div>
+                </div>
+            </div>
+
+            <!-- ==================== TAB 3: NOTIFICATIONS CENTER ==================== -->
+            <div id="tabContentNotifs" class="hidden space-y-6">
+                <div class="sp-card p-6 sm:p-8 space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4 gap-2">
+                        <div>
+                            <h2 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                <i data-lucide="bell" class="w-4 h-4 text-blue-500"></i>
+                                <span>مركز التنبيهات المباشرة والإشعارات</span>
+                                <span id="dashUnreadPill" class="hidden px-2 py-0.5 rounded-full text-[11px] font-black bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800">0 جديدة</span>
+                            </h2>
+                            <p class="text-xs text-slate-400 mt-0.5">آخر الفرص المكتشفة وتذكيرات المواعيد المطابقة لملفك الأكاديمي.</p>
+                        </div>
+
+                        <a href="/notifications" class="sp-btn-secondary px-3 py-1.5 text-xs font-semibold self-start sm:self-auto flex items-center gap-1.5 text-blue-600 dark:text-blue-400">
+                            <span>فتح مركز الإشعارات بالكامل</span>
+                            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+                        </a>
+                    </div>
+
+                    <div id="dashboardNotificationsList" class="space-y-2.5 pt-1">
+                        <div class="text-center py-6 text-slate-400 text-xs">
+                            <i data-lucide="loader-2" class="w-5 h-5 animate-spin mx-auto text-blue-500 mb-2"></i>
+                            <span>جاري تحميل التنبيهات...</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- NOTIFICATION & MATCHING PREFERENCES -->
-            <div class="sp-card p-6 sm:p-8 space-y-5 border border-slate-200 dark:border-slate-800">
-                <div class="border-b border-slate-200 dark:border-slate-800 pb-4">
-                    <h2 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                        <i data-lucide="sliders" class="w-4 h-4 text-indigo-500"></i>
-                        <span>إعدادات وتفضيلات التنبيهات الذكية</span>
-                    </h2>
-                    <p class="text-xs text-slate-400 mt-0.5">خصص قنوات استلام الإشعارات (إيميل / تليجرام) ومعايير تصفية المنح المطابقة.</p>
+            <!-- ==================== TAB 4: SETTINGS & SECURITY ==================== -->
+            <div id="tabContentSettings" class="hidden space-y-6">
+                
+                <!-- Email Verification Card -->
+                <div class="sp-card p-6 sm:p-7 space-y-4">
+                    <div class="border-b border-slate-200 dark:border-slate-800 pb-3 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="shield-check" class="w-4 h-4 text-blue-500"></i>
+                            <h2 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white">توثيق البريد الإلكتروني</h2>
+                        </div>
+                        <span id="settingsEmailBadge" class="sp-badge sp-badge-info">قيد التحقق</span>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <span class="text-xs text-slate-400 block mb-0.5">البريد الإلكتروني الأساسي المسجل:</span>
+                            <span id="settingsCurrentEmail" class="text-sm font-bold font-latin text-slate-900 dark:text-white">...</span>
+                        </div>
+
+                        <div id="verifyEmailActionBox" class="flex flex-wrap items-center gap-2">
+                            <button type="button" onclick="sendVerificationCode()" id="btnSendVerifyCode" class="sp-btn-secondary px-4 py-2 text-xs font-bold flex items-center gap-1.5">
+                                <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                                <span>إرسال كود التوثيق</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Code Input Row (Hidden if already verified) -->
+                    <div id="verifyCodeInputRow" class="hidden p-4 rounded-xl sp-subcard space-y-3">
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">أدخل كود التحقق المكون من 6 أرقام المرسل إلى بريدك:</label>
+                        <div class="flex items-center gap-2 max-w-xs">
+                            <input type="text" id="inputVerificationCode" maxlength="6" placeholder="123456" class="sp-input text-center text-base tracking-widest font-latin">
+                            <button type="button" onclick="submitVerificationCode()" class="sp-btn-primary px-4 py-2.5 text-xs font-bold whitespace-nowrap">
+                                تأكيد الكود
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
-                <form id="preferencesForm" onsubmit="savePreferences(event)" class="space-y-4">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <!-- Channel 1: Email Notifications Toggle -->
+                <!-- Password Management Card -->
+                <div class="sp-card p-6 sm:p-7 space-y-4">
+                    <div class="border-b border-slate-200 dark:border-slate-800 pb-3 flex items-center gap-2">
+                        <i data-lucide="key" class="w-4 h-4 text-emerald-500"></i>
+                        <h2 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white">تغيير كلمة المرور</h2>
+                    </div>
+
+                    <form id="changePasswordForm" onsubmit="submitChangePassword(event)" class="space-y-4 max-w-md">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">كلمة المرور الحالية</label>
+                            <input type="password" id="oldPassword" required class="sp-input text-xs font-latin w-full" placeholder="••••••••">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">كلمة المرور الجديدة</label>
+                            <input type="password" id="newPassword" required minlength="6" class="sp-input text-xs font-latin w-full" placeholder="••••••••">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">تأكيد كلمة المرور الجديدة</label>
+                            <input type="password" id="confirmNewPassword" required minlength="6" class="sp-input text-xs font-latin w-full" placeholder="••••••••">
+                        </div>
+
+                        <button type="submit" id="btnChangePassword" class="sp-btn-primary px-5 py-2.5 text-xs font-bold flex items-center gap-2">
+                            <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                            <span>تحديث كلمة المرور</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Privacy Settings Card -->
+                <div class="sp-card p-6 sm:p-7 space-y-4">
+                    <div class="border-b border-slate-200 dark:border-slate-800 pb-3 flex items-center gap-2">
+                        <i data-lucide="lock" class="w-4 h-4 text-indigo-500"></i>
+                        <h2 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white">إعدادات الخصوصية والظهور</h2>
+                    </div>
+
+                    <div class="space-y-3">
                         <div class="p-4 rounded-xl sp-subcard flex items-center justify-between">
                             <div>
-                                <div class="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                                    <i data-lucide="mail" class="w-4 h-4 text-blue-500"></i>
-                                    <span>تنبيهات البريد الإلكتروني</span>
-                                </div>
-                                <div class="text-[11px] text-slate-400 mt-0.5">إرسال تقارير المطابقة والنشرة الأسبوعية وتذكير المواعيد لإيميلك</div>
+                                <span class="text-xs font-bold text-slate-900 dark:text-white block">الملف الأكاديمي مرئي للعامة</span>
+                                <span class="text-[11px] text-slate-400 mt-0.5 block">السماح للطلبة والمشرفين بزيارة رابط ملفك العام /profile/{username}</span>
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" id="prefEmailToggle" class="sr-only peer" checked>
+                                <input type="checkbox" id="privacyPublicToggle" class="sr-only peer" checked>
                                 <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                             </label>
                         </div>
 
-                        <!-- Channel 2: Telegram Notifications Toggle -->
                         <div class="p-4 rounded-xl sp-subcard flex items-center justify-between">
                             <div>
-                                <div class="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                                    <i data-lucide="send" class="w-4 h-4 text-cyan-500"></i>
-                                    <span>تنبيهات تليجرام الفورية</span>
-                                </div>
-                                <div class="text-[11px] text-slate-400 mt-0.5">إرسال الفرص العاجلة والمواعيد مباشرة لرقم الـ Chat ID على تليجرام</div>
+                                <span class="text-xs font-bold text-slate-900 dark:text-white block">إظهار المعدل التراكمي في الملف العام</span>
+                                <span class="text-[11px] text-slate-400 mt-0.5 block">عرض المعدل التراكمي للزوار في صفحة ملفك العام</span>
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" id="prefTelegramToggle" onchange="toggleTelegramInput()" class="sr-only peer">
-                                <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-600"></div>
+                                <input type="checkbox" id="privacyGpaToggle" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                             </label>
                         </div>
-                    </div>
 
-                    <!-- Telegram Chat ID Input (Visible if telegram enabled) -->
-                    <div id="telegramChatIdRow" class="hidden p-4 rounded-xl bg-cyan-500/5 border border-cyan-500/20 space-y-2">
-                        <label class="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                            <i data-lucide="message-square" class="w-3.5 h-3.5 text-cyan-400"></i>
-                            <span>معرّف محادثة تليجرام (Telegram Chat ID)</span>
-                        </label>
-                        <input type="text" id="prefTelegramChatId" placeholder="مثال: 123456789 (يمكنك الحصول عليه من بوت @userinfobot)" class="sp-input text-xs w-full">
-                        <p class="text-[11px] text-slate-400">تصلك التنبيهات عبر بوت المنصة فور توفر فرص مطابقة لملفك الأكاديمي.</p>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                        <!-- Preferred Countries -->
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                                <i data-lucide="globe" class="w-3.5 h-3.5 text-blue-500"></i>
-                                <span>الدول ووجهات الابتعاث المفضلة</span>
+                        <div class="p-4 rounded-xl sp-subcard flex items-center justify-between">
+                            <div>
+                                <span class="text-xs font-bold text-slate-900 dark:text-white block">إظهار وسائل التواصل والشبكات المهنية</span>
+                                <span class="text-[11px] text-slate-400 mt-0.5 block">تمكين الزوار من رؤية روابط حساباتك والتواصل معك</span>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="privacyContactToggle" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                             </label>
-                            <input type="text" id="prefCountries" placeholder="Turkey, Germany, Canada, Europe, Any" class="sp-input text-xs w-full">
-                            <p class="text-[10px] text-slate-400">افصل بين الدول بفواصل (مثل: Turkey, Canada, Germany أو Any للكل).</p>
-                        </div>
-
-                        <!-- Funding Type Preference -->
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                                <i data-lucide="dollar-sign" class="w-3.5 h-3.5 text-emerald-500"></i>
-                                <span>نوع التمويل المطلوب</span>
-                            </label>
-                            <select id="prefFunding" class="sp-input text-xs w-full">
-                                <option value="Any">كافة أنواع التمويل (كامل وجزئي)</option>
-                                <option value="Full">تمويل كامل 100% فقط (مع الرسوم والمعيشة)</option>
-                                <option value="Partial">منح إعفاء دراسي جزئي أو كامل للرسوم</option>
-                            </select>
                         </div>
                     </div>
 
                     <div class="flex items-center justify-end pt-2">
-                        <button type="submit" id="savePrefBtn" class="sp-btn-primary px-5 py-2.5 text-xs font-bold flex items-center gap-2">
-                            <i data-lucide="save" class="w-3.5 h-3.5"></i>
-                            <span>حفظ التفضيلات وتحديث المطابقة</span>
+                        <button type="button" onclick="savePrivacySettings()" class="sp-btn-secondary px-5 py-2 text-xs font-bold flex items-center gap-1.5">
+                            <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                            <span>حفظ خيارات الخصوصية</span>
                         </button>
                     </div>
-                </form>
+                </div>
+
+                <!-- Danger Zone: Delete Account -->
+                <div class="sp-card p-6 sm:p-7 border border-rose-500/30 bg-rose-500/5 space-y-3">
+                    <div class="flex items-center gap-2 text-rose-500 font-bold text-sm">
+                        <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                        <span>منطقة الحذف النهائي للحساب</span>
+                    </div>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        حذف الحساب سيؤدي إلى مسح هويتك الأكاديمية والمنح المحفوظة وتفضيلات الإشعارات نهائياً من خوادم النظام دون إمكانية استرجاعها.
+                    </p>
+                    <div class="pt-2">
+                        <button type="button" onclick="openDeleteAccountModal()" class="sp-btn-danger px-4 py-2 text-xs font-bold flex items-center gap-2">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            <span>حذف الحساب نهائياً</span>
+                        </button>
+                    </div>
+                </div>
+
             </div>
 
         </div>
 
     </main>
 
+    <!-- ==================== FORGOT PASSWORD MODAL ==================== -->
+    <div id="forgotPwModal" class="hidden fixed inset-0 z-[999] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="sp-card max-w-md w-full p-6 sm:p-8 space-y-4 border border-blue-500/30 relative">
+            <button type="button" onclick="closeForgotPasswordModal()" class="absolute top-4 left-4 text-slate-400 hover:text-white text-sm">✕</button>
+            <div class="flex items-center gap-2.5 text-slate-900 dark:text-white font-bold text-base">
+                <i data-lucide="key" class="w-5 h-5 text-blue-500"></i>
+                <span>استعادة كلمة المرور</span>
+            </div>
+
+            <!-- Step 1: Request Token -->
+            <div id="forgotStep1" class="space-y-3">
+                <p class="text-xs text-slate-400">أدخل بريدك الإلكتروني المسجل وسنرسل لك رمزاً آمناً لإعادة تعيين كلمة المرور.</p>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">البريد الإلكتروني</label>
+                    <input type="email" id="forgotInputEmail" class="sp-input text-xs font-latin w-full" placeholder="name@example.com">
+                </div>
+                <button type="button" onclick="requestResetToken()" id="btnRequestResetToken" class="sp-btn-primary w-full py-2.5 text-xs font-bold flex items-center justify-center gap-2">
+                    <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                    <span>إرسال رمز الاستعادة</span>
+                </button>
+            </div>
+
+            <!-- Step 2: Enter Token & New Password -->
+            <div id="forgotStep2" class="hidden space-y-3">
+                <div class="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-[11px] text-blue-400">
+                    تم إرسال رمز الاستعادة إلى بريدك! يرجى إدخال الرمز وكلمة المرور الجديدة:
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">رمز الاستعادة (Reset Token)</label>
+                    <input type="text" id="forgotInputToken" class="sp-input text-xs font-latin w-full" placeholder="مثال: a1b2c3d4...">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">كلمة المرور الجديدة</label>
+                    <input type="password" id="forgotInputNewPw" minlength="6" class="sp-input text-xs font-latin w-full" placeholder="••••••••">
+                </div>
+                <button type="button" onclick="submitResetPassword()" id="btnSubmitResetPw" class="sp-btn-primary w-full py-2.5 text-xs font-bold flex items-center justify-center gap-2">
+                    <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                    <span>تأكيد وتحديث كلمة المرور</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== DELETE ACCOUNT CONFIRMATION MODAL ==================== -->
+    <div id="deleteAccountModal" class="hidden fixed inset-0 z-[999] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="sp-card max-w-md w-full p-6 sm:p-8 space-y-4 border border-rose-500/40 relative">
+            <button type="button" onclick="closeDeleteAccountModal()" class="absolute top-4 left-4 text-slate-400 hover:text-white text-sm">✕</button>
+            <div class="flex items-center gap-2.5 text-rose-500 font-bold text-base">
+                <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                <span>تأكيد حذف الحساب نهائياً</span>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+                هل أنت متأكد تماماً من رغبتك في حذف الحساب؟ سيتم إلغاء كافة الاشتراكات ومسح هويتك الأكاديمية تماماً.
+            </p>
+            <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">أدخل كلمة المرور الحالية للتأكيد:</label>
+                <input type="password" id="deleteConfirmPassword" class="sp-input text-xs font-latin w-full" placeholder="••••••••">
+            </div>
+            <div class="flex items-center justify-end gap-2 pt-2">
+                <button type="button" onclick="closeDeleteAccountModal()" class="sp-btn-secondary px-4 py-2 text-xs font-bold">
+                    إلغاء
+                </button>
+                <button type="button" onclick="confirmDeleteAccount()" id="btnConfirmDelete" class="sp-btn-danger px-4 py-2 text-xs font-bold">
+                    تأكيد الحذف النهائي
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- ==================== FOOTER ==================== -->
     <footer class="py-6 border-t border-slate-200/80 dark:border-slate-800/80 text-center text-xs text-slate-500 dark:text-slate-400">
-        <p class="font-latin">ScholarPilot AI &copy; 2026 | Your AI-Powered Scholarship Advisor</p>
+        <p class="font-latin">ScholarPilot AI &copy; 2026 | Verified Student Identity & Autonomous Scholarship Intelligence</p>
     </footer>
 
     <!-- ==================== DASHBOARD JAVASCRIPT LOGIC ==================== -->
@@ -554,6 +928,28 @@
             if (window.lucide) lucide.createIcons();
         }
 
+        function switchMainTab(tab) {
+            const tabs = ['profile', 'watchlist', 'notifs', 'settings'];
+            tabs.forEach(t => {
+                const navBtn = document.getElementById(`tab${capitalize(t)}Nav`);
+                const content = document.getElementById(`tabContent${capitalize(t)}`);
+                if (navBtn && content) {
+                    if (t === tab) {
+                        navBtn.className = "tab-btn px-4 py-2.5 rounded-xl border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 flex items-center gap-2 font-bold";
+                        content.classList.remove('hidden');
+                    } else {
+                        navBtn.className = "tab-btn px-4 py-2.5 rounded-xl text-slate-400 hover:text-slate-200 flex items-center gap-2 font-bold";
+                        content.classList.add('hidden');
+                    }
+                }
+            });
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function capitalize(s) {
+            return s.charAt(0).toUpperCase() + s.slice(1);
+        }
+
         let currentUser = null;
 
         function checkSession() {
@@ -562,12 +958,29 @@
                 try {
                     currentUser = JSON.parse(saved);
                     renderDashboard(currentUser);
+                    // Fetch latest profile from server
+                    fetchLatestProfile();
                 } catch(e) {
                     localStorage.removeItem('minha_user');
                 }
             }
         }
         checkSession();
+
+        async function fetchLatestProfile() {
+            if (!currentUser || !currentUser.email) return;
+            const token = localStorage.getItem('minha_token');
+            const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+            try {
+                const res = await fetch(`/api/user/profile?email=${encodeURIComponent(currentUser.email)}`, { headers });
+                const data = await res.json();
+                if (res.ok && data.success && data.profile) {
+                    currentUser = data.profile;
+                    localStorage.setItem('minha_user', JSON.stringify(currentUser));
+                    renderDashboard(currentUser);
+                }
+            } catch(e) {}
+        }
 
         // Login Form
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -577,7 +990,8 @@
 
             const payload = {
                 email: document.getElementById('loginEmail').value.trim(),
-                password: document.getElementById('loginPassword').value.trim()
+                password: document.getElementById('loginPassword').value.trim(),
+                remember_me: document.getElementById('loginRememberMe').checked
             };
 
             try {
@@ -593,6 +1007,7 @@
                     if (data.token) localStorage.setItem('minha_token', data.token);
                     renderDashboard(currentUser);
                     confetti({ particleCount: 70, spread: 60 });
+                    showToast("success", "تم تسجيل الدخول بنجاح", `مرحباً بك مجدداً ${currentUser.full_name}!`);
                 } else {
                     alertBox.className = "mt-4 p-3 rounded-xl text-xs font-bold sp-badge-danger block";
                     alertBox.textContent = data.detail || "البريد الإلكتروني أو كلمة المرور غير صحيحة.";
@@ -613,15 +1028,16 @@
 
             const degreeVal = document.getElementById('regDegree').value;
             const gpaVal = document.getElementById('regGpa').value.trim() || "85%";
+            const usernameVal = document.getElementById('regUsername').value.trim();
 
             const payload = {
                 full_name: document.getElementById('regName').value.trim(),
                 email: document.getElementById('regEmail').value.trim(),
+                username: usernameVal || null,
                 password: document.getElementById('regPassword').value.trim(),
                 degree: degreeVal,
                 gpa: gpaVal,
-                majors: [degreeVal],
-                talents_experience: ""
+                majors: [degreeVal]
             };
 
             try {
@@ -636,7 +1052,7 @@
                     localStorage.setItem('minha_user', JSON.stringify(currentUser));
                     if (data.token) localStorage.setItem('minha_token', data.token);
                     renderDashboard(currentUser);
-                    showToast("success", "تم إنشاء الحساب بنجاح! 🎉", "أهلاً بك في منصة ScholarPilot AI، تم تفعيل تتبع المنح المتوافقة مع ملفك فوراً.");
+                    showToast("success", "تم إنشاء الحساب بنجاح!", "أهلاً بك في منصة ScholarPilot AI، تم تفعيل هويتك الأكاديمية وتتبع المنح فوراً.");
                     confetti({ particleCount: 80, spread: 60 });
                 } else {
                     alertBox.className = "mt-4 p-3 rounded-xl text-xs font-bold sp-badge-danger block";
@@ -660,30 +1076,178 @@
             const emailElem = document.getElementById('userDisplayEmail');
             if (emailElem) emailElem.textContent = user.email || "";
 
-            const navEmail = document.getElementById('navUserEmail');
-            if (navEmail) navEmail.textContent = user.email || "";
-            
+            const handleElem = document.getElementById('userDisplayHandle');
+            if (handleElem) handleElem.textContent = user.username || (user.email ? user.email.split('@')[0] : 'student');
+
             const countryElem = document.getElementById('userDisplayCountryText');
             if (countryElem) countryElem.textContent = user.country || "Palestine";
 
-            function decodeHtmlEntities(str) {
-                if (!str) return "";
-                const txt = document.createElement("textarea");
-                txt.innerHTML = str;
-                const firstPass = txt.value;
-                txt.innerHTML = firstPass;
-                return txt.value;
+            // Avatar Preview
+            if (user.avatar_url && user.avatar_url.trim().length > 5) {
+                const img = document.getElementById('dashAvatarImg');
+                img.src = user.avatar_url;
+                img.classList.remove('hidden');
+                document.getElementById('dashAvatarInitials').classList.add('hidden');
+            } else {
+                const names = (user.full_name || 'SP').trim().split(' ');
+                const initials = names.length > 1 ? (names[0][0] + names[1][0]) : names[0].slice(0, 2);
+                document.getElementById('dashAvatarInitials').textContent = initials.toUpperCase();
+                document.getElementById('dashAvatarInitials').classList.remove('hidden');
+                document.getElementById('dashAvatarImg').classList.add('hidden');
             }
 
-            const cleanDegree = decodeHtmlEntities(user.degree || "بكالوريوس (Bachelor's)");
-            document.getElementById('statDegree').textContent = cleanDegree;
+            // Public profile button link
+            const publicUrl = `/profile/${user.username || (user.email ? user.email.split('@')[0] : '')}`;
+            const btnPublic = document.getElementById('btnViewPublicProfile');
+            if (btnPublic) btnPublic.href = publicUrl;
+            const navBtnPublic = document.getElementById('navPublicProfileBtn');
+            if (navBtnPublic) navBtnPublic.href = publicUrl;
+
+            // Email verification status
+            const isVerified = !!user.email_verified;
+            const verifyBadge = document.getElementById('emailVerifyBadge');
+            const verifyText = document.getElementById('emailVerifyText');
+            const settingsEmailBadge = document.getElementById('settingsEmailBadge');
+            const settingsCurrentEmail = document.getElementById('settingsCurrentEmail');
+            const verifyInputRow = document.getElementById('verifyCodeInputRow');
+
+            if (settingsCurrentEmail) settingsCurrentEmail.textContent = user.email || "";
+
+            if (isVerified) {
+                if (verifyBadge) verifyBadge.className = "sp-badge sp-badge-success flex items-center gap-1";
+                if (verifyText) verifyText.textContent = "بريد موثق";
+                if (settingsEmailBadge) {
+                    settingsEmailBadge.className = "sp-badge sp-badge-success";
+                    settingsEmailBadge.textContent = "موثق ومعتمد";
+                }
+                const btnSend = document.getElementById('btnSendVerifyCode');
+                if (btnSend) btnSend.classList.add('hidden');
+                if (verifyInputRow) verifyInputRow.classList.add('hidden');
+            } else {
+                if (verifyBadge) verifyBadge.className = "sp-badge sp-badge-warning flex items-center gap-1";
+                if (verifyText) verifyText.textContent = "غير موثق بعد";
+                if (settingsEmailBadge) {
+                    settingsEmailBadge.className = "sp-badge sp-badge-warning";
+                    settingsEmailBadge.textContent = "بحاجة للتوثيق";
+                }
+                const btnSend = document.getElementById('btnSendVerifyCode');
+                if (btnSend) btnSend.classList.remove('hidden');
+            }
+
+            // Key Stats
+            document.getElementById('statDegree').textContent = user.degree || "بكالوريوس (Bachelor's)";
             document.getElementById('statGpa').textContent = user.gpa || "-";
-            document.getElementById('statMajor').textContent = (user.majors && user.majors[0]) || cleanDegree;
+            document.getElementById('statMajor').textContent = (user.majors && user.majors[0]) || "تخصص أكاديمي";
 
             const saved = user.saved_scholarships || [];
             document.getElementById('statSavedCount').textContent = `${saved.length} منح`;
 
+            // Populate Profile Edit Form inputs
+            populateProfileForm(user);
+
+            // Populate Completeness Widget
+            renderCompleteness(user.completeness || {});
+
+            // Saved scholarships list
+            renderSavedScholarships(saved);
+
+            // Load dashboard notifications
+            if (user && user.email) {
+                loadDashboardNotifications(user.email);
+            }
+
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function populateProfileForm(u) {
+            document.getElementById('editFullName').value = u.full_name || '';
+            document.getElementById('editUsername').value = u.username || '';
+            document.getElementById('editCountry').value = u.country || '';
+            document.getElementById('editCity').value = u.city || '';
+            document.getElementById('editAvatarUrl').value = u.avatar_url || '';
+            document.getElementById('editCoverUrl').value = u.cover_url || '';
+            document.getElementById('editBio').value = u.bio || '';
+            document.getElementById('editUniversity').value = u.university || '';
+            if (u.degree) document.getElementById('editDegree').value = u.degree;
+            document.getElementById('editGradYear').value = u.graduation_year || '';
+            document.getElementById('editMajor').value = (u.majors && u.majors.join(', ')) || '';
+            document.getElementById('editGpa').value = u.gpa || '';
+            document.getElementById('editEnglish').value = u.english_level || '';
+            document.getElementById('editSkills').value = (u.skills && u.skills.join(', ')) || '';
+            
+            // Languages
+            const langStr = (u.languages || []).map(l => typeof l === 'object' ? `${l.name} (${l.level || 'متقدم'})` : l).join('، ');
+            document.getElementById('editLanguages').value = langStr;
+
+            document.getElementById('editTargetCountries').value = (u.target_countries && u.target_countries.join(', ')) || '';
+            document.getElementById('editSchInterests').value = (u.scholarship_interests && u.scholarship_interests.join(', ')) || '';
+
+            // Socials
+            const s = u.social_links || {};
+            document.getElementById('socWhatsapp').value = s.whatsapp || '';
+            document.getElementById('socLinkedin').value = s.linkedin || '';
+            document.getElementById('socGithub').value = s.github || '';
+            document.getElementById('socFacebook').value = s.facebook || '';
+            document.getElementById('socInstagram').value = s.instagram || '';
+            document.getElementById('socTwitter').value = s.twitter || '';
+            document.getElementById('socTelegram').value = s.telegram || '';
+            document.getElementById('socPortfolio').value = s.portfolio || '';
+            document.getElementById('socWebsite').value = s.website || '';
+
+            // Privacy toggles
+            const p = u.privacy_settings || {};
+            document.getElementById('privacyPublicToggle').checked = p.public_profile !== false;
+            document.getElementById('privacyGpaToggle').checked = p.show_gpa !== false;
+            document.getElementById('privacyContactToggle').checked = p.show_contact !== false;
+        }
+
+        function renderCompleteness(comp) {
+            const pct = comp.percentage || 0;
+            document.getElementById('completenessNum').textContent = `${pct}%`;
+            document.getElementById('completenessBar').style.width = `${pct}%`;
+            document.getElementById('completenessBadgeText').textContent = comp.badge || 'ملف قيد الإعداد';
+
+            const list = document.getElementById('missingFieldsList');
+            list.innerHTML = '';
+
+            const missing = comp.missing_fields || [];
+            if (missing.length === 0) {
+                list.innerHTML = `<span class="sp-badge sp-badge-success flex items-center gap-1.5"><i data-lucide="check" class="w-3 h-3"></i><span>ملفك الأكاديمي مكتمل بنسبة 100%!</span></span>`;
+            } else {
+                missing.forEach(m => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'px-3 py-1.5 rounded-xl border border-blue-500/30 bg-blue-500/10 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:bg-blue-500/20 transition flex items-center gap-1';
+                    btn.innerHTML = `<i data-lucide="plus" class="w-3 h-3"></i><span>${escapeHTML(m.text)}</span>`;
+                    btn.onclick = () => {
+                        switchMainTab('profile');
+                        // Focus field
+                        const fieldMap = {
+                            'avatar_url': 'editAvatarUrl',
+                            'university': 'editUniversity',
+                            'city': 'editCity',
+                            'bio': 'editBio',
+                            'skills': 'editSkills',
+                            'social_links': 'socLinkedin',
+                            'target_countries': 'editTargetCountries',
+                            'scholarship_interests': 'editSchInterests'
+                        };
+                        const targetId = fieldMap[m.field];
+                        if (targetId) {
+                            const elem = document.getElementById(targetId);
+                            if (elem) elem.focus();
+                        }
+                    };
+                    list.appendChild(btn);
+                });
+            }
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function renderSavedScholarships(saved) {
             const list = document.getElementById('savedScholarshipsList');
+            if (!list) return;
+
             if (saved.length === 0) {
                 list.innerHTML = `
                     <div class="p-6 rounded-2xl sp-subcard border border-blue-500/20 bg-gradient-to-br from-blue-500/5 via-transparent to-transparent space-y-4">
@@ -752,93 +1316,377 @@
                     </div>
                 `).join('');
             }
-
-            if (user && user.email) {
-                loadUserPreferences(user.email);
-                loadDashboardNotifications(user.email);
-            }
-
             if (window.lucide) lucide.createIcons();
         }
 
-        function toggleTelegramInput() {
-            const isChecked = document.getElementById('prefTelegramToggle').checked;
-            const row = document.getElementById('telegramChatIdRow');
-            if (row) row.classList.toggle('hidden', !isChecked);
-        }
-
-        async function loadUserPreferences(email) {
-            if (!email) return;
-            try {
-                const res = await fetch(`/api/user/preferences?email=${encodeURIComponent(email)}`);
-                const data = await res.json();
-                if (data.success && data.preferences) {
-                    const p = data.preferences;
-                    const emailToggle = document.getElementById('prefEmailToggle');
-                    if (emailToggle) emailToggle.checked = p.email_notifications !== false;
-
-                    const tgToggle = document.getElementById('prefTelegramToggle');
-                    if (tgToggle) tgToggle.checked = !!p.telegram_notifications;
-
-                    const tgChatInput = document.getElementById('prefTelegramChatId');
-                    if (tgChatInput) tgChatInput.value = p.telegram_chat_id || '';
-
-                    const countriesInput = document.getElementById('prefCountries');
-                    if (countriesInput && p.preferred_countries && Array.isArray(p.preferred_countries)) {
-                        countriesInput.value = p.preferred_countries.join(', ');
-                    }
-
-                    const fundingSelect = document.getElementById('prefFunding');
-                    if (fundingSelect && p.funding_type) {
-                        fundingSelect.value = p.funding_type;
-                    }
-
-                    toggleTelegramInput();
-                }
-            } catch (err) {
-                console.error("Error loading preferences:", err);
-            }
-        }
-
-        async function savePreferences(event) {
-            event.preventDefault();
+        async function saveAcademicProfile(e) {
+            e.preventDefault();
             if (!currentUser || !currentUser.email) return;
-            const saveBtn = document.getElementById('savePrefBtn');
-            const originalContent = saveBtn.innerHTML;
-            saveBtn.disabled = true;
-            saveBtn.innerHTML = `<span>جارٍ الحفظ...</span>`;
 
-            const countriesStr = document.getElementById('prefCountries').value;
-            const countries = countriesStr.split(',').map(c => c.trim()).filter(Boolean);
+            const btn = document.getElementById('saveProfileBtn');
+            const orig = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<span>جارٍ الحفظ...</span>`;
+
+            // Parse skills & languages
+            const skills = document.getElementById('editSkills').value.split(',').map(s => s.trim()).filter(Boolean);
+            const rawLangs = document.getElementById('editLanguages').value.split(/[,،]/).map(l => l.trim()).filter(Boolean);
+            const langs = rawLangs.map(str => {
+                const match = str.match(/^(.+?)\s*\((.+?)\)$/);
+                if (match) return { name: match[1].trim(), level: match[2].trim() };
+                return { name: str, level: "متقدم" };
+            });
+
+            const targetCountries = document.getElementById('editTargetCountries').value.split(',').map(c => c.trim()).filter(Boolean);
+            const schInterests = document.getElementById('editSchInterests').value.split(',').map(s => s.trim()).filter(Boolean);
+            const majors = document.getElementById('editMajor').value.split(',').map(m => m.trim()).filter(Boolean);
 
             const payload = {
                 email: currentUser.email,
-                preferred_countries: countries.length > 0 ? countries : ["Any"],
-                funding_type: document.getElementById('prefFunding').value,
-                email_notifications: document.getElementById('prefEmailToggle').checked,
-                telegram_notifications: document.getElementById('prefTelegramToggle').checked,
-                telegram_chat_id: document.getElementById('prefTelegramChatId').value.trim()
+                full_name: document.getElementById('editFullName').value.trim(),
+                username: document.getElementById('editUsername').value.trim(),
+                country: document.getElementById('editCountry').value.trim(),
+                city: document.getElementById('editCity').value.trim(),
+                avatar_url: document.getElementById('editAvatarUrl').value.trim(),
+                cover_url: document.getElementById('editCoverUrl').value.trim(),
+                bio: document.getElementById('editBio').value.trim(),
+                university: document.getElementById('editUniversity').value.trim(),
+                degree: document.getElementById('editDegree').value,
+                graduation_year: document.getElementById('editGradYear').value.trim(),
+                majors: majors.length ? majors : [document.getElementById('editDegree').value],
+                gpa: document.getElementById('editGpa').value.trim(),
+                english_level: document.getElementById('editEnglish').value.trim(),
+                skills: skills,
+                languages: langs,
+                target_countries: targetCountries,
+                scholarship_interests: schInterests,
+                social_links: {
+                    whatsapp: document.getElementById('socWhatsapp').value.trim(),
+                    linkedin: document.getElementById('socLinkedin').value.trim(),
+                    github: document.getElementById('socGithub').value.trim(),
+                    facebook: document.getElementById('socFacebook').value.trim(),
+                    instagram: document.getElementById('socInstagram').value.trim(),
+                    twitter: document.getElementById('socTwitter').value.trim(),
+                    telegram: document.getElementById('socTelegram').value.trim(),
+                    portfolio: document.getElementById('socPortfolio').value.trim(),
+                    website: document.getElementById('socWebsite').value.trim()
+                }
             };
 
+            const token = localStorage.getItem('minha_token');
+            const headers = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
             try {
-                const res = await fetch('/api/user/preferences', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                const res = await fetch('/api/user/profile', {
+                    method: 'PUT',
+                    headers: headers,
                     body: JSON.stringify(payload)
                 });
                 const data = await res.json();
-                if (data.success) {
-                    showToast('success', 'تم حفظ التفضيلات بنجاح!', 'تم تحديث معايير المطابقة وتفضيلات قنوات الإشعارات بنجاح.');
+                if (res.ok && data.success) {
+                    currentUser = data.profile;
+                    localStorage.setItem('minha_user', JSON.stringify(currentUser));
+                    renderDashboard(currentUser);
+                    showToast("success", "تم تحديث الملف الأكاديمي بنجاح!", "تم حفظ التعديلات وحساب نسبة الاكتمال بنجاح.");
+                    confetti({ particleCount: 70, spread: 60 });
                 } else {
-                    showToast('error', 'خطأ في الحفظ', data.detail || 'تعذر حفظ التفضيلات');
+                    showToast("error", "تعذر حفظ التعديلات", data.detail || "يرجى التحقق من المدخلات.");
                 }
-            } catch (err) {
-                console.error(err);
-                showToast('error', 'فشل الاتصال', 'تعذر الاتصال بالخادم لحفظ التفضيلات');
+            } catch(err) {
+                showToast("error", "فشل الاتصال", err.message);
             } finally {
-                saveBtn.disabled = false;
-                saveBtn.innerHTML = originalContent;
+                btn.disabled = false;
+                btn.innerHTML = orig;
                 if (window.lucide) lucide.createIcons();
+            }
+        }
+
+        // Email Verification
+        async function sendVerificationCode() {
+            if (!currentUser || !currentUser.email) return;
+            const btn = document.getElementById('btnSendVerifyCode');
+            btn.disabled = true;
+            btn.innerHTML = `<span>جارٍ الإرسال...</span>`;
+
+            try {
+                const res = await fetch('/api/auth/send-verification', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: currentUser.email })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    showToast("success", "تم إرسال كود التحقق بنجاح", "تفقد صندوق الوارد في بريدك الإلكتروني (أو مجلد Spam).");
+                    document.getElementById('verifyCodeInputRow').classList.remove('hidden');
+                } else {
+                    showToast("error", "تعذر إرسال الكود", data.detail || "حدث خطأ.");
+                }
+            } catch(e) {
+                showToast("error", "فشل الاتصال", e.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i data-lucide="send" class="w-3.5 h-3.5"></i><span>إرسال كود التوثيق</span>`;
+                if (window.lucide) lucide.createIcons();
+            }
+        }
+
+        async function submitVerificationCode() {
+            if (!currentUser || !currentUser.email) return;
+            const code = document.getElementById('inputVerificationCode').value.trim();
+            if (!code) {
+                showToast("error", "كود غير مكتمل", "يرجى إدخال كود التحقق المكون من 6 أرقام.");
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/auth/verify-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: currentUser.email, code: code })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    currentUser.email_verified = true;
+                    localStorage.setItem('minha_user', JSON.stringify(currentUser));
+                    renderDashboard(currentUser);
+                    showToast("success", "تم توثيق البريد الإلكتروني بنجاح!", "أصبح حسابك وملفك الأكاديمي موثقين ومعتمدين بالكامل.");
+                    confetti({ particleCount: 80, spread: 60 });
+                } else {
+                    showToast("error", "فشل التوثيق", data.detail || "الكود غير صحيح.");
+                }
+            } catch(e) {
+                showToast("error", "فشل الاتصال", e.message);
+            }
+        }
+
+        // Change Password
+        async function submitChangePassword(e) {
+            e.preventDefault();
+            if (!currentUser || !currentUser.email) return;
+
+            const oldPw = document.getElementById('oldPassword').value;
+            const newPw = document.getElementById('newPassword').value;
+            const confirmPw = document.getElementById('confirmNewPassword').value;
+
+            if (newPw !== confirmPw) {
+                showToast("error", "عدم تطابق", "كلمة المرور الجديدة وتأكيدها غير متطابقين.");
+                return;
+            }
+
+            const btn = document.getElementById('btnChangePassword');
+            btn.disabled = true;
+            btn.innerHTML = `<span>جارٍ التحديث...</span>`;
+
+            const token = localStorage.getItem('minha_token');
+            const headers = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
+            try {
+                const res = await fetch('/api/user/change-password', {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify({
+                        email: currentUser.email,
+                        current_password: oldPw,
+                        new_password: newPw
+                    })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    showToast("success", "تم تغيير كلمة المرور بنجاح!", "يرجى حفظ كلمة المرور الجديدة واستخدامها في الجلسات القادمة.");
+                    document.getElementById('changePasswordForm').reset();
+                } else {
+                    showToast("error", "تعذر تغيير كلمة المرور", data.detail || "كلمة المرور الحالية غير صحيحة.");
+                }
+            } catch(e) {
+                showToast("error", "فشل الاتصال", e.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5"></i><span>تحديث كلمة المرور</span>`;
+                if (window.lucide) lucide.createIcons();
+            }
+        }
+
+        // Privacy Settings
+        async function savePrivacySettings() {
+            if (!currentUser || !currentUser.email) return;
+            const privacy = {
+                public_profile: document.getElementById('privacyPublicToggle').checked,
+                show_gpa: document.getElementById('privacyGpaToggle').checked,
+                show_contact: document.getElementById('privacyContactToggle').checked
+            };
+
+            const token = localStorage.getItem('minha_token');
+            const headers = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
+            try {
+                const res = await fetch('/api/user/profile', {
+                    method: 'PUT',
+                    headers: headers,
+                    body: JSON.stringify({
+                        email: currentUser.email,
+                        privacy_settings: privacy
+                    })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    currentUser.privacy_settings = privacy;
+                    localStorage.setItem('minha_user', JSON.stringify(currentUser));
+                    showToast("success", "تم حفظ إعدادات الخصوصية بنجاح", "تم تحديث خيارات الظهور لملفك الأكاديمي العام.");
+                } else {
+                    showToast("error", "خطأ في الحفظ", data.detail || "حدث خطأ.");
+                }
+            } catch(e) {
+                showToast("error", "فشل الاتصال", e.message);
+            }
+        }
+
+        // Forgot Password Modal
+        function openForgotPasswordModal() {
+            document.getElementById('forgotPwModal').classList.remove('hidden');
+            document.getElementById('forgotStep1').classList.remove('hidden');
+            document.getElementById('forgotStep2').classList.add('hidden');
+            const loginEmail = document.getElementById('loginEmail').value.trim();
+            if (loginEmail) document.getElementById('forgotInputEmail').value = loginEmail;
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function closeForgotPasswordModal() {
+            document.getElementById('forgotPwModal').classList.add('hidden');
+        }
+
+        async function requestResetToken() {
+            const email = document.getElementById('forgotInputEmail').value.trim();
+            if (!email) {
+                showToast("error", "مطلوب", "يرجى إدخال البريد الإلكتروني.");
+                return;
+            }
+
+            const btn = document.getElementById('btnRequestResetToken');
+            btn.disabled = true;
+            btn.innerHTML = `<span>جارٍ الإرسال...</span>`;
+
+            try {
+                const res = await fetch('/api/auth/forgot-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    showToast("success", "تم إرسال رمز الاستعادة!", data.message);
+                    document.getElementById('forgotStep1').classList.add('hidden');
+                    document.getElementById('forgotStep2').classList.remove('hidden');
+                    if (data.reset_token) {
+                        document.getElementById('forgotInputToken').value = data.reset_token;
+                    }
+                } else {
+                    showToast("error", "خطأ", data.detail || "تعذر إرسال الرمز.");
+                }
+            } catch(e) {
+                showToast("error", "فشل الاتصال", e.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i data-lucide="send" class="w-3.5 h-3.5"></i><span>إرسال رمز الاستعادة</span>`;
+                if (window.lucide) lucide.createIcons();
+            }
+        }
+
+        async function submitResetPassword() {
+            const email = document.getElementById('forgotInputEmail').value.trim();
+            const token = document.getElementById('forgotInputToken').value.trim();
+            const newPw = document.getElementById('forgotInputNewPw').value.trim();
+
+            if (!token || !newPw) {
+                showToast("error", "حقول مطلوبة", "يرجى إدخال رمز الاستعادة وكلمة المرور الجديدة.");
+                return;
+            }
+
+            const btn = document.getElementById('btnSubmitResetPw');
+            btn.disabled = true;
+            btn.innerHTML = `<span>جارٍ التحديث...</span>`;
+
+            try {
+                const res = await fetch('/api/auth/reset-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: email,
+                        token: token,
+                        new_password: newPw
+                    })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    showToast("success", "تم تحديث كلمة المرور بنجاح!", "يمكنك الآن تسجيل الدخول بكلمة المرور الجديدة.");
+                    closeForgotPasswordModal();
+                    document.getElementById('loginEmail').value = email;
+                    document.getElementById('loginPassword').value = newPw;
+                } else {
+                    showToast("error", "خطأ في الاستعادة", data.detail || "الرمز غير صالح أو منتهي الصلاحية.");
+                }
+            } catch(e) {
+                showToast("error", "فشل الاتصال", e.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5"></i><span>تأكيد وتحديث كلمة المرور</span>`;
+                if (window.lucide) lucide.createIcons();
+            }
+        }
+
+        // Delete Account
+        function openDeleteAccountModal() {
+            document.getElementById('deleteAccountModal').classList.remove('hidden');
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function closeDeleteAccountModal() {
+            document.getElementById('deleteAccountModal').classList.add('hidden');
+        }
+
+        async function confirmDeleteAccount() {
+            if (!currentUser || !currentUser.email) return;
+            const pw = document.getElementById('deleteConfirmPassword').value;
+            if (!pw) {
+                showToast("error", "مطلوب", "يرجى إدخال كلمة المرور لتأكيد الحذف.");
+                return;
+            }
+
+            const btn = document.getElementById('btnConfirmDelete');
+            btn.disabled = true;
+            btn.innerHTML = `<span>جارٍ الحذف...</span>`;
+
+            const token = localStorage.getItem('minha_token');
+            const headers = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
+            try {
+                const res = await fetch('/api/user/delete-account', {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify({
+                        email: currentUser.email,
+                        password: pw
+                    })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    showToast("success", "تم حذف الحساب نهائياً", "وداعاً، تم مسح حسابك وكافة بياناتك بنجاح.");
+                    closeDeleteAccountModal();
+                    setTimeout(() => {
+                        logoutUser();
+                    }, 1200);
+                } else {
+                    showToast("error", "تعذر حذف الحساب", data.detail || "كلمة المرور غير صحيحة.");
+                    btn.disabled = false;
+                    btn.textContent = "تأكيد الحذف النهائي";
+                }
+            } catch(e) {
+                showToast("error", "فشل الاتصال", e.message);
+                btn.disabled = false;
+                btn.textContent = "تأكيد الحذف النهائي";
             }
         }
 
@@ -879,7 +1727,7 @@
                                 </div>
                             `;
                         } else {
-                            list.innerHTML = data.notifications.slice(0, 3).map(n => {
+                            list.innerHTML = data.notifications.slice(0, 4).map(n => {
                                 const isUnread = !n.is_read;
                                 return `
                                     <div class="p-3 rounded-xl sp-subcard flex items-start justify-between gap-3 text-xs ${isUnread ? 'border-r-4 border-r-blue-500' : 'opacity-80'}">
@@ -969,7 +1817,7 @@
                         degree: currentUser.degree,
                         majors: currentUser.majors,
                         gpa: currentUser.gpa,
-                        talents_experience: "",
+                        talents_experience: currentUser.talents_experience || "",
                         country: currentUser.country,
                         send_welcome_report: true
                     })
@@ -977,7 +1825,7 @@
                 const data = await res.json();
                 if (loadingToast) loadingToast.remove();
                 if (res.ok && data.success) {
-                    showToast("success", "تم إرسال التقرير الأسبوعي بنجاح! 🚀", data.detail || `تم تسليم التقرير بنجاح إلى: ${currentUser.email}. تفقد صندوق الوارد أو مجلد Spam.`, 8000);
+                    showToast("success", "تم إرسال التقرير الأسبوعي بنجاح!", data.detail || `تم تسليم التقرير بنجاح إلى: ${currentUser.email}. تفقد صندوق الوارد أو مجلد Spam.`, 8000);
                     confetti({ particleCount: 75, spread: 60, origin: { y: 0.6 } });
                 } else {
                     const detail = data.detail || "تعذر إتمام الإرسال في الوقت الحالي.";
@@ -990,6 +1838,7 @@
         }
 
         function logoutUser() {
+            fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
             localStorage.removeItem('minha_user');
             localStorage.removeItem('minha_token');
             currentUser = null;
@@ -1006,18 +1855,14 @@
         
         <!-- Floating Telegram Button (Above AI Assistant) -->
         <div class="pointer-events-auto group relative flex items-center gap-2.5">
-            <!-- Tooltip -->
             <div class="pointer-events-none opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-300 shadow-xl rounded-xl px-3 py-1.5 bg-slate-900/95 dark:bg-slate-800/95 text-white border border-slate-700/60 backdrop-blur-md hidden sm:flex items-center gap-1.5 text-xs font-bold whitespace-nowrap">
                 <span>قناة المنح الدراسية</span>
                 <i data-lucide="arrow-up-right" class="w-3.5 h-3.5 text-sky-400"></i>
             </div>
             
-            <!-- Telegram Button Link -->
             <a href="https://t.me/ScholarPilot" target="_blank" rel="noopener noreferrer" aria-label="قناة المنح الدراسية"
                class="relative w-12 h-12 rounded-2xl bg-[#0088cc] hover:bg-[#0077b5] text-white flex items-center justify-center shadow-lg shadow-sky-500/30 hover:shadow-sky-500/50 hover:scale-105 active:scale-95 transition-all duration-300 border border-white/20 cursor-pointer">
-                <!-- Subtle Pulse Animation -->
                 <span class="absolute inset-0 rounded-2xl bg-sky-400/40 animate-ping opacity-35 pointer-events-none"></span>
-                <!-- Official Telegram Paper Plane SVG -->
                 <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.52 2.77-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
                 </svg>
@@ -1026,7 +1871,6 @@
 
         <!-- Floating AI Assistant Button -->
         <div class="pointer-events-auto group relative flex items-center gap-3">
-            <!-- Modern Floating Tooltip -->
             <div class="pointer-events-none opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-300 shadow-xl rounded-xl px-3.5 py-2 bg-slate-900/95 dark:bg-slate-800/95 text-white border border-slate-700/60 backdrop-blur-md hidden sm:flex flex-col text-right">
                 <span class="text-xs font-bold flex items-center gap-1.5 text-blue-400">
                     <i data-lucide="sparkles" class="w-3.5 h-3.5 text-cyan-400"></i>
@@ -1035,7 +1879,6 @@
                 <span class="text-[10px] text-slate-300">مساعدك للتقديم والقبول 24/7</span>
             </div>
 
-            <!-- Floating Button -->
             <a href="/assistant" aria-label="Ask ScholarPilot AI"
                class="relative w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-500 text-white flex items-center justify-center shadow-lg shadow-blue-500/30 hover:shadow-cyan-500/50 hover:scale-105 active:scale-95 transition-all duration-300 border border-white/20 group">
                 <span class="absolute inset-0 rounded-2xl bg-blue-500/40 animate-ping opacity-40 pointer-events-none"></span>

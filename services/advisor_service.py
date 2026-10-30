@@ -919,8 +919,25 @@ class AdvisorService:
             lang_score += 2.0
             strengths.append("الأنشطة المجتمعية والمشاريع العملية تدعم ملفك التنافسي أمام لجنة المقابلات.")
 
-        total_score = int(round(gpa_score + major_score + country_score + deg_score + lang_score))
-        final_score = max(60, min(98, total_score))
+        # 6. Target Destinations & Academic Interests Matching
+        target_countries = [str(c).lower() for c in (student_profile.get("target_countries") or student_profile.get("preferred_countries") or [])]
+        sch_country = str(scholarship.get("country", "")).lower()
+        destination_score = 0.0
+
+        if any(tc in sch_country or sch_country in tc for tc in target_countries if tc and tc != "any"):
+            destination_score += 5.0
+            strengths.append(f"المنحة تقع في إحدى وجهات الابتعاث المفضلة في ملفك الأكاديمي ({scholarship.get('country', '')}).")
+
+        interests = [str(i).lower() for i in student_profile.get("interests", [])]
+        skills = [str(s).lower() for s in student_profile.get("skills", [])]
+        sch_text = (str(scholarship.get("name", "")) + " " + str(scholarship.get("requirements", "")) + " " + " ".join(sch_majors)).lower()
+
+        if any(term in sch_text for term in interests + skills if len(term) >= 3):
+            destination_score += 4.0
+            strengths.append("تقاطع وثيق بين مهاراتك واهتماماتك البحثية ومتطلبات البرنامج.")
+
+        total_score = int(round(gpa_score + major_score + country_score + deg_score + lang_score + destination_score))
+        final_score = max(60, min(99, total_score))
 
         if not recommendations:
             recommendations.append("تجهيز كشف الدرجات الرسمي باللغة الإنجليزية والتقديم مبكراً قبل تاريخ الإغلاق.")

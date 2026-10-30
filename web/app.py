@@ -5,7 +5,7 @@ import logging
 from typing import List, Optional, Dict, Any
 from fastapi import FastAPI, BackgroundTasks, HTTPException, Query, Request, Response, UploadFile, File, Form
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, field_validator
 
@@ -39,6 +39,7 @@ INDEX_HTML_PATH = os.path.join(TEMPLATES_DIR, "index.html")
 DASHBOARD_HTML_PATH = os.path.join(TEMPLATES_DIR, "dashboard.html")
 ASSISTANT_HTML_PATH = os.path.join(TEMPLATES_DIR, "assistant.html")
 NOTIFICATIONS_HTML_PATH = os.path.join(TEMPLATES_DIR, "notifications.html")
+PROFILE_HTML_PATH = os.path.join(TEMPLATES_DIR, "profile.html")
 CSS_PATH = os.path.join(os.path.dirname(__file__), "static", "css", "scholarpilot.css")
 
 app = FastAPI(
@@ -242,12 +243,24 @@ class RegisterRequest(BaseModel):
     email: str
     password: str
     full_name: str
+    username: Optional[str] = None
     degree: Optional[str] = "Undergraduate (Bachelor's)"
     majors: Optional[List[str]] = None
     gpa: Optional[str] = "85%"
     talents_experience: Optional[str] = ""
     english_level: Optional[str] = "Intermediate"
     country: Optional[str] = "Palestine"
+    city: Optional[str] = ""
+    university: Optional[str] = ""
+    graduation_year: Optional[str] = ""
+    bio: Optional[str] = ""
+    languages: Optional[List[Any]] = None
+    skills: Optional[List[str]] = None
+    interests: Optional[List[str]] = None
+    target_countries: Optional[List[str]] = None
+    scholarship_interests: Optional[List[str]] = None
+    social_links: Optional[Dict[str, str]] = None
+    privacy_settings: Optional[Dict[str, Any]] = None
 
     @field_validator("email")
     @classmethod
@@ -283,6 +296,7 @@ class RegisterRequest(BaseModel):
 class LoginRequest(BaseModel):
     email: str
     password: str
+    remember_me: Optional[bool] = False
 
     @field_validator("email")
     @classmethod
@@ -293,6 +307,133 @@ class LoginRequest(BaseModel):
     @classmethod
     def check_password(cls, v: str) -> str:
         return validate_password(v)
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+    @field_validator("email")
+    @classmethod
+    def check_email(cls, v: str) -> str:
+        return validate_email(v)
+
+
+class ResetPasswordRequest(BaseModel):
+    email: str
+    token: str
+    new_password: str
+
+    @field_validator("email")
+    @classmethod
+    def check_email(cls, v: str) -> str:
+        return validate_email(v)
+
+    @field_validator("token")
+    @classmethod
+    def check_token(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("رمز الاستعادة مطلوب.")
+        return v.strip()
+
+    @field_validator("new_password")
+    @classmethod
+    def check_new_password(cls, v: str) -> str:
+        return validate_password(v)
+
+
+class VerificationCodeRequest(BaseModel):
+    email: str
+    code: str
+
+    @field_validator("email")
+    @classmethod
+    def check_email(cls, v: str) -> str:
+        return validate_email(v)
+
+    @field_validator("code")
+    @classmethod
+    def check_code(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("كود التحقق مطلوب.")
+        return v.strip()
+
+
+class SendVerificationRequest(BaseModel):
+    email: str
+
+    @field_validator("email")
+    @classmethod
+    def check_email(cls, v: str) -> str:
+        return validate_email(v)
+
+
+class UpdateProfileRequest(BaseModel):
+    email: str
+    username: Optional[str] = None
+    full_name: Optional[str] = None
+    avatar_url: Optional[str] = None
+    cover_url: Optional[str] = None
+    city: Optional[str] = None
+    university: Optional[str] = None
+    degree: Optional[str] = None
+    majors: Optional[List[str]] = None
+    graduation_year: Optional[str] = None
+    bio: Optional[str] = None
+    gpa: Optional[str] = None
+    english_level: Optional[str] = None
+    country: Optional[str] = None
+    languages: Optional[List[Any]] = None
+    skills: Optional[List[str]] = None
+    interests: Optional[List[str]] = None
+    target_countries: Optional[List[str]] = None
+    scholarship_interests: Optional[List[str]] = None
+    social_links: Optional[Dict[str, str]] = None
+    privacy_settings: Optional[Dict[str, Any]] = None
+
+    @field_validator("email")
+    @classmethod
+    def check_email(cls, v: str) -> str:
+        return validate_email(v)
+
+
+class ChangePasswordRequest(BaseModel):
+    email: str
+    current_password: str
+    new_password: str
+
+    @field_validator("email")
+    @classmethod
+    def check_email(cls, v: str) -> str:
+        return validate_email(v)
+
+    @field_validator("current_password")
+    @classmethod
+    def check_curr_pw(cls, v: str) -> str:
+        if not v:
+            raise ValueError("كلمة المرور الحالية مطلوبة.")
+        return v
+
+    @field_validator("new_password")
+    @classmethod
+    def check_new_pw(cls, v: str) -> str:
+        return validate_password(v)
+
+
+class DeleteAccountRequest(BaseModel):
+    email: str
+    password: str
+
+    @field_validator("email")
+    @classmethod
+    def check_email(cls, v: str) -> str:
+        return validate_email(v)
+
+    @field_validator("password")
+    @classmethod
+    def check_pw(cls, v: str) -> str:
+        if not v:
+            raise ValueError("كلمة المرور مطلوبة لتأكيد حذف الحساب.")
+        return v
 
 
 class AdvisorChatRequest(BaseModel):
@@ -548,6 +689,31 @@ async def serve_static_css():
     return Response(content="/* ScholarPilot AI Design System */", media_type="text/css")
 
 
+@app.get("/profile/{username}", response_class=HTMLResponse)
+async def serve_public_profile(username: str):
+    """Serves the public student academic profile & portfolio page."""
+    if os.path.exists(PROFILE_HTML_PATH):
+        with open(PROFILE_HTML_PATH, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    return HTMLResponse(content="<h1>الملف الأكاديمي للطالب</h1>")
+
+
+@app.get("/profile", response_class=HTMLResponse)
+async def serve_own_profile(request: Request):
+    """Redirects authenticated student to their own public academic profile page or dashboard."""
+    token = None
+    auth_header = request.headers.get("Authorization")
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header.split(" ")[1].strip()
+    if not token:
+        token = request.cookies.get("minha_token")
+
+    user = auth_service.authenticate_token(token) if token else None
+    if user and user.get("username"):
+        return RedirectResponse(url=f"/profile/{user['username']}", status_code=302)
+    return RedirectResponse(url="/dashboard", status_code=302)
+
+
 @app.get("/dashboard", response_class=HTMLResponse)
 async def serve_dashboard():
     """Serves the user account portal & admin control panel."""
@@ -576,19 +742,31 @@ async def serve_notifications_page():
 
 
 @app.post("/api/auth/register")
-async def register_account(req: RegisterRequest):
-    """Creates a new student account and registers them for automated alerts with strict security filters."""
+async def register_account(req: RegisterRequest, response: Response):
+    """Creates a new student account with full academic identity attributes and sets session cookie."""
     try:
         user = auth_service.register(
             email=req.email,
             password=req.password,
             full_name=req.full_name,
+            username=req.username,
             degree=req.degree or "Undergraduate (Bachelor's)",
             majors=req.majors or ["Software Engineering"],
             gpa=req.gpa or "85%",
             english_level=req.english_level or "Intermediate",
             country=req.country or "Palestine",
-            talents_experience=req.talents_experience or ""
+            city=req.city or "",
+            university=req.university or "",
+            graduation_year=req.graduation_year or "",
+            bio=req.bio or "",
+            talents_experience=req.talents_experience or "",
+            languages=req.languages,
+            skills=req.skills,
+            interests=req.interests,
+            target_countries=req.target_countries,
+            scholarship_interests=req.scholarship_interests,
+            social_links=req.social_links,
+            privacy_settings=req.privacy_settings
         )
         sub_service.add_or_update(
             email=req.email,
@@ -601,7 +779,15 @@ async def register_account(req: RegisterRequest):
             talents_experience=req.talents_experience or ""
         )
         token = user.get("session_token", "")
-        return {"success": True, "user": user, "token": token, "message": "تم إنشاء حسابك وتفعيل التتبع بنجاح!"}
+        response.set_cookie(
+            key="minha_token",
+            value=token,
+            max_age=86400,
+            httponly=True,
+            samesite="lax",
+            secure=False
+        )
+        return {"success": True, "user": user, "token": token, "message": "تم إنشاء حسابك وتفعيل هويتك الأكاديمية بنجاح!"}
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:
@@ -610,16 +796,185 @@ async def register_account(req: RegisterRequest):
 
 
 @app.post("/api/auth/login")
-async def login_account(req: LoginRequest):
-    """Authenticates student or administrator with PBKDF2 verification, lockout protection, and session token."""
+async def login_account(req: LoginRequest, response: Response):
+    """Authenticates student with PBKDF2 verification, lockout protection, remember-me support, and cookie."""
     try:
-        user = auth_service.login(req.email, req.password)
+        user = auth_service.login(req.email, req.password, remember_me=bool(req.remember_me))
         if not user:
             raise HTTPException(status_code=401, detail="البريد الإلكتروني أو كلمة المرور غير صحيحة.")
         token = user.get("session_token", "")
+        max_age = user.get("expires_in_seconds", 86400)
+        response.set_cookie(
+            key="minha_token",
+            value=token,
+            max_age=max_age,
+            httponly=True,
+            samesite="lax",
+            secure=False
+        )
         return {"success": True, "user": user, "token": token}
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=str(ve))
+
+
+@app.post("/api/auth/logout")
+async def logout_account(response: Response):
+    """Logs out student and deletes session cookie."""
+    response.delete_cookie("minha_token")
+    return {"success": True, "message": "تم تسجيل الخروج بنجاح."}
+
+
+@app.post("/api/auth/forgot-password")
+async def forgot_password_endpoint(req: ForgotPasswordRequest):
+    """Initiates secure password reset workflow."""
+    try:
+        res = auth_service.forgot_password(req.email)
+        return res
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        logger.error(f"Forgot password error: {e}")
+        raise HTTPException(status_code=500, detail="تعذر معالجة طلب استعادة كلمة المرور.")
+
+
+@app.post("/api/auth/reset-password")
+async def reset_password_endpoint(req: ResetPasswordRequest):
+    """Resets password using valid 1-hour reset token."""
+    try:
+        success = auth_service.reset_password(req.email, req.token, req.new_password)
+        return {"success": success, "message": "تم تحديث كلمة المرور بنجاح! يمكنك الآن تسجيل الدخول."}
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        logger.error(f"Reset password error: {e}")
+        raise HTTPException(status_code=500, detail="تعذر إعادة تعيين كلمة المرور.")
+
+
+@app.post("/api/auth/send-verification")
+async def send_verification_endpoint(req: SendVerificationRequest):
+    """Dispatches 6-digit email verification code."""
+    try:
+        res = auth_service.send_verification_email(req.email)
+        return res
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        logger.error(f"Send verification error: {e}")
+        raise HTTPException(status_code=500, detail="تعذر إرسال كود التحقق.")
+
+
+@app.post("/api/auth/verify-email")
+async def verify_email_endpoint(req: VerificationCodeRequest):
+    """Validates 6-digit email verification code."""
+    try:
+        success = auth_service.verify_email(req.email, req.code)
+        return {"success": success, "message": "تم توثيق بريدك الإلكتروني بنجاح!"}
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        logger.error(f"Verify email error: {e}")
+        raise HTTPException(status_code=500, detail="تعذر توثيق البريد الإلكتروني.")
+
+
+@app.get("/api/user/profile")
+async def get_user_profile_endpoint(request: Request, email: Optional[str] = None):
+    """Returns authenticated student full profile and completeness metrics."""
+    token = None
+    auth_header = request.headers.get("Authorization")
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header.split(" ")[1].strip()
+    if not token:
+        token = request.cookies.get("minha_token")
+
+    user = None
+    if token:
+        user = auth_service.authenticate_token(token)
+
+    if not user and email:
+        user = auth_service.get_by_email(email)
+
+    if not user:
+        raise HTTPException(status_code=401, detail="يرجى تسجيل الدخول لعرض الملف الأكاديمي.")
+
+    return {"success": True, "profile": user}
+
+
+@app.put("/api/user/profile")
+async def update_user_profile_endpoint(req: UpdateProfileRequest, request: Request):
+    """Updates student profile info, skills, languages, social links, and privacy settings."""
+    try:
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header.split(" ")[1].strip()
+            token_user = auth_service.authenticate_token(token)
+            if token_user and token_user.get("email"):
+                req.email = token_user["email"]
+
+        payload = req.model_dump(exclude_unset=True)
+        email = payload.pop("email")
+        updated = auth_service.update_profile(email, payload)
+        return {"success": True, "profile": updated, "message": "تم تحديث الملف الأكاديمي بنجاح!"}
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        logger.error(f"Update profile error: {e}")
+        raise HTTPException(status_code=500, detail="تعذر حفظ تعديلات الملف.")
+
+
+@app.post("/api/user/change-password")
+async def change_password_endpoint(req: ChangePasswordRequest, request: Request):
+    """Changes password for authenticated student."""
+    try:
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header.split(" ")[1].strip()
+            token_user = auth_service.authenticate_token(token)
+            if token_user and token_user.get("email"):
+                req.email = token_user["email"]
+
+        success = auth_service.change_password(req.email, req.current_password, req.new_password)
+        return {"success": success, "message": "تم تغيير كلمة المرور بنجاح!"}
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        logger.error(f"Change password error: {e}")
+        raise HTTPException(status_code=500, detail="تعذر تغيير كلمة المرور.")
+
+
+@app.post("/api/user/delete-account")
+async def delete_account_endpoint(req: DeleteAccountRequest, request: Request, response: Response):
+    """Permanently deletes student account with password verification."""
+    try:
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header.split(" ")[1].strip()
+            token_user = auth_service.authenticate_token(token)
+            if token_user and token_user.get("email"):
+                req.email = token_user["email"]
+
+        success = auth_service.delete_account(req.email, req.password)
+        response.delete_cookie("minha_token")
+        return {"success": success, "message": "تم حذف الحساب نهائياً بنجاح."}
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        logger.error(f"Delete account error: {e}")
+        raise HTTPException(status_code=500, detail="تعذر إتمام حذف الحساب.")
+
+
+@app.get("/api/profile/{username}")
+async def get_public_profile_api(username: str):
+    """Public API endpoint returning student academic profile respecting privacy."""
+    try:
+        profile = auth_service.get_public_profile(username)
+        if not profile:
+            raise HTTPException(status_code=404, detail="الملف الأكاديمي غير موجود.")
+        return {"success": True, "profile": profile}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Public profile error: {e}")
+        raise HTTPException(status_code=500, detail="تعذر تحميل الملف الأكاديمي.")
 
 
 @app.post("/api/subscribe")

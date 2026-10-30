@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الملف الأكاديمي للطالب | ScholarPilot AI</title>
+    <meta name="description" content="الملف الأكاديمي الموثق للطالب على منصة ScholarPilot AI. التخصص، المهارات، وجهات الابتعاث المستهدفة، والشبكات المهنية.">
+    <!-- SVG Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%232563eb'/><stop offset='50%' stop-color='%234f46e5'/><stop offset='100%' stop-color='%2306b6d4'/></linearGradient></defs><rect width='100' height='100' rx='24' fill='url(%23g)'/><path d='M50 20 L82 36 L50 52 L18 36 Z' fill='%23ffffff'/><path d='M26 44 L26 62 Q50 78 74 62 L74 44 L50 56 Z' fill='%23e0e7ff'/><circle cx='82' cy='42' r='4' fill='%2338bdf8'/><path d='M82 46 L82 66' stroke='%2338bdf8' stroke-width='3' stroke-linecap='round'/></svg>">
+
+    <!-- Tailwind CSS with Dark Mode -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd',
+                            400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8',
+                            800: '#1e40af', 900: '#1e3a8a', 950: '#0f172a'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Tajawal', 'Cairo', 'Inter', 'sans-serif'],
+                        mono: ['Inter', 'Plus Jakarta Sans', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Design Tokens -->
+    <link rel="stylesheet" href="/static/css/scholarpilot.css">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        if (localStorage.theme === 'light') {
+            document.documentElement.classList.remove('dark');
+        } else {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+</head>
+<body class="min-h-screen selection:bg-blue-600 selection:text-white flex flex-col relative bg-slate-950 text-slate-100">
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed top-5 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none flex flex-col items-center gap-2 max-w-md w-full px-4"></div>
+
+    <!-- ==================== TOP NAVIGATION ==================== -->
+    <header class="sticky top-0 z-50 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 bg-white/85 dark:bg-slate-950/85 transition-colors">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <a href="/" class="flex items-center gap-3 group">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 flex items-center justify-center text-white shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform shrink-0">
+                        <i data-lucide="graduation-cap" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-base font-black tracking-tight text-slate-900 dark:text-white leading-none">ScholarPilot <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 dark:from-blue-400 dark:to-cyan-400">AI</span></span>
+                        <span class="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-1">الهوية الأكاديمية • Student Identity</span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="flex items-center gap-2.5">
+                <a href="/" class="sp-btn-secondary px-3 py-2 text-xs font-semibold flex items-center gap-1.5">
+                    <i data-lucide="home" class="w-3.5 h-3.5 text-blue-500"></i>
+                    <span class="hidden sm:inline">الرئيسية</span>
+                </a>
+                <a href="/dashboard" class="sp-btn-secondary px-3 py-2 text-xs font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1.5">
+                    <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-blue-500"></i>
+                    <span>بوابة الطالب</span>
+                </a>
+
+                <!-- Theme Toggle -->
+                <button type="button" onclick="toggleTheme()" aria-label="Toggle theme" class="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 transition">
+                    <span id="themeIcon">
+                        <i data-lucide="moon" class="w-4 h-4 text-slate-400"></i>
+                    </span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ==================== MAIN PROFILE CONTENT ==================== -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-6">
+
+        <!-- Loading State Indicator -->
+        <div id="profileLoading" class="sp-card p-12 text-center space-y-3">
+            <div class="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <p class="text-xs font-bold text-slate-400">جاري تحميل الملف الأكاديمي للطالب...</p>
+        </div>
+
+        <!-- 404 Not Found State -->
+        <div id="profileNotFound" class="hidden sp-card p-12 text-center space-y-4">
+            <div class="w-16 h-16 rounded-2xl bg-rose-500/10 text-rose-500 flex items-center justify-center mx-auto">
+                <i data-lucide="user-x" class="w-8 h-8"></i>
+            </div>
+            <h1 class="text-xl font-bold text-slate-900 dark:text-white">الملف الأكاديمي غير موجود</h1>
+            <p class="text-xs text-slate-400 max-w-md mx-auto">لم نتمكن من العثور على طالب بهذا المعرّف. قد يكون الحساب قد تم تغييره أو حذفه.</p>
+            <div class="pt-2">
+                <a href="/dashboard" class="sp-btn-primary px-5 py-2.5 text-xs font-bold inline-flex items-center gap-2">
+                    <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                    <span>الانتقال إلى بوابة الطالب</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Private Profile Notice -->
+        <div id="profilePrivate" class="hidden sp-card p-12 text-center space-y-4 border border-amber-500/30 bg-amber-500/5">
+            <div class="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center mx-auto">
+                <i data-lucide="lock" class="w-8 h-8"></i>
+            </div>
+            <h1 class="text-xl font-bold text-slate-900 dark:text-white" id="privateProfileName">طالب ScholarPilot</h1>
+            <p class="text-xs text-slate-400 max-w-md mx-auto">هذا الملف الأكاديمي تم ضبطه كـ "ملف خاص" بناءً على إعدادات خصوصية الطالب، ولا تتوفر بيانات عامة للعرض.</p>
+            <div id="privateOwnerBanner" class="hidden p-3 rounded-xl bg-blue-500/10 border border-blue-500/30 text-xs text-blue-400 font-bold max-w-md mx-auto">
+                أنت تشاهد ملفك كزائر. يمكنك جعل ملفك متاحاً للعامة من صفحة إعدادات الحساب في البوابة.
+            </div>
+        </div>
+
+        <!-- ACTIVE PUBLIC PROFILE VIEW -->
+        <div id="profileView" class="hidden space-y-6">
+
+            <!-- Profile Header Card (Banner + Avatar + Core Info) -->
+            <div class="sp-card overflow-hidden border border-slate-200 dark:border-slate-800">
+                <!-- Cover Banner -->
+                <div id="profileCoverBanner" class="h-44 sm:h-56 w-full bg-gradient-to-r from-blue-700 via-indigo-700 to-cyan-600 relative bg-cover bg-center">
+                    <div class="absolute inset-0 bg-black/20 backdrop-blur-[1px]"></div>
+                </div>
+
+                <!-- Avatar & Identity Bar -->
+                <div class="px-6 sm:px-8 pb-8 pt-0 relative">
+                    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 -mt-16 sm:-mt-20 mb-4">
+                        <!-- Avatar -->
+                        <div class="relative">
+                            <div id="avatarContainer" class="w-28 h-28 sm:w-36 sm:h-36 rounded-2xl border-4 border-white dark:border-slate-950 bg-slate-900 text-white flex items-center justify-center shadow-xl overflow-hidden shrink-0">
+                                <span id="avatarInitials" class="text-3xl sm:text-4xl font-extrabold font-latin tracking-wider text-blue-400">SP</span>
+                                <img id="avatarImage" src="" alt="Student Profile Photo" class="hidden w-full h-full object-cover">
+                            </div>
+                            <span id="verifiedCheckPill" class="absolute -bottom-1 -left-1 w-7 h-7 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-md border-2 border-white dark:border-slate-950" title="حساب طالب موثق">
+                                <i data-lucide="check" class="w-4 h-4 stroke-[3]"></i>
+                            </span>
+                        </div>
+
+                        <!-- Header Action Buttons -->
+                        <div class="flex flex-wrap items-center gap-2.5">
+                            <button type="button" onclick="shareProfile()" class="sp-btn-secondary px-4 py-2 text-xs font-bold flex items-center gap-2">
+                                <i data-lucide="share-2" class="w-3.5 h-3.5 text-blue-500"></i>
+                                <span>مشاركة الملف</span>
+                            </button>
+                            <a id="editProfileBtn" href="/dashboard" class="hidden sp-btn-primary px-4 py-2 text-xs font-bold flex items-center gap-2">
+                                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                                <span>تعديل ملفي</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Name, Handle & Headline -->
+                    <div class="space-y-2">
+                        <div class="flex flex-wrap items-center gap-2.5">
+                            <h1 id="profileFullName" class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                                ...
+                            </h1>
+                            <span id="verifiedBadge" class="sp-badge sp-badge-info flex items-center gap-1">
+                                <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                                <span>حساب موثق</span>
+                            </span>
+                            <span id="completenessPill" class="sp-badge sp-badge-success flex items-center gap-1">
+                                <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+                                <span id="completenessPercent">100% مكتمل</span>
+                            </span>
+                        </div>
+
+                        <!-- Username Handle & Headline -->
+                        <div class="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+                            <span class="font-latin font-bold text-blue-600 dark:text-blue-400" id="profileHandle">@student</span>
+                            <span class="text-slate-400">•</span>
+                            <span id="profileHeadline" class="font-semibold text-slate-700 dark:text-slate-200">طالب بكالوريوس في كلية تكنولوجيا المعلومات</span>
+                        </div>
+
+                        <!-- Location & University -->
+                        <div class="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400 pt-1">
+                            <div class="flex items-center gap-1.5" id="profileLocationRow">
+                                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-400"></i>
+                                <span id="profileLocation">فلسطين</span>
+                            </div>
+                            <div class="flex items-center gap-1.5" id="profileUniversityRow">
+                                <i data-lucide="graduation-cap" class="w-3.5 h-3.5 text-slate-400"></i>
+                                <span id="profileUniversity">الجامعة</span>
+                            </div>
+                            <div class="flex items-center gap-1.5" id="profileGradYearRow">
+                                <i data-lucide="calendar" class="w-3.5 h-3.5 text-slate-400"></i>
+                                <span id="profileGradYear">دفعة 2027</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Professional Social Networks Bar -->
+                    <div id="socialLinksBar" class="flex flex-wrap items-center gap-2 pt-5 border-t border-slate-200/80 dark:border-slate-800/80 mt-5">
+                        <!-- Dynamic Social Badges appended here via JS -->
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Two Columns Grid: Main Content & Sidebar -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                <!-- Left Column (2 Cols): Bio, Academic Info & Target Opportunities -->
+                <div class="lg:col-span-2 space-y-6">
+
+                    <!-- Biography / About Section -->
+                    <div class="sp-card p-6 sm:p-7 space-y-3">
+                        <div class="flex items-center gap-2 text-slate-900 dark:text-white font-bold text-base border-b border-slate-200 dark:border-slate-800 pb-3">
+                            <i data-lucide="user" class="w-4 h-4 text-blue-500"></i>
+                            <span>النبذة التعريفية والأكاديمية</span>
+                        </div>
+                        <p id="profileBioText" class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line">
+                            لم تتم إضافة نبذة بعد.
+                        </p>
+                    </div>
+
+                    <!-- Academic Roadmap & Credentials Card -->
+                    <div class="sp-card p-6 sm:p-7 space-y-4">
+                        <div class="flex items-center gap-2 text-slate-900 dark:text-white font-bold text-base border-b border-slate-200 dark:border-slate-800 pb-3">
+                            <i data-lucide="award" class="w-4 h-4 text-emerald-500"></i>
+                            <span>المسار الأكاديمي والبيانات الرسمية</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                            <div class="p-3.5 rounded-xl sp-subcard">
+                                <span class="text-[11px] text-slate-400 font-bold block mb-1">المرحلة الأكاديمية المستهدفة</span>
+                                <span id="infoDegree" class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white block">-</span>
+                            </div>
+                            <div class="p-3.5 rounded-xl sp-subcard">
+                                <span class="text-[11px] text-slate-400 font-bold block mb-1">التخصص والمسار الدراسي</span>
+                                <span id="infoMajor" class="text-xs sm:text-sm font-bold text-blue-600 dark:text-blue-400 block">-</span>
+                            </div>
+                            <div class="p-3.5 rounded-xl sp-subcard" id="gpaCard">
+                                <span class="text-[11px] text-slate-400 font-bold block mb-1">المعدل التراكمي (GPA)</span>
+                                <span id="infoGpa" class="text-xs sm:text-sm font-extrabold text-emerald-600 dark:text-emerald-400 font-latin tabular-nums block">-</span>
+                            </div>
+                            <div class="p-3.5 rounded-xl sp-subcard">
+                                <span class="text-[11px] text-slate-400 font-bold block mb-1">كفاءة اللغة الإنجليزية</span>
+                                <span id="infoEnglish" class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white block">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Target Countries & Scholarship Interests -->
+                    <div class="sp-card p-6 sm:p-7 space-y-4">
+                        <div class="flex items-center gap-2 text-slate-900 dark:text-white font-bold text-base border-b border-slate-200 dark:border-slate-800 pb-3">
+                            <i data-lucide="compass" class="w-4 h-4 text-cyan-500"></i>
+                            <span>وجهات الابتعاث والمنح المفضلة</span>
+                        </div>
+
+                        <div class="space-y-3">
+                            <div>
+                                <span class="text-[11px] text-slate-400 font-bold block mb-1.5">الدول المستهدفة للدراسة</span>
+                                <div id="targetCountriesList" class="flex flex-wrap gap-1.5"></div>
+                            </div>
+
+                            <div class="pt-2">
+                                <span class="text-[11px] text-slate-400 font-bold block mb-1.5">برامج المنح المهتم بها</span>
+                                <div id="scholarshipInterestsList" class="flex flex-wrap gap-1.5"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Right Column (1 Col): Skills, Languages & Verification Card -->
+                <div class="space-y-6">
+
+                    <!-- Skills Card -->
+                    <div class="sp-card p-6 space-y-3">
+                        <div class="flex items-center gap-2 text-slate-900 dark:text-white font-bold text-sm border-b border-slate-200 dark:border-slate-800 pb-2.5">
+                            <i data-lucide="code-2" class="w-4 h-4 text-indigo-500"></i>
+                            <span>المهارات والقدرات التقنية</span>
+                        </div>
+                        <div id="skillsTagsList" class="flex flex-wrap gap-1.5 pt-1">
+                            <span class="text-xs text-slate-400">لم يتم تحديد مهارات بعد.</span>
+                        </div>
+                    </div>
+
+                    <!-- Languages Card -->
+                    <div class="sp-card p-6 space-y-3">
+                        <div class="flex items-center gap-2 text-slate-900 dark:text-white font-bold text-sm border-b border-slate-200 dark:border-slate-800 pb-2.5">
+                            <i data-lucide="languages" class="w-4 h-4 text-blue-500"></i>
+                            <span>اللغات</span>
+                        </div>
+                        <div id="languagesList" class="space-y-2 pt-1">
+                            <span class="text-xs text-slate-400">لم يتم تحديد لغات بعد.</span>
+                        </div>
+                    </div>
+
+                    <!-- Scholarship AI Assistant Card -->
+                    <div class="sp-card p-6 space-y-3 border border-blue-500/20 bg-gradient-to-br from-blue-500/5 via-transparent to-transparent">
+                        <div class="flex items-center gap-2 text-slate-900 dark:text-white font-bold text-sm">
+                            <i data-lucide="sparkles" class="w-4 h-4 text-blue-400"></i>
+                            <span>مطابقة المنح الذكية</span>
+                        </div>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            يقوم المحرك بربط هذا الملف بفرص الابتعاث المتوافقة آلياً فور توفرها رسمياً.
+                        </p>
+                        <a href="/assistant" class="sp-btn-primary w-full py-2.5 text-xs font-bold flex items-center justify-center gap-1.5 mt-2 shadow-sm">
+                            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                            <span>فتح المستشار الأكاديمي</span>
+                        </a>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="py-6 border-t border-slate-200/80 dark:border-slate-800/80 text-center text-xs text-slate-500 dark:text-slate-400">
+        <p class="font-latin">ScholarPilot AI &copy; 2026 | Verified Academic Student Identity</p>
+    </footer>
+
+    <!-- ==================== LOGIC ==================== -->
+    <script>
+        function escapeHTML(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            updateThemeButton();
+        }
+
+        function updateThemeButton() {
+            const isDark = document.documentElement.classList.contains('dark');
+            const icon = document.getElementById('themeIcon');
+            if (icon) {
+                icon.innerHTML = isDark 
+                    ? '<i data-lucide="sun" class="w-4 h-4 text-amber-400"></i>' 
+                    : '<i data-lucide="moon" class="w-4 h-4 text-slate-600"></i>';
+            }
+            if (window.lucide) lucide.createIcons();
+        }
+        updateThemeButton();
+
+        // Modern Toast Notification
+        function showToast(type, title, message) {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = `pointer-events-auto w-full p-4 rounded-2xl shadow-xl border backdrop-blur-xl flex items-start gap-3 transform transition-all duration-300 ease-out translate-y-[-10px] opacity-0 ${
+                type === 'success' 
+                    ? 'bg-slate-900/95 border-emerald-500/40 text-white shadow-emerald-500/10' 
+                    : 'bg-slate-900/95 border-blue-500/40 text-white shadow-blue-500/10'
+            }`;
+            toast.innerHTML = `
+                <div class="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                </div>
+                <div class="flex-1 text-right">
+                    <h4 class="text-xs font-bold text-white">${title}</h4>
+                    <p class="text-[11px] text-slate-300 mt-0.5">${message}</p>
+                </div>
+            `;
+            container.appendChild(toast);
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-[-10px]', 'opacity-0');
+            });
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        function shareProfile() {
+            const url = window.location.href;
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(url).then(() => {
+                    showToast("success", "تم نسخ رابط الملف الأكاديمي بنجاح", "يمكنك الآن مشاركة رابط ملفك الشخصي مع المشرفين أو زملائك.");
+                }).catch(() => {
+                    prompt("انسخ رابط الملف الأكاديمي:", url);
+                });
+            } else {
+                prompt("انسخ رابط الملف الأكاديمي:", url);
+            }
+        }
+
+        // Extract username slug from URL path: /profile/{username}
+        function getUsernameFromPath() {
+            const parts = window.location.pathname.split('/').filter(Boolean);
+            if (parts.length >= 2 && parts[0] === 'profile') {
+                return decodeURIComponent(parts[1]);
+            }
+            return '';
+        }
+
+        async function loadProfile() {
+            const username = getUsernameFromPath();
+            if (!username) {
+                document.getElementById('profileLoading').classList.add('hidden');
+                document.getElementById('profileNotFound').classList.remove('hidden');
+                return;
+            }
+
+            try {
+                const res = await fetch(`/api/profile/${encodeURIComponent(username)}`);
+                const data = await res.json();
+
+                document.getElementById('profileLoading').classList.add('hidden');
+
+                if (!res.ok || !data.success || !data.profile) {
+                    document.getElementById('profileNotFound').classList.remove('hidden');
+                    return;
+                }
+
+                const profile = data.profile;
+
+                // Handle Private Profile
+                if (profile.is_private) {
+                    document.getElementById('profilePrivate').classList.remove('hidden');
+                    document.getElementById('privateProfileName').textContent = profile.full_name || 'طالب ScholarPilot';
+                    
+                    // Check if current visitor is the owner
+                    const savedUser = localStorage.getItem('minha_user');
+                    if (savedUser) {
+                        try {
+                            const u = JSON.parse(savedUser);
+                            if (u.username === username || (u.email && profile.username === u.username)) {
+                                document.getElementById('privateOwnerBanner').classList.remove('hidden');
+                            }
+                        } catch(e) {}
+                    }
+                    if (window.lucide) lucide.createIcons();
+                    return;
+                }
+
+                // Render Active Public Profile
+                renderPublicProfile(profile);
+
+            } catch (err) {
+                console.error("Profile load error:", err);
+                document.getElementById('profileLoading').classList.add('hidden');
+                document.getElementById('profileNotFound').classList.remove('hidden');
+            }
+        }
+
+        function renderPublicProfile(p) {
+            document.getElementById('profileView').classList.remove('hidden');
+
+            document.getElementById('profileFullName').textContent = p.full_name || 'طالب';
+            document.getElementById('profileHandle').textContent = `@${p.username}`;
+            document.getElementById('profileHeadline').textContent = p.headline || `${p.degree || ''} • ${p.university || ''}`;
+            
+            // Location, University, Graduation Year
+            const locText = [p.city, p.country].filter(Boolean).join('، ') || p.country || 'فلسطين';
+            document.getElementById('profileLocation').textContent = locText;
+
+            if (p.university) {
+                document.getElementById('profileUniversity').textContent = p.university;
+                document.getElementById('profileUniversityRow').classList.remove('hidden');
+            } else {
+                document.getElementById('profileUniversityRow').classList.add('hidden');
+            }
+
+            if (p.graduation_year) {
+                document.getElementById('profileGradYear').textContent = `تخرج ${p.graduation_year}`;
+                document.getElementById('profileGradYearRow').classList.remove('hidden');
+            } else {
+                document.getElementById('profileGradYearRow').classList.add('hidden');
+            }
+
+            // Avatar & Initials
+            if (p.avatar_url && p.avatar_url.trim().length > 5) {
+                const img = document.getElementById('avatarImage');
+                img.src = p.avatar_url;
+                img.classList.remove('hidden');
+                document.getElementById('avatarInitials').classList.add('hidden');
+            } else {
+                const names = (p.full_name || 'SP').trim().split(' ');
+                const initials = names.length > 1 ? (names[0][0] + names[1][0]) : names[0].slice(0, 2);
+                document.getElementById('avatarInitials').textContent = initials.toUpperCase();
+            }
+
+            // Cover Banner
+            if (p.cover_url && p.cover_url.trim().length > 5) {
+                document.getElementById('profileCoverBanner').style.backgroundImage = `url('${p.cover_url}')`;
+            }
+
+            // Completeness badge
+            const pct = p.completeness_score || 100;
+            document.getElementById('completenessPercent').textContent = `${pct}% مكتمل`;
+
+            // Bio
+            const bioElem = document.getElementById('profileBioText');
+            if (p.bio && p.bio.trim().length > 0) {
+                bioElem.textContent = p.bio;
+            } else {
+                bioElem.textContent = "طالب أكاديمي في مجالات التكنولوجيا والعلوم، يسعى لاستكمال دراساته العليا عبر المنح التنافسية الدولية المعتمدة.";
+            }
+
+            // Academic credentials card
+            document.getElementById('infoDegree').textContent = p.degree || 'بكالوريوس';
+            document.getElementById('infoMajor').textContent = (p.majors && p.majors.length) ? p.majors.join('، ') : 'تخصص أكاديمي';
+            document.getElementById('infoEnglish').textContent = p.english_level || 'مستوى متوسط';
+
+            // GPA privacy
+            const gpaCard = document.getElementById('gpaCard');
+            if (p.gpa) {
+                document.getElementById('infoGpa').textContent = p.gpa;
+                gpaCard.classList.remove('hidden');
+            } else {
+                gpaCard.classList.add('hidden');
+            }
+
+            // Social links
+            const socialBar = document.getElementById('socialLinksBar');
+            socialBar.innerHTML = '';
+            const socials = p.social_links || {};
+            
+            const socialDefs = [
+                { key: 'linkedin', label: 'LinkedIn', icon: 'linkedin', color: 'hover:border-sky-500 hover:text-sky-400' },
+                { key: 'github', label: 'GitHub', icon: 'github', color: 'hover:border-purple-500 hover:text-purple-400' },
+                { key: 'whatsapp', label: 'WhatsApp', icon: 'phone-call', color: 'hover:border-emerald-500 hover:text-emerald-400', isPhone: true },
+                { key: 'twitter', label: 'X (Twitter)', icon: 'twitter', color: 'hover:border-blue-400 hover:text-blue-400' },
+                { key: 'telegram', label: 'Telegram', icon: 'send', color: 'hover:border-cyan-400 hover:text-cyan-400' },
+                { key: 'facebook', label: 'Facebook', icon: 'facebook', color: 'hover:border-blue-600 hover:text-blue-500' },
+                { key: 'instagram', label: 'Instagram', icon: 'instagram', color: 'hover:border-pink-500 hover:text-pink-400' },
+                { key: 'portfolio', label: 'معرض الأعمال', icon: 'briefcase', color: 'hover:border-amber-500 hover:text-amber-400' },
+                { key: 'website', label: 'الموقع الشخصي', icon: 'globe', color: 'hover:border-blue-500 hover:text-blue-400' }
+            ];
+
+            let addedCount = 0;
+            socialDefs.forEach(def => {
+                const val = socials[def.key];
+                if (val && String(val).trim()) {
+                    let href = String(val).trim();
+                    if (def.isPhone) {
+                        const cleanPhone = href.replace(/[^0-9+]/g, '');
+                        href = `https://wa.me/${cleanPhone.replace('+', '')}`;
+                    } else if (!href.startsWith('http://') && !href.startsWith('https://')) {
+                        href = `https://${href}`;
+                    }
+                    const a = document.createElement('a');
+                    a.href = href;
+                    a.target = '_blank';
+                    a.rel = 'noopener noreferrer';
+                    a.className = `px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/80 text-xs font-semibold text-slate-700 dark:text-slate-300 transition flex items-center gap-1.5 ${def.color}`;
+                    a.innerHTML = `<i data-lucide="${def.icon}" class="w-3.5 h-3.5"></i><span>${def.label}</span>`;
+                    socialBar.appendChild(a);
+                    addedCount++;
+                }
+            });
+
+            if (addedCount === 0) {
+                socialBar.innerHTML = `<span class="text-xs text-slate-400">لم يقم الطالب بإضافة روابط تواصل عامة بعد.</span>`;
+            }
+
+            // Target Countries
+            const targetContainer = document.getElementById('targetCountriesList');
+            targetContainer.innerHTML = '';
+            const countries = p.target_countries || ['Germany', 'Canada', 'Turkey'];
+            countries.forEach(c => {
+                const pill = document.createElement('span');
+                pill.className = 'px-2.5 py-1 rounded-lg bg-blue-500/10 border border-blue-500/20 text-xs font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1 font-latin';
+                pill.innerHTML = `<i data-lucide="globe" class="w-3 h-3 text-blue-500"></i><span>${escapeHTML(c)}</span>`;
+                targetContainer.appendChild(pill);
+            });
+
+            // Scholarship Interests
+            const schContainer = document.getElementById('scholarshipInterestsList');
+            schContainer.innerHTML = '';
+            const interests = p.scholarship_interests || ['DAAD', 'Chevening', 'Stipendium Hungaricum'];
+            interests.forEach(s => {
+                const pill = document.createElement('span');
+                pill.className = 'px-2.5 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-xs font-bold text-cyan-600 dark:text-cyan-400 flex items-center gap-1 font-latin';
+                pill.innerHTML = `<i data-lucide="award" class="w-3 h-3 text-cyan-500"></i><span>${escapeHTML(s)}</span>`;
+                schContainer.appendChild(pill);
+            });
+
+            // Skills
+            const skillsContainer = document.getElementById('skillsTagsList');
+            skillsContainer.innerHTML = '';
+            const skills = p.skills || ['Python', 'System Architecture', 'Machine Learning'];
+            skills.forEach(sk => {
+                const pill = document.createElement('span');
+                pill.className = 'px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 font-latin';
+                pill.textContent = sk;
+                skillsContainer.appendChild(pill);
+            });
+
+            // Languages
+            const langsContainer = document.getElementById('languagesList');
+            langsContainer.innerHTML = '';
+            const langs = p.languages || [{ name: 'العربية', level: 'اللغة الأم' }];
+            langs.forEach(l => {
+                const row = document.createElement('div');
+                row.className = 'flex items-center justify-between p-2.5 rounded-xl bg-slate-100/60 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 text-xs';
+                const name = typeof l === 'object' ? l.name : l;
+                const level = typeof l === 'object' ? (l.level || 'متقدم') : 'متقدم';
+                row.innerHTML = `
+                    <span class="font-bold text-slate-800 dark:text-slate-200">${escapeHTML(name)}</span>
+                    <span class="sp-badge sp-badge-info text-[10px]">${escapeHTML(level)}</span>
+                `;
+                langsContainer.appendChild(row);
+            });
+
+            // Check if current user is owner -> show "Edit Profile" button
+            const savedUser = localStorage.getItem('minha_user');
+            if (savedUser) {
+                try {
+                    const u = JSON.parse(savedUser);
+                    if (u.username === p.username) {
+                        document.getElementById('editProfileBtn').classList.remove('hidden');
+                    }
+                } catch(e) {}
+            }
+
+            if (window.lucide) lucide.createIcons();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProfile();
+        });
+    </script>
+</body>
+</html>

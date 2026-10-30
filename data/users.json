@@ -18,6 +18,51 @@
       "Lester B. Pearson",
       "Stipendium Hungaricum"
     ],
-    "created_at": "2026-10-28T11:40:36.269390"
+    "created_at": "2026-10-28T11:40:36.269390",
+    "username": "mustafa-zaiter",
+    "city": "Gaza / Jerusalem",
+    "university": "Faculty of Information Technology",
+    "graduation_year": "2027",
+    "bio": "طالب هندسة برمجيات وأمن سيبراني مهتم بنظم الذكاء الاصطناعي وباحث عن منح دراسية دولية ممولة بالكامل.",
+    "email_verified": true,
+    "skills": [
+      "Python",
+      "FastAPI",
+      "Cybersecurity",
+      "Machine Learning",
+      "System Architecture"
+    ],
+    "languages": [
+      {
+        "name": "العربية",
+        "level": "اللغة الأم"
+      },
+      {
+        "name": "English",
+        "level": "Advanced (IELTS 6.5+)"
+      }
+    ],
+    "target_countries": [
+      "Germany",
+      "Canada",
+      "Turkey",
+      "United Kingdom"
+    ],
+    "scholarship_interests": [
+      "DAAD",
+      "Chevening",
+      "Stipendium Hungaricum",
+      "Türkiye Bursları"
+    ],
+    "social_links": {
+      "linkedin": "https://linkedin.com",
+      "github": "https://github.com",
+      "whatsapp": "+970590000000"
+    },
+    "privacy_settings": {
+      "public_profile": true,
+      "show_gpa": true,
+      "show_contact": true
+    }
   }
 ]

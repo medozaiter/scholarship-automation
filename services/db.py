@@ -42,7 +42,7 @@ CommunityStoryDB = None
 
 try:
     from sqlalchemy import (
-        create_engine, Column, Integer, String, Text, Boolean, JSON, inspect
+        create_engine, Column, Integer, String, Text, Boolean, JSON, inspect, text
     )
     from sqlalchemy.orm import declarative_base, sessionmaker
 
@@ -55,45 +55,111 @@ try:
 
         id = Column(Integer, primary_key=True, autoincrement=True)
         email = Column(String(120), unique=True, index=True, nullable=False)
+        username = Column(String(80), unique=True, index=True, nullable=True)
         full_name = Column(String(120), default="Student")
         role = Column(String(50), default="student")
         salt = Column(String(64), nullable=False)
         password_hash = Column(String(256), nullable=False)
+
+        # Profile & Academic Identity
+        avatar_url = Column(String(500), nullable=True)
+        cover_url = Column(String(500), nullable=True)
+        city = Column(String(100), default="")
+        university = Column(String(150), default="")
         degree = Column(String(100), default="Undergraduate (Bachelor's)")
         majors = Column(JSON, default=list)
+        graduation_year = Column(String(50), default="")
+        bio = Column(Text, default="")
         gpa = Column(String(50), default="85%")
         english_level = Column(String(100), default="Intermediate")
         country = Column(String(100), default="Palestine")
         talents_experience = Column(Text, default="")
+
+        # Academic Skills, Languages & Interests
+        languages = Column(JSON, default=list)
+        skills = Column(JSON, default=list)
+        interests = Column(JSON, default=list)
+        target_countries = Column(JSON, default=list)
+        scholarship_interests = Column(JSON, default=list)
+
+        # Social & Portfolio Networks
+        social_links = Column(JSON, default=dict)
+
+        # Saved scholarships & Matching Preferences
         saved_scholarships = Column(JSON, default=list)
-        # Notification & Matching Preferences
         preferred_countries = Column(JSON, default=list)
         funding_type = Column(String(50), default="Any")
         email_notifications = Column(Boolean, default=True)
         telegram_notifications = Column(Boolean, default=False)
         telegram_chat_id = Column(String(100), nullable=True)
+
+        # Verification, Security & Privacy
+        email_verified = Column(Boolean, default=False)
+        verification_code = Column(String(50), nullable=True)
+        reset_token = Column(String(100), nullable=True)
+        reset_token_expires = Column(String(50), nullable=True)
+        privacy_settings = Column(JSON, default=dict)
+
         created_at = Column(String(50), default=lambda: datetime.now().isoformat())
+        updated_at = Column(String(50), default=lambda: datetime.now().isoformat())
 
         def to_dict(self) -> Dict[str, Any]:
+            uname = self.username
+            if not uname:
+                uname = (self.email or "").split("@")[0].lower()
             return {
+                "id": self.id,
                 "email": self.email,
-                "full_name": self.full_name,
-                "role": self.role,
+                "username": uname,
+                "full_name": self.full_name or "Student",
+                "role": self.role or "student",
                 "salt": self.salt,
                 "password_hash": self.password_hash,
-                "degree": self.degree,
+                "avatar_url": self.avatar_url or "",
+                "cover_url": self.cover_url or "",
+                "city": self.city or "",
+                "university": self.university or "",
+                "degree": self.degree or "Undergraduate (Bachelor's)",
                 "majors": self.majors or [],
-                "gpa": self.gpa,
-                "english_level": self.english_level,
-                "country": self.country,
+                "graduation_year": self.graduation_year or "",
+                "bio": self.bio or "",
+                "gpa": self.gpa or "85%",
+                "english_level": self.english_level or "Intermediate",
+                "country": self.country or "Palestine",
                 "talents_experience": self.talents_experience or "",
+                "languages": self.languages or [],
+                "skills": self.skills or [],
+                "interests": self.interests or [],
+                "target_countries": self.target_countries or [],
+                "scholarship_interests": self.scholarship_interests or [],
+                "social_links": self.social_links or {
+                    "whatsapp": "",
+                    "linkedin": "",
+                    "github": "",
+                    "facebook": "",
+                    "instagram": "",
+                    "twitter": "",
+                    "telegram": "",
+                    "portfolio": "",
+                    "website": ""
+                },
                 "saved_scholarships": self.saved_scholarships or [],
                 "preferred_countries": self.preferred_countries or [],
                 "funding_type": self.funding_type or "Any",
                 "email_notifications": self.email_notifications if self.email_notifications is not None else True,
                 "telegram_notifications": self.telegram_notifications if self.telegram_notifications is not None else False,
-                "telegram_chat_id": self.telegram_chat_id,
-                "created_at": self.created_at
+                "telegram_chat_id": self.telegram_chat_id or "",
+                "email_verified": bool(self.email_verified),
+                "verification_code": self.verification_code or "",
+                "reset_token": self.reset_token or "",
+                "reset_token_expires": self.reset_token_expires or "",
+                "privacy_settings": self.privacy_settings or {
+                    "public_profile": True,
+                    "show_gpa": True,
+                    "show_contact": True
+                },
+                "created_at": self.created_at,
+                "updated_at": getattr(self, "updated_at", None) or self.created_at
             }
 
     class SubscriberDB(Base):
@@ -387,6 +453,45 @@ def init_db_and_migrate():
     try:
         Base.metadata.create_all(bind=engine)
         logger.info("Database schema tables verified/created successfully.")
+
+        # Auto-alter users table to add missing profile and security columns if needed
+        try:
+            inspector = inspect(engine)
+            if "users" in inspector.get_table_names():
+                existing_cols = {col["name"] for col in inspector.get_columns("users")}
+                cols_to_add = [
+                    ("username", "VARCHAR(80)"),
+                    ("avatar_url", "VARCHAR(500)"),
+                    ("cover_url", "VARCHAR(500)"),
+                    ("city", "VARCHAR(100)"),
+                    ("university", "VARCHAR(150)"),
+                    ("graduation_year", "VARCHAR(50)"),
+                    ("bio", "TEXT"),
+                    ("languages", "TEXT"),
+                    ("skills", "TEXT"),
+                    ("interests", "TEXT"),
+                    ("target_countries", "TEXT"),
+                    ("scholarship_interests", "TEXT"),
+                    ("social_links", "TEXT"),
+                    ("email_verified", "BOOLEAN DEFAULT 0"),
+                    ("verification_code", "VARCHAR(50)"),
+                    ("reset_token", "VARCHAR(100)"),
+                    ("reset_token_expires", "VARCHAR(50)"),
+                    ("privacy_settings", "TEXT"),
+                    ("updated_at", "VARCHAR(50)")
+                ]
+                with engine.connect() as conn:
+                    for col_name, col_type in cols_to_add:
+                        if col_name not in existing_cols:
+                            try:
+                                conn.execute(text(f"ALTER TABLE users ADD COLUMN {col_name} {col_type}"))
+                                if hasattr(conn, "commit"):
+                                    conn.commit()
+                                logger.info(f"Added column {col_name} to users table.")
+                            except Exception as ce:
+                                logger.debug(f"Could not add column {col_name}: {ce}")
+        except Exception as insp_e:
+            logger.debug(f"Schema inspection warning: {insp_e}")
 
         # Auto-migrate initial data from JSON to Neon DB
         with get_db_session() as db:
@@ -1091,6 +1196,212 @@ def update_user_preferences(email: str, preferences: Dict[str, Any]) -> bool:
                     os.replace(temp_file, path)
             except Exception as je:
                 logger.error(f"Error updating preferences in {path}: {je}")
+
+    return True
+
+
+# =====================================================================
+# STUDENT IDENTITY, PUBLIC PROFILE & ACCOUNT MANAGEMENT
+# =====================================================================
+
+def get_user_by_email(email: str) -> Optional[Dict[str, Any]]:
+    """Retrieves full user record by email from DB or JSON fallback."""
+    clean_rec = (email or "").strip().lower()
+    if not clean_rec:
+        return None
+
+    if is_db_available() and UserDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    u = db.query(UserDB).filter(UserDB.email == clean_rec).first()
+                    if u:
+                        return u.to_dict()
+        except Exception as e:
+            logger.debug(f"DB get_user_by_email error: {e}")
+
+    if os.path.exists(USERS_JSON):
+        try:
+            with open(USERS_JSON, "r", encoding="utf-8") as f:
+                users = json.load(f)
+            u = next((x for x in users if x.get("email", "").lower() == clean_rec), None)
+            if u:
+                return dict(u)
+        except Exception:
+            pass
+    return None
+
+
+def get_user_by_username(username: str) -> Optional[Dict[str, Any]]:
+    """Retrieves full user record by username handle."""
+    clean_uname = (username or "").strip().lower()
+    if not clean_uname:
+        return None
+
+    if is_db_available() and UserDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    u = db.query(UserDB).filter(UserDB.username == clean_uname).first()
+                    if u:
+                        return u.to_dict()
+                    # Fallback check if username matches email prefix
+                    u2 = db.query(UserDB).all()
+                    for item in u2:
+                        derived = (item.username or item.email.split("@")[0]).lower()
+                        if derived == clean_uname:
+                            return item.to_dict()
+        except Exception as e:
+            logger.debug(f"DB get_user_by_username error: {e}")
+
+    if os.path.exists(USERS_JSON):
+        try:
+            with open(USERS_JSON, "r", encoding="utf-8") as f:
+                users = json.load(f)
+            for x in users:
+                u_uname = (x.get("username") or x.get("email", "").split("@")[0]).lower()
+                if u_uname == clean_uname:
+                    return dict(x)
+        except Exception:
+            pass
+    return None
+
+
+def save_or_update_user(user_data: Dict[str, Any]) -> bool:
+    """Persists or updates complete student profile record across DB and JSON stores."""
+    clean_rec = (user_data.get("email") or "").strip().lower()
+    if not clean_rec:
+        return False
+
+    now_iso = datetime.now().isoformat()
+    user_data["updated_at"] = now_iso
+    if "created_at" not in user_data or not user_data["created_at"]:
+        user_data["created_at"] = now_iso
+
+    # Ensure username
+    if not user_data.get("username"):
+        user_data["username"] = clean_rec.split("@")[0].lower()
+
+    # 1. Update in SQL Database
+    if is_db_available() and UserDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    u = db.query(UserDB).filter(UserDB.email == clean_rec).first()
+                    if not u:
+                        u = UserDB(
+                            email=clean_rec,
+                            username=user_data.get("username"),
+                            full_name=user_data.get("full_name", "Student"),
+                            role=user_data.get("role", "student"),
+                            salt=user_data.get("salt", "00"),
+                            password_hash=user_data.get("password_hash", ""),
+                            created_at=user_data["created_at"]
+                        )
+                        db.add(u)
+
+                    u.username = user_data.get("username", u.username)
+                    u.full_name = user_data.get("full_name", u.full_name)
+                    u.role = user_data.get("role", u.role)
+                    if user_data.get("password_hash"):
+                        u.password_hash = user_data["password_hash"]
+                    if user_data.get("salt"):
+                        u.salt = user_data["salt"]
+
+                    u.avatar_url = user_data.get("avatar_url", u.avatar_url)
+                    u.cover_url = user_data.get("cover_url", u.cover_url)
+                    u.city = user_data.get("city", u.city)
+                    u.university = user_data.get("university", u.university)
+                    u.degree = user_data.get("degree", u.degree)
+                    u.majors = user_data.get("majors", u.majors)
+                    u.graduation_year = user_data.get("graduation_year", u.graduation_year)
+                    u.bio = user_data.get("bio", u.bio)
+                    u.gpa = user_data.get("gpa", u.gpa)
+                    u.english_level = user_data.get("english_level", u.english_level)
+                    u.country = user_data.get("country", u.country)
+                    u.talents_experience = user_data.get("talents_experience", u.talents_experience)
+
+                    u.languages = user_data.get("languages", u.languages)
+                    u.skills = user_data.get("skills", u.skills)
+                    u.interests = user_data.get("interests", u.interests)
+                    u.target_countries = user_data.get("target_countries", u.target_countries)
+                    u.scholarship_interests = user_data.get("scholarship_interests", u.scholarship_interests)
+                    u.social_links = user_data.get("social_links", u.social_links)
+
+                    u.saved_scholarships = user_data.get("saved_scholarships", u.saved_scholarships)
+                    u.preferred_countries = user_data.get("preferred_countries", u.preferred_countries)
+                    u.funding_type = user_data.get("funding_type", u.funding_type)
+                    u.email_notifications = user_data.get("email_notifications", u.email_notifications)
+                    u.telegram_notifications = user_data.get("telegram_notifications", u.telegram_notifications)
+                    u.telegram_chat_id = user_data.get("telegram_chat_id", u.telegram_chat_id)
+
+                    u.email_verified = user_data.get("email_verified", u.email_verified)
+                    u.verification_code = user_data.get("verification_code", u.verification_code)
+                    u.reset_token = user_data.get("reset_token", u.reset_token)
+                    u.reset_token_expires = user_data.get("reset_token_expires", u.reset_token_expires)
+                    u.privacy_settings = user_data.get("privacy_settings", u.privacy_settings)
+                    u.updated_at = now_iso
+        except Exception as e:
+            logger.error(f"Error saving/updating user in DB: {e}")
+
+    # 2. Mirror to users.json
+    try:
+        os.makedirs(DATA_DIR, exist_ok=True)
+        users = []
+        if os.path.exists(USERS_JSON):
+            try:
+                with open(USERS_JSON, "r", encoding="utf-8") as f:
+                    users = json.load(f)
+            except Exception:
+                users = []
+
+        found_idx = next((i for i, x in enumerate(users) if x.get("email", "").lower() == clean_rec), None)
+        if found_idx is not None:
+            users[found_idx].update(user_data)
+        else:
+            users.append(user_data)
+
+        temp_file = USERS_JSON + ".tmp"
+        with open(temp_file, "w", encoding="utf-8") as f:
+            json.dump(users, f, ensure_ascii=False, indent=2)
+        os.replace(temp_file, USERS_JSON)
+        return True
+    except Exception as je:
+        logger.error(f"Error writing users.json: {je}")
+        return False
+
+
+def delete_user_by_email(email: str) -> bool:
+    """Permanently deletes a student account and associated subscriber records."""
+    clean_rec = (email or "").strip().lower()
+    if not clean_rec:
+        return False
+
+    # 1. Delete from DB
+    if is_db_available():
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    if UserDB is not None:
+                        db.query(UserDB).filter(UserDB.email == clean_rec).delete()
+                    if SubscriberDB is not None:
+                        db.query(SubscriberDB).filter(SubscriberDB.email == clean_rec).delete()
+        except Exception as e:
+            logger.error(f"DB delete user error: {e}")
+
+    # 2. Delete from JSON files
+    for path in [USERS_JSON, SUBSCRIBERS_JSON]:
+        if os.path.exists(path):
+            try:
+                with open(path, "r", encoding="utf-8") as f:
+                    items = json.load(f)
+                filtered = [x for x in items if x.get("email", "").lower() != clean_rec]
+                temp_file = path + ".tmp"
+                with open(temp_file, "w", encoding="utf-8") as f:
+                    json.dump(filtered, f, ensure_ascii=False, indent=2)
+                os.replace(temp_file, path)
+            except Exception as je:
+                logger.error(f"Error deleting user from {path}: {je}")
 
     return True
 

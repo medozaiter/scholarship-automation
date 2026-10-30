@@ -167,6 +167,48 @@ def validate_name(name_str: str) -> str:
     return html.escape(clean, quote=True)
 
 
+RESERVED_USERNAMES = {
+    "admin", "administrator", "api", "dashboard", "assistant", "notifications",
+    "profile", "settings", "logout", "login", "register", "null", "undefined",
+    "user", "root", "scholarpilot", "help", "support", "about", "terms", "privacy", "static"
+}
+
+
+def validate_username(username_str: str) -> str:
+    """Validates public student handle/slug."""
+    if not username_str:
+        raise ValueError("اسم المستخدم مطلوب.")
+    clean = str(username_str).strip().lower()
+    if len(clean) < 3:
+        raise ValueError("اسم المستخدم قصير جداً (الحد الأدنى 3 أحرف).")
+    if len(clean) > 40:
+        raise ValueError("اسم المستخدم طويل جداً (الحد الأقصى 40 حرف).")
+    if not re.match(r"^[a-z0-9][a-z0-9_\-\.]*[a-z0-9]$", clean):
+        raise ValueError("اسم المستخدم يجب أن يحتوي على حروف إنجليزية، أرقام، أو شرطات (-) دون مسافات.")
+    if clean in RESERVED_USERNAMES:
+        raise ValueError("اسم المستخدم هذا محجوز لنظام المنصة، يرجى اختيار اسم آخر.")
+    return clean
+
+
+def slugify_username(full_name: str, email: str) -> str:
+    """Auto-generates a clean URL slug from student name or email."""
+    base = ""
+    ascii_name = re.sub(r"[^a-zA-Z0-9\s]", "", full_name or "").strip()
+    if len(ascii_name) >= 3:
+        base = re.sub(r"\s+", "-", ascii_name.lower())
+    else:
+        prefix = email.split("@")[0].lower() if email else "student"
+        clean_prefix = re.sub(r"[^a-z0-9]", "-", prefix)
+        clean_prefix = re.sub(r"-+", "-", clean_prefix).strip("-")
+        base = clean_prefix if len(clean_prefix) >= 3 else f"student-{secrets.token_hex(3)}"
+
+    base = base[:35].rstrip("-")
+    if base in RESERVED_USERNAMES or len(base) < 3:
+        base = f"{base}-{secrets.token_hex(2)}"
+    return base
+
+
+
 def validate_gpa(gpa_str: str) -> str:
     """Validates academic GPA strictly to prevent any code or arbitrary text."""
     if not gpa_str:
