@@ -160,6 +160,8 @@ try:
         coverage = Column(Text)
         requirements = Column(Text)
         link = Column(String(500))
+        telegram_message_id = Column(String(50), nullable=True)
+        telegram_published_at = Column(String(50), nullable=True)
         is_active = Column(Boolean, default=True)
 
         def to_dict(self) -> Dict[str, Any]:
@@ -179,6 +181,8 @@ try:
                 "coverage": self.coverage,
                 "requirements": self.requirements,
                 "link": self.link,
+                "telegram_message_id": self.telegram_message_id,
+                "telegram_published_at": self.telegram_published_at,
                 "is_active": self.is_active
             }
 
@@ -1265,3 +1269,176 @@ def upvote_community_story(story_id: str, user_email: str) -> Dict[str, Any]:
         "upvotes": story["upvotes"],
         "story_id": clean_id
     }
+
+
+# =====================================================================
+# TELEGRAM SCHOLARSHIP CHANNEL AUTOMATION & DEDUPLICATION
+# =====================================================================
+
+def is_scholarship_published_to_telegram(scholarship_id: str) -> bool:
+    """
+    Checks whether a scholarship was already broadcasted to the official Telegram channel.
+    Ensures strict deduplication across Postgres, SQLite, and JSON fallbacks.
+    """
+    if not scholarship_id:
+        return False
+    clean_id = str(scholarship_id).strip()
+    target_key = f"tg_post_{clean_id}"
+
+    # 1. Check SQL Database (if connected)
+    if is_db_available():
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    if LiveScholarshipDB is not None:
+                        row = db.query(LiveScholarshipDB).filter(LiveScholarshipDB.id == clean_id).first()
+                        if row and row.telegram_message_id and len(str(row.telegram_message_id).strip()) > 0:
+                            return True
+                    if NotificationHistoryDB is not None:
+                        n_row = db.query(NotificationHistoryDB).filter(
+                            NotificationHistoryDB.notification_type == "telegram_channel_post",
+                            NotificationHistoryDB.target_id == target_key
+                        ).first()
+                        if n_row:
+                            return True
+        except Exception as e:
+            logger.debug(f"DB check telegram published error: {e}")
+
+    # 2. Check Notification History JSON Store
+    if os.path.exists(NOTIFICATION_HISTORY_JSON):
+        try:
+            with open(NOTIFICATION_HISTORY_JSON, "r", encoding="utf-8") as f:
+                logs = json.load(f)
+            if any(l.get("notification_type") == "telegram_channel_post" and l.get("target_id") == target_key for l in logs):
+                return True
+        except Exception:
+            pass
+
+    # 3. Check live_scholarships.json file
+    if os.path.exists(SCHOLARSHIPS_JSON):
+        try:
+            with open(SCHOLARSHIPS_JSON, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            for s in data:
+                if str(s.get("id")) == clean_id and s.get("telegram_message_id"):
+                    return True
+        except Exception:
+            pass
+
+    return False
+
+
+def save_scholarship_telegram_post(scholarship_id: str, telegram_message_id: Any, channel_id: str = "telegram_channel") -> bool:
+    """
+    Persists the Telegram post message_id and publication timestamp for a scholarship
+    to guarantee it is never published again.
+    """
+    if not scholarship_id:
+        return False
+    clean_id = str(scholarship_id).strip()
+    msg_id_str = str(telegram_message_id).strip()
+    now_iso = datetime.now().isoformat()
+
+    # 1. Update in SQL Database
+    if is_db_available() and LiveScholarshipDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    row = db.query(LiveScholarshipDB).filter(LiveScholarshipDB.id == clean_id).first()
+                    if row:
+                        row.telegram_message_id = msg_id_str
+                        row.telegram_published_at = now_iso
+        except Exception as e:
+            logger.warning(f"Error persisting telegram_message_id to LiveScholarshipDB: {e}")
+
+    # 2. Update live_scholarships.json store
+    if os.path.exists(SCHOLARSHIPS_JSON):
+        try:
+            with open(SCHOLARSHIPS_JSON, "r", encoding="utf-8") as f:
+                items = json.load(f)
+            updated = False
+            for itm in items:
+                if str(itm.get("id")) == clean_id:
+                    itm["telegram_message_id"] = msg_id_str
+                    itm["telegram_published_at"] = now_iso
+                    updated = True
+                    break
+            if updated:
+                temp_file = SCHOLARSHIPS_JSON + ".tmp"
+                with open(temp_file, "w", encoding="utf-8") as f:
+                    json.dump(items, f, ensure_ascii=False, indent=2)
+                os.replace(temp_file, SCHOLARSHIPS_JSON)
+        except Exception as je:
+            logger.warning(f"Error persisting telegram_message_id to live_scholarships.json: {je}")
+
+    # 3. Log idempotency history and notification event
+    target_key = f"tg_post_{clean_id}"
+    record_notification(
+        recipient=channel_id or "telegram_channel",
+        notification_type="telegram_channel_post",
+        target_id=target_key,
+        subject=f"Telegram Post #{msg_id_str}",
+        status="sent",
+        details={"scholarship_id": clean_id, "telegram_message_id": msg_id_str, "published_at": now_iso}
+    )
+    record_notification_event(
+        recipient=channel_id or "telegram_channel",
+        notification_type="telegram_channel_post",
+        channel="telegram",
+        target_id=target_key,
+        status="sent",
+        meta={"scholarship_id": clean_id, "telegram_message_id": msg_id_str}
+    )
+    logger.info(f"Telegram publication recorded for scholarship {clean_id} with post ID {msg_id_str}")
+    return True
+
+
+def get_scholarship_telegram_post_id(scholarship_id: str) -> Optional[str]:
+    """Retrieves the Telegram post message ID if already published."""
+    if not scholarship_id:
+        return None
+    clean_id = str(scholarship_id).strip()
+    target_key = f"tg_post_{clean_id}"
+
+    if is_db_available():
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    if LiveScholarshipDB is not None:
+                        row = db.query(LiveScholarshipDB).filter(LiveScholarshipDB.id == clean_id).first()
+                        if row and row.telegram_message_id:
+                            return str(row.telegram_message_id)
+                    if NotificationHistoryDB is not None:
+                        n_row = db.query(NotificationHistoryDB).filter(
+                            NotificationHistoryDB.notification_type == "telegram_channel_post",
+                            NotificationHistoryDB.target_id == target_key
+                        ).first()
+                        if n_row and n_row.details:
+                            return str(n_row.details.get("telegram_message_id", ""))
+        except Exception:
+            pass
+
+    if os.path.exists(SCHOLARSHIPS_JSON):
+        try:
+            with open(SCHOLARSHIPS_JSON, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            for s in data:
+                if str(s.get("id")) == clean_id and s.get("telegram_message_id"):
+                    return str(s.get("telegram_message_id"))
+        except Exception:
+            pass
+
+    if os.path.exists(NOTIFICATION_HISTORY_JSON):
+        try:
+            with open(NOTIFICATION_HISTORY_JSON, "r", encoding="utf-8") as f:
+                logs = json.load(f)
+            for l in logs:
+                if l.get("notification_type") == "telegram_channel_post" and l.get("target_id") == target_key:
+                    details = l.get("details", {})
+                    if details.get("telegram_message_id"):
+                        return str(details.get("telegram_message_id"))
+        except Exception:
+            pass
+
+    return None
+

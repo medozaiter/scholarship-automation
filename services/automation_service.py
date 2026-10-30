@@ -389,12 +389,25 @@ class AutomationService:
 
         if newly_discovered:
             self._save_live_scholarships(current)
-            logger.info(f"✅ Ingestion Complete: {len(newly_discovered)} new opportunities added. Triggering automatic student matching...")
+            logger.info(f"✅ Ingestion Complete: {len(newly_discovered)} new opportunities added. Triggering automatic student matching and Telegram channel publication...")
+
+            # Automatically broadcast newly discovered scholarships to Telegram channel
+            from services.telegram_service import telegram_service
+            telegram_posts = 0
+            for item in newly_discovered:
+                try:
+                    msg_id = await telegram_service.publish_scholarship_to_channel(item)
+                    if msg_id:
+                        telegram_posts += 1
+                except Exception as te:
+                    logger.warning(f"Telegram auto-publish error for {item.get('id')}: {te}")
+
             # Trigger matching engine immediately
             matching_stats = await self.match_and_notify_students_for_new_scholarships(newly_discovered)
             return {
                 "success": True,
                 "new_discovered_count": len(newly_discovered),
+                "telegram_published_count": telegram_posts,
                 "total_monitored": len(current),
                 "matching_stats": matching_stats
             }

@@ -84,10 +84,11 @@
 
             <!-- Desktop Nav Links -->
             <nav class="hidden md:flex items-center gap-1 text-xs font-semibold text-slate-600 dark:text-slate-300">
-                <a href="#matchSection" class="px-3 py-2 rounded-lg hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">الاشتراك الأسبوعي وتوقع القبول</a>
+                <a href="#matchSection" class="px-3 py-2 rounded-lg hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition font-bold">احسب فرصتك</a>
+                <a href="#howItWorksSection" class="px-3 py-2 rounded-lg hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">كيف تعمل؟</a>
                 <button type="button" onclick="openRadarCatalogModal()" class="px-3 py-2 rounded-lg hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition flex items-center gap-1.5 font-bold text-slate-700 dark:text-slate-200 group" title="تصفح فهرس رادار المنح وتصنيفاتها فورياً">
                     <i data-lucide="layers" class="w-4 h-4 text-blue-500 group-hover:scale-110 transition-transform"></i>
-                    <span>رادار المنح المفتوحة</span>
+                    <span>رادار المنح</span>
                     <span id="navRadarCountBadge" class="sp-badge sp-badge-info text-[10px] font-latin font-bold px-1.5 py-0.2">31</span>
                     <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400 group-hover:translate-y-0.5 transition-transform"></i>
                 </button>
@@ -146,28 +147,28 @@
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                     <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                 </span>
-                <span>منظومة مؤتمتة 100% لدورة المنح العالمية 2026/2027</span>
+                <span>تحديث مستمر لدورة المنح العالمية 2026/2027</span>
             </div>
 
-            <!-- Main Heading -->
-            <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.2] max-w-4xl mx-auto">
-                منظومة الذكاء الاصطناعي الأكاديمية لاكتشاف وتأمين المنح الدراسية
+            <!-- Main Heading (Concise Value Proposition) -->
+            <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.25] max-w-4xl mx-auto">
+                اكتشف المنح المناسبة لك واحصل على تنبيهات فورية
             </h1>
 
-            <!-- Subtitle -->
-            <p class="text-sm sm:text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
-                اكتشاف مؤتمت لأحدث المنح المعتمدة عالمياً، حساب دقيق لاحتمالية قبولك بناءً على مواهبك ومعدلك، وتوصيل تقارير المنح الأسبوعية المخصصة مباشرة إلى بريدك الإلكتروني دون أي تدخل يدوي.
+            <!-- Subtitle (Direct User Benefit) -->
+            <p class="text-base sm:text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
+                نوفر عليك مئات ساعات البحث. نطابق مؤهلاتك مع المنح العالمية المعتمدة، ونرسل لك تنبيهات فورية بالمواعيد وروابط التقديم الرسمية.
             </p>
 
             <!-- Hero Action Controls -->
             <div class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3 max-w-md mx-auto">
                 <a href="#matchSection" class="sp-btn-primary w-full sm:w-auto px-6 py-3.5 text-sm font-bold flex items-center justify-center gap-2 shadow-sm">
                     <i data-lucide="target" class="w-4 h-4"></i>
-                    <span>احسب نسبة قبولي وسجل للمتابعة</span>
+                    <span>احسب فرصتك وابدأ الآن</span>
                 </a>
                 <a href="#radarSection" class="sp-btn-secondary w-full sm:w-auto px-6 py-3.5 text-sm font-bold flex items-center justify-center gap-2">
                     <i data-lucide="radar" class="w-4 h-4 text-blue-600 dark:text-blue-400"></i>
-                    <span>استعراض رادار المنح النشطة</span>
+                    <span>تصفح رادار المنح</span>
                 </a>
             </div>
 
@@ -228,6 +229,94 @@
         </div>
     </section>
 
+    <!-- ==================== HOW IT WORKS SECTION ==================== -->
+    <section id="howItWorksSection" class="py-14 sm:py-18 border-b border-slate-200/80 dark:border-slate-800/80 bg-slate-50/60 dark:bg-slate-900/30">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+            
+            <div class="text-center space-y-2">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-xs font-bold text-blue-600 dark:text-blue-400">
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                    <span>بسيطة وسريعة ومجانية</span>
+                </span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                    كيف تعمل المنصة في 3 خطوات بسيطة؟
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-xl mx-auto">
+                    خطوات ميسرة لتأمين منحتك الدراسية الممولة بالكامل دون تعقيد
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Step 1 -->
+                <div class="sp-card p-6 flex flex-col justify-between relative group hover:border-blue-500/50 transition-all duration-300">
+                    <div>
+                        <div class="flex items-center justify-between w-full mb-4">
+                            <div class="w-12 h-12 rounded-2xl bg-blue-600/10 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold shadow-xs">
+                                <i data-lucide="user-check" class="w-6 h-6"></i>
+                            </div>
+                            <span class="text-3xl font-black text-slate-300 dark:text-slate-700 font-latin">01</span>
+                        </div>
+                        <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-2">
+                            1. أنشئ ملفك الأكاديمي
+                        </h3>
+                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                            أدخل تخصصك، معدلك، ومرحلتك الدراسية في أقل من دقيقة واحدة لنحدد أهليتك تلقائياً.
+                        </p>
+                    </div>
+                    <div class="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800/80 flex items-center gap-1.5 text-[11px] font-bold text-blue-600 dark:text-blue-400">
+                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                        <span>إعداد مجاني في 60 ثانية</span>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="sp-card p-6 flex flex-col justify-between relative group hover:border-indigo-500/50 transition-all duration-300">
+                    <div>
+                        <div class="flex items-center justify-between w-full mb-4">
+                            <div class="w-12 h-12 rounded-2xl bg-indigo-600/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold shadow-xs">
+                                <i data-lucide="sliders" class="w-6 h-6"></i>
+                            </div>
+                            <span class="text-3xl font-black text-slate-300 dark:text-slate-700 font-latin">02</span>
+                        </div>
+                        <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-2">
+                            2. نطابقك مع المنح المناسبة
+                        </h3>
+                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                            يقوم محرك الذكاء الاصطناعي بفحص معايير القبول وشروط التمويل ليرشح الفرص الأكثر ملاءمة لك.
+                        </p>
+                    </div>
+                    <div class="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800/80 flex items-center gap-1.5 text-[11px] font-bold text-indigo-600 dark:text-indigo-400">
+                        <i data-lucide="target" class="w-3.5 h-3.5"></i>
+                        <span>مطابقة ذكية بنسبة توافق دقيقة</span>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="sp-card p-6 flex flex-col justify-between relative group hover:border-cyan-500/50 transition-all duration-300">
+                    <div>
+                        <div class="flex items-center justify-between w-full mb-4">
+                            <div class="w-12 h-12 rounded-2xl bg-cyan-600/10 text-cyan-600 dark:text-cyan-400 flex items-center justify-center font-bold shadow-xs">
+                                <i data-lucide="send" class="w-6 h-6"></i>
+                            </div>
+                            <span class="text-3xl font-black text-slate-300 dark:text-slate-700 font-latin">03</span>
+                        </div>
+                        <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-2">
+                            3. نصلك بأحدث الفرص تلقائياً
+                        </h3>
+                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                            تصلك تنبيهات فورية وتذكيرات قبل مواعيد الإغلاق مباشرة عبر البريد الإلكتروني وقناة تيليجرام.
+                        </p>
+                    </div>
+                    <div class="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800/80 flex items-center gap-1.5 text-[11px] font-bold text-cyan-600 dark:text-cyan-400">
+                        <i data-lucide="bell-ring" class="w-3.5 h-3.5"></i>
+                        <span>تنبيهات لحظية بدون تفويت المواعيد</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
     <!-- ==================== ADMISSION PREDICTOR & WEEKLY SUBSCRIPTION ==================== -->
     <section id="matchSection" class="py-14 sm:py-20 border-b border-slate-200/80 dark:border-slate-800/80">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
@@ -235,13 +324,13 @@
             <div class="text-center space-y-3">
                 <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-xs font-bold text-blue-600 dark:text-blue-400">
                     <i data-lucide="mail-check" class="w-4 h-4"></i>
-                    <span>خدمة الاشتراك الأسبوعي المؤتمت (مجاناً 100%)</span>
+                    <span>خدمة تنبيهات المنح المؤتمتة (مجاناً 100%)</span>
                 </div>
                 <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-                    حاسبة احتمالية القبول والاشتراك الأسبوعي
+                    حاسبة القبول والتنبيهات المخصصة
                 </h2>
                 <p class="text-xs sm:text-base text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed font-medium">
-                    أدخل بياناتك الأكاديمية لحساب نسبة قبولك التقديرية بناءً على مواهبك، وتفعيل تقارير المنح الأسبوعية إلى إيميلك.
+                    أدخل بياناتك الأكاديمية لحساب فرصتك وتفعيل إرسال المنح المطابقة مباشرة إلى إيميلك.
                 </p>
             </div>
 
@@ -249,13 +338,13 @@
             <div class="sp-card p-6 sm:p-8 space-y-6">
                 
                 <!-- Subscription Explanation Callout -->
-                <div class="sp-subcard p-4 sm:p-5 rounded-xl border border-blue-500/30 bg-blue-500/5 space-y-2">
+                <div class="sp-subcard p-4 sm:p-5 rounded-xl border border-blue-500/30 bg-blue-500/5 space-y-1.5">
                     <div class="flex items-center gap-2 font-bold text-xs sm:text-sm text-blue-600 dark:text-blue-400">
                         <i data-lucide="bell-ring" class="w-4 h-4 shrink-0"></i>
-                        <span>توضيح حول خدمة الاشتراك الأسبوعي</span>
+                        <span>كيف تستفيد من هذه الخدمة؟</span>
                     </div>
                     <p class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-                        هذا النموذج مخصص <b>للاشتراك المباشر في خدمة المنح</b> لكي يصلك بريد إلكتروني بشكل أسبوعي دوري بأحدث المنح الدراسية المتاحة والمفتوحة عالمياً والمتوافقة مع تخصصك ومعدلك مع روابط التقديم الرسمية، بالإضافة إلى حساب فوري لنسبة قبولك التقديرية بناءً على مواهبك وخبراتك.
+                        سجّل بياناتك في دقيقة واحدة لنحسب فرصة قبولك ونرسل لك أفضل المنح المتوافقة مع مؤهلاتك وروابط تقديمها الرسمية أولاً بأول.
                     </p>
                 </div>
 
@@ -265,13 +354,13 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">
-                                الاسم الكامل كما في الوثائق الرسمية <span class="text-rose-500">*</span>
+                                الاسم الكامل <span class="text-rose-500">*</span>
                             </label>
                             <div class="relative">
                                 <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
                                     <i data-lucide="user" class="w-4 h-4"></i>
                                 </span>
-                                <input type="text" id="fullName" required minlength="2" maxlength="60" placeholder="أدخل اسمك الكامل كما في جواز السفر أو الشهادة"
+                                <input type="text" id="fullName" required minlength="2" maxlength="60" placeholder="مثال: أحمد محمد"
                                     oninput="this.value = this.value.replace(/[^a-zA-Z\u0600-\u06FF\s.\-']/g, '')"
                                     class="sp-input pr-9">
                             </div>
@@ -279,13 +368,13 @@
 
                         <div>
                             <label class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">
-                                البريد الإلكتروني الرسمي <span class="text-rose-500">*</span>
+                                البريد الإلكتروني <span class="text-rose-500">*</span>
                             </label>
                             <div class="relative">
                                 <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
                                     <i data-lucide="mail" class="w-4 h-4"></i>
                                 </span>
-                                <input type="email" id="email" required maxlength="100" placeholder="name@example.com (البريد الأكاديمي أو الشخصي المعتمد)"
+                                <input type="email" id="email" required maxlength="100" placeholder="name@example.com"
                                     oninput="this.value = this.value.replace(/[^a-zA-Z0-9@._-]/g, '')"
                                     class="sp-input pr-9 font-latin">
                             </div>
@@ -295,7 +384,7 @@
                     <!-- Degree Level -->
                     <div>
                         <label class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-2">
-                            المستوى العلمي (المرحلة الدراسية المطلوبة) <span class="text-rose-500">*</span>
+                            المرحلة الدراسية <span class="text-rose-500">*</span>
                         </label>
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                             <button type="button" data-val="ثانوية عامة (High School)" class="degree-btn p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-bold text-xs flex items-center justify-center gap-1.5 transition">
@@ -321,23 +410,23 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">
-                                المعدل الأكاديمي (أرقام فقط) <span class="text-rose-500">*</span>
+                                المعدل التراكمي أو النسبة <span class="text-rose-500">*</span>
                             </label>
                             <div class="relative">
                                 <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
                                     <i data-lucide="award" class="w-4 h-4"></i>
                                 </span>
-                                <input type="text" id="gpaInput" required maxlength="15" placeholder="مثال: 90% أو 3.8 من 4.00"
+                                <input type="text" id="gpaInput" required maxlength="15" placeholder="مثال: 90% أو 3.8"
                                     onkeypress="return /[0-9.%/]/.test(event.key)"
                                     oninput="this.value = this.value.replace(/[^0-9.%/]/g, '')"
                                     class="sp-input pr-9 font-latin tabular-nums">
                             </div>
-                            <span class="text-[11px] text-slate-400 mt-1 block">يقبل النسبة المئوية أو المعدل التراكمي من 4.00 أو 5.00</span>
+                            <span class="text-[11px] text-slate-400 mt-1 block">يقبل النسبة المئوية أو المعدل التراكمي (GPA)</span>
                         </div>
 
                         <div>
                             <label class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">
-                                الجنسية / بلد الإقامة (للكوتا والفرص الخاصة)
+                                بلد الإقامة أو الجنسية
                             </label>
                             <div class="relative">
                                 <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
@@ -363,7 +452,7 @@
                     <div>
                         <div class="flex justify-between items-center mb-2">
                             <label class="block text-xs font-bold text-slate-700 dark:text-slate-200">
-                                التخصصات المستهدفة <span class="text-rose-500">*</span>
+                                التخصص المستهدف <span class="text-rose-500">*</span>
                             </label>
                             <span class="text-[11px] text-slate-400">تحديد متعدد متاح</span>
                         </div>
@@ -403,7 +492,7 @@
                             </button>
                         </div>
 
-                        <input type="text" id="customMajor" maxlength="100" placeholder="أو اكتب تخصصاتك الأخرى مفصولة بفواصل (تمريض، ترجمة، كيمياء...)"
+                        <input type="text" id="customMajor" maxlength="100" placeholder="أو اكتب تخصصك هنا..."
                             oninput="this.value = this.value.replace(/[<>{}\`$]/g, '')"
                             class="sp-input text-xs">
                     </div>
@@ -414,13 +503,13 @@
                             <div class="flex items-center gap-2">
                                 <i data-lucide="sparkles" class="w-4 h-4 text-blue-500"></i>
                                 <div>
-                                    <span class="text-xs font-bold text-slate-800 dark:text-slate-200 block">فحص وتوقع نسبة القبول التقديرية</span>
-                                    <span class="text-[11px] text-slate-400">تقييم احتمالية قبولك الفورية بناءً على تخصصك ومعدلك والكوتا</span>
+                                    <span class="text-xs font-bold text-slate-800 dark:text-slate-200 block">فحص وتوقع نسبة القبول الفورية</span>
+                                    <span class="text-[11px] text-slate-400">تقييم فرصتك بناءً على تخصصك ومعدلك ومعايير الجهات المانحة</span>
                                 </div>
                             </div>
                             <button type="button" onclick="calculateInstantProbability()" class="sp-btn-secondary px-3.5 py-2 text-xs font-bold flex items-center gap-1.5 text-blue-600 dark:text-blue-400 shrink-0">
                                 <i data-lucide="calculator" class="w-3.5 h-3.5"></i>
-                                <span>احسب وتوقع نسبة قبولي الآن</span>
+                                <span>احسب نسبة قبولي</span>
                             </button>
                         </div>
 
@@ -440,10 +529,10 @@
                             <input type="checkbox" id="sendWelcome" checked class="w-4 h-4 mt-0.5 rounded text-blue-600 focus:ring-0">
                             <div>
                                 <span class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white block">
-                                    أرسل لي التقرير الترحيبي الأول فوراً مع قائمة المنح المطابقة
+                                    أرسل لي فوراً قائمة بأفضل المنح المطابقة لملفي
                                 </span>
                                 <span class="text-[11px] text-slate-500 dark:text-slate-400">
-                                    سيصلك إيميل تحليلي رسمي يحتوي على تفاصيل المنح وروابط التقديم خلال دقيقة واحدة.
+                                    ستصلك قائمة بالمنح المفتوحة وروابط التقديم الرسمية خلال دقيقة واحدة.
                                 </span>
                             </div>
                         </label>
@@ -453,12 +542,14 @@
                     <div>
                         <button type="submit" id="submitBtn" class="sp-btn-primary w-full py-3.5 px-6 text-sm sm:text-base font-bold flex items-center justify-center gap-2">
                             <i data-lucide="mail-plus" class="w-4 h-4"></i>
-                            <span id="btnText">تأكيد الاشتراك وتفعيل إرسال تقارير المنح أسبوعياً إلى إيميلي</span>
+                            <span id="btnText">احفظ ملفي وفعّل التنبيهات</span>
                             <div id="btnSpinner" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                         </button>
                         <p class="text-center text-[11px] text-slate-400 mt-2 flex items-center justify-center gap-1">
                             <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-500"></i>
-                            <span>نظام محمي ومشفر بالكامل. اشتراك مجاني يرسل إيميل أسبوعي دوري بدون أي رسائل مزعجة.</span>
+                            <span>خدمة مجانية 100% وبدون أي رسائل مزعجة.</span>
+                        </p>
+                    </div>
                         </p>
                     </div>
 
@@ -760,7 +851,7 @@
             }
 
             submitBtn.disabled = true;
-            btnText.textContent = "جارٍ حفظ الملف وتفعيل الأتمتة...";
+            btnText.textContent = "جارٍ حفظ الملف وتفعيل التنبيهات...";
             btnSpinner.classList.remove('hidden');
             alertBox.classList.add('hidden');
 
@@ -802,7 +893,7 @@
                 alertBox.classList.remove('hidden');
             } finally {
                 submitBtn.disabled = false;
-                btnText.textContent = "حفظ الملف وتفعيل الأتمتة الأسبوعية";
+                btnText.textContent = "احفظ ملفي وفعّل التنبيهات";
                 btnSpinner.classList.add('hidden');
             }
         });
@@ -1062,12 +1153,12 @@
                         <button type="button" onclick="openAssistantSidePanel('${escapeHTML(item.id)}', '${escapeHTML(item.name)}'); closeRadarCatalogModal();" class="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 transition" title="استشارة المستشار الذكي حول هذه المنحة">
                             <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
                         </button>
-                        <button type="button" onclick="jumpToScholarshipCard('${escapeHTML(item.id)}')" class="sp-btn-secondary px-3 py-1.5 text-xs font-bold flex items-center gap-1" title="الانتقال إلى بطاقة المنحة في الصفحة">
-                            <i data-lucide="crosshair" class="w-3 h-3 text-blue-500"></i>
-                            <span>عرض بالصفحة</span>
+                        <button type="button" onclick="jumpToScholarshipCard('${escapeHTML(item.id)}')" class="sp-btn-secondary px-3 py-1.5 text-xs font-bold flex items-center gap-1" title="عرض تفاصيل المنحة">
+                            <i data-lucide="eye" class="w-3 h-3 text-blue-500"></i>
+                            <span>عرض التفاصيل</span>
                         </button>
-                        <a href="${portalUrl}" target="_blank" rel="noopener noreferrer" class="sp-btn-primary px-3 py-1.5 text-xs font-bold flex items-center gap-1" title="فتح البوابة الرسمية للتقديم">
-                            <span>البوابة الرسمية</span>
+                        <a href="${portalUrl}" target="_blank" rel="noopener noreferrer" class="sp-btn-primary px-3 py-1.5 text-xs font-bold flex items-center gap-1" title="الانتقال إلى رابط التقديم الرسمي">
+                            <span>قدّم الآن</span>
                             <i data-lucide="arrow-up-right" class="w-3 h-3"></i>
                         </a>
                     </div>
@@ -1681,15 +1772,15 @@
                         </div>
 
                         <div class="flex items-center gap-2 self-end lg:self-center shrink-0">
-                            <button type="button" onclick="saveToWatchlist('${escapeHTML(item.name)}', this)" class="sp-btn-secondary p-2.5 text-xs font-bold" title="تفعيل التذكير">
+                            <button type="button" onclick="saveToWatchlist('${escapeHTML(item.name)}', this)" class="sp-btn-secondary p-2.5 text-xs font-bold" title="نبّهني قبل انتهاء الموعد">
                                 <i data-lucide="bell" class="w-3.5 h-3.5 text-blue-500"></i>
                             </button>
                             <button type="button" onclick="openAssistantSidePanel('${escapeHTML(item.id)}', '${escapeHTML(item.name)}')" class="sp-btn-secondary px-3 py-2 text-xs font-bold flex items-center gap-1.5 hover:border-blue-500/50" title="اسأل المستشار">
                                 <i data-lucide="sparkles" class="w-3.5 h-3.5 text-blue-500"></i>
                                 <span>اسأل المستشار</span>
                             </button>
-                            <a href="${portalUrl}" target="_blank" rel="noopener noreferrer" class="sp-btn-primary px-3.5 py-2 text-xs font-bold flex items-center gap-1.5 shadow-xs" title="البوابة الرسمية للتقديم">
-                                <span>البوابة الرسمية</span>
+                            <a href="${portalUrl}" target="_blank" rel="noopener noreferrer" class="sp-btn-primary px-3.5 py-2 text-xs font-bold flex items-center gap-1.5 shadow-xs" title="فتح رابط التقديم الرسمي">
+                                <span>قدّم الآن</span>
                                 <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
                             </a>
                         </div>
@@ -1753,7 +1844,7 @@
                             <div class="grid grid-cols-2 gap-2">
                                 <button type="button" onclick="saveToWatchlist('${escapeHTML(item.name)}', this)" class="sp-btn-secondary py-2 text-xs font-bold flex items-center justify-center gap-1.5">
                                     <i data-lucide="bell" class="w-3.5 h-3.5 text-blue-500"></i>
-                                    <span>تفعيل التذكير</span>
+                                    <span>تفعيل التنبيه</span>
                                 </button>
                                 <button type="button" onclick="openAssistantSidePanel('${escapeHTML(item.id)}', '${escapeHTML(item.name)}')" class="sp-btn-secondary py-2 text-xs font-bold flex items-center justify-center gap-1.5 hover:border-blue-500/50">
                                     <i data-lucide="sparkles" class="w-3.5 h-3.5 text-blue-500"></i>
@@ -1761,7 +1852,7 @@
                                 </button>
                             </div>
                             <a href="${portalUrl}" target="_blank" rel="noopener noreferrer" class="sp-btn-primary w-full text-center py-2.5 text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition-all duration-200 hover:shadow-md">
-                                <span>البوابة الرسمية للتقديم</span>
+                                <span>قدّم الآن</span>
                                 <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
                             </a>
                         </div>
@@ -2129,28 +2220,50 @@
         </footer>
     </aside>
 
-    <!-- ==================== FLOATING AI ASSISTANT BUTTON ==================== -->
-    <aside class="fixed bottom-6 right-6 z-50 group flex items-center gap-3">
-        <!-- Modern Floating Tooltip -->
-        <div class="pointer-events-none opacity-0 group-hover:opacity-100 translate-x-3 group-hover:translate-x-0 transition-all duration-300 shadow-xl rounded-xl px-3.5 py-2 bg-slate-900/95 dark:bg-slate-800/95 text-white border border-slate-700/60 backdrop-blur-md hidden sm:flex flex-col text-right">
-            <span class="text-xs font-bold flex items-center gap-1.5 text-blue-400">
-                <i data-lucide="sparkles" class="w-3.5 h-3.5 text-cyan-400"></i>
-                <span>Ask ScholarPilot AI</span>
-            </span>
-            <span class="text-[10px] text-slate-300">مستشارك الأكاديمي الذكي المتاح 24/7</span>
+    <!-- ==================== FLOATING QUICK ACTIONS (TELEGRAM + AI ASSISTANT) ==================== -->
+    <aside class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3 pointer-events-none">
+        
+        <!-- Floating Telegram Button (Above AI Assistant) -->
+        <div class="pointer-events-auto group relative flex items-center gap-2.5">
+            <!-- Tooltip -->
+            <div class="pointer-events-none opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-300 shadow-xl rounded-xl px-3 py-1.5 bg-slate-900/95 dark:bg-slate-800/95 text-white border border-slate-700/60 backdrop-blur-md hidden sm:flex items-center gap-1.5 text-xs font-bold whitespace-nowrap">
+                <span>قناة المنح الدراسية</span>
+                <i data-lucide="arrow-up-right" class="w-3.5 h-3.5 text-sky-400"></i>
+            </div>
+            
+            <!-- Telegram Button Link -->
+            <a href="https://t.me/ScholarPilot" target="_blank" rel="noopener noreferrer" aria-label="قناة المنح الدراسية"
+               class="relative w-12 h-12 rounded-2xl bg-[#0088cc] hover:bg-[#0077b5] text-white flex items-center justify-center shadow-lg shadow-sky-500/30 hover:shadow-sky-500/50 hover:scale-105 active:scale-95 transition-all duration-300 border border-white/20 cursor-pointer">
+                <!-- Subtle Pulse Animation -->
+                <span class="absolute inset-0 rounded-2xl bg-sky-400/40 animate-ping opacity-35 pointer-events-none"></span>
+                <!-- Official Telegram Paper Plane SVG -->
+                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.52 2.77-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+                </svg>
+            </a>
         </div>
 
-        <!-- Floating Button (Toggles Split Screen Mode Option B) -->
-        <button type="button" onclick="toggleAssistantSidePanel()" aria-label="Ask ScholarPilot AI"
-           class="relative w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-500 text-white flex items-center justify-center shadow-lg shadow-blue-500/30 hover:shadow-cyan-500/50 hover:scale-105 active:scale-95 transition-all duration-300 border border-white/20 group cursor-pointer">
-            <!-- Pulsing Halo Animation -->
-            <span class="absolute inset-0 rounded-2xl bg-blue-500/40 animate-ping opacity-40 pointer-events-none"></span>
-            
-            <i data-lucide="sparkles" class="w-6 h-6 text-white group-hover:rotate-12 transition-transform duration-300"></i>
-            
-            <!-- Online status green dot -->
-            <span class="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-slate-900"></span>
-        </button>
+        <!-- Floating AI Assistant Button -->
+        <div class="pointer-events-auto group relative flex items-center gap-3">
+            <!-- Modern Floating Tooltip -->
+            <div class="pointer-events-none opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-300 shadow-xl rounded-xl px-3.5 py-2 bg-slate-900/95 dark:bg-slate-800/95 text-white border border-slate-700/60 backdrop-blur-md hidden sm:flex flex-col text-right">
+                <span class="text-xs font-bold flex items-center gap-1.5 text-blue-400">
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5 text-cyan-400"></i>
+                    <span>المستشار الذكي</span>
+                </span>
+                <span class="text-[10px] text-slate-300">مساعدك للتقديم والقبول 24/7</span>
+            </div>
+
+            <!-- Floating Button (Toggles Split Screen Mode Option B) -->
+            <button type="button" onclick="toggleAssistantSidePanel()" aria-label="Ask ScholarPilot AI"
+               class="relative w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-500 text-white flex items-center justify-center shadow-lg shadow-blue-500/30 hover:shadow-cyan-500/50 hover:scale-105 active:scale-95 transition-all duration-300 border border-white/20 cursor-pointer">
+                <!-- Pulsing Halo Animation -->
+                <span class="absolute inset-0 rounded-2xl bg-blue-500/40 animate-ping opacity-40 pointer-events-none"></span>
+                <i data-lucide="sparkles" class="w-6 h-6 text-white group-hover:rotate-12 transition-transform duration-300"></i>
+                <!-- Online status green dot -->
+                <span class="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-slate-900"></span>
+            </button>
+        </div>
     </aside>
 </body>
 </html>

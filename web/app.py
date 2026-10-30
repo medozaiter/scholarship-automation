@@ -848,6 +848,39 @@ async def trigger_full_automation_cycle(background_tasks: BackgroundTasks):
     }
 
 
+@app.post("/api/automation/telegram/publish/{scholarship_id}")
+async def publish_single_scholarship_telegram(scholarship_id: str):
+    """Publishes a single scholarship to the official Telegram channel with duplicate prevention."""
+    from services.telegram_service import telegram_service
+    items = automation_service.get_live_scholarships()
+    target = next((s for s in items if str(s.get("id")) == str(scholarship_id)), None)
+    if not target:
+        raise HTTPException(status_code=404, detail="المنحة الدراسية غير موجودة.")
+
+    post_id = await telegram_service.publish_scholarship_to_channel(target)
+    if post_id:
+        return {
+            "success": True,
+            "message": "تم نشر المنحة بنجاح على قناة تيليجرام.",
+            "telegram_message_id": post_id
+        }
+    return {
+        "success": False,
+        "message": "تعذر نشر المنحة على تيليجرام. تحقق من صلاحيات البوت في القناة."
+    }
+
+
+@app.get("/api/telegram/channel-info")
+async def get_telegram_channel_info():
+    """Returns the official Telegram channel metadata and join link."""
+    from services.telegram_service import telegram_service
+    return {
+        "channel_id": telegram_service.get_channel_id(),
+        "channel_url": telegram_service.get_channel_url(),
+        "is_bot_configured": telegram_service.is_configured()
+    }
+
+
 # =====================================================================
 # IN-APP NOTIFICATIONS & USER PREFERENCES API
 # =====================================================================

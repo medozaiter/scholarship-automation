@@ -106,6 +106,12 @@
 
         <!-- Right Quick Actions -->
         <div class="flex items-center gap-2">
+            <a href="https://t.me/ScholarPilot" target="_blank" rel="noopener noreferrer" class="sp-btn-secondary px-3 py-1.5 text-xs font-semibold flex items-center gap-1.5 text-[#0088cc] hover:text-[#0077b5]" title="قناة المنح الدراسية">
+                <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.52 2.77-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+                </svg>
+                <span class="hidden sm:inline">تيليجرام</span>
+            </a>
             <a href="/" class="sp-btn-secondary px-3 py-1.5 text-xs font-semibold flex items-center gap-1.5">
                 <i data-lucide="home" class="w-3.5 h-3.5 text-blue-500"></i>
                 <span class="hidden sm:inline">الرئيسية</span>
@@ -205,16 +211,13 @@
                     <div class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0 font-latin shadow-sm">
                         AI
                     </div>
-                    <div class="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 max-w-[90%] shadow-xs space-y-2.5">
+                    <div class="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 max-w-[90%] shadow-xs space-y-2">
                         <div class="flex items-center justify-between gap-2">
-                            <h3 class="font-bold text-sm text-slate-900 dark:text-white">مرحباً بك في المستشار الأكاديمي لمنصة ScholarPilot AI! 🎓</h3>
+                            <h3 class="font-bold text-sm text-slate-900 dark:text-white">مرحباً بك! أنا مستشارك الذكي للتقديم والقبول</h3>
                             <span class="text-[10px] text-slate-400 font-latin">2026/2027</span>
                         </div>
                         <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                            أنا مستشارك المعتمد لقبول المنح الجامعية الدولية. أنا مطّلع على ملفك الأكاديمي، شروط المنح المحدثة، والمواعيد الرسمية المعتمدة لدورة 2026/2027.
-                        </p>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">
-                            يمكنك سؤالي عن أي منحة، حساب نسبة قبولك، مراجعة سيرتك الذاتية، أو اختيار استفسار سريع من القائمة المقترحة بالأسفل.
+                            اسألني عن أي منحة، شروط الأهلية، أو كيفية تجهيز أوراقك ورسائل الدافع لزيادة فرصة قبولك في المنح الممولة بالكامل.
                         </p>
                     </div>
                 </div>
@@ -224,7 +227,7 @@
             <div class="shrink-0 max-w-4xl w-full mx-auto px-4 pb-2">
                 <div id="suggestionChips" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 text-xs">
                     <button type="button" onclick="sendQuickPrompt('ابحث لي عن منح تناسب ملفي')" class="px-3.5 py-2 rounded-xl sp-subcard hover:border-blue-500 text-slate-800 dark:text-slate-200 shrink-0 font-bold transition flex items-center gap-1.5">
-                        <span>ابحث لي عن منح تناسب ملفي</span>
+                        <span>منح تناسب ملفي الأكاديمي</span>
                     </button>
                     <button type="button" onclick="sendQuickPrompt('منح ممولة بالكامل 100%')" class="px-3.5 py-2 rounded-xl sp-subcard hover:border-blue-500 text-slate-800 dark:text-slate-200 shrink-0 font-bold transition flex items-center gap-1.5">
                         <span>منح ممولة بالكامل 100%</span>
@@ -232,11 +235,8 @@
                     <button type="button" onclick="sendQuickPrompt('منح تقترب مواعيد إغلاقها')" class="px-3.5 py-2 rounded-xl sp-subcard hover:border-blue-500 text-slate-800 dark:text-slate-200 shrink-0 font-bold transition flex items-center gap-1.5">
                         <span>منح تقترب مواعيد إغلاقها</span>
                     </button>
-                    <button type="button" onclick="sendQuickPrompt('أفضل المنح لملفي الأكاديمي')" class="px-3.5 py-2 rounded-xl sp-subcard hover:border-blue-500 text-slate-800 dark:text-slate-200 shrink-0 font-bold transition flex items-center gap-1.5">
-                        <span>أفضل المنح لملفي الأكاديمي</span>
-                    </button>
-                    <button type="button" onclick="sendQuickPrompt('احسب لي نسبة قبولي التقديرية في المنح المتاحة')" class="px-3.5 py-2 rounded-xl sp-subcard hover:border-blue-500 text-slate-700 dark:text-slate-300 shrink-0 font-medium transition">
-                        <span>احسب نسبة قبولي التقديرية</span>
+                    <button type="button" onclick="sendQuickPrompt('كيف أصيغ خطاب الدافع لزيادة فرص قبولي؟')" class="px-3.5 py-2 rounded-xl sp-subcard hover:border-blue-500 text-slate-800 dark:text-slate-200 shrink-0 font-bold transition flex items-center gap-1.5">
+                        <span>كيف أصيغ خطاب الدافع؟</span>
                     </button>
                     <button type="button" onclick="sendQuickPrompt('ما هي المستندات والوثائق الأساسية المطلوبة للتقديم؟')" class="px-3.5 py-2 rounded-xl sp-subcard hover:border-blue-500 text-slate-700 dark:text-slate-300 shrink-0 font-medium transition">
                         <span>الوثائق المطلوبة للتقديم</span>
@@ -250,7 +250,7 @@
                     <form id="assistantChatForm" onsubmit="handleChatSubmit(event)" class="relative flex items-center gap-2">
                         <div class="relative flex-1">
                             <textarea id="assistantInput" rows="1" maxlength="600"
-                                placeholder="اكتب سؤالك الأكاديمي هنا... (مثال: ما هو موعد التقديم؟ هل تخصصي مطلوب؟)"
+                                placeholder="اكتب سؤالك هنا (مثال: ما هي شروط منحة DAAD؟)..."
                                 onkeydown="handleInputKeydown(event)"
                                 class="sp-input w-full resize-none py-3 pr-4 pl-12 text-xs sm:text-sm max-h-32 leading-relaxed"></textarea>
                         </div>

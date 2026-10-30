@@ -144,7 +144,7 @@
                             <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
                                 <i data-lucide="mail" class="w-4 h-4"></i>
                             </span>
-                            <input type="email" id="loginEmail" required maxlength="100" placeholder="name@example.com (بريدك المسجل)"
+                            <input type="email" id="loginEmail" required maxlength="100" placeholder="name@example.com"
                                 oninput="this.value = this.value.replace(/[^a-zA-Z0-9@._-]/g, '')"
                                 class="sp-input pr-9 font-latin">
                         </div>
@@ -156,57 +156,57 @@
                             <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
                                 <i data-lucide="lock" class="w-4 h-4"></i>
                             </span>
-                            <input type="password" id="loginPassword" required minlength="6" maxlength="128" placeholder="•••••••••••• (كلمة المرور المسجلة)"
+                            <input type="password" id="loginPassword" required minlength="6" maxlength="128" placeholder="••••••••"
                                 class="sp-input pr-9 font-latin">
                         </div>
                     </div>
 
                     <button type="submit" id="loginSubmitBtn" class="sp-btn-primary w-full py-3 text-xs sm:text-sm font-bold flex items-center justify-center gap-2">
-                        <i data-lucide="arrow-left" class="w-4 h-4"></i>
-                        <span>دخول إلى حسابي</span>
+                        <i data-lucide="log-in" class="w-4 h-4"></i>
+                        <span>تسجيل الدخول</span>
                     </button>
                 </form>
 
                 <!-- REGISTER FORM -->
                 <form id="regForm" class="hidden space-y-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">الاسم الكامل كما في الوثائق الرسمية</label>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">الاسم الكامل</label>
                         <div class="relative">
                             <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
                                 <i data-lucide="user" class="w-4 h-4"></i>
                             </span>
-                            <input type="text" id="regName" required minlength="2" maxlength="60" placeholder="أدخل اسمك الكامل كما في جواز السفر أو الشهادة"
+                            <input type="text" id="regName" required minlength="2" maxlength="60" placeholder="مثال: أحمد محمد"
                                 oninput="this.value = this.value.replace(/[^a-zA-Z\u0600-\u06FF\s.\-']/g, '')"
                                 class="sp-input pr-9">
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">البريد الإلكتروني الرسمي</label>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">البريد الإلكتروني</label>
                         <div class="relative">
                             <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
                                 <i data-lucide="mail" class="w-4 h-4"></i>
                             </span>
-                            <input type="email" id="regEmail" required maxlength="100" placeholder="name@example.com (البريد الأكاديمي أو الشخصي)"
+                            <input type="email" id="regEmail" required maxlength="100" placeholder="name@example.com"
                                 oninput="this.value = this.value.replace(/[^a-zA-Z0-9@._-]/g, '')"
                                 class="sp-input pr-9 font-latin">
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">كلمة المرور (6 أحرف فأكثر)</label>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">كلمة المرور</label>
                         <div class="relative">
                             <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
                                 <i data-lucide="lock" class="w-4 h-4"></i>
                             </span>
-                            <input type="password" id="regPassword" required minlength="6" maxlength="128" placeholder="•••••••••••• (كلمة مرور قوية)"
+                            <input type="password" id="regPassword" required minlength="6" maxlength="128" placeholder="••••••••"
                                 class="sp-input pr-9 font-latin">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المستوى العلمي (المرحلة الدراسية)</label>
+                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المرحلة الدراسية</label>
                             <div class="relative">
                                 <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
                                     <i data-lucide="graduation-cap" class="w-4 h-4"></i>
@@ -221,12 +221,12 @@
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المعدل الأكاديمي (أرقام فقط)</label>
+                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المعدل التراكمي</label>
                             <div class="relative">
                                 <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
                                     <i data-lucide="percent" class="w-4 h-4"></i>
                                 </span>
-                                <input type="text" id="regGpa" maxlength="15" placeholder="مثال: 92% أو 3.85 من 4.00"
+                                <input type="text" id="regGpa" maxlength="15" placeholder="مثال: 90% أو 3.8"
                                     onkeypress="return /[0-9.%/]/.test(event.key)"
                                     oninput="this.value = this.value.replace(/[^0-9.%/]/g, '')"
                                     class="sp-input pr-9 text-xs font-latin tabular-nums">
@@ -236,7 +236,7 @@
 
                     <button type="submit" class="sp-btn-primary w-full py-3 text-xs sm:text-sm font-bold flex items-center justify-center gap-2">
                         <i data-lucide="check" class="w-4 h-4"></i>
-                        <span>إنشاء الحساب وتفعيل المتابعة</span>
+                        <span>إنشاء حساب جديد</span>
                     </button>
                 </form>
 
@@ -1001,24 +1001,48 @@
         });
     </script>
 
-    <!-- ==================== FLOATING AI ASSISTANT BUTTON ==================== -->
-    <aside class="fixed bottom-6 right-6 z-50 group flex items-center gap-3">
-        <!-- Modern Floating Tooltip -->
-        <div class="pointer-events-none opacity-0 group-hover:opacity-100 translate-x-3 group-hover:translate-x-0 transition-all duration-300 shadow-xl rounded-xl px-3.5 py-2 bg-slate-900/95 dark:bg-slate-800/95 text-white border border-slate-700/60 backdrop-blur-md hidden sm:flex flex-col text-right">
-            <span class="text-xs font-bold flex items-center gap-1.5 text-blue-400">
-                <i data-lucide="sparkles" class="w-3.5 h-3.5 text-cyan-400"></i>
-                <span>Ask ScholarPilot AI</span>
-            </span>
-            <span class="text-[10px] text-slate-300">مستشارك الأكاديمي الذكي المتاح 24/7</span>
+    <!-- ==================== FLOATING QUICK ACTIONS (TELEGRAM + AI ASSISTANT) ==================== -->
+    <aside class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3 pointer-events-none">
+        
+        <!-- Floating Telegram Button (Above AI Assistant) -->
+        <div class="pointer-events-auto group relative flex items-center gap-2.5">
+            <!-- Tooltip -->
+            <div class="pointer-events-none opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-300 shadow-xl rounded-xl px-3 py-1.5 bg-slate-900/95 dark:bg-slate-800/95 text-white border border-slate-700/60 backdrop-blur-md hidden sm:flex items-center gap-1.5 text-xs font-bold whitespace-nowrap">
+                <span>قناة المنح الدراسية</span>
+                <i data-lucide="arrow-up-right" class="w-3.5 h-3.5 text-sky-400"></i>
+            </div>
+            
+            <!-- Telegram Button Link -->
+            <a href="https://t.me/ScholarPilot" target="_blank" rel="noopener noreferrer" aria-label="قناة المنح الدراسية"
+               class="relative w-12 h-12 rounded-2xl bg-[#0088cc] hover:bg-[#0077b5] text-white flex items-center justify-center shadow-lg shadow-sky-500/30 hover:shadow-sky-500/50 hover:scale-105 active:scale-95 transition-all duration-300 border border-white/20 cursor-pointer">
+                <!-- Subtle Pulse Animation -->
+                <span class="absolute inset-0 rounded-2xl bg-sky-400/40 animate-ping opacity-35 pointer-events-none"></span>
+                <!-- Official Telegram Paper Plane SVG -->
+                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.52 2.77-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+                </svg>
+            </a>
         </div>
 
-        <!-- Floating Button -->
-        <a href="/assistant" aria-label="Ask ScholarPilot AI"
-           class="relative w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-500 text-white flex items-center justify-center shadow-lg shadow-blue-500/30 hover:shadow-cyan-500/50 hover:scale-105 active:scale-95 transition-all duration-300 border border-white/20 group">
-            <span class="absolute inset-0 rounded-2xl bg-blue-500/40 animate-ping opacity-40 pointer-events-none"></span>
-            <i data-lucide="sparkles" class="w-6 h-6 text-white group-hover:rotate-12 transition-transform duration-300"></i>
-            <span class="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-slate-900"></span>
-        </a>
+        <!-- Floating AI Assistant Button -->
+        <div class="pointer-events-auto group relative flex items-center gap-3">
+            <!-- Modern Floating Tooltip -->
+            <div class="pointer-events-none opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-300 shadow-xl rounded-xl px-3.5 py-2 bg-slate-900/95 dark:bg-slate-800/95 text-white border border-slate-700/60 backdrop-blur-md hidden sm:flex flex-col text-right">
+                <span class="text-xs font-bold flex items-center gap-1.5 text-blue-400">
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5 text-cyan-400"></i>
+                    <span>المستشار الذكي</span>
+                </span>
+                <span class="text-[10px] text-slate-300">مساعدك للتقديم والقبول 24/7</span>
+            </div>
+
+            <!-- Floating Button -->
+            <a href="/assistant" aria-label="Ask ScholarPilot AI"
+               class="relative w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-500 text-white flex items-center justify-center shadow-lg shadow-blue-500/30 hover:shadow-cyan-500/50 hover:scale-105 active:scale-95 transition-all duration-300 border border-white/20 group">
+                <span class="absolute inset-0 rounded-2xl bg-blue-500/40 animate-ping opacity-40 pointer-events-none"></span>
+                <i data-lucide="sparkles" class="w-6 h-6 text-white group-hover:rotate-12 transition-transform duration-300"></i>
+                <span class="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-slate-900"></span>
+            </a>
+        </div>
     </aside>
 </body>
 </html>
