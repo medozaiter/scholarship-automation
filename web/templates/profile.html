@@ -75,6 +75,10 @@
                     <i data-lucide="home" class="w-3.5 h-3.5 text-blue-500"></i>
                     <span class="hidden sm:inline">الرئيسية</span>
                 </a>
+                <a href="/community" class="sp-btn-secondary px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:text-blue-500 flex items-center gap-1.5">
+                    <i data-lucide="users" class="w-3.5 h-3.5 text-blue-500"></i>
+                    <span class="hidden sm:inline">المجتمع الأكاديمي</span>
+                </a>
                 <a href="/dashboard" class="sp-btn-secondary px-3 py-2 text-xs font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1.5">
                     <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-blue-500"></i>
                     <span>بوابة الطالب</span>
@@ -152,6 +156,10 @@
 
                         <!-- Header Action Buttons -->
                         <div class="flex flex-wrap items-center gap-2.5">
+                            <button type="button" id="profileFollowBtn" onclick="toggleProfileFollow()" class="hidden px-4 py-2 rounded-xl text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 transition flex items-center gap-2 shadow-md shadow-blue-600/20">
+                                <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+                                <span id="profileFollowBtnText">متابعة الطالب</span>
+                            </button>
                             <button type="button" onclick="shareProfile()" class="sp-btn-secondary px-4 py-2 text-xs font-bold flex items-center gap-2">
                                 <i data-lucide="share-2" class="w-3.5 h-3.5 text-blue-500"></i>
                                 <span>مشاركة الملف</span>
@@ -204,6 +212,18 @@
 
                     </div>
 
+                    
+                        <!-- Network Counters -->
+                        <div class="flex items-center gap-3 pt-1 text-xs">
+                            <span class="text-slate-600 dark:text-slate-400">
+                                <strong id="profileFollowersCount" class="font-bold text-slate-900 dark:text-white font-mono">0</strong> متابع
+                            </span>
+                            <span class="text-slate-400">•</span>
+                            <span class="text-slate-600 dark:text-slate-400">
+                                <strong id="profileFollowingCount" class="font-bold text-slate-900 dark:text-white font-mono">0</strong> يتابعهم
+                            </span>
+                        </div>
+
                     <!-- Professional Social Networks Bar -->
                     <div id="socialLinksBar" class="flex flex-wrap items-center gap-2 pt-5 border-t border-slate-200/80 dark:border-slate-800/80 mt-5">
                         <!-- Dynamic Social Badges appended here via JS -->
@@ -227,6 +247,24 @@
                         <p id="profileBioText" class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line">
                             لم تتم إضافة نبذة بعد.
                         </p>
+                    </div>
+
+                    
+                    <!-- Community Posts & Contributions Section -->
+                    <div class="sp-card p-6 sm:p-7 space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+                            <div class="flex items-center gap-2 text-slate-900 dark:text-white font-bold text-base">
+                                <i data-lucide="messages-square" class="w-4 h-4 text-blue-500"></i>
+                                <span>المساهمات والمنشورات في المجتمع الأكاديمي</span>
+                            </div>
+                            <a href="/community" class="text-xs text-blue-600 dark:text-blue-400 font-bold hover:underline flex items-center gap-1">
+                                <span>انتقل للمجتمع</span>
+                                <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+                            </a>
+                        </div>
+                        <div id="profileCommunityPosts" class="space-y-3">
+                            <p class="text-xs text-slate-400">جاري تحميل مساهمات الطالب...</p>
+                        </div>
                     </div>
 
                     <!-- Academic Roadmap & Credentials Card -->
@@ -357,6 +395,30 @@
                     ? '<i data-lucide="sun" class="w-4 h-4 text-amber-400"></i>' 
                     : '<i data-lucide="moon" class="w-4 h-4 text-slate-600"></i>';
             }
+                        // Network stats
+            if (p.network) {
+                const fCnt = document.getElementById('profileFollowersCount');
+                const fgCnt = document.getElementById('profileFollowingCount');
+                if (fCnt) fCnt.textContent = p.network.followers_count || 0;
+                if (fgCnt) fgCnt.textContent = p.network.following_count || 0;
+
+                const followBtn = document.getElementById('profileFollowBtn');
+                const followTxt = document.getElementById('profileFollowBtnText');
+                if (followBtn && (!currentUser || currentUser.username !== p.username)) {
+                    followBtn.classList.remove('hidden');
+                    if (p.network.is_following) {
+                        followTxt.textContent = 'أتابعه';
+                        followBtn.className = 'px-4 py-2 rounded-xl text-xs font-bold bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 transition flex items-center gap-2';
+                    } else {
+                        followTxt.textContent = 'متابعة الطالب';
+                        followBtn.className = 'px-4 py-2 rounded-xl text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 transition flex items-center gap-2 shadow-md shadow-blue-600/20';
+                    }
+                }
+            }
+
+            // Render Community Posts
+            renderCommunityPosts(p.community_posts || []);
+
             if (window.lucide) lucide.createIcons();
         }
         updateThemeButton();
@@ -462,7 +524,63 @@
             }
         }
 
+        
+        let currentProfileData = null;
+
+        async function toggleProfileFollow() {
+            if (!currentProfileData || !currentProfileData.username) return;
+            const btn = document.getElementById('profileFollowBtn');
+            const txt = document.getElementById('profileFollowBtnText');
+            try {
+                const res = await fetch(`/api/community/users/${encodeURIComponent(currentProfileData.username)}/follow`, {method: 'POST'});
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.success) {
+                        if (data.is_following) {
+                            txt.textContent = 'أتابعه';
+                            btn.className = 'px-4 py-2 rounded-xl text-xs font-bold bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 transition flex items-center gap-2';
+                            showToast(`بدأت بمتابعة نشاط @${currentProfileData.username}`, 'success');
+                        } else {
+                            txt.textContent = 'متابعة الطالب';
+                            btn.className = 'px-4 py-2 rounded-xl text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 transition flex items-center gap-2 shadow-md shadow-blue-600/20';
+                            showToast(`ألغيت متابعة @${currentProfileData.username}`, 'info');
+                        }
+                        const fCnt = document.getElementById('profileFollowersCount');
+                        if (fCnt && data.followers_count !== undefined) fCnt.textContent = data.followers_count;
+                    }
+                }
+            } catch(e) {}
+        }
+
+        function renderCommunityPosts(posts) {
+            const container = document.getElementById('profileCommunityPosts');
+            if (!container) return;
+            if (!posts || posts.length === 0) {
+                container.innerHTML = '<p class="text-xs text-slate-400 py-3">لم يقم الطالب بنشر أي مساهمة في المجتمع بعد.</p>';
+                return;
+            }
+            container.innerHTML = posts.map(p => `
+                <div class="p-3.5 rounded-xl sp-subcard space-y-1.5 border border-slate-100 dark:border-slate-800/80">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="sp-badge sp-badge-info text-[10px]">${p.category_name || 'نقاش عام'}</span>
+                        <span class="text-[10px] text-slate-400 font-mono">${p.created_at ? p.created_at.slice(0, 10) : ''}</span>
+                    </div>
+                    ${p.title ? `<h4 class="font-bold text-slate-900 dark:text-white text-xs">${p.title}</h4>` : ''}
+                    <p class="text-xs text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed">${p.content}</p>
+                    <div class="flex items-center justify-between pt-1 text-[11px] text-slate-400">
+                        <span class="flex items-center gap-1 text-rose-500 font-bold font-mono">
+                            <i data-lucide="heart" class="w-3.5 h-3.5 fill-current"></i>
+                            <span>${p.likes_count || 0}</span>
+                        </span>
+                        <a href="/community#post_${p.id}" class="text-blue-500 hover:underline font-bold">عرض في المجتمع ←</a>
+                    </div>
+                </div>
+            `).join('');
+            if (window.lucide) lucide.createIcons();
+        }
+
         function renderPublicProfile(p) {
+            currentProfileData = p;
             document.getElementById('profileView').classList.remove('hidden');
 
             document.getElementById('profileFullName').textContent = p.full_name || 'طالب';

@@ -40,6 +40,7 @@ DASHBOARD_HTML_PATH = os.path.join(TEMPLATES_DIR, "dashboard.html")
 ASSISTANT_HTML_PATH = os.path.join(TEMPLATES_DIR, "assistant.html")
 NOTIFICATIONS_HTML_PATH = os.path.join(TEMPLATES_DIR, "notifications.html")
 PROFILE_HTML_PATH = os.path.join(TEMPLATES_DIR, "profile.html")
+COMMUNITY_HTML_PATH = os.path.join(TEMPLATES_DIR, "community.html")
 CSS_PATH = os.path.join(os.path.dirname(__file__), "static", "css", "scholarpilot.css")
 
 app = FastAPI(
@@ -140,6 +141,19 @@ sub_service = SubscriberService()
 engine = ScholarshipEngine()
 advisor_service = AdvisorService()
 auth_service = AuthService()
+
+def get_authenticated_user(request: Request) -> Optional[Dict[str, Any]]:
+    """Extracts bearer token or session cookie and authenticates student."""
+    token = None
+    auth_header = request.headers.get("Authorization")
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header.split(" ")[1].strip()
+    if not token:
+        token = request.cookies.get("session_token") or request.cookies.get("minha_token")
+    if token:
+        return auth_service.authenticate_token(token)
+    return None
+
 automation_service = AutomationService()
 
 @app.on_event("startup")
@@ -500,6 +514,35 @@ class SaveScholarshipRequest(BaseModel):
         return validate_email(v)
 
 
+
+
+class CreateCommunityPostRequest(BaseModel):
+    title: Optional[str] = ""
+    content: str
+    category: Optional[str] = "general_discussion"
+    post_type: Optional[str] = "text"
+    media_urls: Optional[List[str]] = []
+    video_url: Optional[str] = ""
+    link_url: Optional[str] = ""
+    link_meta: Optional[Dict[str, Any]] = {}
+    scholarship_id: Optional[str] = None
+    scholarship_name: Optional[str] = None
+    is_success_story: Optional[bool] = False
+    success_details: Optional[Dict[str, Any]] = {}
+
+class AddCommunityCommentRequest(BaseModel):
+    content: str
+    parent_id: Optional[str] = None
+
+class EditCommunityCommentRequest(BaseModel):
+    content: str
+
+class ReportContentRequest(BaseModel):
+    target_type: str
+    target_id: str
+    reason: str
+    details: Optional[str] = ""
+
 class CommunityStorySubmit(BaseModel):
     author_name: str
     author_email: Optional[str] = None
@@ -722,6 +765,15 @@ async def serve_dashboard():
             return HTMLResponse(content=f.read())
     return HTMLResponse(content="<h1>لوحة التحكم</h1>")
 
+
+
+@app.get("/community", response_class=HTMLResponse)
+async def serve_community_page():
+    """Serves the dedicated Academic Community Hub."""
+    if os.path.exists(COMMUNITY_HTML_PATH):
+        with open(COMMUNITY_HTML_PATH, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    return HTMLResponse(content="<h1>المجتمع الأكاديمي - ScholarPilot Academic Community Hub</h1>")
 
 @app.get("/assistant", response_class=HTMLResponse)
 async def serve_assistant_page():
@@ -963,20 +1015,24 @@ async def delete_account_endpoint(req: DeleteAccountRequest, request: Request, r
 
 
 @app.get("/api/profile/{username}")
-async def get_public_profile_api(username: str):
-    """Public API endpoint returning student academic profile respecting privacy."""
+async def get_public_profile_api(username: str, request: Request):
+    """Public API endpoint returning student academic profile, network stats, and community posts."""
     try:
         profile = auth_service.get_public_profile(username)
         if not profile:
-            raise HTTPException(status_code=404, detail="الملف الأكاديمي غير موجود.")
+            raise HTTPException(status_code=404, detail="الملف الشخصي غير موجود.")
+        
+        caller = get_authenticated_user(request)
+        caller_email = caller.get("email") if caller else None
+        profile["network"] = community_service.get_user_network_stats(username, current_user_email=caller_email)
+        user_posts = community_service.list_posts(author_username=username, user_email=caller_email, limit=50)
+        profile["community_posts"] = user_posts.get("posts", [])
         return {"success": True, "profile": profile}
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Public profile error: {e}")
-        raise HTTPException(status_code=500, detail="تعذر تحميل الملف الأكاديمي.")
-
-
+        raise HTTPException(status_code=500, detail="تعذر استرجاع الملف الشخصي.")
 @app.post("/api/subscribe")
 async def subscribe_student(req: SubscriptionRequest, background_tasks: BackgroundTasks):
     """Registers a student with comprehensive profile for recurring weekly scholarship email reports."""
@@ -1594,6 +1650,265 @@ async def preview_scholarships(
 # =====================================================================
 # COMMUNITY & ACCEPTANCE EXPERIENCES API
 # =====================================================================
+
+
+
+# =====================================================================
+# ACADEMIC COMMUNITY HUB REST API
+# =====================================================================
+
+@app.get("/api/community/posts")
+async def list_community_posts_endpoint(
+    request: Request,
+    category: Optional[str] = None,
+    sort_by: str = "latest",
+    search: Optional[str] = None,
+    country: Optional[str] = None,
+    university: Optional[str] = None,
+    major: Optional[str] = None,
+    author_username: Optional[str] = None,
+    only_success: bool = False,
+    page: int = 1,
+    limit: int = 20
+):
+    """Retrieves filtered, sorted community posts with caller context."""
+    caller = get_authenticated_user(request)
+    caller_email = caller.get("email") if caller else None
+    res = community_service.list_posts(
+        category=category,
+        sort_by=sort_by,
+        search=search,
+        country=country,
+        university=university,
+        major=major,
+        author_username=author_username,
+        only_success=only_success,
+        user_email=caller_email,
+        page=page,
+        limit=limit
+    )
+    return {"success": True, **res}
+
+
+@app.post("/api/community/posts")
+async def create_community_post_endpoint(req: CreateCommunityPostRequest, request: Request):
+    """Creates a new academic post by an authenticated student."""
+    user = get_authenticated_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="يرجى تسجيل الدخول لنشر منشور في المجتمع الأكاديمي.")
+    try:
+        post = community_service.create_post(user, req.dict())
+        return {"success": True, "message": "تم نشر مساهمتك الأكاديمية بنجاح.", "post": post}
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        logger.error(f"Post creation error: {e}")
+        raise HTTPException(status_code=500, detail="تعذر نشر المنشور حالياً.")
+
+
+@app.get("/api/community/posts/{post_id}")
+async def get_community_post_endpoint(post_id: str, request: Request):
+    """Retrieves full post details with nested comments tree."""
+    caller = get_authenticated_user(request)
+    caller_email = caller.get("email") if caller else None
+    post = community_service.get_post_details(post_id, user_email=caller_email)
+    if not post:
+        raise HTTPException(status_code=404, detail="المنشور الأكاديمي غير موجود أو تم حذفه.")
+    return {"success": True, "post": post}
+
+
+@app.delete("/api/community/posts/{post_id}")
+async def delete_community_post_endpoint(post_id: str, request: Request):
+    """Deletes an academic post if owned by user or admin."""
+    user = get_authenticated_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="يرجى تسجيل الدخول للمتابعة.")
+    try:
+        is_admin = user.get("role") == "admin"
+        deleted = community_service.delete_post(post_id, user_email=user["email"], is_admin=is_admin)
+        if not deleted:
+            raise HTTPException(status_code=404, detail="المنشور غير موجود.")
+        return {"success": True, "message": "تم حذف المنشور بنجاح."}
+    except PermissionError as pe:
+        raise HTTPException(status_code=403, detail=str(pe))
+    except Exception as e:
+        logger.error(f"Delete post error: {e}")
+        raise HTTPException(status_code=500, detail="تعذر حذف المنشور.")
+
+
+@app.post("/api/community/posts/{post_id}/like")
+async def toggle_like_post_endpoint(post_id: str, request: Request):
+    """Toggles like state on a post."""
+    user = get_authenticated_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="يرجى تسجيل الدخول للتفاعل مع المنشور.")
+    try:
+        res = community_service.toggle_like_post(post_id, user["email"])
+        return res
+    except ValueError as ve:
+        raise HTTPException(status_code=404, detail=str(ve))
+    except Exception as e:
+        logger.error(f"Like toggle error: {e}")
+        raise HTTPException(status_code=500, detail="تعذر تسجيل التفاعل.")
+
+
+@app.post("/api/community/posts/{post_id}/save")
+async def toggle_save_post_endpoint(post_id: str, request: Request):
+    """Toggles bookmarking a post."""
+    user = get_authenticated_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="يرجى تسجيل الدخول لحفظ المنشور.")
+    try:
+        res = community_service.toggle_save_post(post_id, user["email"])
+        return res
+    except ValueError as ve:
+        raise HTTPException(status_code=404, detail=str(ve))
+    except Exception as e:
+        logger.error(f"Save toggle error: {e}")
+        raise HTTPException(status_code=500, detail="تعذر حفظ المنشور.")
+
+
+@app.post("/api/community/posts/{post_id}/share")
+async def share_post_endpoint(post_id: str):
+    """Increments shares counter for a post."""
+    try:
+        res = community_service.record_share_post(post_id)
+        return res
+    except ValueError as ve:
+        raise HTTPException(status_code=404, detail=str(ve))
+
+
+@app.get("/api/community/posts/{post_id}/comments")
+async def get_post_comments_endpoint(post_id: str, request: Request):
+    """Retrieves full nested comments thread for a post."""
+    caller = get_authenticated_user(request)
+    caller_email = caller.get("email") if caller else None
+    tree = community_service.get_comments_tree(post_id, user_email=caller_email)
+    return {"success": True, "count": len(tree), "comments": tree}
+
+
+@app.post("/api/community/posts/{post_id}/comments")
+async def add_post_comment_endpoint(post_id: str, req: AddCommunityCommentRequest, request: Request):
+    """Adds a new comment or nested reply."""
+    user = get_authenticated_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="يرجى تسجيل الدخول لإضافة تعليق.")
+    try:
+        comment = community_service.add_comment(
+            post_id=post_id,
+            author_user=user,
+            content=req.content,
+            parent_id=req.parent_id
+        )
+        return {"success": True, "message": "تم إضافة تعليقك الأكاديمي بنجاح.", "comment": comment}
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        logger.error(f"Add comment error: {e}")
+        raise HTTPException(status_code=500, detail="تعذر إضافة التعليق.")
+
+
+@app.put("/api/community/comments/{comment_id}")
+async def edit_comment_endpoint(comment_id: str, req: EditCommunityCommentRequest, request: Request):
+    """Edits a comment by its author."""
+    user = get_authenticated_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="يرجى تسجيل الدخول للمتابعة.")
+    try:
+        updated = community_service.edit_comment(comment_id, user_email=user["email"], new_content=req.content)
+        return {"success": True, "message": "تم تعديل التعليق بنجاح.", "comment": updated}
+    except (ValueError, PermissionError) as err:
+        raise HTTPException(status_code=400, detail=str(err))
+
+
+@app.delete("/api/community/comments/{comment_id}")
+async def delete_comment_endpoint(comment_id: str, request: Request):
+    """Deletes a comment and its nested replies."""
+    user = get_authenticated_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="يرجى تسجيل الدخول للمتابعة.")
+    try:
+        is_admin = user.get("role") == "admin"
+        deleted = community_service.delete_comment(comment_id, user_email=user["email"], is_admin=is_admin)
+        if not deleted:
+            raise HTTPException(status_code=404, detail="التعليق غير موجود.")
+        return {"success": True, "message": "تم حذف التعليق بنجاح."}
+    except PermissionError as pe:
+        raise HTTPException(status_code=403, detail=str(pe))
+
+
+@app.post("/api/community/users/{username}/follow")
+async def toggle_follow_user_endpoint(username: str, request: Request):
+    """Toggles following an academic peer."""
+    user = get_authenticated_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="يرجى تسجيل الدخول لمتابعة الباحثين والطلاب.")
+    try:
+        res = community_service.toggle_follow(user["email"], username)
+        return res
+    except ValueError as ve:
+        raise HTTPException(status_code=404, detail=str(ve))
+
+
+@app.get("/api/community/users/{username}/network")
+async def get_user_network_endpoint(username: str, request: Request):
+    """Retrieves followers / following counts and connection status."""
+    caller = get_authenticated_user(request)
+    caller_email = caller.get("email") if caller else None
+    res = community_service.get_user_network_stats(username, current_user_email=caller_email)
+    return {"success": True, **res}
+
+
+@app.post("/api/community/report")
+async def report_community_item_endpoint(req: ReportContentRequest, request: Request):
+    """Files a moderation report on suspicious or violating content."""
+    user = get_authenticated_user(request)
+    reporter_email = user.get("email") if user else "anonymous_reporter@scholarpilot.ai"
+    try:
+        report = community_service.report_content(
+            reporter_email=reporter_email,
+            target_type=req.target_type,
+            target_id=req.target_id,
+            reason=req.reason,
+            details=req.details or ""
+        )
+        return {"success": True, "message": "تم استلام البلاغ وسيتم مراجعته من قبل المشرفين الأكاديميين.", "report_id": report.get("id")}
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+
+
+@app.get("/api/community/stats")
+async def get_community_stats_endpoint():
+    """Returns high-level platform community metrics."""
+    return {"success": True, "stats": community_service.get_community_stats()}
+
+
+@app.get("/api/community/success-stories")
+async def get_featured_success_stories_endpoint():
+    """Returns top featured scholarship acceptance journeys."""
+    stories = community_service.get_featured_success_stories(limit=6)
+    return {"success": True, "stories": stories}
+
+
+@app.get("/api/community/notifications")
+async def get_community_notifications_endpoint(request: Request):
+    """Returns user's in-app community notifications."""
+    user = get_authenticated_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="يرجى تسجيل الدخول لعرض التنبيهات.")
+    notifs = community_service.get_notifications(user["email"], limit=30)
+    unread_cnt = sum(1 for n in notifs if not n.get("is_read", False))
+    return {"success": True, "notifications": notifs, "unread_count": unread_cnt}
+
+
+@app.post("/api/community/notifications/mark-read")
+async def mark_community_notifications_read_endpoint(request: Request):
+    """Marks user community notifications as read."""
+    user = get_authenticated_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="يرجى تسجيل الدخول.")
+    community_service.mark_notifications_read(user["email"])
+    return {"success": True, "message": "تم تحديث التنبيهات كمقروءة."}
 
 @app.get("/api/community/stories")
 async def get_community_stories_endpoint(

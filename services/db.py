@@ -26,6 +26,11 @@ SCHOLARSHIPS_JSON = os.path.join(DATA_DIR, "live_scholarships.json")
 IN_APP_NOTIFICATIONS_JSON = os.path.join(DATA_DIR, "in_app_notifications.json")
 NOTIFICATION_EVENTS_JSON = os.path.join(DATA_DIR, "notification_events.json")
 COMMUNITY_STORIES_JSON = os.path.join(DATA_DIR, "community_stories.json")
+COMMUNITY_POSTS_JSON = os.path.join(DATA_DIR, "community_posts.json")
+COMMUNITY_COMMENTS_JSON = os.path.join(DATA_DIR, "community_comments.json")
+COMMUNITY_FOLLOWS_JSON = os.path.join(DATA_DIR, "community_follows.json")
+COMMUNITY_REPORTS_JSON = os.path.join(DATA_DIR, "community_reports.json")
+COMMUNITY_NOTIFICATIONS_JSON = os.path.join(DATA_DIR, "community_notifications.json")
 
 # Try importing SQLAlchemy
 HAS_SQLALCHEMY = False
@@ -39,6 +44,11 @@ NotificationHistoryDB = None
 InAppNotificationDB = None
 NotificationEventDB = None
 CommunityStoryDB = None
+CommunityPostDB = None
+CommunityCommentDB = None
+CommunityFollowDB = None
+CommunityReportDB = None
+CommunityNotificationDB = None
 
 try:
     from sqlalchemy import (
@@ -368,6 +378,184 @@ try:
                 "upvotes": self.upvotes or 0,
                 "created_at": self.created_at,
                 "tags": self.tags or []
+            }
+
+    class CommunityPostDB(Base):
+        __tablename__ = "community_posts"
+
+        id = Column(String(100), primary_key=True)
+        author_id = Column(String(150), index=True, nullable=False)
+        author_name = Column(String(150), nullable=False)
+        author_username = Column(String(100), index=True, nullable=False)
+        author_avatar = Column(Text, default="")
+        author_university = Column(String(255), default="")
+        author_degree = Column(String(100), default="")
+        category = Column(String(80), index=True, default="general_discussion")
+        title = Column(String(300), default="")
+        content = Column(Text, nullable=False)
+        post_type = Column(String(50), default="text")
+        media_urls = Column(JSON, default=list)
+        video_url = Column(Text, default="")
+        link_url = Column(Text, default="")
+        link_meta = Column(JSON, default=dict)
+        scholarship_id = Column(String(100), index=True, nullable=True)
+        scholarship_name = Column(String(255), nullable=True)
+        country = Column(String(100), default="")
+        university = Column(String(255), default="")
+        major = Column(String(150), default="")
+        likes_count = Column(Integer, default=0)
+        liked_by = Column(JSON, default=list)
+        saved_by = Column(JSON, default=list)
+        shares_count = Column(Integer, default=0)
+        comments_count = Column(Integer, default=0)
+        is_success_story = Column(Boolean, default=False)
+        success_details = Column(JSON, default=dict)
+        is_pinned = Column(Boolean, default=False)
+        is_hidden = Column(Boolean, default=False)
+        created_at = Column(String(50), default=lambda: datetime.now().isoformat())
+        updated_at = Column(String(50), default=lambda: datetime.now().isoformat())
+
+        def to_dict(self) -> Dict[str, Any]:
+            return {
+                "id": self.id,
+                "author_id": self.author_id,
+                "author_name": self.author_name,
+                "author_username": self.author_username,
+                "author_avatar": self.author_avatar or "",
+                "author_university": self.author_university or "",
+                "author_degree": self.author_degree or "",
+                "category": self.category or "general_discussion",
+                "title": self.title or "",
+                "content": self.content or "",
+                "post_type": self.post_type or "text",
+                "media_urls": self.media_urls or [],
+                "video_url": self.video_url or "",
+                "link_url": self.link_url or "",
+                "link_meta": self.link_meta or {},
+                "scholarship_id": self.scholarship_id,
+                "scholarship_name": self.scholarship_name,
+                "country": self.country or "",
+                "university": self.university or "",
+                "major": self.major or "",
+                "likes_count": self.likes_count or 0,
+                "liked_by": self.liked_by or [],
+                "saved_by": self.saved_by or [],
+                "shares_count": self.shares_count or 0,
+                "comments_count": self.comments_count or 0,
+                "is_success_story": bool(self.is_success_story),
+                "success_details": self.success_details or {},
+                "is_pinned": bool(self.is_pinned),
+                "is_hidden": bool(self.is_hidden),
+                "created_at": self.created_at,
+                "updated_at": self.updated_at
+            }
+
+    class CommunityCommentDB(Base):
+        __tablename__ = "community_comments"
+
+        id = Column(String(100), primary_key=True)
+        post_id = Column(String(100), index=True, nullable=False)
+        parent_id = Column(String(100), index=True, nullable=True)
+        author_id = Column(String(150), index=True, nullable=False)
+        author_name = Column(String(150), nullable=False)
+        author_username = Column(String(100), nullable=False)
+        author_avatar = Column(Text, default="")
+        author_university = Column(String(255), default="")
+        content = Column(Text, nullable=False)
+        likes_count = Column(Integer, default=0)
+        liked_by = Column(JSON, default=list)
+        is_edited = Column(Boolean, default=False)
+        is_hidden = Column(Boolean, default=False)
+        created_at = Column(String(50), default=lambda: datetime.now().isoformat())
+        updated_at = Column(String(50), default=lambda: datetime.now().isoformat())
+
+        def to_dict(self) -> Dict[str, Any]:
+            return {
+                "id": self.id,
+                "post_id": self.post_id,
+                "parent_id": self.parent_id,
+                "author_id": self.author_id,
+                "author_name": self.author_name,
+                "author_username": self.author_username,
+                "author_avatar": self.author_avatar or "",
+                "author_university": self.author_university or "",
+                "content": self.content or "",
+                "likes_count": self.likes_count or 0,
+                "liked_by": self.liked_by or [],
+                "is_edited": bool(self.is_edited),
+                "is_hidden": bool(self.is_hidden),
+                "created_at": self.created_at,
+                "updated_at": self.updated_at
+            }
+
+    class CommunityFollowDB(Base):
+        __tablename__ = "community_follows"
+
+        id = Column(String(100), primary_key=True)
+        follower_email = Column(String(150), index=True, nullable=False)
+        following_email = Column(String(150), index=True, nullable=False)
+        following_username = Column(String(100), index=True, nullable=False)
+        created_at = Column(String(50), default=lambda: datetime.now().isoformat())
+
+        def to_dict(self) -> Dict[str, Any]:
+            return {
+                "id": self.id,
+                "follower_email": self.follower_email,
+                "following_email": self.following_email,
+                "following_username": self.following_username,
+                "created_at": self.created_at
+            }
+
+    class CommunityReportDB(Base):
+        __tablename__ = "community_reports"
+
+        id = Column(String(100), primary_key=True)
+        reporter_email = Column(String(150), index=True, nullable=False)
+        target_type = Column(String(50), nullable=False)
+        target_id = Column(String(100), index=True, nullable=False)
+        reason = Column(String(150), nullable=False)
+        details = Column(Text, default="")
+        status = Column(String(50), default="pending")
+        created_at = Column(String(50), default=lambda: datetime.now().isoformat())
+
+        def to_dict(self) -> Dict[str, Any]:
+            return {
+                "id": self.id,
+                "reporter_email": self.reporter_email,
+                "target_type": self.target_type,
+                "target_id": self.target_id,
+                "reason": self.reason,
+                "details": self.details or "",
+                "status": self.status,
+                "created_at": self.created_at
+            }
+
+    class CommunityNotificationDB(Base):
+        __tablename__ = "community_notifications"
+
+        id = Column(String(100), primary_key=True)
+        recipient_email = Column(String(150), index=True, nullable=False)
+        actor_name = Column(String(150), default="")
+        actor_username = Column(String(100), default="")
+        actor_avatar = Column(Text, default="")
+        action_type = Column(String(50), nullable=False)
+        target_id = Column(String(100), default="")
+        message = Column(Text, nullable=False)
+        is_read = Column(Boolean, default=False)
+        created_at = Column(String(50), default=lambda: datetime.now().isoformat())
+
+        def to_dict(self) -> Dict[str, Any]:
+            return {
+                "id": self.id,
+                "recipient_email": self.recipient_email,
+                "actor_name": self.actor_name or "",
+                "actor_username": self.actor_username or "",
+                "actor_avatar": self.actor_avatar or "",
+                "action_type": self.action_type,
+                "target_id": self.target_id or "",
+                "message": self.message,
+                "is_read": bool(self.is_read),
+                "created_at": self.created_at
             }
 
     # Connect to PostgreSQL (Neon) or fallback to SQLite
@@ -1753,3 +1941,746 @@ def get_scholarship_telegram_post_id(scholarship_id: str) -> Optional[str]:
 
     return None
 
+
+
+# =====================================================================
+# ACADEMIC COMMUNITY HUB DATA PERSISTENCE & INTERACTIONS
+# =====================================================================
+
+def save_community_post(post_data: Dict[str, Any]) -> Dict[str, Any]:
+    """Persists a new or updated community post across Database and JSON stores."""
+    import uuid
+    post_id = post_data.get("id") or f"post_{uuid.uuid4().hex[:12]}"
+    post_data["id"] = post_id
+    now_iso = datetime.now().isoformat()
+    if "created_at" not in post_data:
+        post_data["created_at"] = now_iso
+    post_data["updated_at"] = now_iso
+
+    if "likes_count" not in post_data:
+        post_data["likes_count"] = 0
+    if "liked_by" not in post_data:
+        post_data["liked_by"] = []
+    if "saved_by" not in post_data:
+        post_data["saved_by"] = []
+    if "shares_count" not in post_data:
+        post_data["shares_count"] = 0
+    if "comments_count" not in post_data:
+        post_data["comments_count"] = 0
+    if "is_hidden" not in post_data:
+        post_data["is_hidden"] = False
+    if "is_pinned" not in post_data:
+        post_data["is_pinned"] = False
+
+    # 1. Persist in SQL DB if available
+    if is_db_available() and CommunityPostDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    db_obj = db.query(CommunityPostDB).filter(CommunityPostDB.id == post_id).first()
+                    if db_obj:
+                        db_obj.title = post_data.get("title", db_obj.title)
+                        db_obj.content = post_data.get("content", db_obj.content)
+                        db_obj.category = post_data.get("category", db_obj.category)
+                        db_obj.post_type = post_data.get("post_type", db_obj.post_type)
+                        db_obj.media_urls = post_data.get("media_urls", db_obj.media_urls)
+                        db_obj.video_url = post_data.get("video_url", db_obj.video_url)
+                        db_obj.link_url = post_data.get("link_url", db_obj.link_url)
+                        db_obj.link_meta = post_data.get("link_meta", db_obj.link_meta)
+                        db_obj.scholarship_id = post_data.get("scholarship_id", db_obj.scholarship_id)
+                        db_obj.scholarship_name = post_data.get("scholarship_name", db_obj.scholarship_name)
+                        db_obj.country = post_data.get("country", db_obj.country)
+                        db_obj.university = post_data.get("university", db_obj.university)
+                        db_obj.major = post_data.get("major", db_obj.major)
+                        db_obj.likes_count = post_data.get("likes_count", db_obj.likes_count)
+                        db_obj.liked_by = post_data.get("liked_by", db_obj.liked_by)
+                        db_obj.saved_by = post_data.get("saved_by", db_obj.saved_by)
+                        db_obj.shares_count = post_data.get("shares_count", db_obj.shares_count)
+                        db_obj.comments_count = post_data.get("comments_count", db_obj.comments_count)
+                        db_obj.is_success_story = post_data.get("is_success_story", db_obj.is_success_story)
+                        db_obj.success_details = post_data.get("success_details", db_obj.success_details)
+                        db_obj.is_pinned = post_data.get("is_pinned", db_obj.is_pinned)
+                        db_obj.is_hidden = post_data.get("is_hidden", db_obj.is_hidden)
+                        db_obj.updated_at = now_iso
+                    else:
+                        new_obj = CommunityPostDB(
+                            id=post_id,
+                            author_id=post_data.get("author_id", ""),
+                            author_name=post_data.get("author_name", ""),
+                            author_username=post_data.get("author_username", ""),
+                            author_avatar=post_data.get("author_avatar", ""),
+                            author_university=post_data.get("author_university", ""),
+                            author_degree=post_data.get("author_degree", ""),
+                            category=post_data.get("category", "general_discussion"),
+                            title=post_data.get("title", ""),
+                            content=post_data.get("content", ""),
+                            post_type=post_data.get("post_type", "text"),
+                            media_urls=post_data.get("media_urls", []),
+                            video_url=post_data.get("video_url", ""),
+                            link_url=post_data.get("link_url", ""),
+                            link_meta=post_data.get("link_meta", {}),
+                            scholarship_id=post_data.get("scholarship_id"),
+                            scholarship_name=post_data.get("scholarship_name"),
+                            country=post_data.get("country", ""),
+                            university=post_data.get("university", ""),
+                            major=post_data.get("major", ""),
+                            likes_count=post_data.get("likes_count", 0),
+                            liked_by=post_data.get("liked_by", []),
+                            saved_by=post_data.get("saved_by", []),
+                            shares_count=post_data.get("shares_count", 0),
+                            comments_count=post_data.get("comments_count", 0),
+                            is_success_story=post_data.get("is_success_story", False),
+                            success_details=post_data.get("success_details", {}),
+                            is_pinned=post_data.get("is_pinned", False),
+                            is_hidden=post_data.get("is_hidden", False),
+                            created_at=post_data["created_at"],
+                            updated_at=now_iso
+                        )
+                        db.add(new_obj)
+        except Exception as e:
+            logger.error(f"Error persisting community post to DB: {e}")
+
+    # 2. Mirror to JSON file
+    try:
+        os.makedirs(DATA_DIR, exist_ok=True)
+        posts = []
+        if os.path.exists(COMMUNITY_POSTS_JSON):
+            try:
+                with open(COMMUNITY_POSTS_JSON, "r", encoding="utf-8") as f:
+                    posts = json.load(f)
+            except Exception:
+                posts = []
+
+        existing_idx = next((i for i, p in enumerate(posts) if p.get("id") == post_id), None)
+        if existing_idx is not None:
+            posts[existing_idx].update(post_data)
+        else:
+            posts.insert(0, post_data)
+
+        temp_file = COMMUNITY_POSTS_JSON + ".tmp"
+        with open(temp_file, "w", encoding="utf-8") as f:
+            json.dump(posts, f, ensure_ascii=False, indent=2)
+        os.replace(temp_file, COMMUNITY_POSTS_JSON)
+    except Exception as je:
+        logger.error(f"Error persisting community post to JSON: {je}")
+
+    return post_data
+
+
+def get_community_posts(filters: Optional[Dict[str, Any]] = None, limit: int = 100) -> List[Dict[str, Any]]:
+    """Retrieves public community posts matching optional category, scholarship, or author filters."""
+    filters = filters or {}
+    category = filters.get("category")
+    author_username = filters.get("author_username")
+    scholarship_id = filters.get("scholarship_id")
+    only_success = filters.get("only_success", False)
+    country = filters.get("country")
+    search_q = filters.get("search")
+
+    # DB Fetch
+    if is_db_available() and CommunityPostDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    q = db.query(CommunityPostDB).filter(CommunityPostDB.is_hidden == False)
+                    if category and category != "all":
+                        q = q.filter(CommunityPostDB.category == category)
+                    if author_username:
+                        q = q.filter(CommunityPostDB.author_username == author_username)
+                    if scholarship_id:
+                        q = q.filter(CommunityPostDB.scholarship_id == scholarship_id)
+                    if only_success:
+                        q = q.filter(CommunityPostDB.is_success_story == True)
+                    if country and country != "all":
+                        q = q.filter(CommunityPostDB.country.ilike(f"%{country}%"))
+                    if search_q:
+                        sq = f"%{search_q}%"
+                        q = q.filter(
+                            (CommunityPostDB.title.ilike(sq)) |
+                            (CommunityPostDB.content.ilike(sq)) |
+                            (CommunityPostDB.author_name.ilike(sq)) |
+                            (CommunityPostDB.university.ilike(sq))
+                        )
+                    items = q.order_by(CommunityPostDB.is_pinned.desc(), CommunityPostDB.created_at.desc()).limit(limit).all()
+                    if items:
+                        return [it.to_dict() for it in items]
+        except Exception as e:
+            logger.debug(f"DB load community posts error: {e}")
+
+    # JSON Fallback
+    if os.path.exists(COMMUNITY_POSTS_JSON):
+        try:
+            with open(COMMUNITY_POSTS_JSON, "r", encoding="utf-8") as f:
+                posts = json.load(f)
+            results = [p for p in posts if not p.get("is_hidden", False)]
+            if category and category != "all":
+                results = [p for p in results if p.get("category") == category]
+            if author_username:
+                results = [p for p in results if p.get("author_username") == author_username]
+            if scholarship_id:
+                results = [p for p in results if p.get("scholarship_id") == scholarship_id]
+            if only_success:
+                results = [p for p in results if p.get("is_success_story", False)]
+            if country and country != "all":
+                results = [p for p in results if country.lower() in p.get("country", "").lower()]
+            if search_q:
+                sq = search_q.lower()
+                results = [
+                    p for p in results if
+                    sq in p.get("title", "").lower() or
+                    sq in p.get("content", "").lower() or
+                    sq in p.get("author_name", "").lower() or
+                    sq in p.get("university", "").lower()
+                ]
+            results.sort(key=lambda x: (not x.get("is_pinned", False), x.get("created_at", "")), reverse=False)
+            return results[:limit]
+        except Exception as je:
+            logger.error(f"Error loading community posts from JSON: {je}")
+
+    return []
+
+
+def get_community_post_by_id(post_id: str) -> Optional[Dict[str, Any]]:
+    """Retrieves a single community post by its ID."""
+    clean_id = str(post_id).strip()
+    if is_db_available() and CommunityPostDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    obj = db.query(CommunityPostDB).filter(CommunityPostDB.id == clean_id).first()
+                    if obj:
+                        return obj.to_dict()
+        except Exception as e:
+            logger.debug(f"DB load post by ID error: {e}")
+
+    if os.path.exists(COMMUNITY_POSTS_JSON):
+        try:
+            with open(COMMUNITY_POSTS_JSON, "r", encoding="utf-8") as f:
+                posts = json.load(f)
+            return next((p for p in posts if p.get("id") == clean_id), None)
+        except Exception:
+            pass
+    return None
+
+
+def delete_community_post(post_id: str) -> bool:
+    """Soft deletes or removes a community post and its related comments."""
+    clean_id = str(post_id).strip()
+    deleted = False
+
+    if is_db_available() and CommunityPostDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    db.query(CommunityPostDB).filter(CommunityPostDB.id == clean_id).delete()
+                    if CommunityCommentDB is not None:
+                        db.query(CommunityCommentDB).filter(CommunityCommentDB.post_id == clean_id).delete()
+                    deleted = True
+        except Exception as e:
+            logger.error(f"DB delete post error: {e}")
+
+    if os.path.exists(COMMUNITY_POSTS_JSON):
+        try:
+            with open(COMMUNITY_POSTS_JSON, "r", encoding="utf-8") as f:
+                posts = json.load(f)
+            orig_len = len(posts)
+            posts = [p for p in posts if p.get("id") != clean_id]
+            if len(posts) < orig_len:
+                temp_file = COMMUNITY_POSTS_JSON + ".tmp"
+                with open(temp_file, "w", encoding="utf-8") as f:
+                    json.dump(posts, f, ensure_ascii=False, indent=2)
+                os.replace(temp_file, COMMUNITY_POSTS_JSON)
+                deleted = True
+        except Exception as je:
+            logger.error(f"JSON delete post error: {je}")
+
+    # Remove comments
+    if os.path.exists(COMMUNITY_COMMENTS_JSON):
+        try:
+            with open(COMMUNITY_COMMENTS_JSON, "r", encoding="utf-8") as f:
+                comments = json.load(f)
+            comments = [c for c in comments if c.get("post_id") != clean_id]
+            temp_file = COMMUNITY_COMMENTS_JSON + ".tmp"
+            with open(temp_file, "w", encoding="utf-8") as f:
+                json.dump(comments, f, ensure_ascii=False, indent=2)
+            os.replace(temp_file, COMMUNITY_COMMENTS_JSON)
+        except Exception:
+            pass
+
+    return deleted
+
+
+def save_community_comment(comment_data: Dict[str, Any]) -> Dict[str, Any]:
+    """Persists a new or updated comment / nested reply."""
+    import uuid
+    comment_id = comment_data.get("id") or f"comm_{uuid.uuid4().hex[:12]}"
+    comment_data["id"] = comment_id
+    now_iso = datetime.now().isoformat()
+    if "created_at" not in comment_data:
+        comment_data["created_at"] = now_iso
+    comment_data["updated_at"] = now_iso
+
+    if "likes_count" not in comment_data:
+        comment_data["likes_count"] = 0
+    if "liked_by" not in comment_data:
+        comment_data["liked_by"] = []
+    if "is_edited" not in comment_data:
+        comment_data["is_edited"] = False
+    if "is_hidden" not in comment_data:
+        comment_data["is_hidden"] = False
+
+    # Persist in DB
+    if is_db_available() and CommunityCommentDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    db_obj = db.query(CommunityCommentDB).filter(CommunityCommentDB.id == comment_id).first()
+                    if db_obj:
+                        db_obj.content = comment_data.get("content", db_obj.content)
+                        db_obj.likes_count = comment_data.get("likes_count", db_obj.likes_count)
+                        db_obj.liked_by = comment_data.get("liked_by", db_obj.liked_by)
+                        db_obj.is_edited = comment_data.get("is_edited", db_obj.is_edited)
+                        db_obj.updated_at = now_iso
+                    else:
+                        new_obj = CommunityCommentDB(
+                            id=comment_id,
+                            post_id=comment_data.get("post_id", ""),
+                            parent_id=comment_data.get("parent_id"),
+                            author_id=comment_data.get("author_id", ""),
+                            author_name=comment_data.get("author_name", ""),
+                            author_username=comment_data.get("author_username", ""),
+                            author_avatar=comment_data.get("author_avatar", ""),
+                            author_university=comment_data.get("author_university", ""),
+                            content=comment_data.get("content", ""),
+                            likes_count=comment_data.get("likes_count", 0),
+                            liked_by=comment_data.get("liked_by", []),
+                            is_edited=comment_data.get("is_edited", False),
+                            is_hidden=comment_data.get("is_hidden", False),
+                            created_at=comment_data["created_at"],
+                            updated_at=now_iso
+                        )
+                        db.add(new_obj)
+        except Exception as e:
+            logger.error(f"Error persisting comment to DB: {e}")
+
+    # Mirror to JSON
+    try:
+        os.makedirs(DATA_DIR, exist_ok=True)
+        comments = []
+        if os.path.exists(COMMUNITY_COMMENTS_JSON):
+            try:
+                with open(COMMUNITY_COMMENTS_JSON, "r", encoding="utf-8") as f:
+                    comments = json.load(f)
+            except Exception:
+                comments = []
+
+        existing_idx = next((i for i, c in enumerate(comments) if c.get("id") == comment_id), None)
+        if existing_idx is not None:
+            comments[existing_idx].update(comment_data)
+        else:
+            comments.append(comment_data)
+
+        temp_file = COMMUNITY_COMMENTS_JSON + ".tmp"
+        with open(temp_file, "w", encoding="utf-8") as f:
+            json.dump(comments, f, ensure_ascii=False, indent=2)
+        os.replace(temp_file, COMMUNITY_COMMENTS_JSON)
+    except Exception as je:
+        logger.error(f"Error persisting comment to JSON: {je}")
+
+    # Update comment count on post
+    post_id = comment_data.get("post_id")
+    if post_id:
+        post = get_community_post_by_id(post_id)
+        if post:
+            all_c = get_community_comments(post_id)
+            post["comments_count"] = len(all_c)
+            save_community_post(post)
+
+    return comment_data
+
+
+def get_community_comments(post_id: str) -> List[Dict[str, Any]]:
+    """Retrieves all comments and nested replies for a given post."""
+    clean_id = str(post_id).strip()
+    if is_db_available() and CommunityCommentDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    items = db.query(CommunityCommentDB).filter(
+                        CommunityCommentDB.post_id == clean_id,
+                        CommunityCommentDB.is_hidden == False
+                    ).order_by(CommunityCommentDB.created_at.asc()).all()
+                    if items:
+                        return [it.to_dict() for it in items]
+        except Exception as e:
+            logger.debug(f"DB load comments error: {e}")
+
+    if os.path.exists(COMMUNITY_COMMENTS_JSON):
+        try:
+            with open(COMMUNITY_COMMENTS_JSON, "r", encoding="utf-8") as f:
+                comments = json.load(f)
+            post_comments = [c for c in comments if c.get("post_id") == clean_id and not c.get("is_hidden", False)]
+            post_comments.sort(key=lambda x: x.get("created_at", ""))
+            return post_comments
+        except Exception:
+            pass
+
+    return []
+
+
+def get_community_comment_by_id(comment_id: str) -> Optional[Dict[str, Any]]:
+    """Retrieves a single comment by ID."""
+    clean_id = str(comment_id).strip()
+    if is_db_available() and CommunityCommentDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    obj = db.query(CommunityCommentDB).filter(CommunityCommentDB.id == clean_id).first()
+                    if obj:
+                        return obj.to_dict()
+        except Exception:
+            pass
+
+    if os.path.exists(COMMUNITY_COMMENTS_JSON):
+        try:
+            with open(COMMUNITY_COMMENTS_JSON, "r", encoding="utf-8") as f:
+                comments = json.load(f)
+            return next((c for c in comments if c.get("id") == clean_id), None)
+        except Exception:
+            pass
+    return None
+
+
+def delete_community_comment(comment_id: str) -> bool:
+    """Deletes a comment and updates post comment counter."""
+    clean_id = str(comment_id).strip()
+    comment = get_community_comment_by_id(clean_id)
+    if not comment:
+        return False
+    post_id = comment.get("post_id")
+
+    if is_db_available() and CommunityCommentDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    # Delete comment and its direct replies
+                    db.query(CommunityCommentDB).filter(
+                        (CommunityCommentDB.id == clean_id) | (CommunityCommentDB.parent_id == clean_id)
+                    ).delete()
+        except Exception as e:
+            logger.error(f"DB delete comment error: {e}")
+
+    if os.path.exists(COMMUNITY_COMMENTS_JSON):
+        try:
+            with open(COMMUNITY_COMMENTS_JSON, "r", encoding="utf-8") as f:
+                comments = json.load(f)
+            comments = [c for c in comments if c.get("id") != clean_id and c.get("parent_id") != clean_id]
+            temp_file = COMMUNITY_COMMENTS_JSON + ".tmp"
+            with open(temp_file, "w", encoding="utf-8") as f:
+                json.dump(comments, f, ensure_ascii=False, indent=2)
+            os.replace(temp_file, COMMUNITY_COMMENTS_JSON)
+        except Exception:
+            pass
+
+    if post_id:
+        post = get_community_post_by_id(post_id)
+        if post:
+            all_c = get_community_comments(post_id)
+            post["comments_count"] = len(all_c)
+            save_community_post(post)
+
+    return True
+
+
+def toggle_follow_user(follower_email: str, following_email: str, following_username: str) -> Dict[str, Any]:
+    """Toggles following relationship between two verified students."""
+    f_email = follower_email.strip().lower()
+    target_email = following_email.strip().lower()
+    target_uname = following_username.strip().lower()
+
+    if f_email == target_email:
+        return {"success": False, "is_following": False, "error": "Cannot follow yourself"}
+
+    import uuid
+    is_following = False
+
+    # Check DB
+    if is_db_available() and CommunityFollowDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    existing = db.query(CommunityFollowDB).filter(
+                        CommunityFollowDB.follower_email == f_email,
+                        CommunityFollowDB.following_email == target_email
+                    ).first()
+                    if existing:
+                        db.delete(existing)
+                        is_following = False
+                    else:
+                        db.add(CommunityFollowDB(
+                            id=f"fol_{uuid.uuid4().hex[:10]}",
+                            follower_email=f_email,
+                            following_email=target_email,
+                            following_username=target_uname,
+                            created_at=datetime.now().isoformat()
+                        ))
+                        is_following = True
+        except Exception as e:
+            logger.error(f"DB follow toggle error: {e}")
+
+    # JSON Mirror
+    try:
+        os.makedirs(DATA_DIR, exist_ok=True)
+        follows = []
+        if os.path.exists(COMMUNITY_FOLLOWS_JSON):
+            try:
+                with open(COMMUNITY_FOLLOWS_JSON, "r", encoding="utf-8") as f:
+                    follows = json.load(f)
+            except Exception:
+                follows = []
+
+        existing_idx = next((i for i, fl in enumerate(follows) if fl.get("follower_email") == f_email and fl.get("following_email") == target_email), None)
+        if existing_idx is not None:
+            follows.pop(existing_idx)
+            is_following = False
+        else:
+            follows.append({
+                "id": f"fol_{uuid.uuid4().hex[:10]}",
+                "follower_email": f_email,
+                "following_email": target_email,
+                "following_username": target_uname,
+                "created_at": datetime.now().isoformat()
+            })
+            is_following = True
+
+        temp_file = COMMUNITY_FOLLOWS_JSON + ".tmp"
+        with open(temp_file, "w", encoding="utf-8") as f:
+            json.dump(follows, f, ensure_ascii=False, indent=2)
+        os.replace(temp_file, COMMUNITY_FOLLOWS_JSON)
+    except Exception as je:
+        logger.error(f"JSON follow toggle error: {je}")
+
+    counts = get_user_follow_counts(target_uname)
+    return {
+        "success": True,
+        "is_following": is_following,
+        "followers_count": counts.get("followers", 0),
+        "following_count": counts.get("following", 0)
+    }
+
+
+def get_follow_status(follower_email: str, following_email: str) -> bool:
+    """Checks whether follower_email follows following_email."""
+    f_email = follower_email.strip().lower()
+    target_email = following_email.strip().lower()
+
+    if is_db_available() and CommunityFollowDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    row = db.query(CommunityFollowDB).filter(
+                        CommunityFollowDB.follower_email == f_email,
+                        CommunityFollowDB.following_email == target_email
+                    ).first()
+                    if row:
+                        return True
+        except Exception:
+            pass
+
+    if os.path.exists(COMMUNITY_FOLLOWS_JSON):
+        try:
+            with open(COMMUNITY_FOLLOWS_JSON, "r", encoding="utf-8") as f:
+                follows = json.load(f)
+            return any(fl.get("follower_email") == f_email and fl.get("following_email") == target_email for fl in follows)
+        except Exception:
+            pass
+    return False
+
+
+def get_user_follow_counts(email_or_username: str) -> Dict[str, int]:
+    """Calculates number of followers and following for a student."""
+    key = email_or_username.strip().lower()
+    followers = 0
+    following = 0
+
+    if is_db_available() and CommunityFollowDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    followers = db.query(CommunityFollowDB).filter(
+                        (CommunityFollowDB.following_email == key) | (CommunityFollowDB.following_username == key)
+                    ).count()
+                    following = db.query(CommunityFollowDB).filter(
+                        CommunityFollowDB.follower_email == key
+                    ).count()
+                    return {"followers": followers, "following": following}
+        except Exception:
+            pass
+
+    if os.path.exists(COMMUNITY_FOLLOWS_JSON):
+        try:
+            with open(COMMUNITY_FOLLOWS_JSON, "r", encoding="utf-8") as f:
+                follows = json.load(f)
+            followers = sum(1 for fl in follows if fl.get("following_email") == key or fl.get("following_username") == key)
+            following = sum(1 for fl in follows if fl.get("follower_email") == key)
+        except Exception:
+            pass
+
+    return {"followers": followers, "following": following}
+
+
+def save_community_report(report_data: Dict[str, Any]) -> Dict[str, Any]:
+    """Logs a moderation report for a suspicious post or comment."""
+    import uuid
+    report_id = report_data.get("id") or f"rep_{uuid.uuid4().hex[:10]}"
+    report_data["id"] = report_id
+    if "created_at" not in report_data:
+        report_data["created_at"] = datetime.now().isoformat()
+    if "status" not in report_data:
+        report_data["status"] = "pending"
+
+    if is_db_available() and CommunityReportDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    db.add(CommunityReportDB(
+                        id=report_id,
+                        reporter_email=report_data.get("reporter_email", ""),
+                        target_type=report_data.get("target_type", "post"),
+                        target_id=report_data.get("target_id", ""),
+                        reason=report_data.get("reason", "spam"),
+                        details=report_data.get("details", ""),
+                        status=report_data.get("status", "pending"),
+                        created_at=report_data["created_at"]
+                    ))
+        except Exception as e:
+            logger.error(f"DB save report error: {e}")
+
+    try:
+        os.makedirs(DATA_DIR, exist_ok=True)
+        reports = []
+        if os.path.exists(COMMUNITY_REPORTS_JSON):
+            try:
+                with open(COMMUNITY_REPORTS_JSON, "r", encoding="utf-8") as f:
+                    reports = json.load(f)
+            except Exception:
+                reports = []
+        reports.append(report_data)
+        temp_file = COMMUNITY_REPORTS_JSON + ".tmp"
+        with open(temp_file, "w", encoding="utf-8") as f:
+            json.dump(reports, f, ensure_ascii=False, indent=2)
+        os.replace(temp_file, COMMUNITY_REPORTS_JSON)
+    except Exception as je:
+        logger.error(f"JSON save report error: {je}")
+
+    return report_data
+
+
+def save_community_notification(notif_data: Dict[str, Any]) -> Dict[str, Any]:
+    """Persists a new in-app community notification for a student."""
+    import uuid
+    notif_id = notif_data.get("id") or f"notif_{uuid.uuid4().hex[:12]}"
+    notif_data["id"] = notif_id
+    if "created_at" not in notif_data:
+        notif_data["created_at"] = datetime.now().isoformat()
+    if "is_read" not in notif_data:
+        notif_data["is_read"] = False
+
+    if is_db_available() and CommunityNotificationDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    db.add(CommunityNotificationDB(
+                        id=notif_id,
+                        recipient_email=notif_data.get("recipient_email", ""),
+                        actor_name=notif_data.get("actor_name", ""),
+                        actor_username=notif_data.get("actor_username", ""),
+                        actor_avatar=notif_data.get("actor_avatar", ""),
+                        action_type=notif_data.get("action_type", "like"),
+                        target_id=notif_data.get("target_id", ""),
+                        message=notif_data.get("message", ""),
+                        is_read=notif_data.get("is_read", False),
+                        created_at=notif_data["created_at"]
+                    ))
+        except Exception as e:
+            logger.error(f"DB save notification error: {e}")
+
+    try:
+        os.makedirs(DATA_DIR, exist_ok=True)
+        notifs = []
+        if os.path.exists(COMMUNITY_NOTIFICATIONS_JSON):
+            try:
+                with open(COMMUNITY_NOTIFICATIONS_JSON, "r", encoding="utf-8") as f:
+                    notifs = json.load(f)
+            except Exception:
+                notifs = []
+        notifs.insert(0, notif_data)
+        temp_file = COMMUNITY_NOTIFICATIONS_JSON + ".tmp"
+        with open(temp_file, "w", encoding="utf-8") as f:
+            json.dump(notifs[:200], f, ensure_ascii=False, indent=2)
+        os.replace(temp_file, COMMUNITY_NOTIFICATIONS_JSON)
+    except Exception as je:
+        logger.error(f"JSON save notification error: {je}")
+
+    return notif_data
+
+
+def get_community_notifications(user_email: str, limit: int = 30) -> List[Dict[str, Any]]:
+    """Retrieves unread and recent community notifications for a student."""
+    clean_rec = user_email.strip().lower()
+
+    if is_db_available() and CommunityNotificationDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    rows = db.query(CommunityNotificationDB).filter(
+                        CommunityNotificationDB.recipient_email == clean_rec
+                    ).order_by(CommunityNotificationDB.created_at.desc()).limit(limit).all()
+                    if rows:
+                        return [r.to_dict() for r in rows]
+        except Exception as e:
+            logger.debug(f"DB load notifications error: {e}")
+
+    if os.path.exists(COMMUNITY_NOTIFICATIONS_JSON):
+        try:
+            with open(COMMUNITY_NOTIFICATIONS_JSON, "r", encoding="utf-8") as f:
+                notifs = json.load(f)
+            user_notifs = [n for n in notifs if n.get("recipient_email", "").lower() == clean_rec]
+            user_notifs.sort(key=lambda x: x.get("created_at", ""), reverse=True)
+            return user_notifs[:limit]
+        except Exception:
+            pass
+
+    return []
+
+
+def mark_community_notifications_read(user_email: str) -> bool:
+    """Marks all community notifications as read for a student."""
+    clean_rec = user_email.strip().lower()
+
+    if is_db_available() and CommunityNotificationDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    db.query(CommunityNotificationDB).filter(
+                        CommunityNotificationDB.recipient_email == clean_rec
+                    ).update({"is_read": True})
+        except Exception as e:
+            logger.error(f"DB mark notifications read error: {e}")
+
+    if os.path.exists(COMMUNITY_NOTIFICATIONS_JSON):
+        try:
+            with open(COMMUNITY_NOTIFICATIONS_JSON, "r", encoding="utf-8") as f:
+                notifs = json.load(f)
+            for n in notifs:
+                if n.get("recipient_email", "").lower() == clean_rec:
+                    n["is_read"] = True
+            temp_file = COMMUNITY_NOTIFICATIONS_JSON + ".tmp"
+            with open(temp_file, "w", encoding="utf-8") as f:
+                json.dump(notifs, f, ensure_ascii=False, indent=2)
+            os.replace(temp_file, COMMUNITY_NOTIFICATIONS_JSON)
+            return True
+        except Exception:
+            pass
+
+    return True
