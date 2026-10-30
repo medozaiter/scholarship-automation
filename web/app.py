@@ -14,6 +14,7 @@ from services.scholarship_engine import ScholarshipEngine
 from services.advisor_service import AdvisorService
 from services.auth_service import AuthService
 from services.automation_service import AutomationService, start_automation_daemon
+from services.community_service import community_service
 from services.db import init_db_and_migrate, is_db_available, get_notification_history
 from services.email_service import get_email_provider_info, dispatch_email, get_last_dispatch_meta
 from services.security_utils import (
@@ -356,6 +357,33 @@ class SaveScholarshipRequest(BaseModel):
     @classmethod
     def check_email(cls, v: str) -> str:
         return validate_email(v)
+
+
+class CommunityStorySubmit(BaseModel):
+    author_name: str
+    author_email: Optional[str] = None
+    author_country: Optional[str] = "فلسطين"
+    scholarship_id: str
+    scholarship_name: str
+    university: Optional[str] = ""
+    degree: Optional[str] = "ماجستير"
+    field_of_study: Optional[str] = "تخصص أكاديمي"
+    acceptance_year: Optional[str] = "2025/2026"
+    title: str
+    story_text: str
+    key_advice: Optional[List[str]] = []
+    gpa: Optional[str] = "85%+"
+    tags: Optional[List[str]] = []
+
+    @field_validator("title")
+    @classmethod
+    def clean_title(cls, v: str) -> str:
+        return sanitize_text(v, max_length=255)
+
+    @field_validator("story_text")
+    @classmethod
+    def clean_story(cls, v: str) -> str:
+        return sanitize_text(v, max_length=5000)
 
     @field_validator("scholarship_name")
     @classmethod
@@ -1173,6 +1201,88 @@ async def preview_scholarships(
     except Exception as e:
         logger.error(f"Preview error: {e}")
         return {"success": False, "count": 0, "error": "تعذر استرجاع المنح المقترحة حالياً."}
+
+
+# =====================================================================
+# COMMUNITY & ACCEPTANCE EXPERIENCES API
+# =====================================================================
+
+@app.get("/api/community/stories")
+async def get_community_stories_endpoint(
+    scholarship_id: Optional[str] = None,
+    degree: Optional[str] = None,
+    limit: int = 50
+):
+    """Returns verified acceptance stories & tips from admitted scholars."""
+    try:
+        stories = community_service.list_stories(scholarship_id=scholarship_id, degree=degree, limit=limit)
+        return {
+            "success": True,
+            "count": len(stories),
+            "stories": stories
+        }
+    except Exception as e:
+        logger.error(f"Error fetching community stories: {e}")
+        return {"success": False, "count": 0, "stories": []}
+
+
+@app.get("/api/community/stories/{story_id}")
+async def get_community_story_by_id_endpoint(story_id: str):
+    """Returns a single acceptance story by ID."""
+    story = community_service.get_story(story_id)
+    if not story:
+        raise HTTPException(status_code=404, detail="القصة غير موجودة.")
+    return {"success": True, "story": story}
+
+
+@app.post("/api/community/stories")
+async def submit_community_story_endpoint(payload: CommunityStorySubmit):
+    """Submits a new acceptance experience or scholarship advice."""
+    try:
+        story_dict = {
+            "author_name": payload.author_name.strip(),
+            "author_email": payload.author_email.strip() if payload.author_email else "",
+            "author_country": payload.author_country.strip() if payload.author_country else "فلسطين",
+            "scholarship_id": payload.scholarship_id.strip().lower(),
+            "scholarship_name": payload.scholarship_name.strip(),
+            "university": payload.university.strip() if payload.university else "",
+            "degree": payload.degree.strip() if payload.degree else "ماجستير",
+            "field_of_study": payload.field_of_study.strip() if payload.field_of_study else "تخصص أكاديمي",
+            "acceptance_year": payload.acceptance_year.strip() if payload.acceptance_year else "2025/2026",
+            "title": payload.title.strip(),
+            "story_text": payload.story_text.strip(),
+            "key_advice": payload.key_advice or [],
+            "gpa": payload.gpa.strip() if payload.gpa else "85%+",
+            "tags": payload.tags or [],
+            "is_verified": True
+        }
+        saved = community_service.add_story(story_dict)
+        return {
+            "success": True,
+            "message": "شكراً لك! تم نشر تجربة قبولك بنجاح لتلهم وتفيد الطلاب الآخرين.",
+            "story": saved
+        }
+    except Exception as e:
+        logger.error(f"Error saving community story: {e}")
+        raise HTTPException(status_code=400, detail="تعذر نشر التجربة. يرجى التأكد من ملء الحقول المطلوبة.")
+
+
+@app.post("/api/community/stories/{story_id}/upvote")
+async def upvote_community_story_endpoint(story_id: str, payload: Dict[str, str]):
+    """Records an upvote indicating this student acceptance experience was helpful."""
+    email = payload.get("email", "").strip() or "anonymous_student@scholarpilot.ai"
+    result = community_service.upvote(story_id, email)
+    return result
+
+
+@app.get("/api/community/highlights/{scholarship_id}")
+async def get_scholarship_community_highlights_endpoint(scholarship_id: str):
+    """Returns acceptance tips & accepted student count for a specific scholarship in the radar."""
+    tips = community_service.get_scholarship_tips_highlight(scholarship_id)
+    return {
+        "success": bool(tips is not None),
+        "highlight": tips
+    }
 
 
 if __name__ == "__main__":

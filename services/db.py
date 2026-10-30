@@ -25,6 +25,7 @@ SUBSCRIBERS_JSON = os.path.join(DATA_DIR, "subscribers.json")
 SCHOLARSHIPS_JSON = os.path.join(DATA_DIR, "live_scholarships.json")
 IN_APP_NOTIFICATIONS_JSON = os.path.join(DATA_DIR, "in_app_notifications.json")
 NOTIFICATION_EVENTS_JSON = os.path.join(DATA_DIR, "notification_events.json")
+COMMUNITY_STORIES_JSON = os.path.join(DATA_DIR, "community_stories.json")
 
 # Try importing SQLAlchemy
 HAS_SQLALCHEMY = False
@@ -37,6 +38,7 @@ LiveScholarshipDB = None
 NotificationHistoryDB = None
 InAppNotificationDB = None
 NotificationEventDB = None
+CommunityStoryDB = None
 
 try:
     from sqlalchemy import (
@@ -254,6 +256,50 @@ try:
                 "meta": self.meta or {}
             }
 
+    class CommunityStoryDB(Base):
+        __tablename__ = "community_stories"
+
+        id = Column(String(100), primary_key=True)
+        author_name = Column(String(120), default="باحث أكاديمي")
+        author_email = Column(String(120), index=True, nullable=True)
+        author_country = Column(String(100), default="فلسطين")
+        scholarship_id = Column(String(100), index=True, nullable=False)
+        scholarship_name = Column(String(255), nullable=False)
+        university = Column(String(255), nullable=True)
+        degree = Column(String(100), default="ماجستير")
+        field_of_study = Column(String(150), default="تخصص أكاديمي")
+        acceptance_year = Column(String(50), default="2025/2026")
+        title = Column(String(255), nullable=False)
+        story_text = Column(Text, nullable=False)
+        key_advice = Column(JSON, default=list)
+        gpa = Column(String(50), default="85%+")
+        is_verified = Column(Boolean, default=True)
+        upvotes = Column(Integer, default=0)
+        upvoted_by = Column(JSON, default=list)
+        created_at = Column(String(50), default=lambda: datetime.now().isoformat())
+        tags = Column(JSON, default=list)
+
+        def to_dict(self) -> Dict[str, Any]:
+            return {
+                "id": self.id,
+                "author_name": self.author_name,
+                "author_country": self.author_country,
+                "scholarship_id": self.scholarship_id,
+                "scholarship_name": self.scholarship_name,
+                "university": self.university or "",
+                "degree": self.degree,
+                "field_of_study": self.field_of_study,
+                "acceptance_year": self.acceptance_year,
+                "title": self.title,
+                "story_text": self.story_text,
+                "key_advice": self.key_advice or [],
+                "gpa": self.gpa,
+                "is_verified": bool(self.is_verified),
+                "upvotes": self.upvotes or 0,
+                "created_at": self.created_at,
+                "tags": self.tags or []
+            }
+
     # Connect to PostgreSQL (Neon) or fallback to SQLite
     active_url = raw_db_url
     if not active_url:
@@ -423,6 +469,39 @@ def init_db_and_migrate():
                     logger.info(f"Auto-migrated {len(sch_data)} scholarships to Database.")
                 except Exception as sche:
                     logger.warning(f"Scholarship auto-migration error: {sche}")
+
+            # 4. Migrate Community Acceptance Stories
+            if CommunityStoryDB is not None:
+                existing_story_count = db.query(CommunityStoryDB).count()
+                if existing_story_count == 0 and os.path.exists(COMMUNITY_STORIES_JSON):
+                    try:
+                        with open(COMMUNITY_STORIES_JSON, "r", encoding="utf-8") as f:
+                            story_data = json.load(f)
+                        for item in story_data:
+                            db.add(CommunityStoryDB(
+                                id=item.get("id"),
+                                author_name=item.get("author_name", "باحث أكاديمي"),
+                                author_email=item.get("author_email"),
+                                author_country=item.get("author_country", "فلسطين"),
+                                scholarship_id=item.get("scholarship_id", "daad"),
+                                scholarship_name=item.get("scholarship_name", "منحة دراسية"),
+                                university=item.get("university", ""),
+                                degree=item.get("degree", "ماجستير"),
+                                field_of_study=item.get("field_of_study", "تخصص أكاديمي"),
+                                acceptance_year=item.get("acceptance_year", "2025/2026"),
+                                title=item.get("title", ""),
+                                story_text=item.get("story_text", ""),
+                                key_advice=item.get("key_advice", []),
+                                gpa=item.get("gpa", "85%+"),
+                                is_verified=item.get("is_verified", True),
+                                upvotes=item.get("upvotes", 0),
+                                upvoted_by=item.get("upvoted_by", []),
+                                created_at=item.get("created_at", datetime.now().isoformat()),
+                                tags=item.get("tags", [])
+                            ))
+                        logger.info(f"Auto-migrated {len(story_data)} community acceptance stories to Database.")
+                    except Exception as ste:
+                        logger.warning(f"Community stories auto-migration error: {ste}")
 
         return True
     except Exception as e:
@@ -1010,3 +1089,179 @@ def update_user_preferences(email: str, preferences: Dict[str, Any]) -> bool:
                 logger.error(f"Error updating preferences in {path}: {je}")
 
     return True
+
+
+# =====================================================================
+# COMMUNITY & ACCEPTANCE EXPERIENCES ENGINE
+# =====================================================================
+
+def save_community_story(story_data: Dict[str, Any]) -> Dict[str, Any]:
+    """Persists a new student acceptance story or community experience."""
+    import uuid
+    story_id = story_data.get("id") or f"story_{uuid.uuid4().hex[:10]}"
+    story_data["id"] = story_id
+    if "created_at" not in story_data:
+        story_data["created_at"] = datetime.now().isoformat()
+    if "upvotes" not in story_data:
+        story_data["upvotes"] = 0
+    if "upvoted_by" not in story_data:
+        story_data["upvoted_by"] = []
+    if "is_verified" not in story_data:
+        story_data["is_verified"] = True
+
+    # Persist in DB
+    if is_db_available() and CommunityStoryDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    db_obj = db.query(CommunityStoryDB).filter(CommunityStoryDB.id == story_id).first()
+                    if db_obj:
+                        db_obj.title = story_data.get("title", db_obj.title)
+                        db_obj.story_text = story_data.get("story_text", db_obj.story_text)
+                        db_obj.key_advice = story_data.get("key_advice", db_obj.key_advice)
+                        db_obj.upvotes = story_data.get("upvotes", db_obj.upvotes)
+                        db_obj.upvoted_by = story_data.get("upvoted_by", db_obj.upvoted_by)
+                    else:
+                        new_obj = CommunityStoryDB(
+                            id=story_id,
+                            author_name=story_data.get("author_name", "باحث أكاديمي"),
+                            author_email=story_data.get("author_email"),
+                            author_country=story_data.get("author_country", "فلسطين"),
+                            scholarship_id=story_data.get("scholarship_id", "general"),
+                            scholarship_name=story_data.get("scholarship_name", "منحة دراسية"),
+                            university=story_data.get("university", ""),
+                            degree=story_data.get("degree", "ماجستير"),
+                            field_of_study=story_data.get("field_of_study", "تخصص أكاديمي"),
+                            acceptance_year=story_data.get("acceptance_year", "2025/2026"),
+                            title=story_data.get("title", "تجربة قبول موثقة"),
+                            story_text=story_data.get("story_text", ""),
+                            key_advice=story_data.get("key_advice", []),
+                            gpa=story_data.get("gpa", "85%+"),
+                            is_verified=story_data.get("is_verified", True),
+                            upvotes=story_data.get("upvotes", 0),
+                            upvoted_by=story_data.get("upvoted_by", []),
+                            created_at=story_data["created_at"],
+                            tags=story_data.get("tags", [])
+                        )
+                        db.add(new_obj)
+        except Exception as e:
+            logger.error(f"Error persisting community story to DB: {e}")
+
+    # Mirror to JSON file
+    try:
+        os.makedirs(DATA_DIR, exist_ok=True)
+        stories = []
+        if os.path.exists(COMMUNITY_STORIES_JSON):
+            try:
+                with open(COMMUNITY_STORIES_JSON, "r", encoding="utf-8") as f:
+                    stories = json.load(f)
+            except Exception:
+                stories = []
+
+        existing_idx = next((i for i, s in enumerate(stories) if s.get("id") == story_id), None)
+        if existing_idx is not None:
+            stories[existing_idx].update(story_data)
+        else:
+            stories.insert(0, story_data)
+
+        temp_file = COMMUNITY_STORIES_JSON + ".tmp"
+        with open(temp_file, "w", encoding="utf-8") as f:
+            json.dump(stories, f, ensure_ascii=False, indent=2)
+        os.replace(temp_file, COMMUNITY_STORIES_JSON)
+    except Exception as je:
+        logger.error(f"Error persisting community story to JSON: {je}")
+
+    return story_data
+
+
+def get_community_stories(scholarship_id: Optional[str] = None, degree: Optional[str] = None, limit: int = 50) -> List[Dict[str, Any]]:
+    """Retrieves verified community stories filtered by scholarship or degree."""
+    clean_sch = scholarship_id.strip().lower() if scholarship_id else None
+    clean_deg = degree.strip().lower() if degree else None
+
+    # Load from DB
+    if is_db_available() and CommunityStoryDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    q = db.query(CommunityStoryDB)
+                    if clean_sch and clean_sch != "all":
+                        q = q.filter(CommunityStoryDB.scholarship_id == clean_sch)
+                    if clean_deg and clean_deg != "all":
+                        q = q.filter(CommunityStoryDB.degree.ilike(f"%{clean_deg}%"))
+                    items = q.order_by(CommunityStoryDB.upvotes.desc(), CommunityStoryDB.id.desc()).limit(limit).all()
+                    if items:
+                        return [it.to_dict() for it in items]
+        except Exception as e:
+            logger.debug(f"DB load community stories error: {e}")
+
+    # Fallback to JSON
+    if os.path.exists(COMMUNITY_STORIES_JSON):
+        try:
+            with open(COMMUNITY_STORIES_JSON, "r", encoding="utf-8") as f:
+                items = json.load(f)
+            if clean_sch and clean_sch != "all":
+                items = [it for it in items if it.get("scholarship_id", "").lower() == clean_sch]
+            if clean_deg and clean_deg != "all":
+                items = [it for it in items if clean_deg in it.get("degree", "").lower()]
+            items.sort(key=lambda x: (x.get("upvotes", 0)), reverse=True)
+            return items[:limit]
+        except Exception as je:
+            logger.error(f"Error loading community stories from JSON: {je}")
+
+    return []
+
+
+def get_community_story_by_id(story_id: str) -> Optional[Dict[str, Any]]:
+    """Retrieves a single community story by its ID."""
+    clean_id = story_id.strip()
+    if is_db_available() and CommunityStoryDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    item = db.query(CommunityStoryDB).filter(CommunityStoryDB.id == clean_id).first()
+                    if item:
+                        return item.to_dict()
+        except Exception as e:
+            logger.debug(f"DB load story error: {e}")
+
+    if os.path.exists(COMMUNITY_STORIES_JSON):
+        try:
+            with open(COMMUNITY_STORIES_JSON, "r", encoding="utf-8") as f:
+                stories = json.load(f)
+            return next((s for s in stories if s.get("id") == clean_id), None)
+        except Exception:
+            pass
+    return None
+
+
+def upvote_community_story(story_id: str, user_email: str) -> Dict[str, Any]:
+    """Records a helpful upvote for a community story by a verified student."""
+    clean_id = story_id.strip()
+    clean_mail = user_email.strip().lower()
+
+    story = get_community_story_by_id(clean_id)
+    if not story:
+        return {"success": False, "detail": "القصة غير موجودة."}
+
+    upvoted_by = list(story.get("upvoted_by", []))
+    if clean_mail in upvoted_by:
+        # Toggle off
+        upvoted_by.remove(clean_mail)
+        story["upvotes"] = max(0, int(story.get("upvotes", 1)) - 1)
+        action = "removed"
+    else:
+        # Add upvote
+        upvoted_by.append(clean_mail)
+        story["upvotes"] = int(story.get("upvotes", 0)) + 1
+        action = "added"
+
+    story["upvoted_by"] = upvoted_by
+    save_community_story(story)
+
+    return {
+        "success": True,
+        "action": action,
+        "upvotes": story["upvotes"],
+        "story_id": clean_id
+    }

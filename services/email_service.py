@@ -202,13 +202,50 @@ def render_deadline_reminder_template(
     student_name: str,
     scholarship: Dict[str, Any],
     days_left: int = 7,
-    milestone: str = "تجهيز الوثائق النهائية"
+    milestone: str = "تجهيز الوثائق النهائية",
+    community_highlight: Optional[Dict[str, Any]] = None
 ) -> Tuple[str, str]:
-    """2. Scholarship Deadline Reminder Template."""
+    """2. Scholarship Deadline Reminder Template enriched with verified Community Acceptance Tips."""
     title = scholarship.get("name") or scholarship.get("title", "المنحة المحفوظة")
     country = scholarship.get("country", "")
     deadline = scholarship.get("deadline_display") or scholarship.get("deadline", "قريباً")
     link = scholarship.get("link", "https://scholarpilot-ai-mkac.onrender.com")
+
+    # If no community highlight was explicitly passed, attempt to fetch from community service
+    if community_highlight is None:
+        try:
+            from services.community_service import community_service
+            sch_id = scholarship.get("id") or title
+            community_highlight = community_service.get_scholarship_tips_highlight(str(sch_id))
+        except Exception:
+            community_highlight = None
+
+    community_html = ""
+    community_plain = ""
+    if community_highlight and community_highlight.get("golden_tip"):
+        tip = community_highlight["golden_tip"]
+        author = community_highlight.get("author_name", "باحث مقبول")
+        uni = community_highlight.get("university", "")
+        year = community_highlight.get("acceptance_year", "")
+        author_info = f"{author} ({uni} - {year})" if uni else author
+
+        community_html = f"""
+        <div class="card" style="background:#0f172a; border-right:4px solid #38bdf8; border-radius:8px; padding:16px; margin:18px 0; border:1px solid #1e293b;">
+          <div style="color:#38bdf8; font-weight:bold; font-size:14px; margin-bottom:6px;">
+            💡 نصيحة ذهبية من مجتمع المقبولين في {title}:
+          </div>
+          <p style="margin:0; color:#e2e8f0; font-size:13px; line-height:1.6;">
+            &ldquo;{tip}&rdquo;
+          </p>
+          <div style="color:#94a3b8; font-size:12px; margin-top:8px;">
+            &mdash; {author_info}
+          </div>
+        </div>
+        """
+        community_plain = f"""
+💡 نصيحة من طالب تم قبوله سابقاً في هذه المنحة:
+"{tip}" — {author_info}
+"""
 
     body_html = f"""
     <div style="text-align: center; margin-bottom: 20px;">
@@ -230,6 +267,7 @@ def render_deadline_reminder_template(
         <li>رسالتا التوصية الأكاديميتان وتأكيد معلومات الأساتذة.</li>
       </ul>
     </div>
+    {community_html}
     """
 
     html = _email_wrapper(
@@ -247,7 +285,7 @@ def render_deadline_reminder_template(
 متبقي: {days_left} أيام فقط
 الموعد النهائي: {deadline}
 المرحلة الحالية: {milestone}
-
+{community_plain}
 رابط بوابة التقديم:
 {link}
 
