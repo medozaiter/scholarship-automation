@@ -189,20 +189,13 @@
                     <span>قناة التلجرام</span>
                 </a>
 
-                <!-- User Session Profile -->
-                {% if user %}
-                <div class="relative group">
-                    <a href="/profile/{{ user.username or '' }}" class="flex items-center gap-2 p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">
-                        <img src="{{ user.avatar_url or 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80' }}" alt="{{ user.full_name }}" class="w-8 h-8 rounded-lg object-cover ring-2 ring-blue-500/30">
-                        <span class="hidden lg:inline text-xs font-bold text-slate-700 dark:text-slate-200 max-w-[100px] truncate">{{ user.full_name }}</span>
+                <!-- Account Authentication State -->
+                <div id="navUserArea">
+                    <a href="/#matchSection" class="px-3.5 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-sm transition flex items-center gap-1.5">
+                        <i data-lucide="log-in" class="w-3.5 h-3.5"></i>
+                        <span>تسجيل الدخول</span>
                     </a>
                 </div>
-                {% else %}
-                <a href="/#matchSection" class="px-3.5 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-sm transition flex items-center gap-1.5">
-                    <i data-lucide="log-in" class="w-3.5 h-3.5"></i>
-                    <span>تسجيل الدخول</span>
-                </a>
-                {% endif %}
             </div>
         </div>
     </header>
@@ -220,9 +213,9 @@
                     <span>جاري تحميل أحدث المستجدات المعتمدة...</span>
                 </span>
             </div>
-            <button type="button" onclick="loadNewsData()" class="text-slate-400 hover:text-blue-400 text-xs flex items-center gap-1 transition shrink-0" title="تحديث الأخبار">
-                <i data-lucide="refresh-cw" class="w-3 h-3"></i>
-                <span class="hidden sm:inline">تحديث</span>
+            <button type="button" onclick="triggerManualSync()" id="manualSyncBtn" class="text-slate-300 hover:text-blue-400 text-xs flex items-center gap-1.5 transition shrink-0 bg-slate-800/80 hover:bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700" title="تحديث مستمر للأخبار وجلب المستجدات الحية">
+                <i data-lucide="refresh-cw" id="syncIcon" class="w-3 h-3 text-blue-400"></i>
+                <span class="hidden sm:inline font-bold">تحديث مستمر</span>
             </button>
         </div>
     </div>
@@ -510,32 +503,10 @@
                         <span id="modalCommentsCount" class="text-xs text-slate-400">0 تعليقات</span>
                     </div>
 
-                    <!-- Comment Input Box -->
-                    {% if user %}
-                    <div class="space-y-2 bg-slate-950/60 p-3.5 rounded-2xl border border-slate-800">
-                        <textarea id="commentInput" rows="2" placeholder="أضف استفسارك أو تجربتك حول هذا الخبر..." class="w-full text-xs rounded-xl bg-slate-900 border border-slate-800 p-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500 transition resize-none"></textarea>
-                        <div class="flex items-center justify-between pt-1">
-                            <span id="replyingToIndicator" class="text-[11px] text-blue-400 hidden flex items-center gap-1">
-                                <span>الرد على تعليق محدد</span>
-                                <button type="button" onclick="cancelReply()" class="text-slate-400 hover:text-rose-400"><i data-lucide="x" class="w-3 h-3"></i></button>
-                            </span>
-                            <button type="button" onclick="submitComment()" class="mr-auto px-3.5 py-1.5 text-xs font-bold rounded-xl bg-blue-600 hover:bg-blue-700 text-white transition flex items-center gap-1.5 shadow">
-                                <i data-lucide="send" class="w-3 h-3"></i>
-                                <span>إرسال التعليق</span>
-                            </button>
-                        </div>
+                    <!-- Comment Input Box (Dynamically Rendered) -->
+                    <div id="commentBoxContainer">
+                        <!-- Loaded dynamically based on auth state -->
                     </div>
-                    {% else %}
-                    <div class="p-4 rounded-xl border border-dashed border-slate-800 text-center bg-slate-950/40">
-                        <p class="text-xs text-slate-400">
-                            سجل دخولك إلى حسابك الأكاديمي للمشاركة في النقاش وطرح استفساراتك على زملائك الطلاب.
-                        </p>
-                        <a href="/#matchSection" class="mt-2 inline-flex items-center gap-1.5 text-xs font-bold text-blue-400 hover:underline">
-                            <i data-lucide="log-in" class="w-3.5 h-3.5"></i>
-                            <span>تسجيل الدخول الآن</span>
-                        </a>
-                    </div>
-                    {% endif %}
 
                     <!-- Comments List -->
                     <div id="modalCommentsList" class="space-y-3 pt-2">
@@ -549,6 +520,7 @@
     <!-- Frontend Logic Script -->
     <script>
         // State management
+        let currentUser = null;
         let currentArticles = [];
         let activeCategory = 'all';
         let activeSort = 'latest';
@@ -570,12 +542,120 @@
 
         // Initialize on DOM load
         document.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
             loadCategories();
             loadNewsData();
             loadTrending();
             setupSearch();
             if (window.lucide) lucide.createIcons();
+
+            // Continuous Real-Time Updates (Every 60s)
+            setInterval(() => {
+                loadCategories();
+                loadTrending();
+                const searchVal = document.getElementById('newsSearchInput')?.value?.trim();
+                if (!searchVal && !selectedArticle) {
+                    loadNewsData(false);
+                }
+            }, 60000);
         });
+
+        // Authentication State Checker
+        async function checkAuth() {
+            try {
+                const res = await fetch('/api/user/profile');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.success && data.user) {
+                        currentUser = data.user;
+                        renderUserNav(currentUser);
+                        renderCommentBox(true);
+                        return;
+                    }
+                }
+            } catch(e) {
+                console.debug('Guest visitor');
+            }
+            currentUser = null;
+            renderUserNav(null);
+            renderCommentBox(false);
+        }
+
+        function renderUserNav(u) {
+            const navArea = document.getElementById('navUserArea');
+            if (!navArea) return;
+            if (u) {
+                const avatar = u.avatar_url
+                    ? `<img src="${escapeHTML(u.avatar_url)}" alt="${escapeHTML(u.full_name)}" class="w-7 h-7 rounded-lg object-cover ring-1 ring-blue-500/40">`
+                    : `<div class="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center text-xs font-bold">${escapeHTML((u.full_name || u.username || 'ط').charAt(0))}</div>`;
+                navArea.innerHTML = `
+                    <a href="/profile/${encodeURIComponent(u.username || '')}" class="flex items-center gap-2 p-1.5 rounded-xl hover:bg-slate-800/60 transition border border-slate-800" title="الملف الأكاديمي">
+                        ${avatar}
+                        <span class="hidden lg:inline text-xs font-bold text-slate-200 max-w-[110px] truncate">${escapeHTML(u.full_name || u.username)}</span>
+                    </a>
+                `;
+            } else {
+                navArea.innerHTML = `
+                    <a href="/#matchSection" class="px-3.5 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-sm transition flex items-center gap-1.5">
+                        <i data-lucide="log-in" class="w-3.5 h-3.5"></i>
+                        <span>تسجيل الدخول</span>
+                    </a>
+                `;
+            }
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function renderCommentBox(isAuth) {
+            const box = document.getElementById('commentBoxContainer');
+            if (!box) return;
+            if (isAuth) {
+                box.innerHTML = `
+                    <div class="space-y-2 bg-slate-950/60 p-3.5 rounded-2xl border border-slate-800">
+                        <textarea id="commentInput" rows="2" placeholder="أضف استفسارك أو تجربتك حول هذا الخبر..." class="w-full text-xs rounded-xl bg-slate-900 border border-slate-800 p-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500 transition resize-none"></textarea>
+                        <div class="flex items-center justify-between pt-1">
+                            <span id="replyingToIndicator" class="text-[11px] text-blue-400 hidden flex items-center gap-1">
+                                <span>الرد على تعليق محدد</span>
+                                <button type="button" onclick="cancelReply()" class="text-slate-400 hover:text-rose-400"><i data-lucide="x" class="w-3 h-3"></i></button>
+                            </span>
+                            <button type="button" onclick="submitComment()" class="mr-auto px-3.5 py-1.5 text-xs font-bold rounded-xl bg-blue-600 hover:bg-blue-700 text-white transition flex items-center gap-1.5 shadow">
+                                <i data-lucide="send" class="w-3 h-3"></i>
+                                <span>إرسال التعليق</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                box.innerHTML = `
+                    <div class="p-4 rounded-xl border border-dashed border-slate-800 text-center bg-slate-950/40">
+                        <p class="text-xs text-slate-400">
+                            سجل دخولك إلى حسابك الأكاديمي للمشاركة في النقاش وطرح استفساراتك على زملائك الطلاب.
+                        </p>
+                        <a href="/#matchSection" class="mt-2 inline-flex items-center gap-1.5 text-xs font-bold text-blue-400 hover:underline">
+                            <i data-lucide="log-in" class="w-3.5 h-3.5"></i>
+                            <span>تسجيل الدخول الآن</span>
+                        </a>
+                    </div>
+                `;
+            }
+            if (window.lucide) lucide.createIcons();
+        }
+
+        // Manual real-time sync trigger
+        async function triggerManualSync() {
+            const icon = document.getElementById('syncIcon');
+            if (icon) icon.classList.add('animate-spin');
+            try {
+                await fetch('/api/news/sync', { method: 'POST' });
+                await Promise.all([loadCategories(), loadNewsData(), loadTrending()]);
+                showToast("تم تحديث مرصد الأخبار وجلب أحدث المستجدات فورياً!", "success");
+            } catch(e) {
+                console.error("Manual sync error:", e);
+                await Promise.all([loadCategories(), loadNewsData(), loadTrending()]);
+            } finally {
+                if (icon) icon.classList.remove('animate-spin');
+                if (window.lucide) lucide.createIcons();
+            }
+        }
 
         // Load Categories with counts
         async function loadCategories() {
@@ -597,21 +677,26 @@
         }
 
         // Load News Articles with Filters
-        async function loadNewsData() {
+        async function loadNewsData(showLoadingIndicator = true) {
             const grid = document.getElementById('newsGrid');
             const loading = document.getElementById('loadingState');
             const empty = document.getElementById('emptyState');
             const countBadge = document.getElementById('resultsCountBadge');
 
-            grid.innerHTML = '';
-            loading.classList.remove('hidden');
-            empty.classList.add('hidden');
+            if (showLoadingIndicator) {
+                grid.innerHTML = '';
+                loading.classList.remove('hidden');
+                empty.classList.add('hidden');
+            }
 
             const searchVal = document.getElementById('newsSearchInput').value.trim();
             const sortBy = document.getElementById('sortBySelect').value;
             const onlyActive = document.getElementById('onlyActiveCheckbox').checked;
 
-            let url = `/api/news?category=${activeCategory}&sort_by=${sortBy}&only_active=${onlyActive}&limit=50`;
+            let url = `/api/news?sort_by=${sortBy}&only_active=${onlyActive}&limit=50`;
+            if (activeCategory && activeCategory !== 'all') {
+                url += `&category=${encodeURIComponent(activeCategory)}`;
+            }
             if (searchVal) {
                 url += `&search=${encodeURIComponent(searchVal)}`;
             }
@@ -840,6 +925,16 @@
                     loadNewsData();
                 }, 350);
             });
+        }
+
+        function escapeHTML(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
         }
 
         // Open Article Modal & fetch single details

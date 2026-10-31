@@ -947,6 +947,42 @@ def init_db_and_migrate():
                     except Exception as ste:
                         logger.warning(f"Community stories auto-migration error: {ste}")
 
+            # 5. Migrate News Articles (أخبار المنح)
+            if NewsArticleDB is not None:
+                existing_news_count = db.query(NewsArticleDB).count()
+                if existing_news_count == 0 and os.path.exists(NEWS_ARTICLES_JSON):
+                    try:
+                        with open(NEWS_ARTICLES_JSON, "r", encoding="utf-8") as f:
+                            news_data = json.load(f)
+                        for item in news_data:
+                            db.add(NewsArticleDB(
+                                id=item.get("id"),
+                                title=item.get("title", ""),
+                                summary=item.get("summary", ""),
+                                content=item.get("content", ""),
+                                category=item.get("category", "scholarships"),
+                                category_label=item.get("category_label", "منح دراسية"),
+                                publish_date=item.get("publish_date", datetime.now().isoformat()),
+                                source_name=item.get("source_name", "EduAtlas"),
+                                source_url=item.get("source_url", ""),
+                                image_url=item.get("image_url", ""),
+                                country=item.get("country", ""),
+                                degree_level=item.get("degree_level", ""),
+                                scholarship_id=item.get("scholarship_id"),
+                                deadline=item.get("deadline"),
+                                is_expired=item.get("is_expired", False),
+                                is_featured=item.get("is_featured", False),
+                                is_trending=item.get("is_trending", False),
+                                views_count=item.get("views_count", 0),
+                                shares_count=item.get("shares_count", 0),
+                                comments_count=item.get("comments_count", 0),
+                                telegram_post_id=item.get("telegram_post_id"),
+                                saved_by=item.get("saved_by", [])
+                            ))
+                        logger.info(f"Auto-migrated {len(news_data)} news articles to Database.")
+                    except Exception as nwe:
+                        logger.warning(f"News articles auto-migration error: {nwe}")
+
         return True
     except Exception as e:
         logger.error(f"Error during database initialization/migration: {e}")
@@ -2937,6 +2973,45 @@ def get_news_articles(
                         q = q.order_by(NewsArticleDB.publish_date.desc())
                     
                     total = q.count()
+                    if total == 0 and os.path.exists(NEWS_ARTICLES_JSON):
+                        try:
+                            with open(NEWS_ARTICLES_JSON, "r", encoding="utf-8") as f:
+                                json_news = json.load(f)
+                            for item in json_news:
+                                db.add(NewsArticleDB(
+                                    id=item.get("id"),
+                                    title=item.get("title", ""),
+                                    summary=item.get("summary", ""),
+                                    content=item.get("content", ""),
+                                    category=item.get("category", "scholarships"),
+                                    category_label=item.get("category_label", "منح دراسية"),
+                                    publish_date=item.get("publish_date", datetime.now().isoformat()),
+                                    source_name=item.get("source_name", "EduAtlas"),
+                                    source_url=item.get("source_url", ""),
+                                    image_url=item.get("image_url", ""),
+                                    country=item.get("country", ""),
+                                    degree_level=item.get("degree_level", ""),
+                                    scholarship_id=item.get("scholarship_id"),
+                                    deadline=item.get("deadline"),
+                                    is_expired=item.get("is_expired", False),
+                                    is_featured=item.get("is_featured", False),
+                                    is_trending=item.get("is_trending", False),
+                                    views_count=item.get("views_count", 0),
+                                    shares_count=item.get("shares_count", 0),
+                                    comments_count=item.get("comments_count", 0),
+                                    telegram_post_id=item.get("telegram_post_id"),
+                                    saved_by=item.get("saved_by", [])
+                                ))
+                            db.commit()
+                            q = db.query(NewsArticleDB)
+                            if only_active:
+                                q = q.filter(NewsArticleDB.is_expired == False)
+                            if category and category.strip() and category != "all":
+                                q = q.filter(NewsArticleDB.category == category.strip().lower())
+                            total = q.count()
+                        except Exception as seed_err:
+                            logger.warning(f"On-the-fly news auto-seed error: {seed_err}")
+
                     rows = q.offset((page - 1) * limit).limit(limit).all()
                     articles = [r.to_dict() for r in rows]
                     return {
@@ -3517,13 +3592,34 @@ def get_news_category_counts() -> Dict[str, int]:
 
 def get_all_scholarships():
     import os, json
-    if os.path.exists(SCHOLARSHIPS_JSON):
+    # 1. Query from SQL DB if available
+    if is_db_available() and LiveScholarshipDB is not None:
         try:
-            with open(SCHOLARSHIPS_JSON, 'r', encoding='utf-8') as f:
-                return json.load(f)
+            with get_db_session() as db:
+                if db is not None:
+                    rows = db.query(LiveScholarshipDB).all()
+                    if rows:
+                        return [r.to_dict() for r in rows]
         except Exception:
             pass
-    return []
+
+    # 2. Query from JSON files
+    for p in [SCHOLARSHIPS_JSON, os.path.join(DATA_DIR, "live_scholarships.json")]:
+        if p and os.path.exists(p):
+            try:
+                with open(p, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    if data:
+                        return data
+            except Exception:
+                pass
+
+    # 3. Fallback to verified flagship roster
+    try:
+        from services.automation_service import DEFAULT_LIVE_SCHOLARSHIPS
+        return DEFAULT_LIVE_SCHOLARSHIPS
+    except Exception:
+        return []
 
 
 # =====================================================================

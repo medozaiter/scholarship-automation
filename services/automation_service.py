@@ -861,6 +861,14 @@ async def start_automation_daemon():
             digest_res = await automation.auto_dispatch_weekly_digests()
             logger.info(f"Weekly Digest Cycle Output: {digest_res}")
 
+            # Step 4: Real-time News Discovery & Opportunity Aggregation
+            try:
+                from services.news_service import news_service
+                news_res = news_service.discover_and_aggregate_news()
+                logger.info(f"Autonomous News Aggregation Output: {news_res}")
+            except Exception as n_err:
+                logger.error(f"❌ Error in autonomous news aggregation: {n_err}")
+
         except Exception as e:
             logger.error(f"❌ Error in autonomous daemon cycle: {e}", exc_info=True)
 

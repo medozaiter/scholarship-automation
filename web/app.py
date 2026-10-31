@@ -158,6 +158,21 @@ def get_authenticated_user(request: Request) -> Optional[Dict[str, Any]]:
 
 automation_service = AutomationService()
 
+
+async def start_news_sync_daemon():
+    """Continuous background daemon that periodically discovers and aggregates real-time educational news."""
+    logger.info("EduAtlas Continuous Real-Time Newsroom Daemon activated.")
+    while True:
+        try:
+            logger.info("Running automated educational news discovery cycle...")
+            res = news_service.discover_and_aggregate_news()
+            logger.info(f"News discovery cycle completed: {res.get('new_articles_count', 0)} new articles added.")
+        except Exception as e:
+            logger.error(f"Error in news sync background cycle: {e}")
+        # Continuous scan every 30 minutes
+        await asyncio.sleep(1800)
+
+
 @app.on_event("startup")
 async def startup_event():
     """Initializes database schema migrations, notification queue, and background daemon."""
@@ -173,6 +188,15 @@ async def startup_event():
         start_notification_worker()
     except Exception as e:
         logger.error(f"Notification worker start error: {e}")
+
+    logger.info("Executing initial news discovery and aggregation...")
+    try:
+        news_service.discover_and_aggregate_news()
+    except Exception as ne:
+        logger.warning(f"Initial news discovery error: {ne}")
+
+    logger.info("Starting Continuous Real-Time Newsroom Daemon...")
+    asyncio.create_task(start_news_sync_daemon())
 
     logger.info("Initializing 100% Automated Background Scholarship & Email Daemon...")
     asyncio.create_task(start_automation_daemon())
@@ -2220,18 +2244,34 @@ async def get_news_list(
     sort_by: str = "latest",
     only_active: bool = True,
     page: int = 1,
-    limit: int = 12
+    limit: int = 20
 ):
     """Retrieves paginated news articles with category filtering, search, and deadline protection."""
     user = get_authenticated_user(request)
+    cat_filter = None if (category and category.strip().lower() == "all") else category
     data = news_service.list_news(
-        category=category,
+        category=cat_filter,
         search=search,
         sort_by=sort_by,
         only_active=only_active,
         page=page,
         limit=limit
     )
+    # If database had 0 articles, trigger on-the-fly discovery and re-query
+    if data.get("total", 0) == 0 and not search:
+        try:
+            news_service.discover_and_aggregate_news()
+            data = news_service.list_news(
+                category=cat_filter,
+                search=search,
+                sort_by=sort_by,
+                only_active=only_active,
+                page=page,
+                limit=limit
+            )
+        except Exception as ex:
+            logger.debug(f"On-the-fly news discovery fallback: {ex}")
+
     user_email = user.get("email", "").lower() if user else ""
     for art in data.get("articles", []):
         art["is_saved"] = user_email in [e.lower() for e in art.get("saved_by", [])]
