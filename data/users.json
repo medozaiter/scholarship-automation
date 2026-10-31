@@ -136,7 +136,263 @@
     "password_hash": "dummy",
     "salt": "dummy",
     "is_active": true,
-    "updated_at": "2026-10-31T12:01:52.258185",
-    "created_at": "2026-10-31T12:01:52.258185"
+    "updated_at": "2026-10-31T14:33:17.760262",
+    "created_at": "2026-10-31T14:33:17.760262"
+  },
+  {
+    "email": "test.student.1793448889@gmail.com",
+    "username": "test-student-1793448889",
+    "full_name": "أحمد محمود",
+    "role": "student",
+    "salt": "e693f0c222e19519cdd0825fcc10acb5",
+    "password_hash": "pbkdf2:sha256:600000$e693f0c222e19519cdd0825fcc10acb5$1ae5d0f89c3e10cb1f32835cb0a0ab65274ffd154212c7cb48b830b867baeb8f",
+    "avatar_url": "",
+    "cover_url": "",
+    "city": "",
+    "university": "",
+    "degree": "Master&amp;#x27;s Degree",
+    "majors": [
+      "Cybersecurity"
+    ],
+    "graduation_year": "",
+    "bio": "",
+    "gpa": "88%",
+    "english_level": "Intermediate",
+    "country": "Palestine",
+    "talents_experience": "",
+    "languages": [
+      {
+        "name": "العربية",
+        "level": "اللغة الأم"
+      }
+    ],
+    "skills": [],
+    "interests": [],
+    "target_countries": [
+      "Palestine"
+    ],
+    "scholarship_interests": [],
+    "social_links": {
+      "whatsapp": "",
+      "linkedin": "",
+      "github": "",
+      "facebook": "",
+      "instagram": "",
+      "twitter": "",
+      "telegram": "",
+      "portfolio": "",
+      "website": ""
+    },
+    "saved_scholarships": [],
+    "preferred_countries": [
+      "Palestine"
+    ],
+    "funding_type": "Any",
+    "email_notifications": true,
+    "telegram_notifications": false,
+    "telegram_chat_id": "",
+    "email_verified": false,
+    "verification_code": "544690",
+    "reset_token": "",
+    "reset_token_expires": "",
+    "privacy_settings": {
+      "public_profile": true,
+      "show_gpa": true,
+      "show_contact": true
+    },
+    "created_at": "2026-10-31T14:14:49.656940",
+    "updated_at": "2026-10-31T14:14:49.657030"
+  },
+  {
+    "email": "test.student.1793448910@gmail.com",
+    "username": "test-student-1793448910",
+    "full_name": "أحمد محمود",
+    "role": "student",
+    "salt": "09104fbcda9ba5230e349a0e700221ae",
+    "password_hash": "pbkdf2:sha256:600000$09104fbcda9ba5230e349a0e700221ae$4818f83680753a4b7f6c150be191f0f8f44ad4be8053ebf624a4ef0568d8fc3e",
+    "avatar_url": "",
+    "cover_url": "",
+    "city": "",
+    "university": "",
+    "degree": "Master&amp;#x27;s Degree",
+    "majors": [
+      "Cybersecurity"
+    ],
+    "graduation_year": "",
+    "bio": "",
+    "gpa": "88%",
+    "english_level": "Intermediate",
+    "country": "Palestine",
+    "talents_experience": "",
+    "languages": [
+      {
+        "name": "العربية",
+        "level": "اللغة الأم"
+      }
+    ],
+    "skills": [],
+    "interests": [],
+    "target_countries": [
+      "Palestine"
+    ],
+    "scholarship_interests": [],
+    "social_links": {
+      "whatsapp": "",
+      "linkedin": "",
+      "github": "",
+      "facebook": "",
+      "instagram": "",
+      "twitter": "",
+      "telegram": "",
+      "portfolio": "",
+      "website": ""
+    },
+    "saved_scholarships": [],
+    "preferred_countries": [
+      "Palestine"
+    ],
+    "funding_type": "Any",
+    "email_notifications": true,
+    "telegram_notifications": false,
+    "telegram_chat_id": "",
+    "email_verified": false,
+    "verification_code": "825155",
+    "reset_token": "",
+    "reset_token_expires": "",
+    "privacy_settings": {
+      "public_profile": true,
+      "show_gpa": true,
+      "show_contact": true
+    },
+    "created_at": "2026-10-31T14:15:10.760902",
+    "updated_at": "2026-10-31T14:15:10.760989"
+  },
+  {
+    "email": "test.student.1793449932@gmail.com",
+    "username": "test-student-1793449932",
+    "full_name": "أحمد محمود",
+    "role": "student",
+    "salt": "8d5bde17a05cb0ed706b42aca5f34221",
+    "password_hash": "pbkdf2:sha256:600000$8d5bde17a05cb0ed706b42aca5f34221$45b2a346b9fd5ec847d08318f719bb011df21adf2bb3221d27caca665512e4b5",
+    "avatar_url": "",
+    "cover_url": "",
+    "city": "",
+    "university": "",
+    "degree": "Master&amp;#x27;s Degree",
+    "majors": [
+      "Cybersecurity"
+    ],
+    "graduation_year": "",
+    "bio": "",
+    "gpa": "88%",
+    "english_level": "Intermediate",
+    "country": "Palestine",
+    "talents_experience": "",
+    "languages": [
+      {
+        "name": "العربية",
+        "level": "اللغة الأم"
+      }
+    ],
+    "skills": [],
+    "interests": [],
+    "target_countries": [
+      "Palestine"
+    ],
+    "scholarship_interests": [],
+    "social_links": {
+      "whatsapp": "",
+      "linkedin": "",
+      "github": "",
+      "facebook": "",
+      "instagram": "",
+      "twitter": "",
+      "telegram": "",
+      "portfolio": "",
+      "website": ""
+    },
+    "saved_scholarships": [],
+    "preferred_countries": [
+      "Palestine"
+    ],
+    "funding_type": "Any",
+    "email_notifications": true,
+    "telegram_notifications": false,
+    "telegram_chat_id": "",
+    "email_verified": false,
+    "verification_code": "187821",
+    "reset_token": "",
+    "reset_token_expires": "",
+    "privacy_settings": {
+      "public_profile": true,
+      "show_gpa": true,
+      "show_contact": true
+    },
+    "created_at": "2026-10-31T14:32:13.397234",
+    "updated_at": "2026-10-31T14:32:13.397372"
+  },
+  {
+    "email": "test.student.1793450044@gmail.com",
+    "username": "test-student-1793450044",
+    "full_name": "أحمد محمود",
+    "role": "student",
+    "salt": "e8c2e2d3eac7e4a05beff14e63c640d2",
+    "password_hash": "pbkdf2:sha256:600000$e8c2e2d3eac7e4a05beff14e63c640d2$e8006ac23c4f1642577764f645597e0de3e879be0f744a58dddeeed2cf80b0d5",
+    "avatar_url": "",
+    "cover_url": "",
+    "city": "",
+    "university": "",
+    "degree": "Master&amp;#x27;s Degree",
+    "majors": [
+      "Cybersecurity"
+    ],
+    "graduation_year": "",
+    "bio": "",
+    "gpa": "88%",
+    "english_level": "Intermediate",
+    "country": "Palestine",
+    "talents_experience": "",
+    "languages": [
+      {
+        "name": "العربية",
+        "level": "اللغة الأم"
+      }
+    ],
+    "skills": [],
+    "interests": [],
+    "target_countries": [
+      "Palestine"
+    ],
+    "scholarship_interests": [],
+    "social_links": {
+      "whatsapp": "",
+      "linkedin": "",
+      "github": "",
+      "facebook": "",
+      "instagram": "",
+      "twitter": "",
+      "telegram": "",
+      "portfolio": "",
+      "website": ""
+    },
+    "saved_scholarships": [],
+    "preferred_countries": [
+      "Palestine"
+    ],
+    "funding_type": "Any",
+    "email_notifications": true,
+    "telegram_notifications": false,
+    "telegram_chat_id": "",
+    "email_verified": false,
+    "verification_code": "247450",
+    "reset_token": "",
+    "reset_token_expires": "",
+    "privacy_settings": {
+      "public_profile": true,
+      "show_gpa": true,
+      "show_contact": true
+    },
+    "created_at": "2026-10-31T14:34:04.662997",
+    "updated_at": "2026-10-31T14:34:04.663142"
   }
 ]

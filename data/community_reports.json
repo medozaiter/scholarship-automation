@@ -28,5 +28,25 @@
     "status": "pending",
     "id": "rep_f741a17222",
     "created_at": "2026-10-31T12:01:27.854460"
+  },
+  {
+    "reporter_email": "community_peer_test@example.com",
+    "target_type": "post",
+    "target_id": "post_test_sample_123",
+    "reason": "محتوى دعائي غير مرغوب فيه",
+    "details": "رابط تجاري مشبوه",
+    "status": "pending",
+    "id": "rep_a53aec52d7",
+    "created_at": "2026-10-31T14:15:33.091342"
+  },
+  {
+    "reporter_email": "community_peer_test@example.com",
+    "target_type": "post",
+    "target_id": "post_test_sample_123",
+    "reason": "محتوى دعائي غير مرغوب فيه",
+    "details": "رابط تجاري مشبوه",
+    "status": "pending",
+    "id": "rep_477d70d224",
+    "created_at": "2026-10-31T14:32:39.557243"
   }
 ]

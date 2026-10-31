@@ -252,5 +252,69 @@
     "updated_at": "2026-10-31T12:01:34.781547",
     "likes_count": 0,
     "liked_by": []
+  },
+  {
+    "article_id": "news_chevening_extension_2026",
+    "parent_id": null,
+    "author_id": "news_scholar_test@example.com",
+    "author_name": "طالب إخباري تجريبي",
+    "author_username": "news-scholar-test",
+    "author_avatar": "",
+    "author_university": "Undergraduate (Bachelor&#x27;s)",
+    "content": "خبر ممتاز وتمديد فرصة رائعة لاستكمال توصيات المشرف الأكاديمي.",
+    "id": "ncomm_f74c1511cda5",
+    "created_at": "2026-10-31T14:15:53.503266",
+    "updated_at": "2026-10-31T14:15:53.503277",
+    "likes_count": 1,
+    "liked_by": [
+      "news_scholar_test@example.com"
+    ]
+  },
+  {
+    "article_id": "news_chevening_extension_2026",
+    "parent_id": "ncomm_f74c1511cda5",
+    "author_id": "news_scholar_test@example.com",
+    "author_name": "طالب إخباري تجريبي",
+    "author_username": "news-scholar-test",
+    "author_avatar": "",
+    "author_university": "Undergraduate (Bachelor&#x27;s)",
+    "content": "أتفق معك تماماً، التقديم الآن متاح حتى 20 نوفمبر.",
+    "id": "ncomm_1f22ed768c63",
+    "created_at": "2026-10-31T14:15:53.539752",
+    "updated_at": "2026-10-31T14:15:53.539771",
+    "likes_count": 0,
+    "liked_by": []
+  },
+  {
+    "article_id": "news_chevening_extension_2026",
+    "parent_id": null,
+    "author_id": "news_scholar_test@example.com",
+    "author_name": "طالب إخباري تجريبي",
+    "author_username": "news-scholar-test",
+    "author_avatar": "",
+    "author_university": "Undergraduate (Bachelor&#x27;s)",
+    "content": "خبر ممتاز وتمديد فرصة رائعة لاستكمال توصيات المشرف الأكاديمي.",
+    "id": "ncomm_8d2bcac35635",
+    "created_at": "2026-10-31T14:33:18.713066",
+    "updated_at": "2026-10-31T14:33:18.713077",
+    "likes_count": 1,
+    "liked_by": [
+      "news_scholar_test@example.com"
+    ]
+  },
+  {
+    "article_id": "news_chevening_extension_2026",
+    "parent_id": "ncomm_8d2bcac35635",
+    "author_id": "news_scholar_test@example.com",
+    "author_name": "طالب إخباري تجريبي",
+    "author_username": "news-scholar-test",
+    "author_avatar": "",
+    "author_university": "Undergraduate (Bachelor&#x27;s)",
+    "content": "أتفق معك تماماً، التقديم الآن متاح حتى 20 نوفمبر.",
+    "id": "ncomm_cde12b51627c",
+    "created_at": "2026-10-31T14:33:18.762223",
+    "updated_at": "2026-10-31T14:33:18.762237",
+    "likes_count": 0,
+    "liked_by": []
   }
 ]

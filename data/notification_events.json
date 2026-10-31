@@ -1,5 +1,421 @@
 [
   {
+    "id": 1793449999682,
+    "recipient": "@testchannel",
+    "notification_type": "telegram_channel_post",
+    "channel": "telegram",
+    "target_id": "tg_post_test_unique_51b5ec02",
+    "status": "sent",
+    "timestamp": "2026-10-31T14:33:19.682778",
+    "meta": {
+      "scholarship_id": "test_unique_51b5ec02",
+      "telegram_message_id": "54321"
+    }
+  },
+  {
+    "id": 1793449999627,
+    "recipient": "@scholarpilot",
+    "notification_type": "telegram_channel_post",
+    "channel": "telegram",
+    "target_id": "tg_post_test_gks_60d153dd",
+    "status": "sent",
+    "timestamp": "2026-10-31T14:33:19.627210",
+    "meta": {
+      "scholarship_id": "test_gks_60d153dd",
+      "telegram_message_id": "987654"
+    }
+  },
+  {
+    "id": 1793449997940,
+    "recipient": "test_scholar_notif@scholarpilot.com",
+    "notification_type": "test_lifecycle",
+    "channel": "in_app",
+    "target_id": "ntf_c684c75e0257",
+    "status": "delivered",
+    "timestamp": "2026-10-31T14:33:17.940658",
+    "meta": {
+      "category": "system",
+      "priority": "normal"
+    }
+  },
+  {
+    "id": 1793449997804,
+    "recipient": "mentioned_peer@scholarpilot.com",
+    "notification_type": "post_mention",
+    "channel": "in_app",
+    "target_id": "ntf_9a9aa6389325",
+    "status": "delivered",
+    "timestamp": "2026-10-31T14:33:17.804361",
+    "meta": {
+      "category": "community",
+      "priority": "high"
+    }
+  },
+  {
+    "id": 1793449997740,
+    "recipient": "test_scholar_notif@scholarpilot.com",
+    "notification_type": "post_like",
+    "channel": "in_app",
+    "target_id": "ntf_c70b69351cc6",
+    "status": "delivered",
+    "timestamp": "2026-10-31T14:33:17.740021",
+    "meta": {
+      "category": "community",
+      "priority": "normal"
+    }
+  },
+  {
+    "id": 1793449997696,
+    "recipient": "test_scholar_notif@scholarpilot.com",
+    "notification_type": "post_like",
+    "channel": "in_app",
+    "target_id": "ntf_c70b69351cc6",
+    "status": "delivered",
+    "timestamp": "2026-10-31T14:33:17.696196",
+    "meta": {
+      "category": "community",
+      "priority": "normal"
+    }
+  },
+  {
+    "id": 1793449997644,
+    "recipient": "test_scholar_notif@scholarpilot.com",
+    "notification_type": "scholarship_match",
+    "channel": "in_app",
+    "target_id": "ntf_9af6cc2aa1f9",
+    "status": "delivered",
+    "timestamp": "2026-10-31T14:33:17.644372",
+    "meta": {
+      "category": "scholarship",
+      "priority": "high"
+    }
+  },
+  {
+    "id": 1793449994728,
+    "recipient": "academic_student_test@example.com",
+    "notification_type": "profile_milestone",
+    "channel": "in_app",
+    "target_id": "ntf_68473856f53e",
+    "status": "delivered",
+    "timestamp": "2026-10-31T14:33:14.728122",
+    "meta": {
+      "category": "system",
+      "priority": "normal"
+    }
+  },
+  {
+    "id": 1793449994644,
+    "recipient": "academic_student_test@example.com",
+    "notification_type": "profile_milestone",
+    "channel": "in_app",
+    "target_id": "ntf_68473856f53e",
+    "status": "delivered",
+    "timestamp": "2026-10-31T14:33:14.644093",
+    "meta": {
+      "category": "system",
+      "priority": "normal"
+    }
+  },
+  {
+    "id": 1793449993617,
+    "recipient": "academic_student_test@example.com",
+    "notification_type": "profile_milestone",
+    "channel": "in_app",
+    "target_id": "ntf_dc72344064cb",
+    "status": "delivered",
+    "timestamp": "2026-10-31T14:33:13.617344",
+    "meta": {
+      "category": "system",
+      "priority": "high"
+    }
+  },
+  {
+    "id": 1793449992679,
+    "recipient": "academic_student_test@example.com",
+    "notification_type": "account_verified",
+    "channel": "in_app",
+    "target_id": "ntf_f7e07b0bf85e",
+    "status": "delivered",
+    "timestamp": "2026-10-31T14:33:12.679965",
+    "meta": {
+      "category": "system",
+      "priority": "high"
+    }
+  },
+  {
+    "id": 1793449956916,
+    "recipient": "community_scholar_test@example.com",
+    "notification_type": "post_like",
+    "channel": "in_app",
+    "target_id": "ntf_2af7f4ed03e1",
+    "status": "delivered",
+    "timestamp": "2026-10-31T14:32:36.916817",
+    "meta": {
+      "category": "community",
+      "priority": "normal"
+    }
+  },
+  {
+    "id": 1793449954236,
+    "recipient": "community_scholar_test@example.com",
+    "notification_type": "follow",
+    "channel": "in_app",
+    "target_id": "ntf_0d879eca2d72",
+    "status": "delivered",
+    "timestamp": "2026-10-31T14:32:34.236807",
+    "meta": {
+      "category": "community",
+      "priority": "normal"
+    }
+  },
+  {
+    "id": 1793449951462,
+    "recipient": "community_scholar_test@example.com",
+    "notification_type": "post_like",
+    "channel": "in_app",
+    "target_id": "ntf_2294e11b1bd7",
+    "status": "delivered",
+    "timestamp": "2026-10-31T14:32:31.462949",
+    "meta": {
+      "category": "community",
+      "priority": "normal"
+    }
+  },
+  {
+    "id": 1793449948663,
+    "recipient": "community_peer_test@example.com",
+    "notification_type": "comment_reply",
+    "channel": "in_app",
+    "target_id": "ntf_de1e561d453a",
+    "status": "delivered",
+    "timestamp": "2026-10-31T14:32:28.663042",
+    "meta": {
+      "category": "community",
+      "priority": "normal"
+    }
+  },
+  {
+    "id": 1793449948532,
+    "recipient": "community_scholar_test@example.com",
+    "notification_type": "post_comment",
+    "channel": "in_app",
+    "target_id": "ntf_a80929b25a80",
+    "status": "delivered",
+    "timestamp": "2026-10-31T14:32:28.532276",
+    "meta": {
+      "category": "community",
+      "priority": "high"
+    }
+  },
+  {
+    "id": 1793448954291,
+    "recipient": "@testchannel",
+    "notification_type": "telegram_channel_post",
+    "channel": "telegram",
+    "target_id": "tg_post_test_unique_cbeccdd1",
+    "status": "sent",
+    "timestamp": "2026-10-31T14:15:54.291525",
+    "meta": {
+      "scholarship_id": "test_unique_cbeccdd1",
+      "telegram_message_id": "54321"
+    }
+  },
+  {
+    "id": 1793448954240,
+    "recipient": "@scholarpilot",
+    "notification_type": "telegram_channel_post",
+    "channel": "telegram",
+    "target_id": "tg_post_test_gks_1d1ccbd6",
+    "status": "sent",
+    "timestamp": "2026-10-31T14:15:54.240432",
+    "meta": {
+      "scholarship_id": "test_gks_1d1ccbd6",
+      "telegram_message_id": "987654"
+    }
+  },
+  {
+    "id": 1793448952794,
+    "recipient": "test_scholar_notif@scholarpilot.com",
+    "notification_type": "test_lifecycle",
+    "channel": "in_app",
+    "target_id": "ntf_be2465629e6b",
+    "status": "delivered",
+    "timestamp": "2026-10-31T14:15:52.794931",
+    "meta": {
+      "category": "system",
+      "priority": "normal"
+    }
+  },
+  {
+    "id": 1793448952648,
+    "recipient": "mentioned_peer@scholarpilot.com",
+    "notification_type": "post_mention",
+    "channel": "in_app",
+    "target_id": "ntf_a2dad354e2bc",
+    "status": "delivered",
+    "timestamp": "2026-10-31T14:15:52.648336",
+    "meta": {
+      "category": "community",
+      "priority": "high"
+    }
+  },
+  {
+    "id": 1793448952580,
+    "recipient": "test_scholar_notif@scholarpilot.com",
+    "notification_type": "post_like",
+    "channel": "in_app",
+    "target_id": "ntf_ded642fbd023",
+    "status": "delivered",
+    "timestamp": "2026-10-31T14:15:52.580378",
+    "meta": {
+      "category": "community",
+      "priority": "normal"
+    }
+  },
+  {
+    "id": 1793448952530,
+    "recipient": "test_scholar_notif@scholarpilot.com",
+    "notification_type": "post_like",
+    "channel": "in_app",
+    "target_id": "ntf_ded642fbd023",
+    "status": "delivered",
+    "timestamp": "2026-10-31T14:15:52.530475",
+    "meta": {
+      "category": "community",
+      "priority": "normal"
+    }
+  },
+  {
+    "id": 1793448952465,
+    "recipient": "test_scholar_notif@scholarpilot.com",
+    "notification_type": "scholarship_match",
+    "channel": "in_app",
+    "target_id": "ntf_d27a9f5867b2",
+    "status": "delivered",
+    "timestamp": "2026-10-31T14:15:52.465315",
+    "meta": {
+      "category": "scholarship",
+      "priority": "high"
+    }
+  },
+  {
+    "id": 1793448949507,
+    "recipient": "academic_student_test@example.com",
+    "notification_type": "profile_milestone",
+    "channel": "in_app",
+    "target_id": "ntf_68473856f53e",
+    "status": "delivered",
+    "timestamp": "2026-10-31T14:15:49.507861",
+    "meta": {
+      "category": "system",
+      "priority": "normal"
+    }
+  },
+  {
+    "id": 1793448949410,
+    "recipient": "academic_student_test@example.com",
+    "notification_type": "profile_milestone",
+    "channel": "in_app",
+    "target_id": "ntf_68473856f53e",
+    "status": "delivered",
+    "timestamp": "2026-10-31T14:15:49.410839",
+    "meta": {
+      "category": "system",
+      "priority": "normal"
+    }
+  },
+  {
+    "id": 1793448948427,
+    "recipient": "academic_student_test@example.com",
+    "notification_type": "profile_milestone",
+    "channel": "in_app",
+    "target_id": "ntf_dc72344064cb",
+    "status": "delivered",
+    "timestamp": "2026-10-31T14:15:48.427629",
+    "meta": {
+      "category": "system",
+      "priority": "high"
+    }
+  },
+  {
+    "id": 1793448947485,
+    "recipient": "academic_student_test@example.com",
+    "notification_type": "account_verified",
+    "channel": "in_app",
+    "target_id": "ntf_f7e07b0bf85e",
+    "status": "delivered",
+    "timestamp": "2026-10-31T14:15:47.485880",
+    "meta": {
+      "category": "system",
+      "priority": "high"
+    }
+  },
+  {
+    "id": 1793448930445,
+    "recipient": "community_scholar_test@example.com",
+    "notification_type": "post_like",
+    "channel": "in_app",
+    "target_id": "ntf_4c8d3ebf63de",
+    "status": "delivered",
+    "timestamp": "2026-10-31T14:15:30.445364",
+    "meta": {
+      "category": "community",
+      "priority": "normal"
+    }
+  },
+  {
+    "id": 1793448927773,
+    "recipient": "community_scholar_test@example.com",
+    "notification_type": "follow",
+    "channel": "in_app",
+    "target_id": "ntf_0d879eca2d72",
+    "status": "delivered",
+    "timestamp": "2026-10-31T14:15:27.773655",
+    "meta": {
+      "category": "community",
+      "priority": "normal"
+    }
+  },
+  {
+    "id": 1793448925005,
+    "recipient": "community_scholar_test@example.com",
+    "notification_type": "post_like",
+    "channel": "in_app",
+    "target_id": "ntf_09cb473e5dd4",
+    "status": "delivered",
+    "timestamp": "2026-10-31T14:15:25.005518",
+    "meta": {
+      "category": "community",
+      "priority": "normal"
+    }
+  },
+  {
+    "id": 1793448922181,
+    "recipient": "community_peer_test@example.com",
+    "notification_type": "comment_reply",
+    "channel": "in_app",
+    "target_id": "ntf_ba90e75cc1cb",
+    "status": "delivered",
+    "timestamp": "2026-10-31T14:15:22.181827",
+    "meta": {
+      "category": "community",
+      "priority": "normal"
+    }
+  },
+  {
+    "id": 1793448922065,
+    "recipient": "community_scholar_test@example.com",
+    "notification_type": "post_comment",
+    "channel": "in_app",
+    "target_id": "ntf_f182884a019d",
+    "status": "delivered",
+    "timestamp": "2026-10-31T14:15:22.065231",
+    "meta": {
+      "category": "community",
+      "priority": "high"
+    }
+  },
+  {
     "id": 1793440912442,
     "recipient": "test_scholar_notif@scholarpilot.com",
     "notification_type": "test_lifecycle",

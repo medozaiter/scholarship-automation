@@ -1,54 +1,66 @@
 /**
- * ScholarPilot AI - Design System & Tokens
- * Production SaaS UI Architecture (Linear / Stripe / Vercel Grade)
+ * EduAtlas - The Academic Navigation & Opportunity Discovery System
+ * Brand Philosophy: Compass + Topography (Cartographic Precision)
  */
 
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Tajawal:wght@400;500;700;800;900&display=swap');
 
 :root {
-  /* Eye-Comfort Canvas & Surfaces (Soft Light Mode - Anti-Glare) */
-  --sp-canvas: #f1f4f9;
-  --sp-surface: #f9fbfd;
-  --sp-surface-raised: #ffffff;
-  --sp-surface-subtle: #e7eef6;
-  --sp-surface-hover: #dbe5f0;
+  /* EduAtlas Brand Foundation (Cartographic Palette) */
+  --ea-navy-primary: #16324F;
+  --ea-navy-deep: #0D1F31;
+  --ea-forest-green: #1F4D3A;
+  --ea-forest-light: #2D6B51;
+  --ea-terracotta: #C86446;
+  --ea-terracotta-hover: #B25337;
+  --ea-sand: #F4F1EA;
+  --ea-sand-dark: #E8E3D7;
+  --ea-gold: #B99050;
+  --ea-gold-light: #D4AF6E;
 
-  /* Borders (Refined, Soft Slate Tones) */
-  --sp-border-subtle: #e2ebf4;
-  --sp-border-default: #d3deea;
-  --sp-border-strong: #b9cadb;
-  --sp-border-focus: #2563eb;
+  /* Eye-Comfort Canvas & Surfaces (Parchment & Warm Slate) */
+  --sp-canvas: #F4F1EA;
+  --sp-surface: #FFFFFF;
+  --sp-surface-raised: #FAF8F4;
+  --sp-surface-subtle: #EFECE5;
+  --sp-surface-hover: #E4E0D7;
 
-  /* Typography (Comfortable Contrast for Long Reading) */
-  --sp-text-primary: #1e293b;
-  --sp-text-secondary: #475569;
-  --sp-text-muted: #64748b;
-  --sp-text-disabled: #94a3b8;
-  --sp-text-inverse: #ffffff;
+  /* Borders (Refined Cartographic Tones) */
+  --sp-border-subtle: rgba(22, 50, 79, 0.08);
+  --sp-border-default: rgba(22, 50, 79, 0.14);
+  --sp-border-strong: rgba(22, 50, 79, 0.26);
+  --sp-border-focus: #16324F;
 
-  /* Brand Accents (Harmonious Royal Blue & Indigo) */
-  --sp-brand-50: #eef4ff;
-  --sp-brand-100: #dbeafe;
-  --sp-brand-500: #3b82f6;
-  --sp-brand-600: #2563eb;
-  --sp-brand-700: #1d4ed8;
+  /* Typography */
+  --sp-text-primary: #16324F;
+  --sp-text-secondary: #3D5A73;
+  --sp-text-muted: #627D95;
+  --sp-text-disabled: #9BB0C4;
+  --sp-text-inverse: #FFFFFF;
 
-  /* Status Colors (Subtle, Non-Harsh Badges & Indicators) */
-  --sp-success-bg: rgba(16, 185, 129, 0.10);
-  --sp-success-border: rgba(16, 185, 129, 0.30);
-  --sp-success-text: #047857;
+  /* Brand Accents */
+  --sp-brand-50: #F4F1EA;
+  --sp-brand-100: #E8E3D7;
+  --sp-brand-500: #1F4D3A;
+  --sp-brand-600: #16324F;
+  --sp-brand-700: #0D1F31;
 
-  --sp-warning-bg: rgba(217, 119, 6, 0.10);
-  --sp-warning-border: rgba(217, 119, 6, 0.30);
-  --sp-warning-text: #b45309;
+  /* Status Colors (Grounded & Dignified) */
+  --sp-success-bg: rgba(31, 77, 58, 0.10);
+  --sp-success-border: rgba(31, 77, 58, 0.28);
+  --sp-success-text: #1F4D3A;
 
-  --sp-danger-bg: rgba(239, 68, 68, 0.10);
-  --sp-danger-border: rgba(239, 68, 68, 0.30);
-  --sp-danger-text: #b91c1c;
+  --sp-warning-bg: rgba(185, 144, 80, 0.12);
+  --sp-warning-border: rgba(185, 144, 80, 0.32);
+  --sp-warning-text: #8E6828;
 
-  --sp-info-bg: rgba(37, 99, 235, 0.10);
-  --sp-info-border: rgba(37, 99, 235, 0.30);
-  --sp-info-text: #1d4ed8;
+  --sp-danger-bg: rgba(200, 100, 70, 0.12);
+  --sp-danger-border: rgba(200, 100, 70, 0.30);
+  --sp-danger-text: #C86446;
+
+  --sp-info-bg: rgba(22, 50, 79, 0.08);
+  --sp-info-border: rgba(22, 50, 79, 0.22);
+  --sp-info-text: #16324F;
 
   /* Shadows (Soft, Crisp, Eye-Comfort Depth) */
   --sp-shadow-xs: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
@@ -66,46 +78,46 @@
   --sp-radius-full: 9999px;
 }
 
-/* Dark Mode Tokens */
+/* Dark Mode Tokens (Night Cartography) */
 html.dark {
-  --sp-canvas: #090d16;
-  --sp-surface: #0f172a;
-  --sp-surface-raised: #141e33;
-  --sp-surface-subtle: #17223b;
-  --sp-surface-hover: #1e293b;
+  --sp-canvas: #0B1724;
+  --sp-surface: #102133;
+  --sp-surface-raised: #152B42;
+  --sp-surface-subtle: #19344F;
+  --sp-surface-hover: #1E3E5E;
 
-  --sp-border-subtle: #162032;
-  --sp-border-default: #1e293b;
-  --sp-border-strong: #334155;
-  --sp-border-focus: #3b82f6;
+  --sp-border-subtle: rgba(244, 241, 234, 0.08);
+  --sp-border-default: rgba(244, 241, 234, 0.14);
+  --sp-border-strong: rgba(185, 144, 80, 0.35);
+  --sp-border-focus: #B99050;
 
-  --sp-text-primary: #f8fafc;
-  --sp-text-secondary: #cbd5e1;
-  --sp-text-muted: #94a3b8;
-  --sp-text-disabled: #64748b;
-  --sp-text-inverse: #0f172a;
+  --sp-text-primary: #F4F1EA;
+  --sp-text-secondary: #C8D6E5;
+  --sp-text-muted: #8FA6BE;
+  --sp-text-disabled: #5A738E;
+  --sp-text-inverse: #0B1724;
 
-  --sp-brand-50: rgba(37, 99, 235, 0.12);
-  --sp-brand-100: rgba(37, 99, 235, 0.2);
-  --sp-brand-500: #3b82f6;
-  --sp-brand-600: #60a5fa;
-  --sp-brand-700: #93c5fd;
+  --sp-brand-50: rgba(185, 144, 80, 0.12);
+  --sp-brand-100: rgba(185, 144, 80, 0.22);
+  --sp-brand-500: #1F4D3A;
+  --sp-brand-600: #C86446;
+  --sp-brand-700: #B99050;
 
-  --sp-success-bg: rgba(16, 185, 129, 0.12);
-  --sp-success-border: rgba(16, 185, 129, 0.28);
-  --sp-success-text: #34d399;
+  --sp-success-bg: rgba(31, 77, 58, 0.18);
+  --sp-success-border: rgba(31, 77, 58, 0.38);
+  --sp-success-text: #48BB78;
 
-  --sp-warning-bg: rgba(245, 158, 11, 0.12);
-  --sp-warning-border: rgba(245, 158, 11, 0.28);
-  --sp-warning-text: #fbbf24;
+  --sp-warning-bg: rgba(185, 144, 80, 0.18);
+  --sp-warning-border: rgba(185, 144, 80, 0.38);
+  --sp-warning-text: #E2B76E;
 
-  --sp-danger-bg: rgba(239, 68, 68, 0.12);
-  --sp-danger-border: rgba(239, 68, 68, 0.28);
-  --sp-danger-text: #f87171;
+  --sp-danger-bg: rgba(200, 100, 70, 0.18);
+  --sp-danger-border: rgba(200, 100, 70, 0.38);
+  --sp-danger-text: #E07A5F;
 
-  --sp-info-bg: rgba(37, 99, 235, 0.12);
-  --sp-info-border: rgba(37, 99, 235, 0.28);
-  --sp-info-text: #60a5fa;
+  --sp-info-bg: rgba(22, 50, 79, 0.25);
+  --sp-info-border: rgba(185, 144, 80, 0.28);
+  --sp-info-text: #F4F1EA;
 
   --sp-shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
   --sp-shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.4);
@@ -166,22 +178,62 @@ body {
 
 /* Interactive Buttons */
 .sp-btn-primary {
-  background-color: #2563eb;
+  background-color: var(--ea-navy-primary, #16324F);
   color: #ffffff;
-  font-weight: 600;
+  font-weight: 700;
   border-radius: var(--sp-radius-md);
-  border: 1px solid transparent;
-  box-shadow: var(--sp-shadow-xs);
-  transition: background-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+  border: 1px solid rgba(185, 144, 80, 0.35);
+  box-shadow: 0 2px 4px rgba(22, 50, 79, 0.18);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .sp-btn-primary:hover {
-  background-color: #1d4ed8;
-  box-shadow: var(--sp-shadow-sm);
+  background-color: var(--ea-terracotta, #C86446);
+  border-color: #C86446;
+  box-shadow: 0 4px 12px rgba(200, 100, 70, 0.28);
+  transform: translateY(-1px);
 }
 
 .sp-btn-primary:active {
   transform: scale(0.98);
+}
+
+.sp-btn-accent {
+  background-color: var(--ea-terracotta, #C86446);
+  color: #ffffff;
+  font-weight: 700;
+  border-radius: var(--sp-radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 2px 6px rgba(200, 100, 70, 0.25);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sp-btn-accent:hover {
+  background-color: #B25337;
+  box-shadow: 0 4px 14px rgba(200, 100, 70, 0.35);
+  transform: translateY(-1px);
+}
+
+/* Topographic Contour Texture */
+.topo-contour-bg {
+  background-color: var(--sp-canvas);
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(200, 100, 70, 0.04) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(185, 144, 80, 0.05) 0%, transparent 50%),
+    repeating-radial-gradient(circle at 50% 50%, transparent, transparent 24px, rgba(22, 50, 79, 0.035) 25px, transparent 26px);
+}
+.dark .topo-contour-bg {
+  background-color: var(--sp-canvas);
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(200, 100, 70, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(185, 144, 80, 0.07) 0%, transparent 50%),
+    repeating-radial-gradient(circle at 50% 50%, transparent, transparent 24px, rgba(185, 144, 80, 0.04) 25px, transparent 26px);
+}
+
+.carto-coordinate {
+  font-family: 'Inter', 'Plus Jakarta Sans', monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
 }
 
 .sp-btn-secondary {

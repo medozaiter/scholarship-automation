@@ -19,7 +19,7 @@
     "is_trending": true,
     "views_count": 1420,
     "shares_count": 90,
-    "comments_count": 28,
+    "comments_count": 32,
     "saved_by": [],
     "telegram_message_id": "770001",
     "telegram_published_at": "2026-10-31T11:28:12.736648",
@@ -44,8 +44,8 @@
     "is_expired": false,
     "is_featured": true,
     "is_trending": true,
-    "views_count": 985,
-    "shares_count": 57,
+    "views_count": 987,
+    "shares_count": 59,
     "comments_count": 8,
     "saved_by": [
       "temp_user_test@example.com"

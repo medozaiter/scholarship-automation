@@ -46,8 +46,8 @@ NEWS_HTML_PATH = os.path.join(TEMPLATES_DIR, "news.html")
 CSS_PATH = os.path.join(os.path.dirname(__file__), "static", "css", "scholarpilot.css")
 
 app = FastAPI(
-    title="ScholarPilot AI - Your AI-Powered Scholarship Advisor",
-    description="Automated Scholarship Discovery, Verification, AI Advisor & Document Generator",
+    title="EduAtlas - The Academic Navigation & Opportunity Discovery System",
+    description="EduAtlas: Cartographic Academic Navigation, Global Scholarship Discovery & Opportunity System",
     version="2.5.0"
 )
 
@@ -59,7 +59,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
     allow_credentials=bool(allowed_origins_env),
-    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
 )
 
@@ -116,7 +116,7 @@ async def add_security_headers(request: Request, call_next):
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
         "font-src 'self' https://fonts.gstatic.com data:; "
         "img-src 'self' data: https:; "
-        "connect-src 'self'; "
+        "connect-src 'self' https:; "
         "frame-ancestors 'none'; "
         "object-src 'none'; "
         "base-uri 'self';"
@@ -694,7 +694,7 @@ class DraftEmailRequest(BaseModel):
     context: Optional[str] = None
 
 
-def _get_verified_profile_email(request: Request, requested_email: Optional[str]) -> Optional[str]:
+def _get_verified_profile_email(request: Request, requested_email: Optional[str] = None) -> Optional[str]:
     """
     Resolves the verified student email from:
     1. Authorization Bearer session token.
@@ -916,6 +916,7 @@ async def login_account(req: LoginRequest, response: Response):
 async def logout_account(response: Response):
     """Logs out student and deletes session cookie."""
     response.delete_cookie("minha_token")
+    response.delete_cookie("session_token")
     return {"success": True, "message": "تم تسجيل الخروج بنجاح."}
 
 
@@ -1049,6 +1050,7 @@ async def delete_account_endpoint(req: DeleteAccountRequest, request: Request, r
 
         success = auth_service.delete_account(req.email, req.password)
         response.delete_cookie("minha_token")
+        response.delete_cookie("session_token")
         return {"success": success, "message": "تم حذف الحساب نهائياً بنجاح."}
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=str(ve))
