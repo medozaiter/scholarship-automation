@@ -396,7 +396,7 @@ class NewsService:
                     "publish_date": datetime.now().isoformat(),
                     "source_name": univ or s_name,
                     "source_url": s.get("link") or "https://scholarpilot-ai-mkac.onrender.com",
-                    "image_url": "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1200&q=80",
+                    "image_url": "/static/img/covers/scholarships.svg",
                     "country": country,
                     "degree_level": degree,
                     "scholarship_id": s_id,

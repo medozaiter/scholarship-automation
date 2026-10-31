@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#16324F"/>
+      <stop offset="40%" stop-color="#0F2438"/>
+      <stop offset="100%" stop-color="#0B1724"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#457B9D"/>
+      <stop offset="100%" stop-color="#E07A5F"/>
+    </linearGradient>
+    <pattern id="topoLines" width="300" height="300" patternUnits="userSpaceOnUse" opacity="0.22">
+      <path d="M0,60 Q75,10 150,60 T300,60" fill="none" stroke="#B99050" stroke-width="1.4"/>
+      <path d="M0,120 Q75,70 150,120 T300,120" fill="none" stroke="#F4F1EA" stroke-width="1"/>
+      <path d="M0,180 Q75,140 150,180 T300,180" fill="none" stroke="#457B9D" stroke-width="1.2"/>
+      <path d="M0,240 Q75,200 150,240 T300,240" fill="none" stroke="#B99050" stroke-width="1"/>
+      <circle cx="150" cy="150" r="60" fill="none" stroke="#B99050" stroke-width="0.8" stroke-dasharray="4 4"/>
+      <circle cx="150" cy="150" r="110" fill="none" stroke="#F4F1EA" stroke-width="0.6"/>
+    </pattern>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="15" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background Base -->
+  <rect width="1200" height="675" fill="url(#bgGrad)"/>
+  <!-- Topographic Contour Overlay -->
+  <rect width="1200" height="675" fill="url(#topoLines)"/>
+
+  <!-- Compass Watermark Centerpiece -->
+  <g transform="translate(600, 270)">
+    <!-- Outer Compass Dial -->
+    <circle cx="0" cy="0" r="140" fill="none" stroke="#B99050" stroke-width="2" stroke-dasharray="6 8" opacity="0.4"/>
+    <circle cx="0" cy="0" r="110" fill="#16324F" fill-opacity="0.6" stroke="#B99050" stroke-width="1.5"/>
+
+    <!-- Compass Pointer Needles -->
+    <polygon points="0,-95 24,0 0,-15 -24,0" fill="#457B9D" filter="url(#glow)"/>
+    <polygon points="0,95 24,0 0,15 -24,0" fill="#F4F1EA" fill-opacity="0.85"/>
+    <circle cx="0" cy="0" r="16" fill="#B99050"/>
+    <circle cx="0" cy="0" r="7" fill="#16324F"/>
+
+    <!-- Category Symbol Inset -->
+    <g transform="translate(0, 0)">
+      <polygon points="-15,-120 15,-120 0,-135" fill="#457B9D"/>
+    </g>
+  </g>
+
+  <!-- Brand Header -->
+  <g transform="translate(80, 80)">
+    <rect x="-10" y="-8" width="130" height="34" rx="8" fill="#16324F" stroke="#B99050" stroke-opacity="0.4" stroke-width="1"/>
+    <text x="55" y="15" fill="#F4F1EA" font-family="'Cairo', -apple-system, sans-serif" font-size="16" font-weight="900" text-anchor="middle" letter-spacing="1">Edu<tspan fill="#457B9D">Atlas</tspan></text>
+  </g>
+
+  <!-- Category Badge -->
+  <g transform="translate(1120, 80)">
+    <rect x="-140" y="-8" width="140" height="34" rx="8" fill="#457B9D" fill-opacity="0.2" stroke="#457B9D" stroke-width="1.2"/>
+    <text x="-70" y="15" fill="#F4F1EA" font-family="'Cairo', -apple-system, sans-serif" font-size="14" font-weight="bold" text-anchor="middle">دراسة بالخارج</text>
+  </g>
+
+  <!-- Bottom Details Banner -->
+  <rect x="0" y="475" width="1200" height="200" fill="url(#bgGrad)" fill-opacity="0.95"/>
+  <line x1="0" y1="475" x2="1200" y2="475" stroke="#B99050" stroke-opacity="0.3" stroke-width="1.5"/>
+
+  <text x="600" y="545" fill="#F4F1EA" font-family="'Cairo', -apple-system, sans-serif" font-size="34" font-weight="900" text-anchor="middle">الدراسة بالخارج وتأشيرات الطلاب</text>
+  <text x="600" y="595" fill="#B99050" font-family="'Cairo', -apple-system, sans-serif" font-size="18" font-weight="600" text-anchor="middle" opacity="0.9">إجراءات السفر، تصاريح الإقامة، والدعم اللوجستي</text>
+
+  <!-- Grid Decorative Coordinates -->
+  <text x="80" y="625" fill="#B99050" font-family="monospace" font-size="12" opacity="0.6">LAT 31.5017° N • LON 34.4668° E • NAV 24/7</text>
+  <text x="1120" y="625" fill="#B99050" font-family="monospace" font-size="12" text-anchor="end" opacity="0.6">VERIFIED OPPORTUNITY • 0% EXPIRED</text>
+</svg>
