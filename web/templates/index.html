@@ -2333,14 +2333,19 @@
             const schId = currentSidePanelScholarship ? currentSidePanelScholarship.id : null;
 
             try {
+                const cleanSideHistory = (sidePanelHistory || []).slice(-6).map(h => ({
+                    role: String(h.role || 'user').trim(),
+                    text: String(h.text || h.content || '').trim()
+                })).filter(h => h.text.length > 0);
+
                 const res = await fetch('/api/advisor/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        query: query,
+                        query: String(query).trim(),
                         email: savedEmail,
                         scholarship_id: schId,
-                        history: sidePanelHistory
+                        history: cleanSideHistory
                     })
                 });
 

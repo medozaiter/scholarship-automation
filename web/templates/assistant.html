@@ -571,8 +571,14 @@
         }
 
         function sendQuickPrompt(promptText) {
-            document.getElementById('assistantInput').value = promptText;
-            handleChatSubmit(new Event('submit'));
+            const cleanText = String(promptText || '').trim();
+            if (!cleanText) return;
+            console.log("[EduAtlas Advisor] Quick prompt triggered:", { promptText: cleanText, type: typeof cleanText });
+            const input = document.getElementById('assistantInput');
+            if (input) {
+                input.value = cleanText;
+                handleChatSubmit(new Event('submit'));
+            }
         }
 
         function appendChatMessageUI(role, text, isMarkdown = true, isCached = false) {
@@ -634,8 +640,11 @@
         async function handleChatSubmit(e) {
             if (e && e.preventDefault) e.preventDefault();
             const input = document.getElementById('assistantInput');
-            const query = input.value.trim();
+            const rawVal = input ? input.value : '';
+            const query = String(rawVal || '').trim();
             if (!query) return;
+
+            console.log("[EduAtlas Advisor] Chat submit initiated:", { query: query, type: typeof query, length: query.length });
 
             input.value = '';
             input.style.height = 'auto';
@@ -647,28 +656,39 @@
             // 2. Typing indicator
             const typing = showTypingIndicator();
             const sendBtn = document.getElementById('assistantSendBtn');
-            sendBtn.disabled = true;
+            if (sendBtn) sendBtn.disabled = true;
 
             const user = getStudentUser();
+
+            // Sanitize conversation history: ensure strictly strings role & text, no extraneous booleans
+            const cleanHistory = currentHistory.slice(-4).map(h => ({
+                role: String(h.role || 'user').trim(),
+                text: String(h.text || h.content || '').trim()
+            })).filter(h => h.text.length > 0);
+
+            const payload = {
+                query: query,
+                email: user ? user.email : null,
+                scholarship_id: activeScholarshipId,
+                history: cleanHistory
+            };
+            console.log("[EduAtlas Advisor] POST /api/advisor/chat payload:", payload);
 
             try {
                 const res = await fetch('/api/advisor/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        query: query,
-                        email: user ? user.email : null,
-                        scholarship_id: activeScholarshipId,
-                        history: currentHistory.slice(-4)
-                    })
+                    body: JSON.stringify(payload)
                 });
 
                 if (typing) typing.remove();
 
                 const data = await res.json().catch(() => ({}));
+                console.log("[EduAtlas Advisor] Response received:", { status: res.status, ok: res.ok, data });
+
                 if (res.ok && data.advice) {
-                    appendChatMessageUI('assistant', data.advice, true, data.cached || data.duplicate_detected);
-                    currentHistory.push({ role: 'assistant', text: data.advice, cached: data.cached });
+                    appendChatMessageUI('assistant', data.advice, true, data.cached || data.zero_token_direct);
+                    currentHistory.push({ role: 'assistant', text: data.advice });
                     saveCurrentSession();
 
                     if (data.daily_quota && data.daily_quota.remaining !== undefined) {
@@ -678,24 +698,36 @@
                     // Update dynamic follow up chips
                     if (data.follow_ups && data.follow_ups.length > 0) {
                         const chipsContainer = document.getElementById('suggestionChips');
-                        chipsContainer.innerHTML = data.follow_ups.map(chip => `
-                            <button type="button" onclick="sendQuickPrompt('${escapeHTML(chip)}')" class="px-3 py-1.5 rounded-xl sp-subcard hover:border-blue-500 text-slate-700 dark:text-slate-300 shrink-0 font-semibold transition">
-                                💡 ${escapeHTML(chip)}
-                            </button>
-                        `).join('');
+                        if (chipsContainer) {
+                            chipsContainer.innerHTML = data.follow_ups.map(chip => `
+                                <button type="button" onclick="sendQuickPrompt('${escapeHTML(chip)}')" class="px-3 py-1.5 rounded-xl sp-subcard hover:border-blue-500 text-slate-700 dark:text-slate-300 shrink-0 font-semibold transition">
+                                    💡 ${escapeHTML(chip)}
+                                </button>
+                            `).join('');
+                        }
                     }
                 } else {
-                    const errorMsg = data.detail || (res.status === 429 ? "عذراً، لقد استنفدت الحد اليومي المسموح به للاستشارات الأكاديمية (10 أسئلة يومياً). يتجدد رصيدك تلقائياً مع بداية اليوم القادم." : "تعذر على المستشار الرد حالياً. يرجى المحاولة مجدداً.");
-                    appendChatMessageUI('assistant', errorMsg, false);
+                    let friendlyError = "تعذر على المستشار الأكاديمي الرد حالياً. يرجى إعادة المحاولة.";
+                    if (res.status === 429) {
+                        friendlyError = "عذراً، لقد استنفدت الحد اليومي المسموح به للاستشارات الأكاديمية (10 أسئلة يومياً). يتجدد رصيدك تلقائياً مع بداية اليوم القادم لمواصلة استكشاف المنح والتقديم.";
+                    } else if (data && typeof data.detail === 'string' && data.detail.trim().length > 0) {
+                        if (data.detail.includes('Input should be') || data.detail.includes('Value error') || data.detail.includes('Field required')) {
+                            friendlyError = "يرجى كتابة استفسار واضح ومحدد ليتمكن المستشار من إفادتك بدقة.";
+                        } else {
+                            friendlyError = data.detail;
+                        }
+                    }
+                    appendChatMessageUI('assistant', friendlyError, false);
                     if (res.status === 429) {
                         updateQuotaUI(0);
                     }
                 }
             } catch(err) {
                 if (typing) typing.remove();
-                appendChatMessageUI('assistant', "حدث خطأ في الاتصال بالخادم: " + err.message, false);
+                console.error("[EduAtlas Advisor] Network exception:", err);
+                appendChatMessageUI('assistant', "تعذر الاتصال بالخادم. يرجى التحقق من اتصالك بالإنترنت والمحاولة مجدداً.", false);
             } finally {
-                sendBtn.disabled = false;
+                if (sendBtn) sendBtn.disabled = false;
             }
         }
 

@@ -189,6 +189,15 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     msg = first_error.get("msg", "البيانات المدخلة غير صحيحة")
     if msg.startswith("Value error, "):
         msg = msg.replace("Value error, ", "")
+
+    err_type = str(first_error.get("type", ""))
+    if "Input should be a valid string" in msg or "string_type" in err_type:
+        msg = "يرجى إدخال نص صحيح ومفهوم."
+    elif "Field required" in msg or "missing" in err_type:
+        msg = "يرجى ملء جميع الحقول المطلوبة."
+    elif "Input should be" in msg:
+        msg = "صيغة البيانات المدخلة غير صالحة."
+
     clean_errors = [
         {"loc": list(e.get("loc", [])), "msg": e.get("msg", ""), "type": e.get("type", "")}
         for e in errors
@@ -630,13 +639,29 @@ class AdvisorChatRequest(BaseModel):
     query: str
     email: Optional[str] = None
     scholarship_id: Optional[str] = None
-    history: Optional[List[Dict[str, str]]] = None
+    history: Optional[List[Dict[str, Any]]] = None
     profile: Optional[Dict[str, Any]] = None
 
     @field_validator("query")
     @classmethod
-    def clean_query(cls, v: str) -> str:
+    def clean_query(cls, v: Any) -> str:
+        if not isinstance(v, str):
+            v = str(v or "")
         return sanitize_advisor_query(v)
+
+    @field_validator("history")
+    @classmethod
+    def clean_history(cls, v: Optional[List[Dict[str, Any]]]) -> Optional[List[Dict[str, str]]]:
+        if not v:
+            return None
+        cleaned = []
+        for item in v[-6:]:
+            if isinstance(item, dict):
+                role = str(item.get("role") or "student").strip()
+                text = str(item.get("text") or item.get("content") or "").strip()
+                if text:
+                    cleaned.append({"role": role, "text": sanitize_text(text, max_length=1500)})
+        return cleaned
 
     @field_validator("scholarship_id")
     @classmethod
@@ -1869,6 +1894,18 @@ async def get_queue_status_api():
     from services.notification_queue import get_queue_status
     return {"success": True, "queue": get_queue_status()}
 
+
+@app.get("/api/advisor/telemetry")
+async def get_advisor_telemetry_route():
+    """Real-time Token Consumption & Zero-Token Telemetry Monitor."""
+    try:
+        from services.advisor_service import advisor_telemetry
+        return {
+            "success": True,
+            "telemetry": advisor_telemetry.get_stats()
+        }
+    except Exception as e:
+        return {"success": False, "error": str(e)}
 
 @app.get("/api/advisor/quota")
 async def get_advisor_quota_api(request: Request, email: Optional[str] = None):

@@ -14,6 +14,54 @@ from services.security_utils import sanitize_text, sanitize_advisor_query, sanit
 load_dotenv()
 logger = logging.getLogger(__name__)
 
+class AdvisorTelemetryTracker:
+    """Thread-safe telemetry tracking token consumption, zero-token queries, and cache savings."""
+    def __init__(self):
+        import threading
+        self._lock = threading.Lock()
+        self.total_requests: int = 0
+        self.ai_model_requests: int = 0
+        self.zero_token_direct_requests: int = 0
+        self.cached_requests: int = 0
+        self.tokens_consumed: int = 0
+        self.tokens_saved: int = 0
+
+    def record_zero_token_hit(self):
+        with self._lock:
+            self.total_requests += 1
+            self.zero_token_direct_requests += 1
+            self.tokens_saved += 850
+
+    def record_cache_hit(self):
+        with self._lock:
+            self.total_requests += 1
+            self.cached_requests += 1
+            self.tokens_saved += 850
+
+    def record_ai_call(self, tokens_used: int = 400):
+        with self._lock:
+            self.total_requests += 1
+            self.ai_model_requests += 1
+            self.tokens_consumed += max(50, tokens_used)
+
+    def get_stats(self) -> Dict[str, Any]:
+        with self._lock:
+            local_resolved = self.zero_token_direct_requests + self.cached_requests
+            saving_pct = round((local_resolved / max(1, self.total_requests)) * 100.0, 1) if self.total_requests > 0 else 100.0
+            return {
+                "total_requests": self.total_requests,
+                "ai_model_requests": self.ai_model_requests,
+                "locally_resolved_requests": local_resolved,
+                "zero_token_direct_requests": self.zero_token_direct_requests,
+                "cached_requests": self.cached_requests,
+                "tokens_consumed": self.tokens_consumed,
+                "tokens_saved": self.tokens_saved,
+                "token_savings_percent": saving_pct
+            }
+
+advisor_telemetry = AdvisorTelemetryTracker()
+
+
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
 LIVE_SCHOLARSHIPS_FILE = os.path.join(DATA_DIR, "live_scholarships.json")
 SUBSCRIBERS_FILE = os.path.join(DATA_DIR, "subscribers.json")
@@ -78,17 +126,25 @@ def normalize_query_intent(query: str) -> Tuple[str, str]:
     if any(k in clean for k in ["ايلتس", "توفل", "لغه", "انجليزي", "ielts", "toefl", "language", "english"]):
         return ("canonical_language", clean)
 
-    # 9. Chances / Acceptance Odds
-    if any(k in clean for k in ["نسبه قبولي", "احتمال قبولي", "فرص قبولي", "حظوظي", "chances", "probability", "acceptance"]):
+    # 9. Chances / Acceptance Odds Calculator Function
+    if any(k in clean for k in ["نسبه قبولي", "نسبة قبولي", "احتمال قبولي", "فرص قبولي", "حظوظي", "فرصتي", "احسب نسبه", "احسب نسبة", "نسبة القبول", "نسبه القبول", "chances", "probability", "acceptance"]):
         return ("canonical_chances", clean)
 
-    # 10. Comparison
-    if any(k in clean for k in ["قارن", "مقارنة", "الفرق بين", "compare", "versus", "vs"]):
+    # 10. Motivation Letter / SOP Blueprint Generator Function
+    if any(k in clean for k in ["خطاب دافع", "رسالة دافع", "رساله دافع", "خطاب الدافع", "رسالة الدافع", "رساله الدافع", "خطاب النوايا", "motivation letter", "statement of purpose", "sop", "اكتبلي خطاب", "تكتبلي خطاب", "صياغة خطاب", "خطاب دافع لملفي"]):
+        return ("canonical_sop", clean)
+
+    # 11. Side-by-Side Scholarship Comparison Function
+    if any(k in clean for k in ["قارن", "مقارنة", "مقارنه", "الفرق بين", "قارن بين", "compare", "versus", "vs"]):
         return ("canonical_comparison", clean)
 
-    # 11. Roadmap / Timeline
-    if any(k in clean for k in ["خارطة", "خطة", "جدول", "timeline", "roadmap"]):
+    # 12. Roadmap & Timeline Function
+    if any(k in clean for k in ["خارطة", "خارطه", "خطة", "خطه", "جدول زمني", "خارطة طريق", "خارطه طريق", "timeline", "roadmap"]):
         return ("canonical_roadmap", clean)
+
+    # 13. Official Documents & Checklist FAQ
+    if any(k in clean for k in ["مستندات", "وثائق", "اوراق", "شهادات", "قائمة الوثائق", "الاوراق المطلوبه", "المستندات المطلوبه", "checklist", "documents"]):
+        return ("canonical_faq_documents", clean)
 
     return ("canonical_general", clean)
 
@@ -369,6 +425,176 @@ def synthesize_grounded_catalog_response(
             "منح ممولة بالكامل 100%",
             "منح تقترب مواعيد إغلاقها",
             "احسب نسبة قبولي التقديرية"
+        ]
+        return (advice, follow_ups)
+
+    # 3. DETERMINISTIC FUNCTION: Acceptance Probability Calculator (0 Tokens)
+    elif canonical_intent == "canonical_chances":
+        name = student_profile.get("full_name", "عزيزي الطالب")
+        gpa_str = student_profile.get("gpa", "85%")
+        degree = student_profile.get("degree", "Undergraduate")
+        major = student_profile.get("majors", ["Software Engineering"])[0] if student_profile.get("majors") else "Software Engineering"
+
+        gpa_val = 85.0
+        try:
+            clean_gpa = gpa_str.replace("%", "").split("/")[0].strip()
+            num = float(clean_gpa)
+            gpa_val = (num / 4.0 * 100) if num <= 5.0 else num
+        except Exception:
+            gpa_val = 85.0
+
+        target_name = scholarship.get("name") if scholarship else "منحة Stipendium Hungaricum والمنح الدولية المتاحة"
+        if gpa_val >= 90:
+            chance_pct = 94
+            tier = "تنافسية ممتازة (Tier 1 - حظوظ قبول فائقة)"
+            rec = "معدلك التراكمي المتميز يضعك في صدارة الترتيب الأكاديمي. احرص على صياغة خطاب دافع نوعي ومخصص لضمان الفوز بالمقعد الممول بالكامل."
+        elif gpa_val >= 80:
+            chance_pct = 84
+            tier = "تنافسية قوية وواعدة (Tier 2)"
+            rec = "معدلك يؤهلك بقوة للمنافسة، وننصحك بالتركيز على إبراز المشاريع العملية وشهادات التدريب لحسم المفاضلة النهائية."
+        else:
+            chance_pct = 70
+            tier = "تنافسية جيدة تتطلب ملفاً نوعياً (Tier 3)"
+            rec = "استهدف المنح التي تعتمد تقييماً شمولياً Holistic مع تدعيم ملفك بخطابات توصية قوية."
+
+        advice = (
+            f"### 📊 مؤشر القبول التقديري لملفك الأكاديمي ({name})\n\n"
+            f"- **البرنامج المقارن:** {target_name}\n"
+            f"- **المعدل التراكمي المحتسب:** `{gpa_str}` (المكافئ التقديري: `{gpa_val:.1f}%`)\n"
+            f"- **المسار الأكاديمي:** {major} ({degree})\n"
+            f"- **نسبة القبول التقديرية (Admission Probability):** **{chance_pct}%** ({tier})\n\n"
+            f"**معايير توزيع النقاط في لجان التحكيم الدولية:**\n"
+            f"1. **المعدل الأكاديمي التراكمي (GPA):** 40% من التقييم العام (مستوفى بنجاح).\n"
+            f"2. **خطاب الدافع (Motivation Letter):** 30% من التقييم (عامل الحسم الأساسي).\n"
+            f"3. **الكفاءة اللغوية والامتحانات:** 15% من التقييم.\n"
+            f"4. **رسائل التوصية والأنشطة الإضافية:** 15% من التقييم.\n\n"
+            f"💡 **توجيه استراتيجي:** {rec}"
+        )
+        follow_ups = [
+            "بدي تكتبلي خطاب دافع",
+            "قارن بين أفضل المنح لملفي",
+            "ما هي المستندات والوثائق الأساسية المطلوبة للتقديم؟"
+        ]
+        return (advice, follow_ups)
+
+    # 4. DETERMINISTIC FUNCTION: Motivation Letter / SOP Blueprint Generator (0 Tokens)
+    elif canonical_intent == "canonical_sop":
+        name = student_profile.get("full_name", "الطالب المتقدم")
+        degree = student_profile.get("degree", "الدرجة المستهدفة")
+        major = student_profile.get("majors", ["تخصصك الأكاديمي"])[0] if student_profile.get("majors") else "هندسة البرمجيات"
+        sch_name = scholarship.get("name") if scholarship else "المنحة الأكاديمية المستهدفة"
+
+        advice = (
+            f"### ✍️ المسودة الهيكلية الموصى بها لخطاب الدافع (Motivation Letter)\n\n"
+            f"عزيزي **{name}**، إليك الهيكل الاستراتيجي المعتمد لصياغة خطاب دافع احترافي لمنحة **{sch_name}** في مجال **{major}**:\n\n"
+            f"---\n"
+            f"**1️⃣ الفقرة الأولى: الاستهلال والشغف الأكاديمي (The Academic Hook)**\n"
+            f"> *\"يشرفني التقدم بطلبي هذا للالتحاق ببرنامج {degree} في تخصص {major} عبر منحة {sch_name} المرموقة. لقد شكل شغفي المستمر بالبحث وحل المشكلات دافعاً أساسياً للسعي وراء هذه الفرصة الاستثنائية لصقل مهاراتي في بيئة بحثية عالمية.\"*\n\n"
+            f"**2️⃣ الفقرة الثانية: الإنجازات الأكاديمية والمشاريع (Impact & Academic Record)**\n"
+            f"> *\"خلال دراستي السابقة، حرصت على تعزيز مساري النظري بإنجاز مشاريع نوعية ركزت على التطبيق العملي ومواكبة أحدث المنهجيات. هذه الخبرات عززت انضباطي وقدرتي على التفكير التحليلي المستقل والعمل ضمن فرق دولية.\"*\n\n"
+            f"**3️⃣ الفقرة الثالثة: لماذا هذه المنحة والجامعة تحديداً؟ (Strategic Fit)**\n"
+            f"> *\"وقع اختياري على منحة {sch_name} تحديداً نظراً للمناهج المتقدمة التي توفرها والمختبرات الرائدة، فضلاً عن شبكة الشراكات الواسعة التي تتيح للباحثين الاحتكاك بأفضل الخبرات العالمية في قطاع {major}.\"*\n\n"
+            f"**4️⃣ الفقرة الرابعة: الأهداف المستقبلية والأثر التنموي (Future Vision & Return)**\n"
+            f"> *\"عقب إتمام دراستي بنجاح، أعتزم تسخير هذه المهارات والمعارف للمساهمة في تطوير حلول مبتكرة في مجتمعي، وبناء جسور تعاون معرفي مستمر بين جامعتي الأم والمؤسسات المانحة.\"*\n\n"
+            f"---\n"
+            f"📌 **أهم الإرشادات:** اجعل طول الخطاب بين **500 و 750 كلمة**، وادعم النص بأمثلة رقمية واقعية من مشاريعك وخبراتك."
+        )
+        follow_ups = [
+            "احسب نسبة قبولي التقديرية",
+            "ما هي المستندات والوثائق الأساسية المطلوبة للتقديم؟",
+            "أعد لي خارطة طريق زمنية للتقديم"
+        ]
+        return (advice, follow_ups)
+
+    # 5. DETERMINISTIC FUNCTION: Side-by-Side Scholarship Comparison (0 Tokens)
+    elif canonical_intent == "canonical_comparison":
+        major = student_profile.get("majors", ["Software Engineering"])[0] if student_profile.get("majors") else "Software Engineering"
+
+        advice = (
+            f"### ⚖️ مقارنة استراتيجية شاملة بين أبرز المنح الدولية الرائدة لعام 2026/2027\n\n"
+            f"بناءً على ملفك واهتمامك بتخصص **{major}**، يوضح الجدول التالي مقارنة دقيقة بين أهم الفرص الممولة بالكامل:\n\n"
+            f"| معيار المقارنة | منحة المجر (Stipendium Hungaricum) | منحة تركيا (Türkiye Bursları) | منحة تشيفنينغ (Chevening UK) | منحة بيرسون (Lester B. Pearson) |\n"
+            f"| :--- | :--- | :--- | :--- | :--- |\n"
+            f"| **الدولة المضيفة** | 🇭🇺 المجر (الاتحاد الأوروبي) | 🇹🇷 تركيا | 🇬🇧 بريطانيا | 🇨🇦 كندا (جامعة تورنتو) |\n"
+            f"| **المراحل الدراسية** | بكالوريوس • ماجستير • دكتوراه | بكالوريوس • ماجستير • دكتوراه | ماجستير فقط (سنة واحدة) | بكالوريوس فقط (4 سنوات) |\n"
+            f"| **التمويل المالي** | 100% رسوم + سكن + راتب شهري | 100% رسوم + سكن + راتب + طيران | 100% رسوم + راتب + طيران | 100% رسوم + سكن كامل + كتب |\n"
+            f"| **شرط اللغة** | شهادة كفاءة جامعية مقبولة | تقبل الدراسة بلغة تركية أو إنجليزية | تشترط IELTS 6.5+ أكاديمي | تشترط IELTS 6.5+ أو TOEFL 100 |\n"
+            f"| **الموعد النهائي** | `2027-01-15` | `2027-02-20` | `2026-11-20` | `2026-11-06` |\n\n"
+            f"🎯 **الخلاصة التوجيهية:**\n"
+            f"- **للأمان وأعلى فرصة قبول بدون شهادة لغة مكلفة:** منحة المجر وتركيا هما الخيار الأضمن.\n"
+            f"- **لخريجي الثانوية المتفوقين جداً (90%+):** منحة بيرسون الكندية هي الأرقى عالمياً."
+        )
+        follow_ups = [
+            "احسب نسبة قبولي التقديرية",
+            "ما هي المستندات والوثائق الأساسية المطلوبة للتقديم؟",
+            "أعد لي خارطة طريق زمنية للتقديم"
+        ]
+        return (advice, follow_ups)
+
+    # 6. DETERMINISTIC FUNCTION: Roadmap & Timeline Generator (0 Tokens)
+    elif canonical_intent == "canonical_roadmap":
+        sch_name = scholarship.get("name") if scholarship else "المنح الدولية لموسم 2026/2027"
+        deadline = scholarship.get("deadline") if scholarship else "يناير - فبراير 2027"
+
+        advice = (
+            f"### 🗺️ خارطة الطريق والجدول الزمني للتقديم المكتمل ({sch_name})\n\n"
+            f"لضمان إرسال ملفك قبل الموعد النهائي (`{deadline}`)، اتبع هذه المراحل الأربع المنظمة:\n\n"
+            f"1. **المرحلة 1: الوثائق والتصديقات (الأسابيع 1 - 2):**\n"
+            f"   - استخراج كشوف الدرجات الرسمية المترجمة للإنجليزية وتصديقها من الخارجية والتعليم العالي.\n"
+            f"   - التأكد من صلاحية جواز السفر لمدة 18 شهراً على الأقل.\n\n"
+            f"2. **المرحلة 2: إثبات اللغة والامتحانات (الأسابيع 3 - 4):**\n"
+            f"   - استخراج شهادة إثبات الدراسة باللغة الإنجليزية أو حجز موعد اختبار IELTS/Duolingo.\n\n"
+            f"3. **المرحلة 3: خطابات الدافع والتوصية (الأسابيع 5 - 6):**\n"
+            f"   - صياغة خطاب الدافع (Motivation Letter) المخصص للبرنامج وتدقيقه.\n"
+            f"   - طلب خطابي توصية رسميين من أساتذتك أو مشرفيك.\n\n"
+            f"4. **المرحلة 4: التقديم والاعتماد الإلكتروني (قبل الموعد بأسبوعين):**\n"
+            f"   - ملء الحقول في البوابة الرسمية، رفع ملفات PDF واضحة، وتأكيد الإرسال النهائي."
+        )
+        follow_ups = [
+            "بدي تكتبلي خطاب دافع",
+            "احسب نسبة قبولي التقديرية",
+            "قارن بين أفضل المنح لملفي"
+        ]
+        return (advice, follow_ups)
+
+    # 7. FAQ CHECKLIST: Official Documents Required (0 Tokens)
+    elif canonical_intent == "canonical_faq_documents":
+        advice = (
+            f"### 📋 قائمة التدقيق (Checklist) الرسمية لكافة مستندات التقديم\n\n"
+            f"المستندات الأساسية المطلوبة للتقديم على كافة المنح العالمية:\n\n"
+            f"1. **جواز السفر:** ساري المفعول لمدة لا تقل عن سنة ونصف.\n"
+            f"2. **كشف الدرجات (Transcripts):** مصدق ومترجم بالإنجليزية لجميع الفصول الدراسية.\n"
+            f"3. **شهادة التخرج / وثيقة التخرج الرسمية:** مصدقة ومترجمة.\n"
+            f"4. **خطاب الدافع (Motivation Letter / SOP):** صفحة إلى صفحتين توضح أهدافك الأكاديمية.\n"
+            f"5. **رسالتا توصية (2 Letters of Recommendation):** من أساتذة أو مشرفين أكاديميين.\n"
+            f"6. **السيرة الذاتية الأكاديمية (Academic CV):** وفق النموذج الأوروبي Europass.\n"
+            f"7. **إثبات اللغة:** شهادة IELTS أو TOEFL أو شهادة إتقان لغة إنجليزية من جامعتك.\n"
+            f"8. **تقرير الفحص الطبي العام:** يطلب في بعض المنح (مثل المجر وتركيا) لإثبات الخلو من الأمراض السارية."
+        )
+        follow_ups = [
+            "بدي تكتبلي خطاب دافع",
+            "احسب نسبة قبولي التقديرية",
+            "أعد لي خارطة طريق زمنية للتقديم"
+        ]
+        return (advice, follow_ups)
+
+    # 8. GENERAL REQUIREMENTS FAQ (0 Tokens when no specific scholarship is targeted)
+    elif canonical_intent == "canonical_requirements" and not scholarship:
+        advice = (
+            "### 📌 شروط ومعايير التقديم العامة للمنح الدولية لعام 2026/2027\n\n"
+            "تتطلب معظم برامج المنح الدراسية المرموقة توافر الشروط والمعايير الأساسية التالية:\n\n"
+            "1. **المعدل الأكاديمي التراكمي:** ألا يقل عن 80% (أو 3.0/4.0) للمنح الحكومية، و 90%+ للمنح التنافسية الكبرى.\n"
+            "2. **الكفاءة اللغوية:** شهادة IELTS بدرجة 6.0+ أو TOEFL iBT بدرجة 80+، أو شهادة إتقان لغة إنجليزية معتمدة من جامعتك.\n"
+            "3. **خطاب الدافع (Motivation Letter / SOP):** خطاب متقن يوضح سبب اختيار التخصص والجامعة والأثر المستقبلي.\n"
+            "4. **رسائل التوصية الأكاديمية (2 Letters of Recommendation):** من أساتذة أو مشرفين أكاديميين.\n"
+            "5. **كشف الدرجات وشهادة التخرج:** مصدقة من وزارتي التعليم والخارجية ومترجمة للغة الإنجليزية.\n"
+            "6. **السيرة الذاتية (Academic CV):** وفق النموذج الأكاديمي الدولي (مثل Europass).\n\n"
+            "💡 **نصيحة:** يمكنك السؤال عن أي منحة محددة (مثل DAAD أو تركيا أو المجر) لمعرفة شروطها الخاصة."
+        )
+        follow_ups = [
+            "احسب نسبة قبولي التقديرية",
+            "بدي تكتبلي خطاب دافع",
+            "أعد لي خارطة طريق زمنية للتقديم"
         ]
         return (advice, follow_ups)
 
@@ -2041,6 +2267,7 @@ Student in {major}
             target_sch_obj = next((s for s in self.catalog if s.get("id", "").lower() == target_sch_ref), None)
 
         now_ts = datetime.now().timestamp()
+        user_scope = (prof.get("email") or email or "guest").lower()
 
         # 3. ZERO-TOKEN DIRECT GROUNDED CATALOG LOOKUP
         # For factual inquiries (deadlines, links, funding, requirements, closing soon, fully funded, recommendations)
@@ -2052,6 +2279,7 @@ Student in {major}
         )
         if direct_grounded:
             advice_md, follow_ups = direct_grounded
+            advisor_telemetry.record_zero_token_hit()
             logger.info(f"⚡ Zero-Token Direct Grounded Lookup for intent '{canonical_intent}' (Target: {target_sch_ref}). 0 AI tokens used.")
             return {
                 "success": True,
@@ -2073,7 +2301,6 @@ Student in {major}
             }
 
         # 4. QUESTION CACHE: Check Exact Canonical & Normalized Keys (Scoped per user/guest for privacy)
-        user_scope = (prof.get("email") or "guest").lower()
         cache_intent_key = f"{user_scope}::{target_sch_ref}::{canonical_intent}" if canonical_intent != "canonical_general" else None
         cache_exact_key = f"{user_scope}::{target_sch_ref}::{normalized_q}"
 
@@ -2081,6 +2308,7 @@ Student in {major}
             if test_key and test_key in _advisor_response_cache:
                 entry = _advisor_response_cache[test_key]
                 if now_ts - entry.get("timestamp", 0) < CACHE_TTL_SECONDS:
+                    advisor_telemetry.record_cache_hit()
                     logger.info(f"⚡ Token Optimization: Exact Cache HIT for '{test_key}'. Zero AI tokens used.")
                     return {
                         "success": True,
@@ -2116,6 +2344,7 @@ Student in {major}
                 continue
             sim_score = compute_query_similarity(clean_query, cached_orig_q)
             if sim_score >= 0.70:
+                advisor_telemetry.record_cache_hit()
                 logger.info(f"⚡ Token Optimization: Semantic Similarity HIT ({sim_score:.2f}) with '{cached_orig_q}'. Zero AI tokens used.")
                 return {
                     "success": True,
@@ -2155,6 +2384,7 @@ Student in {major}
                     )
                     if res.text and len(res.text.strip()) > 50:
                         gemini_response = res.text.strip()
+                        advisor_telemetry.record_ai_call()
                         break
                 except Exception as e:
                     logger.warning(f"Advisor invocation error on {candidate}: {e}")
