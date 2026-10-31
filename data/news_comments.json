@@ -220,5 +220,37 @@
     "updated_at": "2026-10-31T11:32:31.918820",
     "likes_count": 0,
     "liked_by": []
+  },
+  {
+    "article_id": "news_chevening_extension_2026",
+    "parent_id": null,
+    "author_id": "news_scholar_test@example.com",
+    "author_name": "طالب إخباري تجريبي",
+    "author_username": "news-scholar-test",
+    "author_avatar": "",
+    "author_university": "Undergraduate (Bachelor&#x27;s)",
+    "content": "خبر ممتاز وتمديد فرصة رائعة لاستكمال توصيات المشرف الأكاديمي.",
+    "id": "ncomm_e4a98287102f",
+    "created_at": "2026-10-31T12:01:34.744901",
+    "updated_at": "2026-10-31T12:01:34.744914",
+    "likes_count": 1,
+    "liked_by": [
+      "news_scholar_test@example.com"
+    ]
+  },
+  {
+    "article_id": "news_chevening_extension_2026",
+    "parent_id": "ncomm_e4a98287102f",
+    "author_id": "news_scholar_test@example.com",
+    "author_name": "طالب إخباري تجريبي",
+    "author_username": "news-scholar-test",
+    "author_avatar": "",
+    "author_university": "Undergraduate (Bachelor&#x27;s)",
+    "content": "أتفق معك تماماً، التقديم الآن متاح حتى 20 نوفمبر.",
+    "id": "ncomm_593ac2cf8452",
+    "created_at": "2026-10-31T12:01:34.781535",
+    "updated_at": "2026-10-31T12:01:34.781547",
+    "likes_count": 0,
+    "liked_by": []
   }
 ]

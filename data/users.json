@@ -64,5 +64,79 @@
       "show_gpa": true,
       "show_contact": true
     }
+  },
+  {
+    "email": "temp_user_test@example.com",
+    "username": "temp-user",
+    "full_name": "Temp User",
+    "role": "student",
+    "salt": "d8196ff68e77257fd410abdfc78a314b",
+    "password_hash": "pbkdf2:sha256:600000$d8196ff68e77257fd410abdfc78a314b$42acdf57d255db2152cf17c87899e51d35ba1088795514662a24cf7599672c66",
+    "avatar_url": "",
+    "cover_url": "",
+    "city": "",
+    "university": "",
+    "degree": "Undergraduate (Bachelor&#x27;s)",
+    "majors": [
+      "Software Engineering"
+    ],
+    "graduation_year": "",
+    "bio": "",
+    "gpa": "85%",
+    "english_level": "Intermediate",
+    "country": "Palestine",
+    "talents_experience": "",
+    "languages": [
+      {
+        "name": "العربية",
+        "level": "اللغة الأم"
+      }
+    ],
+    "skills": [],
+    "interests": [],
+    "target_countries": [
+      "Palestine"
+    ],
+    "scholarship_interests": [],
+    "social_links": {
+      "whatsapp": "",
+      "linkedin": "",
+      "github": "",
+      "facebook": "",
+      "instagram": "",
+      "twitter": "",
+      "telegram": "",
+      "portfolio": "",
+      "website": ""
+    },
+    "saved_scholarships": [],
+    "preferred_countries": [
+      "Palestine"
+    ],
+    "funding_type": "Any",
+    "email_notifications": true,
+    "telegram_notifications": false,
+    "telegram_chat_id": "",
+    "email_verified": false,
+    "verification_code": "459631",
+    "reset_token": "",
+    "reset_token_expires": "",
+    "privacy_settings": {
+      "public_profile": true,
+      "show_gpa": true,
+      "show_contact": true
+    },
+    "created_at": "2026-10-31T11:30:00.411135",
+    "updated_at": "2026-10-31T11:30:00.411291"
+  },
+  {
+    "email": "mentioned_peer@scholarpilot.com",
+    "username": "test_mentioned_peer",
+    "full_name": "الزميل المنشن",
+    "password_hash": "dummy",
+    "salt": "dummy",
+    "is_active": true,
+    "updated_at": "2026-10-31T12:01:52.258185",
+    "created_at": "2026-10-31T12:01:52.258185"
   }
 ]

@@ -17,6 +17,75 @@
     "gpa": "85%+",
     "tags": [],
     "is_verified": true,
+    "id": "story_c13179de05",
+    "created_at": "2026-10-31T11:32:33.027810",
+    "upvotes": 0,
+    "upvoted_by": []
+  },
+  {
+    "author_name": "مريم يوسف",
+    "author_email": "",
+    "author_country": "فلسطين",
+    "scholarship_id": "chevening",
+    "scholarship_name": "منحة تشيفنينغ",
+    "university": "Oxford University",
+    "degree": "ماجستير",
+    "field_of_study": "تخصص أكاديمي",
+    "acceptance_year": "2025/2026",
+    "title": "كيف اجتزت مقابلة تشيفنينغ بنجاح",
+    "story_text": "التدريب على أسئلة القيادة وإثبات التأثير المجتمعي.",
+    "key_advice": [
+      "راجع مقالاتك بدقة قبل المقابلة"
+    ],
+    "gpa": "85%+",
+    "tags": [],
+    "is_verified": true,
+    "id": "story_9622377127",
+    "created_at": "2026-10-31T11:30:50.297907",
+    "upvotes": 0,
+    "upvoted_by": []
+  },
+  {
+    "author_name": "مريم يوسف",
+    "author_email": "",
+    "author_country": "فلسطين",
+    "scholarship_id": "chevening",
+    "scholarship_name": "منحة تشيفنينغ",
+    "university": "Oxford University",
+    "degree": "ماجستير",
+    "field_of_study": "تخصص أكاديمي",
+    "acceptance_year": "2025/2026",
+    "title": "كيف اجتزت مقابلة تشيفنينغ بنجاح",
+    "story_text": "التدريب على أسئلة القيادة وإثبات التأثير المجتمعي.",
+    "key_advice": [
+      "راجع مقالاتك بدقة قبل المقابلة"
+    ],
+    "gpa": "85%+",
+    "tags": [],
+    "is_verified": true,
+    "id": "story_4484fce5a6",
+    "created_at": "2026-10-30T23:31:32.337348",
+    "upvotes": 0,
+    "upvoted_by": []
+  },
+  {
+    "author_name": "مريم يوسف",
+    "author_email": "",
+    "author_country": "فلسطين",
+    "scholarship_id": "chevening",
+    "scholarship_name": "منحة تشيفنينغ",
+    "university": "Oxford University",
+    "degree": "ماجستير",
+    "field_of_study": "تخصص أكاديمي",
+    "acceptance_year": "2025/2026",
+    "title": "كيف اجتزت مقابلة تشيفنينغ بنجاح",
+    "story_text": "التدريب على أسئلة القيادة وإثبات التأثير المجتمعي.",
+    "key_advice": [
+      "راجع مقالاتك بدقة قبل المقابلة"
+    ],
+    "gpa": "85%+",
+    "tags": [],
+    "is_verified": true,
     "id": "story_78f608f932",
     "created_at": "2026-10-30T20:18:23.151283",
     "upvotes": 0,
@@ -45,7 +114,7 @@
       "ماجستير",
       "DAAD"
     ],
-    "created_at": "2026-10-30T20:18:22.916981",
+    "created_at": "2026-10-31T11:32:32.940641",
     "upvotes": 0,
     "upvoted_by": [],
     "is_verified": true
@@ -69,10 +138,8 @@
       "ابدأ في التقديم على قبولات الجامعات البريطانية بالتوازي مع التقديم على المنحة فوراً."
     ],
     "is_verified": true,
-    "upvotes": 62,
-    "upvoted_by": [
-      "student_reviewer@example.com"
-    ],
+    "upvotes": 61,
+    "upvoted_by": [],
     "created_at": "2026-10-12T16:20:00",
     "tags": [
       "بريطانيا",

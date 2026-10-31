@@ -1,252 +1,236 @@
-"""
-Comprehensive Test Suite for ScholarPilot AI Notification & Matching Subsystem.
-Verifies:
-1. Email Templates & Deliverability Headers
-2. In-App Notifications DB & JSON Operations
-3. User Preferences Synchronization
-4. Telegram Alert Formatting
-5. Notification Queue & Deduplication Engine
-6. FastAPI Endpoints (/notifications, /api/notifications*, /api/user/preferences)
-"""
-
-import os
 import sys
-import asyncio
-import time
-from fastapi.testclient import TestClient
+import os
+import unittest
 
-# Ensure root directory is in sys.path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
+from fastapi.testclient import TestClient
 from web.app import app
+from services.notification_service import notification_service
 from services.db import (
-    create_in_app_notification,
-    get_in_app_notifications,
-    get_unread_notification_count,
-    mark_notification_as_read,
-    mark_all_notifications_as_read,
-    record_notification_event,
-    get_notification_events,
-    get_user_preferences,
-    update_user_preferences
+    get_unified_notifications,
+    get_unified_unread_counts,
+    get_user_notification_preferences,
+    update_user_notification_preferences,
+    mark_unified_notification_read,
+    mark_all_unified_notifications_read,
+    archive_unified_notification,
+    delete_unified_notification
 )
-from services.email_service import (
-    render_new_match_template,
-    render_deadline_reminder_template,
-    render_welcome_template,
-    render_weekly_digest_template
-)
-from services.telegram_service import telegram_service
-from services.notification_queue import enqueue_notification, get_queue_status
-
-client = TestClient(app)
-
-TEST_EMAIL = "test_notifications_suite@example.com"
 
 
-def test_email_templates_and_headers():
-    print("\n[TEST 1] Verifying 4 HTML Templates & Deliverability Plain-Text Fallbacks...")
+class TestNotificationSystem(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.client = TestClient(app)
+        cls.demo_email = "test_scholar_notif@scholarpilot.com"
+        cls.actor_email = "actor_scholar@scholarpilot.com"
 
-    # 1. New Match
-    sch = {
-        "name": "Stipendium Hungaricum Scholarship",
-        "country": "المجر",
-        "university": "جامعة بودابست",
-        "degree": "بكالوريوس وماجستير",
-        "coverage": "تغطية كاملة 100%",
-        "deadline_display": "15 يناير 2027",
-        "link": "https://apply.stipendiumhungaricum.hu/"
-    }
-    html1, text1 = render_new_match_template("Mustafa", sch, match_score=94, reasons=["تخصص متطابق", "معدل ممتاز"])
-    assert "Stipendium Hungaricum" in html1
-    assert "List-Unsubscribe" in html1 or "التقديم عبر البوابة الرسمية" in html1
-    assert "94%" in text1
-    assert len(text1) > 50
+    def test_01_serve_notifications_page(self):
+        """Test that /notifications page serves clean HTML with zero server errors."""
+        res = self.client.get("/notifications")
+        self.assertEqual(res.status_code, 200)
+        self.assertIn("ScholarPilot", res.text)
+        self.assertIn("مركز التنبيهات", res.text)
 
-    # 2. Deadline Reminder
-    html2, text2 = render_deadline_reminder_template("Mustafa", sch, days_left=7, milestone="رفع كشف العلامات")
-    assert "7 أيام" in html2 or "متبقي 7" in html2
-    assert "7 أيام" in text2
+    def test_02_unread_count_api(self):
+        """Test GET /api/notifications/unread-count returns total and category breakdown."""
+        res = self.client.get(f"/api/notifications/unread-count?email={self.demo_email}")
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        self.assertTrue(data.get("success"))
+        self.assertIn("unread_count", data)
+        self.assertIn("unread_by_category", data)
+        breakdown = data["unread_by_category"]
+        for cat in ["scholarship", "community", "news", "system"]:
+            self.assertIn(cat, breakdown)
 
-    # 3. Welcome Email
-    html3, text3 = render_welcome_template("Mustafa", TEST_EMAIL, {"degree": "بكالوريوس", "gpa": "92%", "country": "فلسطين"})
-    assert "مرحباً بك في ScholarPilot AI" in html3
-    assert "92%" in text3
+    def test_03_notification_preferences_get_and_update(self):
+        """Test GET and POST for notification preferences."""
+        # 1. GET preferences
+        res_get = self.client.get(f"/api/notifications/preferences?email={self.demo_email}")
+        self.assertEqual(res_get.status_code, 200)
+        data_get = res_get.json()
+        self.assertTrue(data_get.get("success"))
+        self.assertIn("preferences", data_get)
 
-    # 4. Weekly Digest
-    html4, text4 = render_weekly_digest_template("Mustafa", [sch], closing_soon=[sch], advice="اهتم برسالة الدافع")
-    assert "النشرة الأسبوعية" in html4
-    assert "نشرة المنح" in text4
+        # 2. UPDATE preferences
+        new_prefs = {
+            "email": self.demo_email,
+            "browser_push": True,
+            "email_digest_frequency": "daily",
+            "scholarship_matches": True,
+            "community_likes": False,
+            "subscribed_countries": ["Germany", "Japan", "Norway"],
+            "subscribed_majors": ["Artificial Intelligence", "Robotics"]
+        }
+        res_post = self.client.post("/api/notifications/preferences", json=new_prefs)
+        self.assertEqual(res_post.status_code, 200)
+        data_post = res_post.json()
+        self.assertTrue(data_post.get("success"))
+        saved_prefs = data_post.get("preferences", {})
+        self.assertEqual(saved_prefs.get("email_digest_frequency"), "daily")
+        self.assertIn("Japan", saved_prefs.get("subscribed_countries", []))
 
-    print(" -> PASSED: All 4 Templates render valid responsive HTML with rich Arabic copy & plain-text fallbacks.")
+    def test_04_subscribe_interests_endpoint(self):
+        """Test POST /api/notifications/subscribe-interests."""
+        payload = {
+            "email": self.demo_email,
+            "countries": ["Sweden", "Netherlands"],
+            "majors": ["Data Science"],
+            "degrees": ["Master's"]
+        }
+        res = self.client.post("/api/notifications/subscribe-interests", json=payload)
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        self.assertTrue(data.get("success"))
+        self.assertEqual(data.get("preferences", {}).get("subscribed_countries"), ["Sweden", "Netherlands"])
 
-
-def test_in_app_notifications():
-    print("\n[TEST 2] Verifying In-App Notifications Storage & Read-State Logic...")
-    
-    # Create notification
-    notif = create_in_app_notification(
-        recipient=TEST_EMAIL,
-        title="🎯 منحة جديدة متوافقة: Stipendium Hungaricum",
-        message="تم رصد منحة في المجر متوافقة مع تخصصك بنسبة 95%",
-        notif_type="match",
-        scholarship_id="hungaricum",
-        link="https://apply.stipendiumhungaricum.hu/"
-    )
-    assert notif["id"] is not None
-    assert notif["recipient"] == TEST_EMAIL
-    assert notif["is_read"] is False
-
-    # Check unread count
-    unread_before = get_unread_notification_count(TEST_EMAIL)
-    assert unread_before >= 1
-
-    # Fetch list
-    items = get_in_app_notifications(TEST_EMAIL, limit=10)
-    assert len(items) >= 1
-    found = any(it["id"] == notif["id"] for it in items)
-    assert found
-
-    # Mark as read
-    ok = mark_notification_as_read(TEST_EMAIL, notif["id"])
-    assert ok is True
-
-    # Mark all read
-    create_in_app_notification(TEST_EMAIL, "Alert 2", "Msg 2")
-    create_in_app_notification(TEST_EMAIL, "Alert 3", "Msg 3")
-    marked_count = mark_all_notifications_as_read(TEST_EMAIL)
-    assert marked_count >= 2
-    assert get_unread_notification_count(TEST_EMAIL) == 0
-
-    print(" -> PASSED: In-App Notifications lifecycle (create, fetch, mark read, mark all read) verified.")
-
-
-def test_user_preferences():
-    print("\n[TEST 3] Verifying User Notification & Matching Preferences...")
-    
-    prefs_payload = {
-        "preferred_countries": ["Germany", "Canada"],
-        "funding_type": "Full",
-        "email_notifications": True,
-        "telegram_notifications": True,
-        "telegram_chat_id": "987654321",
-        "degree": "Master's Degree",
-        "majors": ["Artificial Intelligence", "Cybersecurity"]
-    }
-
-    updated = update_user_preferences(TEST_EMAIL, prefs_payload)
-    assert updated is True
-
-    loaded = get_user_preferences(TEST_EMAIL)
-    assert loaded["funding_type"] == "Full"
-    assert loaded["telegram_notifications"] is True
-    assert loaded["telegram_chat_id"] == "987654321"
-    assert "Germany" in loaded["preferred_countries"]
-    assert "Canada" in loaded["preferred_countries"]
-
-    print(" -> PASSED: User preferences persisted and retrieved accurately.")
-
-
-def test_notification_events_tracking():
-    print("\n[TEST 4] Verifying Notification Lifecycle Events Tracking...")
-    
-    evt = record_notification_event(
-        recipient=TEST_EMAIL,
-        notification_type="new_match_alert",
-        channel="email",
-        target_id="sch_pearson_123",
-        status="delivered",
-        meta={"score": 96}
-    )
-    assert evt["id"] is not None
-
-    events = get_notification_events(recipient=TEST_EMAIL, limit=10)
-    assert len(events) >= 1
-    assert any(e["target_id"] == "sch_pearson_123" for e in events)
-
-    print(" -> PASSED: Notification events tracked (created, sent, delivered, opened, clicked).")
-
-
-def test_queue_and_deduplication():
-    print("\n[TEST 5] Verifying Notification Queue & Strict Deduplication...")
-
-    async def _run_queue_test():
-        # First enqueue
-        ok1 = await enqueue_notification(
-            channel="in_app",
-            recipient=TEST_EMAIL,
-            notification_type="match_alert",
-            target_id="sch_unique_dedup_001",
-            payload={"title": "Test Title", "message": "Test Message"}
+    def test_05_scholarship_match_trigger(self):
+        """Test dispatching a scholarship match notification."""
+        notif = notification_service.notify_scholarship_match(
+            user_email=self.demo_email,
+            scholarship_id="sch_test_daad_2026",
+            scholarship_name="DAAD Master's Fellowship 2026",
+            match_score=94,
+            country="Germany",
+            deadline="2026-11-15"
         )
-        assert ok1 is True, "First enqueue should succeed"
+        self.assertIsNotNone(notif)
+        self.assertEqual(notif.get("category"), "scholarship")
+        self.assertEqual(notif.get("action_type"), "scholarship_match")
+        self.assertIn("DAAD", notif.get("title", ""))
 
-        # Duplicate enqueue attempt (should be rejected immediately)
-        ok2 = await enqueue_notification(
-            channel="in_app",
-            recipient=TEST_EMAIL,
-            notification_type="match_alert",
-            target_id="sch_unique_dedup_001",
-            payload={"title": "Test Title", "message": "Test Message"}
+    def test_06_intelligent_grouping_for_likes(self):
+        """Test that multiple likes on the same post are intelligently grouped."""
+        # Enable community likes for test user first
+        update_user_notification_preferences(self.demo_email, {"community_likes": True})
+
+        post_id = "post_grouping_test_99"
+        actor1 = {"email": "scholar_a@test.com", "full_name": "أحمد باحث", "username": "ahmed_researcher"}
+        actor2 = {"email": "scholar_b@test.com", "full_name": "سارة طالبة", "username": "sara_student"}
+
+        # First like
+        n1 = notification_service.notify_post_like(
+            author_email=self.demo_email,
+            actor_user=actor1,
+            post_id=post_id,
+            post_title="تجربتي في التقديم لمنحة إيراسموس"
         )
-        assert ok2 is False, "Duplicate enqueue MUST be rejected to protect student from spam"
+        self.assertIsNotNone(n1)
+        self.assertEqual(n1.get("count", 1), 1)
 
-        status = get_queue_status()
-        assert "skipped_duplicate" in status
-        assert status["skipped_duplicate"] >= 1
+        # Second like on same post (should group into n1 with count=2)
+        n2 = notification_service.notify_post_like(
+            author_email=self.demo_email,
+            actor_user=actor2,
+            post_id=post_id,
+            post_title="تجربتي في التقديم لمنحة إيراسموس"
+        )
+        self.assertIsNotNone(n2)
+        self.assertEqual(n2.get("id"), n1.get("id"))
+        self.assertGreaterEqual(n2.get("count", 1), 2)
 
-    asyncio.run(_run_queue_test())
-    print(" -> PASSED: Queue deduplication blocks duplicate dispatches.")
+    def test_07_mention_parsing_and_dispatch(self):
+        """Test parsing @username mentions and notifying the recipient."""
+        from services.db import save_or_update_user
+        # Ensure a target test user exists with username
+        target_username = "test_mentioned_peer"
+        target_user = {
+            "email": "mentioned_peer@scholarpilot.com",
+            "username": target_username,
+            "full_name": "الزميل المنشن",
+            "password_hash": "dummy",
+            "salt": "dummy",
+            "is_active": True
+        }
+        save_or_update_user(target_user)
 
+        author = {
+            "email": self.actor_email,
+            "full_name": "محرر المنشور",
+            "username": "editor_user"
+        }
 
-def test_fastapi_endpoints():
-    print("\n[TEST 6] Verifying FastAPI Web & API Endpoints...")
+        content = f"أنصح الزميل @{target_username} بالاطلاع على شروط منحة تشيفنينغ البريطانية لهذا العام."
+        dispatched = notification_service.parse_and_notify_mentions(
+            content=content,
+            author_user=author,
+            entity_type="post",
+            entity_id="post_test_mention_101",
+            entity_title="نصائح منحة تشيفنينغ"
+        )
+        self.assertGreaterEqual(len(dispatched), 1)
+        self.assertEqual(dispatched[0].get("recipient_email"), "mentioned_peer@scholarpilot.com")
+        self.assertEqual(dispatched[0].get("category"), "community")
+        self.assertEqual(dispatched[0].get("action_type"), "post_mention")
 
-    # 1. /notifications page
-    res = client.get("/notifications")
-    assert res.status_code == 200
-    assert "مركز التنبيهات" in res.text
+    def test_08_mark_read_and_read_all(self):
+        """Test marking a single notification as read and marking all read."""
+        # 1. Fetch unread notifications
+        res_list = self.client.get(f"/api/notifications?email={self.demo_email}&unread_only=true")
+        self.assertEqual(res_list.status_code, 200)
+        items = res_list.json().get("notifications", [])
+        if items:
+            first_id = items[0]["id"]
+            # Mark single read
+            res_read = self.client.post(f"/api/notifications/{first_id}/read", json={"email": self.demo_email})
+            self.assertEqual(res_read.status_code, 200)
+            self.assertTrue(res_read.json().get("success"))
 
-    # 2. GET /api/notifications
-    res2 = client.get(f"/api/notifications?email={TEST_EMAIL}")
-    assert res2.status_code == 200
-    data2 = res2.json()
-    assert data2["success"] is True
-    assert "notifications" in data2
-    assert "unread_count" in data2
+        # 2. Mark all read
+        res_read_all = self.client.post("/api/notifications/read-all", json={"email": self.demo_email})
+        self.assertEqual(res_read_all.status_code, 200)
+        self.assertTrue(res_read_all.json().get("success"))
 
-    # 3. GET /api/user/preferences
-    res3 = client.get(f"/api/user/preferences?email={TEST_EMAIL}")
-    assert res3.status_code == 200
-    data3 = res3.json()
-    assert data3["success"] is True
-    assert data3["preferences"]["telegram_chat_id"] == "987654321"
+        # Verify unread count is now 0
+        res_count = self.client.get(f"/api/notifications/unread-count?email={self.demo_email}")
+        self.assertEqual(res_count.json().get("unread_count"), 0)
 
-    # 4. POST /api/user/preferences
-    res4 = client.post("/api/user/preferences", json={
-        "email": TEST_EMAIL,
-        "funding_type": "Partial",
-        "email_notifications": True,
-        "telegram_notifications": False
-    })
-    assert res4.status_code == 200
-    assert res4.json()["success"] is True
+    def test_09_archive_and_delete_notifications(self):
+        """Test archiving and deleting notifications."""
+        # Create a fresh notification
+        notif = notification_service.notify_system_event(
+            recipient_email=self.demo_email,
+            event_type="test_lifecycle",
+            title="تنبيه اختبار دورة الحياة",
+            message="اختبار أرشفة وحذف التنبيهات الأكاديمية"
+        )
+        self.assertIsNotNone(notif)
+        nid = notif["id"]
 
-    # 5. GET /api/notifications/queue/status
-    res5 = client.get("/api/notifications/queue/status")
-    assert res5.status_code == 200
-    assert "queue" in res5.json()
+        # 1. Archive
+        res_arch = self.client.post(f"/api/notifications/{nid}/archive", json={"email": self.demo_email})
+        self.assertEqual(res_arch.status_code, 200)
+        self.assertTrue(res_arch.json().get("success"))
 
-    print(" -> PASSED: All FastAPI notification and preferences endpoints functioning as expected.")
+        # Verify in archived filter
+        res_archived_list = self.client.get(f"/api/notifications?email={self.demo_email}&archived_only=true")
+        self.assertEqual(res_archived_list.status_code, 200)
+        archived_ids = [n["id"] for n in res_archived_list.json().get("notifications", [])]
+        self.assertIn(nid, archived_ids)
+
+        # 2. Delete
+        res_del = self.client.delete(f"/api/notifications/{nid}?email={self.demo_email}")
+        self.assertEqual(res_del.status_code, 200)
+        self.assertTrue(res_del.json().get("success"))
+
+    def test_10_user_preference_suppression(self):
+        """Test that disabled preferences cleanly suppress notification generation."""
+        # Disable news notifications for this user
+        update_user_notification_preferences(self.demo_email, {"news_breaking": False})
+
+        article = {
+            "id": "news_suppress_test_01",
+            "title": "خبر عاجل لا يجب استلامه",
+            "summary": "هذا الخبر لن ينشئ تنبيهاً لأن الطالب ألغى الاشتراك",
+            "is_featured": True,
+            "category": "scholarships"
+        }
+        notif = notification_service.notify_important_news(article, recipient_emails=[self.demo_email])
+        # Since news_breaking is False for self.demo_email, notif list should be empty
+        self.assertEqual(len(notif), 0)
 
 
 if __name__ == "__main__":
-    test_email_templates_and_headers()
-    test_in_app_notifications()
-    test_user_preferences()
-    test_notification_events_tracking()
-    test_queue_and_deduplication()
-    test_fastapi_endpoints()
-    print("\n=======================================================")
-    print(" ALL 6 NOTIFICATION & MATCHING SUITE TESTS PASSED 100%! ")
-    print("=======================================================\n")
+    unittest.main()

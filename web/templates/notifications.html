@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مركز التنبيهات الذكية | ScholarPilot AI</title>
-    <meta name="description" content="مركز التنبيهات المباشرة لمنصة ScholarPilot AI - تتبع مطابقات المنح، تنبيهات المواعيد النهائية، والنشرات الأسبوعية.">
+    <title>مركز التنبيهات الأكاديمية | ScholarPilot AI</title>
+    <meta name="description" content="مركز التنبيهات وإشعارات المنح والمجتمع الأكاديمي في ScholarPilot AI - متابعة المواعيد والمطابقات أولاً بأول.">
     <!-- SVG Favicon -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%232563eb'/><stop offset='50%' stop-color='%234f46e5'/><stop offset='100%' stop-color='%2306b6d4'/></linearGradient></defs><rect width='100' height='100' rx='24' fill='url(%23g)'/><path d='M50 20 L82 36 L50 52 L18 36 Z' fill='%23ffffff'/><path d='M26 44 L26 62 Q50 78 74 62 L74 44 L50 56 Z' fill='%23e0e7ff'/><circle cx='82' cy='42' r='4' fill='%2338bdf8'/><path d='M82 46 L82 66' stroke='%2338bdf8' stroke-width='3' stroke-linecap='round'/></svg>">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%232563eb'/><stop offset='50%' stop-color='%234f46e5'/><stop offset='100%' stop-color='%2306b6d4'/></linearGradient></defs><rect width='100' height='100' rx='24' fill='url(%23g)'/><path d='M50 24 L82 40 L50 56 L18 40 Z' fill='white'/><path d='M30 48 L30 68 C30 78 70 78 70 68 L70 48' stroke='white' stroke-width='6' fill='none'/></svg>">
 
-    <!-- Tailwind CSS with Dark Mode -->
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -17,14 +17,16 @@
                 extend: {
                     colors: {
                         brand: {
-                            50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd',
-                            400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8',
-                            800: '#1e40af', 900: '#1e3a8a', 950: '#0f172a'
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
                         }
                     },
                     fontFamily: {
-                        sans: ['Tajawal', 'Cairo', 'Inter', 'sans-serif'],
-                        mono: ['Inter', 'Plus Jakarta Sans', 'monospace']
+                        sans: ['Tajawal', 'Cairo', 'sans-serif'],
+                        latin: ['Plus Jakarta Sans', 'Inter', 'sans-serif']
                     }
                 }
             }
@@ -34,192 +36,466 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
 
-    <!-- Production Design Tokens -->
+    <!-- Design Tokens -->
     <link rel="stylesheet" href="/static/css/scholarpilot.css">
 
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <script>
-        if (localStorage.theme === 'light') {
-            document.documentElement.classList.remove('dark');
-        } else {
-            document.documentElement.classList.add('dark');
+        function applySavedTheme() {
+            try {
+                const saved = localStorage.getItem('theme');
+                if (saved === 'light') {
+                    document.documentElement.classList.remove('dark');
+                } else {
+                    document.documentElement.classList.add('dark');
+                }
+            } catch(e) {}
+        }
+        applySavedTheme();
+
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            try {
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            } catch(e) {}
+            updateThemeIcon();
+        }
+
+        function updateThemeIcon() {
+            const iconWrap = document.getElementById('themeIcon');
+            if (!iconWrap) return;
+            const isDark = document.documentElement.classList.contains('dark');
+            iconWrap.innerHTML = isDark
+                ? '<i data-lucide="sun" class="w-4 h-4 text-amber-400"></i>'
+                : '<i data-lucide="moon" class="w-4 h-4 text-slate-600"></i>';
+            if (window.lucide) lucide.createIcons();
         }
     </script>
 </head>
-<body class="min-h-screen selection:bg-blue-600 selection:text-white flex flex-col relative bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100">
+<body class="min-h-screen selection:bg-blue-600 selection:text-white flex flex-col relative bg-slate-950 text-slate-100 font-sans">
 
-    <!-- Toast Notification Container -->
+    <!-- Toast Notifications -->
     <div id="toastContainer" class="fixed top-5 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none flex flex-col items-center gap-2 max-w-md w-full px-4"></div>
 
     <!-- ==================== TOP NAVIGATION ==================== -->
-    <header class="sticky top-0 z-50 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 bg-white/85 dark:bg-slate-950/85 transition-colors">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <header class="sticky top-0 z-50 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 bg-white/90 dark:bg-slate-950/90 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
             <!-- Brand Logo -->
-            <div class="flex items-center gap-3">
-                <a href="/" class="flex items-center gap-3 group">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 flex items-center justify-center text-white shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform shrink-0">
-                        <svg class="w-6 h-6 text-white drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-                            <path d="M6 12v5c3 3 9 3 12 0v-5"/>
-                        </svg>
+            <div class="flex items-center gap-3 shrink-0">
+                <a href="/" class="flex items-center gap-2.5 group">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 flex items-center justify-center text-white shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform">
+                        <i data-lucide="graduation-cap" class="w-5 h-5 text-white"></i>
                     </div>
                     <div class="flex flex-col">
                         <span class="text-base font-black tracking-tight text-slate-900 dark:text-white leading-none">ScholarPilot <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 dark:from-blue-400 dark:to-cyan-400">AI</span></span>
-                        <span class="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-1">مركز التنبيهات المباشرة</span>
+                        <span class="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-1">مركز التنبيهات الموحد</span>
                     </div>
                 </a>
             </div>
 
-            <!-- Top Actions -->
-            <div class="flex items-center gap-2.5">
-                <a href="/" class="sp-btn-secondary px-3 py-2 text-xs font-semibold flex items-center gap-1.5">
-                    <i data-lucide="home" class="w-3.5 h-3.5 text-blue-500"></i>
-                    <span class="hidden sm:inline">الرئيسية</span>
+            <!-- Navigation Links -->
+            <nav class="hidden md:flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300">
+                <a href="/" class="px-3 py-2 rounded-lg hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">الرئيسية</a>
+                <a href="/#radarSection" class="px-3 py-2 rounded-lg hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition flex items-center gap-1.5">
+                    <i data-lucide="layers" class="w-3.5 h-3.5 text-blue-500"></i>
+                    <span>رادار المنح</span>
                 </a>
-                <a href="/dashboard" class="sp-btn-secondary px-3 py-2 text-xs font-semibold flex items-center gap-1.5">
+                <a href="/dashboard" class="px-3 py-2 rounded-lg hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition flex items-center gap-1.5">
                     <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-blue-500"></i>
-                    <span class="hidden sm:inline">لوحة التحكم</span>
+                    <span>بوابة الطالب</span>
                 </a>
-                <a href="/community" class="sp-btn-secondary px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:text-blue-500 flex items-center gap-1.5">
+                <a href="/community" class="px-3 py-2 rounded-lg hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition flex items-center gap-1.5">
                     <i data-lucide="users" class="w-3.5 h-3.5 text-blue-500"></i>
-                    <span class="hidden sm:inline">المجتمع الأكاديمي</span>
+                    <span>المجتمع الأكاديمي</span>
                 </a>
-                <a href="/news" class="px-3 py-2 rounded-lg hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition flex items-center gap-1.5 font-bold">
+                <a href="/news" class="px-3 py-2 rounded-lg hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition flex items-center gap-1.5">
                     <i data-lucide="newspaper" class="w-3.5 h-3.5 text-blue-500"></i>
                     <span>أخبار المنح</span>
                 </a>
-                <a href="/assistant" class="sp-btn-secondary px-3 py-2 text-xs font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1.5">
+                <a href="/assistant" class="px-3 py-2 rounded-lg hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition flex items-center gap-1.5">
                     <i data-lucide="sparkles" class="w-3.5 h-3.5 text-blue-500"></i>
-                    <span class="hidden sm:inline">المستشار الذكي</span>
+                    <span>المستشار الذكي</span>
                 </a>
+            </nav>
 
+            <!-- Actions & User Profile -->
+            <div class="flex items-center gap-2 sm:gap-2.5">
                 <!-- Theme Toggle -->
-                <button type="button" onclick="toggleTheme()" aria-label="Toggle visual theme" class="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 transition">
-                    <i data-lucide="moon" class="w-4 h-4 text-slate-400"></i>
+                <button type="button" onclick="toggleTheme()" aria-label="تبديل المظهر" class="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 transition">
+                    <span id="themeIcon">
+                        <i data-lucide="moon" class="w-4 h-4 text-slate-400"></i>
+                    </span>
                 </button>
+
+                <!-- Settings Button -->
+                <button type="button" onclick="openPreferencesModal()" aria-label="إعدادات التنبيهات" class="sp-btn-secondary px-3 py-2 text-xs font-semibold flex items-center gap-1.5">
+                    <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5 text-blue-500"></i>
+                    <span class="hidden sm:inline">الإعدادات والاشتراكات</span>
+                </button>
+
+                <!-- Account Authentication State -->
+                <a href="/dashboard" class="sp-btn-primary px-3.5 py-2 text-xs font-bold flex items-center gap-1.5">
+                    <i data-lucide="user" class="w-3.5 h-3.5"></i>
+                    <span>حسابي الأكاديمي</span>
+                </a>
             </div>
         </div>
     </header>
 
     <!-- ==================== MAIN CONTENT ==================== -->
-    <main class="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+    <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         
-        <!-- Page Title & Header -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <!-- Page Header -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
                 <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 mb-2">
-                    <i data-lucide="bell" class="w-3.5 h-3.5 animate-pulse"></i>
-                    <span>تنبيهات فورية للمنح والمواعيد</span>
+                    <i data-lucide="bell-ring" class="w-3.5 h-3.5 text-blue-500 animate-pulse"></i>
+                    <span>مركز التنبيهات الموحد والشامل</span>
                 </div>
-                <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">مركز التنبيهات</h1>
-                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">تابع المنح المطابقة لملفك وتذكيرات المواعيد النهائية أولاً بأول.</p>
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                    التنبيهات والإشعارات الأكاديمية
+                </h1>
+                <p class="text-sm text-slate-600 dark:text-slate-400 mt-1 max-w-3xl leading-relaxed">
+                    تابع إشعارات المنح المتطابقة مع ملفك، وتذكيرات المواعيد النهائية، وتفاعلات المجتمع الأكاديمي، وتنبيهات الأخبار العاجلة في مكان واحد منظم.
+                </p>
             </div>
 
-            <!-- Header Action Buttons -->
-            <div class="flex items-center gap-2.5">
-                <button onclick="markAllAsRead()" class="sp-btn-secondary px-3.5 py-2 text-xs font-bold flex items-center gap-1.5">
+            <!-- Top Actions -->
+            <div class="flex items-center gap-2.5 shrink-0">
+                <button type="button" onclick="markAllAsRead()" class="sp-btn-secondary px-3.5 py-2 text-xs font-bold flex items-center gap-1.5">
                     <i data-lucide="check-check" class="w-4 h-4 text-emerald-500"></i>
                     <span>تحديد الكل كمقروء</span>
                 </button>
-                <button onclick="loadNotifications()" class="sp-btn-secondary px-3 py-2 text-xs font-medium flex items-center gap-1.5">
+                <button type="button" onclick="openPreferencesModal()" class="sp-btn-secondary px-3 py-2 text-xs font-semibold flex items-center gap-1.5">
+                    <i data-lucide="bell" class="w-4 h-4 text-indigo-500"></i>
+                    <span>تخصيص الاشتراكات</span>
+                </button>
+                <button type="button" onclick="loadNotifications()" class="sp-btn-secondary px-3 py-2 text-xs font-medium flex items-center gap-1.5" title="تحديث التنبيهات">
                     <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-blue-500" id="refreshIcon"></i>
-                    <span>تحديث</span>
+                    <span class="hidden sm:inline">تحديث</span>
                 </button>
             </div>
         </div>
 
-        <!-- Telemetry Metrics Grid -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-            <div class="sp-card p-4 rounded-xl flex items-center gap-3">
-                <div class="w-10 h-10 rounded-lg bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0">
+        <!-- Telemetry Metrics Grid (5 SaaS Metrics) -->
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-3.5">
+            <!-- Total -->
+            <div onclick="setCategoryFilter('all')" class="sp-card p-4 rounded-2xl flex items-center gap-3 cursor-pointer hover:border-blue-500/40 transition">
+                <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0">
                     <i data-lucide="bell" class="w-5 h-5"></i>
                 </div>
                 <div>
-                    <div class="text-xs text-slate-500 dark:text-slate-400">إجمالي التنبيهات</div>
+                    <div class="text-[11px] font-medium text-slate-500 dark:text-slate-400">إجمالي التنبيهات</div>
                     <div id="statTotal" class="text-lg font-black text-slate-900 dark:text-white">0</div>
                 </div>
             </div>
 
-            <div class="sp-card p-4 rounded-xl flex items-center gap-3">
-                <div class="w-10 h-10 rounded-lg bg-red-500/10 text-red-500 flex items-center justify-center shrink-0">
+            <!-- Unread -->
+            <div onclick="setCategoryFilter('unread')" class="sp-card p-4 rounded-2xl flex items-center gap-3 cursor-pointer hover:border-rose-500/40 transition">
+                <div class="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-500 flex items-center justify-center shrink-0">
                     <i data-lucide="bell-ring" class="w-5 h-5"></i>
                 </div>
                 <div>
-                    <div class="text-xs text-slate-500 dark:text-slate-400">غير مقروءة</div>
-                    <div id="statUnread" class="text-lg font-black text-red-500">0</div>
+                    <div class="text-[11px] font-medium text-slate-500 dark:text-slate-400">غير مقروءة</div>
+                    <div id="statUnread" class="text-lg font-black text-rose-500">0</div>
                 </div>
             </div>
 
-            <div class="sp-card p-4 rounded-xl flex items-center gap-3">
-                <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
-                    <i data-lucide="target" class="w-5 h-5"></i>
+            <!-- Scholarships -->
+            <div onclick="setCategoryFilter('scholarship')" class="sp-card p-4 rounded-2xl flex items-center gap-3 cursor-pointer hover:border-indigo-500/40 transition">
+                <div class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center shrink-0">
+                    <i data-lucide="graduation-cap" class="w-5 h-5"></i>
                 </div>
                 <div>
-                    <div class="text-xs text-slate-500 dark:text-slate-400">مطابقات المنح</div>
-                    <div id="statMatches" class="text-lg font-black text-emerald-500">0</div>
+                    <div class="text-[11px] font-medium text-slate-500 dark:text-slate-400">المنح الدراسية</div>
+                    <div id="statScholarships" class="text-lg font-black text-indigo-500">0</div>
                 </div>
             </div>
 
-            <div class="sp-card p-4 rounded-xl flex items-center gap-3">
-                <div class="w-10 h-10 rounded-lg bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
-                    <i data-lucide="clock" class="w-5 h-5"></i>
+            <!-- Community -->
+            <div onclick="setCategoryFilter('community')" class="sp-card p-4 rounded-2xl flex items-center gap-3 cursor-pointer hover:border-purple-500/40 transition">
+                <div class="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center shrink-0">
+                    <i data-lucide="users" class="w-5 h-5"></i>
                 </div>
                 <div>
-                    <div class="text-xs text-slate-500 dark:text-slate-400">تنبيهات المواعيد</div>
-                    <div id="statDeadlines" class="text-lg font-black text-amber-500">0</div>
+                    <div class="text-[11px] font-medium text-slate-500 dark:text-slate-400">المجتمع الأكاديمي</div>
+                    <div id="statCommunity" class="text-lg font-black text-purple-500">0</div>
+                </div>
+            </div>
+
+            <!-- News -->
+            <div onclick="setCategoryFilter('news')" class="sp-card p-4 rounded-2xl flex items-center gap-3 cursor-pointer hover:border-emerald-500/40 transition col-span-2 sm:col-span-1">
+                <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
+                    <i data-lucide="newspaper" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <div class="text-[11px] font-medium text-slate-500 dark:text-slate-400">أخبار المنح</div>
+                    <div id="statNews" class="text-lg font-black text-emerald-500">0</div>
                 </div>
             </div>
         </div>
 
-        <!-- Filter Tabs -->
-        <div class="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-3 mb-6 overflow-x-auto no-scrollbar">
-            <button onclick="setFilter('all')" id="tabAll" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white transition shrink-0">
-                الكل (<span id="countAll">0</span>)
-            </button>
-            <button onclick="setFilter('unread')" id="tabUnread" class="px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition shrink-0">
-                غير المقروءة (<span id="countUnread">0</span>)
-            </button>
-            <button onclick="setFilter('match')" id="tabMatch" class="px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition shrink-0">
-                مطابقات المنح (<span id="countMatch">0</span>)
-            </button>
-            <button onclick="setFilter('deadline')" id="tabDeadline" class="px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition shrink-0">
-                المواعيد النهائية (<span id="countDeadline">0</span>)
-            </button>
-            <button onclick="setFilter('digest')" id="tabDigest" class="px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition shrink-0">
-                النشرات الأسبوعية (<span id="countDigest">0</span>)
-            </button>
+        <!-- Filter Tabs & Search Bar -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-3">
+            <!-- Tabs -->
+            <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 md:pb-0" id="filterTabsRow">
+                <button type="button" onclick="setCategoryFilter('all')" data-cat="all" class="cat-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-blue-600 text-white shadow-sm transition shrink-0 flex items-center gap-1.5">
+                    <span>الكل</span>
+                    <span id="tabCountAll" class="px-1.5 py-0.2 rounded-full text-[10px] bg-white/20">0</span>
+                </button>
+                <button type="button" onclick="setCategoryFilter('scholarship')" data-cat="scholarship" class="cat-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition shrink-0 flex items-center gap-1.5">
+                    <i data-lucide="graduation-cap" class="w-3.5 h-3.5 text-indigo-500"></i>
+                    <span>المنح الدراسية</span>
+                    <span id="tabCountScholarship" class="px-1.5 py-0.2 rounded-full text-[10px] bg-slate-200 dark:bg-slate-800">0</span>
+                </button>
+                <button type="button" onclick="setCategoryFilter('community')" data-cat="community" class="cat-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition shrink-0 flex items-center gap-1.5">
+                    <i data-lucide="users" class="w-3.5 h-3.5 text-purple-500"></i>
+                    <span>المجتمع الأكاديمي</span>
+                    <span id="tabCountCommunity" class="px-1.5 py-0.2 rounded-full text-[10px] bg-slate-200 dark:bg-slate-800">0</span>
+                </button>
+                <button type="button" onclick="setCategoryFilter('news')" data-cat="news" class="cat-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition shrink-0 flex items-center gap-1.5">
+                    <i data-lucide="newspaper" class="w-3.5 h-3.5 text-emerald-500"></i>
+                    <span>أخبار المنح</span>
+                    <span id="tabCountNews" class="px-1.5 py-0.2 rounded-full text-[10px] bg-slate-200 dark:bg-slate-800">0</span>
+                </button>
+                <button type="button" onclick="setCategoryFilter('system')" data-cat="system" class="cat-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition shrink-0 flex items-center gap-1.5">
+                    <i data-lucide="info" class="w-3.5 h-3.5 text-amber-500"></i>
+                    <span>النظام</span>
+                    <span id="tabCountSystem" class="px-1.5 py-0.2 rounded-full text-[10px] bg-slate-200 dark:bg-slate-800">0</span>
+                </button>
+                <button type="button" onclick="setCategoryFilter('unread')" data-cat="unread" class="cat-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition shrink-0 flex items-center gap-1.5">
+                    <i data-lucide="bell-ring" class="w-3.5 h-3.5 text-rose-500"></i>
+                    <span>غير المقروءة</span>
+                </button>
+                <button type="button" onclick="setCategoryFilter('archived')" data-cat="archived" class="cat-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition shrink-0 flex items-center gap-1.5">
+                    <i data-lucide="archive" class="w-3.5 h-3.5 text-slate-400"></i>
+                    <span>الأرشيف</span>
+                </button>
+            </div>
+
+            <!-- Search Filter -->
+            <div class="relative w-full md:w-72 shrink-0">
+                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2"></i>
+                <input type="text" id="notifSearchInput" oninput="handleSearchInput()" placeholder="البحث في نص أو عنوان التنبيه..." class="w-full pr-10 pl-3.5 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white placeholder-slate-400 transition">
+            </div>
         </div>
 
         <!-- Notifications Feed Container -->
         <div id="notificationsContainer" class="space-y-3">
-            <div class="text-center py-12 text-slate-400">
+            <div class="text-center py-16 text-slate-400">
                 <i data-lucide="loader-2" class="w-8 h-8 animate-spin mx-auto text-blue-500 mb-3"></i>
-                <p class="text-sm">جاري تحميل سجل التنبيهات الأكاديمية...</p>
+                <p class="text-sm font-semibold">جاري تحميل سجل التنبيهات الموحد...</p>
             </div>
         </div>
 
     </main>
 
-    <!-- User Account Email Modal (if not logged in) -->
-    <div id="emailPromptModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-md w-full p-6 text-right">
-            <div class="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center mb-4">
-                <i data-lucide="mail" class="w-6 h-6"></i>
-            </div>
-            <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">عرض تنبيهات حسابك الأكاديمي</h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
-                أدخل بريدك الإلكتروني المسجل لدينا لعرض إشعارات وتنبيهات المنح المخصصة لك.
-            </p>
-            <div class="space-y-3">
-                <input type="email" id="promptEmailInput" placeholder="name@example.com" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <div class="flex items-center gap-2 pt-2">
-                    <button onclick="submitPromptEmail()" class="sp-btn-primary flex-1 py-2.5 text-xs font-bold">عرض التنبيهات</button>
-                    <button onclick="closeEmailPrompt()" class="sp-btn-secondary px-4 py-2.5 text-xs font-medium">إلغاء</button>
+    <!-- ==================== PREFERENCES & SUBSCRIPTION MODAL ==================== -->
+    <div id="preferencesModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-2xl w-full p-6 sm:p-7 text-right shadow-2xl space-y-6 my-8">
+            
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+                        <i data-lucide="sliders-horizontal" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-extrabold text-slate-900 dark:text-white">إعدادات واشتراكات التنبيهات</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">خصص قنوات وتفاصيل التنبيهات والموضوعات التي تهمك.</p>
+                    </div>
                 </div>
+                <button type="button" onclick="closePreferencesModal()" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Form Content -->
+            <div class="space-y-6 max-h-[65vh] overflow-y-auto pr-1">
+                
+                <!-- Section 1: Notification Channels -->
+                <div class="space-y-3">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                        <i data-lucide="send" class="w-3.5 h-3.5 text-blue-500"></i>
+                        <span>قنوات استلام التنبيهات</span>
+                    </h4>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <label class="flex items-center justify-between p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 cursor-pointer">
+                            <div class="flex items-center gap-2.5">
+                                <i data-lucide="mail" class="w-4 h-4 text-blue-500"></i>
+                                <div>
+                                    <span class="text-xs font-bold text-slate-800 dark:text-slate-200 block">التنبيه عبر البريد الإلكتروني</span>
+                                    <span class="text-[10px] text-slate-400">إرسال التنبيهات المهمة لبريدك</span>
+                                </div>
+                            </div>
+                            <input type="checkbox" id="pref_email_notifications" class="w-4 h-4 accent-blue-600 rounded">
+                        </label>
+
+                        <label class="flex items-center justify-between p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 cursor-pointer">
+                            <div class="flex items-center gap-2.5">
+                                <i data-lucide="globe" class="w-4 h-4 text-cyan-500"></i>
+                                <div>
+                                    <span class="text-xs font-bold text-slate-800 dark:text-slate-200 block">إشعارات المتصفح الفورية</span>
+                                    <span class="text-[10px] text-slate-400">تنبيه فوري أثناء التصفح</span>
+                                </div>
+                            </div>
+                            <input type="checkbox" id="pref_browser_push" class="w-4 h-4 accent-blue-600 rounded">
+                        </label>
+                    </div>
+
+                    <!-- Digest Frequency -->
+                    <div class="p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 flex items-center justify-between">
+                        <div class="flex items-center gap-2.5">
+                            <i data-lucide="calendar" class="w-4 h-4 text-indigo-500"></i>
+                            <div>
+                                <span class="text-xs font-bold text-slate-800 dark:text-slate-200 block">وتيرة ملخص البريد الإلكتروني</span>
+                                <span class="text-[10px] text-slate-400">اختر كيفية استلام ملخصات المنح المطابقة</span>
+                            </div>
+                        </div>
+                        <select id="pref_email_digest_frequency" class="px-3 py-1.5 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="immediate">فوري عند الرصد</option>
+                            <option value="daily">ملخص يومي صباحي</option>
+                            <option value="weekly">ملخص أسبوعي شامل</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Section 2: Scholarship Alerts -->
+                <div class="space-y-3">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                        <i data-lucide="graduation-cap" class="w-3.5 h-3.5 text-indigo-500"></i>
+                        <span>تنبيهات المنح والمواعيد</span>
+                    </h4>
+
+                    <div class="space-y-2">
+                        <label class="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 cursor-pointer">
+                            <div class="text-xs">
+                                <span class="font-bold text-slate-800 dark:text-slate-200">المنح المطابقة لملفي الأكاديمي</span>
+                                <span class="block text-[11px] text-slate-500 dark:text-slate-400">تنبيه عند توفر فرصة تطابق تخصصك ومعدلك ودرجتك</span>
+                            </div>
+                            <input type="checkbox" id="pref_scholarship_matches" class="w-4 h-4 accent-blue-600 rounded">
+                        </label>
+
+                        <label class="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 cursor-pointer">
+                            <div class="text-xs">
+                                <span class="font-bold text-slate-800 dark:text-slate-200">اقتراب المواعيد النهائية (7، 3، 1 يوم)</span>
+                                <span class="block text-[11px] text-slate-500 dark:text-slate-400">تذكير بالمواعيد النهائية للمنح المحفوظة لديك</span>
+                            </div>
+                            <input type="checkbox" id="pref_approaching_deadlines" class="w-4 h-4 accent-blue-600 rounded">
+                        </label>
+
+                        <label class="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 cursor-pointer">
+                            <div class="text-xs">
+                                <span class="font-bold text-slate-800 dark:text-slate-200">تمديد مواعيد التقديم للمنح</span>
+                                <span class="block text-[11px] text-slate-500 dark:text-slate-400">تنبيه فوري عند تمديد فترة التقديم لأي منحة</span>
+                            </div>
+                            <input type="checkbox" id="pref_deadline_extensions" class="w-4 h-4 accent-blue-600 rounded">
+                        </label>
+
+                        <label class="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 cursor-pointer">
+                            <div class="text-xs">
+                                <span class="font-bold text-slate-800 dark:text-slate-200">تحديثات وتعديل شروط المنح</span>
+                                <span class="block text-[11px] text-slate-500 dark:text-slate-400">إشعار عند تحديث المعايير أو روابط التقديم الرسمية</span>
+                            </div>
+                            <input type="checkbox" id="pref_scholarship_updates" class="w-4 h-4 accent-blue-600 rounded">
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Section 3: Community Interactions -->
+                <div class="space-y-3">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                        <i data-lucide="users" class="w-3.5 h-3.5 text-purple-500"></i>
+                        <span>تفاعلات المجتمع الأكاديمي</span>
+                    </h4>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <label class="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 cursor-pointer">
+                            <span class="text-xs font-bold text-slate-800 dark:text-slate-200">الإعجاب بمنشوراتي</span>
+                            <input type="checkbox" id="pref_community_likes" class="w-4 h-4 accent-blue-600 rounded">
+                        </label>
+
+                        <label class="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 cursor-pointer">
+                            <span class="text-xs font-bold text-slate-800 dark:text-slate-200">التعليقات على منشوراتي</span>
+                            <input type="checkbox" id="pref_community_comments" class="w-4 h-4 accent-blue-600 rounded">
+                        </label>
+
+                        <label class="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 cursor-pointer">
+                            <span class="text-xs font-bold text-slate-800 dark:text-slate-200">الرد على تعليقاتي</span>
+                            <input type="checkbox" id="pref_community_replies" class="w-4 h-4 accent-blue-600 rounded">
+                        </label>
+
+                        <label class="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 cursor-pointer">
+                            <span class="text-xs font-bold text-slate-800 dark:text-slate-200">المتابعون الجدد</span>
+                            <input type="checkbox" id="pref_community_follows" class="w-4 h-4 accent-blue-600 rounded">
+                        </label>
+
+                        <label class="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 cursor-pointer sm:col-span-2">
+                            <div class="text-xs">
+                                <span class="font-bold text-slate-800 dark:text-slate-200">الإشارات والمنشن (@username)</span>
+                                <span class="block text-[11px] text-slate-400">عند ذكر اسم المستخدم الخاص بك في منشور أو تعليق</span>
+                            </div>
+                            <input type="checkbox" id="pref_community_mentions" class="w-4 h-4 accent-blue-600 rounded">
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Section 4: News & Announcements -->
+                <div class="space-y-3">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                        <i data-lucide="newspaper" class="w-3.5 h-3.5 text-emerald-500"></i>
+                        <span>الأخبار وإعلانات النظام</span>
+                    </h4>
+
+                    <div class="space-y-2">
+                        <label class="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 cursor-pointer">
+                            <span class="text-xs font-bold text-slate-800 dark:text-slate-200">أخبار المنح العاجلة والمهمة</span>
+                            <input type="checkbox" id="pref_news_breaking" class="w-4 h-4 accent-blue-600 rounded">
+                        </label>
+
+                        <label class="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 cursor-pointer">
+                            <span class="text-xs font-bold text-slate-800 dark:text-slate-200">إعلانات وتحديثات المنصة الرسمية</span>
+                            <input type="checkbox" id="pref_system_announcements" class="w-4 h-4 accent-blue-600 rounded">
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Section 5: Interest Subscriptions (Countries & Majors) -->
+                <div class="space-y-3 border-t border-slate-100 dark:border-slate-800 pt-4">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                        <i data-lucide="filter" class="w-3.5 h-3.5 text-blue-500"></i>
+                        <span>الاشتراك المخصص بالدول والتخصصات</span>
+                    </h4>
+                    
+                    <div class="space-y-3 text-xs">
+                        <div>
+                            <label class="block font-bold text-slate-800 dark:text-slate-200 mb-1">الدول المشترك بتنبيهاتها (مفصولة بفاصلة):</label>
+                            <input type="text" id="pref_subscribed_countries" placeholder="ألمانيا، بريطانيا، كندا، تركيا، أمريكا" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+
+                        <div>
+                            <label class="block font-bold text-slate-800 dark:text-slate-200 mb-1">التخصصات المشترك بها (مفصولة بفاصلة):</label>
+                            <input type="text" id="pref_subscribed_majors" placeholder="هندسة البرمجيات، الذكاء الاصطناعي، الطب، إدارة الأعمال" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-4">
+                <button type="button" onclick="savePreferences()" class="sp-btn-primary px-6 py-2.5 text-xs font-bold flex items-center gap-2">
+                    <i data-lucide="check" class="w-4 h-4"></i>
+                    <span>حفظ التفضيلات</span>
+                </button>
+                <button type="button" onclick="closePreferencesModal()" class="sp-btn-secondary px-4 py-2 text-xs font-medium">
+                    <span>إغلاق</span>
+                </button>
             </div>
         </div>
     </div>
@@ -227,13 +503,16 @@
     <!-- JavaScript Client Logic -->
     <script>
         let allNotifications = [];
-        let currentFilter = 'all';
+        let currentCategoryFilter = 'all';
+        let searchQuery = '';
 
         function showToast(msg, type = 'info') {
             const container = document.getElementById('toastContainer');
             if (!container) return;
             const toast = document.createElement('div');
-            const bgClass = type === 'success' ? 'bg-emerald-600 text-white' : (type === 'error' ? 'bg-red-600 text-white' : 'bg-slate-900 text-white border border-slate-700');
+            const bgClass = type === 'success' 
+                ? 'bg-emerald-600 text-white' 
+                : (type === 'error' ? 'bg-rose-600 text-white' : 'bg-slate-900 text-white border border-slate-700');
             toast.className = `${bgClass} px-4 py-2.5 rounded-xl shadow-xl text-xs font-bold flex items-center gap-2 pointer-events-auto transition-all transform duration-300 translate-y-2 opacity-0`;
             toast.innerHTML = `<span>${msg}</span>`;
             container.appendChild(toast);
@@ -244,85 +523,89 @@
             }, 3000);
         }
 
-        function toggleTheme() {
-            if (document.documentElement.classList.contains('dark')) {
-                document.documentElement.classList.remove('dark');
-                localStorage.theme = 'light';
-            } else {
-                document.documentElement.classList.add('dark');
-                localStorage.theme = 'dark';
-            }
-            lucide.createIcons();
-        }
+        function setCategoryFilter(cat) {
+            currentCategoryFilter = cat;
 
-        function getUserEmail() {
-            let email = localStorage.getItem('scholarpilot_user_email');
-            if (!email) {
-                const userObj = localStorage.getItem('scholarpilot_user');
-                if (userObj) {
-                    try { email = JSON.parse(userObj).email; } catch (e) {}
-                }
-            }
-            if (!email) {
-                email = 'medo.msz.2006@gmail.com'; // Default verified student
-            }
-            return email;
-        }
-
-        function setFilter(filter) {
-            currentFilter = filter;
-            ['all', 'unread', 'match', 'deadline', 'digest'].forEach(f => {
-                const btn = document.getElementById('tab' + f.charAt(0).toUpperCase() + f.slice(1));
-                if (!btn) return;
-                if (f === filter) {
-                    btn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white transition shrink-0';
+            // Update tab button styles
+            document.querySelectorAll('.cat-filter-btn').forEach(btn => {
+                if (btn.getAttribute('data-cat') === cat) {
+                    btn.className = 'cat-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-blue-600 text-white shadow-sm transition shrink-0 flex items-center gap-1.5';
                 } else {
-                    btn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition shrink-0';
+                    btn.className = 'cat-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition shrink-0 flex items-center gap-1.5';
                 }
             });
+
+            loadNotifications();
+        }
+
+        function handleSearchInput() {
+            const input = document.getElementById('notifSearchInput');
+            searchQuery = (input ? input.value : '').trim().toLowerCase();
             renderNotifications();
         }
 
         async function loadNotifications() {
-            const email = getUserEmail();
             const icon = document.getElementById('refreshIcon');
             if (icon) icon.classList.add('animate-spin');
 
             try {
-                const res = await fetch(`/api/notifications?email=${encodeURIComponent(email)}&limit=100`);
-                const data = await res.json();
-                if (data.success) {
-                    allNotifications = data.notifications || [];
-                    updateStats();
-                    renderNotifications();
-                } else {
-                    showToast('تعذر جلب التنبيهات', 'error');
+                let url = '/api/notifications?limit=100';
+                if (currentCategoryFilter === 'unread') {
+                    url += '&unread_only=true';
+                } else if (currentCategoryFilter === 'archived') {
+                    url += '&archived_only=true';
+                } else if (currentCategoryFilter !== 'all') {
+                    url += `&category=${encodeURIComponent(currentCategoryFilter)}`;
                 }
+
+                const res = await fetch(url);
+                if (!res.ok) throw new Error('Failed to fetch notifications');
+                const data = await res.json();
+
+                allNotifications = data.notifications || [];
+                updateStats(data.unread_by_category || {}, data.total || allNotifications.length);
+                renderNotifications();
             } catch (err) {
                 console.error(err);
-                showToast('خطأ في الاتصال بالخادم', 'error');
+                showToast('تعذر تحميل التنبيهات من الخادم', 'error');
             } finally {
                 if (icon) icon.classList.remove('animate-spin');
             }
         }
 
-        function updateStats() {
-            const total = allNotifications.length;
-            const unread = allNotifications.filter(n => !n.is_read).length;
-            const matches = allNotifications.filter(n => n.type === 'match' || (n.type && n.type.includes('match'))).length;
-            const deadlines = allNotifications.filter(n => n.type === 'deadline' || (n.type && n.type.includes('deadline'))).length;
-            const digests = allNotifications.filter(n => n.type === 'digest' || (n.type && n.type.includes('digest'))).length;
+        function updateStats(breakdown, total) {
+            const unreadTotal = breakdown.total !== undefined ? breakdown.total : allNotifications.filter(n => !n.is_read).length;
+            
+            const totalEl = document.getElementById('statTotal');
+            if (totalEl) totalEl.innerText = total || allNotifications.length;
 
-            document.getElementById('statTotal').innerText = total;
-            document.getElementById('statUnread').innerText = unread;
-            document.getElementById('statMatches').innerText = matches;
-            document.getElementById('statDeadlines').innerText = deadlines;
+            const unreadEl = document.getElementById('statUnread');
+            if (unreadEl) unreadEl.innerText = unreadTotal;
 
-            document.getElementById('countAll').innerText = total;
-            document.getElementById('countUnread').innerText = unread;
-            document.getElementById('countMatch').innerText = matches;
-            document.getElementById('countDeadline').innerText = deadlines;
-            document.getElementById('countDigest').innerText = digests;
+            const schEl = document.getElementById('statScholarships');
+            if (schEl) schEl.innerText = breakdown.scholarship || allNotifications.filter(n => n.category === 'scholarship').length;
+
+            const commEl = document.getElementById('statCommunity');
+            if (commEl) commEl.innerText = breakdown.community || allNotifications.filter(n => n.category === 'community').length;
+
+            const newsEl = document.getElementById('statNews');
+            if (newsEl) newsEl.innerText = breakdown.news || allNotifications.filter(n => n.category === 'news').length;
+
+            // Tab counts
+            const tcAll = document.getElementById('tabCountAll');
+            if (tcAll) tcAll.innerText = allNotifications.length;
+
+            const tcSch = document.getElementById('tabCountScholarship');
+            if (tcSch) tcSch.innerText = breakdown.scholarship || allNotifications.filter(n => n.category === 'scholarship').length;
+
+            const tcComm = document.getElementById('tabCountCommunity');
+            if (tcComm) tcComm.innerText = breakdown.community || allNotifications.filter(n => n.category === 'community').length;
+
+            const tcNews = document.getElementById('tabCountNews');
+            if (tcNews) tcNews.innerText = breakdown.news || allNotifications.filter(n => n.category === 'news').length;
+
+            const tcSys = document.getElementById('tabCountSystem');
+            if (tcSys) tcSys.innerText = breakdown.system || allNotifications.filter(n => n.category === 'system').length;
         }
 
         function renderNotifications() {
@@ -330,90 +613,114 @@
             if (!container) return;
 
             let filtered = allNotifications;
-            if (currentFilter === 'unread') {
-                filtered = allNotifications.filter(n => !n.is_read);
-            } else if (currentFilter === 'match') {
-                filtered = allNotifications.filter(n => n.type === 'match' || (n.type && n.type.includes('match')));
-            } else if (currentFilter === 'deadline') {
-                filtered = allNotifications.filter(n => n.type === 'deadline' || (n.type && n.type.includes('deadline')));
-            } else if (currentFilter === 'digest') {
-                filtered = allNotifications.filter(n => n.type === 'digest' || (n.type && n.type.includes('digest')));
+
+            // In-memory search filtering
+            if (searchQuery) {
+                filtered = filtered.filter(n => {
+                    const t = (n.title || '').toLowerCase();
+                    const m = (n.message || '').toLowerCase();
+                    const c = (n.category || '').toLowerCase();
+                    return t.includes(searchQuery) || m.includes(searchQuery) || c.includes(searchQuery);
+                });
             }
 
             if (!filtered || filtered.length === 0) {
                 container.innerHTML = `
-                    <div class="sp-card rounded-2xl p-12 text-center border border-dashed border-slate-300 dark:border-slate-800">
+                    <div class="sp-card rounded-3xl p-14 text-center border border-dashed border-slate-300 dark:border-slate-800">
                         <div class="w-16 h-16 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center mx-auto mb-4">
                             <i data-lucide="inbox" class="w-8 h-8"></i>
                         </div>
-                        <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 mb-1">لا توجد تنبيهات حالياً في هذا القسم</h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
-                            يقوم رادار الذكاء الاصطناعي بفحص المنح بشكل مستمر وسيقوم بتنبيهك فور ظهور فرصة جديدة تطابق معاييرك الأكاديمية.
+                        <h3 class="text-base font-bold text-slate-800 dark:text-slate-200 mb-1">لا توجد تنبيهات في هذا القسم</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto leading-relaxed">
+                            يقوم رادار الذكاء الاصطناعي برصد المنح والمواعيد وتفاعلات المجتمع الأكاديمي باستمرار وسيعلمك فور وجود أي جديد.
                         </p>
                     </div>
                 `;
-                lucide.createIcons();
+                if (window.lucide) lucide.createIcons();
                 return;
             }
 
             container.innerHTML = filtered.map(n => {
                 const isUnread = !n.is_read;
-                const type = n.type || 'match';
+                const cat = n.category || 'system';
 
                 let iconName = 'bell';
-                let iconColor = 'text-blue-500 bg-blue-500/10';
-                if (type.includes('match')) {
-                    iconName = 'target';
-                    iconColor = 'text-emerald-500 bg-emerald-500/10';
-                } else if (type.includes('deadline')) {
-                    iconName = 'clock';
-                    iconColor = 'text-amber-500 bg-amber-500/10';
-                } else if (type.includes('digest')) {
-                    iconName = 'mail';
-                    iconColor = 'text-indigo-500 bg-indigo-500/10';
+                let iconColor = 'text-blue-500 bg-blue-500/10 border-blue-200 dark:border-blue-900/60';
+                let categoryLabel = 'تنبيه النظام';
+
+                if (cat === 'scholarship') {
+                    iconName = 'graduation-cap';
+                    iconColor = 'text-indigo-500 bg-indigo-500/10 border-indigo-200 dark:border-indigo-900/60';
+                    categoryLabel = 'منحة دراسية';
+                } else if (cat === 'community') {
+                    iconName = 'users';
+                    iconColor = 'text-purple-500 bg-purple-500/10 border-purple-200 dark:border-purple-900/60';
+                    categoryLabel = 'المجتمع الأكاديمي';
+                } else if (cat === 'news') {
+                    iconName = 'newspaper';
+                    iconColor = 'text-emerald-500 bg-emerald-500/10 border-emerald-200 dark:border-emerald-900/60';
+                    categoryLabel = 'أخبار المنح';
                 }
 
-                const timeStr = n.created_at ? new Date(n.created_at).toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' }) : 'مؤخراً';
-
-                const linkAction = n.link ? `
-                    <a href="${n.link}" target="_blank" class="sp-btn-secondary px-3 py-1.5 text-xs font-bold flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:text-blue-500">
-                        <span>فتح البوابة الرسمية</span>
-                        <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-                    </a>
-                ` : '';
-
-                const markReadBtn = isUnread ? `
-                    <button onclick="markOneAsRead(${n.id})" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition flex items-center gap-1" title="تحديد كمقروء">
-                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
-                        <span class="hidden sm:inline">قراءة</span>
-                    </button>
-                ` : '';
+                const timeStr = formatTimestampRelative(n.created_at);
+                const actionUrl = n.action_url || n.link || null;
+                const countBadge = n.count && n.count > 1 ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 mr-2">+${n.count - 1} تفاعل إضافي</span>` : '';
 
                 return `
-                    <div class="sp-card rounded-xl p-4 sm:p-5 transition-all ${isUnread ? 'border-r-4 border-r-blue-500 bg-blue-500/[0.02]' : 'opacity-85'}">
+                    <div id="notifRow_${n.id}" class="sp-card rounded-2xl p-4 sm:p-5 transition-all ${isUnread ? 'border-r-4 border-r-blue-500 bg-blue-500/[0.02]' : 'opacity-85 hover:opacity-100'}">
                         <div class="flex items-start gap-3 sm:gap-4">
-                            <div class="w-10 h-10 rounded-xl ${iconColor} flex items-center justify-center shrink-0 mt-0.5">
+                            <!-- Category Icon -->
+                            <div class="w-11 h-11 rounded-2xl ${iconColor} border flex items-center justify-center shrink-0 mt-0.5">
                                 <i data-lucide="${iconName}" class="w-5 h-5"></i>
                             </div>
+
+                            <!-- Notification Body -->
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center justify-between gap-2 mb-1">
-                                    <h4 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white truncate ${isUnread ? 'font-extrabold' : ''}">
-                                        ${n.title}
-                                    </h4>
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">${categoryLabel}</span>
+                                        ${countBadge}
+                                        <h4 class="text-sm font-bold text-slate-900 dark:text-white truncate ${isUnread ? 'font-black' : ''}">
+                                            ${escapeHTML(n.title)}
+                                        </h4>
+                                    </div>
                                     <div class="flex items-center gap-1.5 shrink-0 text-[11px] text-slate-400">
                                         ${isUnread ? '<span class="w-2 h-2 rounded-full bg-blue-500 inline-block animate-pulse"></span>' : ''}
                                         <span>${timeStr}</span>
                                     </div>
                                 </div>
+
                                 <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-3">
-                                    ${n.message}
+                                    ${escapeHTML(n.message)}
                                 </p>
-                                <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-slate-800/60">
+
+                                <!-- Actions Bar -->
+                                <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-slate-800/60 text-xs">
                                     <div class="flex items-center gap-2">
-                                        ${linkAction}
+                                        ${actionUrl ? `
+                                            <a href="${actionUrl}" class="sp-btn-secondary px-3 py-1.5 text-xs font-bold flex items-center gap-1.5 text-blue-600 dark:text-blue-400 hover:text-blue-500" onclick="markOneAsRead('${n.id}')">
+                                                <span>عرض التفاصيل</span>
+                                                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                                            </a>
+                                        ` : ''}
                                     </div>
-                                    <div>
-                                        ${markReadBtn}
+
+                                    <div class="flex items-center gap-1">
+                                        ${isUnread ? `
+                                            <button type="button" onclick="markOneAsRead('${n.id}')" class="px-2.5 py-1.5 rounded-lg text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition flex items-center gap-1 font-semibold" title="تحديد كمقروء">
+                                                <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                                <span class="hidden sm:inline">قراءة</span>
+                                            </button>
+                                        ` : ''}
+
+                                        <button type="button" onclick="archiveNotification('${n.id}')" class="px-2.5 py-1.5 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 transition flex items-center gap-1 font-semibold" title="أرشفة التنبيه">
+                                            <i data-lucide="archive" class="w-3.5 h-3.5"></i>
+                                            <span class="hidden sm:inline">أرشفة</span>
+                                        </button>
+
+                                        <button type="button" onclick="deleteNotification('${n.id}')" class="px-2 py-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition" title="حذف نهائي">
+                                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -422,22 +729,19 @@
                 `;
             }).join('');
 
-            lucide.createIcons();
+            if (window.lucide) lucide.createIcons();
         }
 
         async function markOneAsRead(id) {
-            const email = getUserEmail();
             try {
                 const res = await fetch(`/api/notifications/${id}/read`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email })
+                    body: JSON.stringify({})
                 });
-                const data = await res.json();
-                if (data.success) {
+                if (res.ok) {
                     const item = allNotifications.find(n => n.id === id);
                     if (item) item.is_read = true;
-                    updateStats();
                     renderNotifications();
                     showToast('تم تحديد التنبيه كمقروء', 'success');
                 }
@@ -447,17 +751,16 @@
         }
 
         async function markAllAsRead() {
-            const email = getUserEmail();
             try {
                 const res = await fetch('/api/notifications/read-all', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email })
+                    body: JSON.stringify({
+                        category: currentCategoryFilter === 'all' || currentCategoryFilter === 'unread' || currentCategoryFilter === 'archived' ? null : currentCategoryFilter
+                    })
                 });
-                const data = await res.json();
-                if (data.success) {
+                if (res.ok) {
                     allNotifications.forEach(n => n.is_read = true);
-                    updateStats();
                     renderNotifications();
                     showToast('تم تحديد جميع التنبيهات كمقروءة', 'success');
                 }
@@ -467,54 +770,189 @@
             }
         }
 
+        async function archiveNotification(id) {
+            try {
+                const res = await fetch(`/api/notifications/${id}/archive`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                if (res.ok) {
+                    allNotifications = allNotifications.filter(n => n.id !== id);
+                    renderNotifications();
+                    showToast('تمت أرشفة التنبيه بنجاح', 'info');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function deleteNotification(id) {
+            try {
+                const res = await fetch(`/api/notifications/${id}`, {
+                    method: 'DELETE'
+                });
+                if (res.ok) {
+                    allNotifications = allNotifications.filter(n => n.id !== id);
+                    renderNotifications();
+                    showToast('تم حذف التنبيه', 'info');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // ==================== PREFERENCES MODAL LOGIC ====================
+
+        function openPreferencesModal() {
+            const modal = document.getElementById('preferencesModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                loadPreferencesData();
+            }
+        }
+
+        function closePreferencesModal() {
+            const modal = document.getElementById('preferencesModal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        async function loadPreferencesData() {
+            try {
+                const res = await fetch('/api/notifications/preferences');
+                if (!res.ok) return;
+                const data = await res.json();
+                const p = data.preferences || {};
+
+                // Channels
+                setCheck('pref_email_notifications', p.email_notifications !== false);
+                setCheck('pref_browser_push', p.browser_push === true);
+                const freq = document.getElementById('pref_email_digest_frequency');
+                if (freq && p.email_digest_frequency) freq.value = p.email_digest_frequency;
+
+                // Scholarships
+                setCheck('pref_scholarship_matches', p.scholarship_matches !== false);
+                setCheck('pref_approaching_deadlines', p.approaching_deadlines !== false);
+                setCheck('pref_deadline_extensions', p.deadline_extensions !== false);
+                setCheck('pref_scholarship_updates', p.scholarship_updates !== false);
+
+                // Community
+                setCheck('pref_community_likes', p.community_likes !== false);
+                setCheck('pref_community_comments', p.community_comments !== false);
+                setCheck('pref_community_replies', p.community_replies !== false);
+                setCheck('pref_community_follows', p.community_follows !== false);
+                setCheck('pref_community_mentions', p.community_mentions !== false);
+
+                // News & System
+                setCheck('pref_news_breaking', p.news_breaking !== false);
+                setCheck('pref_system_announcements', p.system_announcements !== false);
+
+                // Subscribed topics
+                const countriesEl = document.getElementById('pref_subscribed_countries');
+                if (countriesEl && Array.isArray(p.subscribed_countries)) {
+                    countriesEl.value = p.subscribed_countries.join('، ');
+                }
+
+                const majorsEl = document.getElementById('pref_subscribed_majors');
+                if (majorsEl && Array.isArray(p.subscribed_majors)) {
+                    majorsEl.value = p.subscribed_majors.join('، ');
+                }
+            } catch (e) {
+                console.error('Error loading preferences:', e);
+            }
+        }
+
+        function setCheck(id, val) {
+            const el = document.getElementById(id);
+            if (el) el.checked = !!val;
+        }
+
+        function getCheck(id) {
+            const el = document.getElementById(id);
+            return el ? el.checked : true;
+        }
+
+        async function savePreferences() {
+            const countriesRaw = (document.getElementById('pref_subscribed_countries').value || '')
+                .split(/[،,]/)
+                .map(s => s.trim())
+                .filter(Boolean);
+
+            const majorsRaw = (document.getElementById('pref_subscribed_majors').value || '')
+                .split(/[،,]/)
+                .map(s => s.trim())
+                .filter(Boolean);
+
+            const payload = {
+                email_notifications: getCheck('pref_email_notifications'),
+                browser_push: getCheck('pref_browser_push'),
+                email_digest_frequency: document.getElementById('pref_email_digest_frequency').value,
+                scholarship_matches: getCheck('pref_scholarship_matches'),
+                approaching_deadlines: getCheck('pref_approaching_deadlines'),
+                deadline_extensions: getCheck('pref_deadline_extensions'),
+                scholarship_updates: getCheck('pref_scholarship_updates'),
+                community_likes: getCheck('pref_community_likes'),
+                community_comments: getCheck('pref_community_comments'),
+                community_replies: getCheck('pref_community_replies'),
+                community_follows: getCheck('pref_community_follows'),
+                community_mentions: getCheck('pref_community_mentions'),
+                news_breaking: getCheck('pref_news_breaking'),
+                system_announcements: getCheck('pref_system_announcements'),
+                subscribed_countries: countriesRaw,
+                subscribed_majors: majorsRaw
+            };
+
+            try {
+                const res = await fetch('/api/notifications/preferences', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    showToast('تم حفظ تفضيلات واشتراكات التنبيهات بنجاح', 'success');
+                    closePreferencesModal();
+                } else {
+                    showToast('تعذر حفظ التفضيلات', 'error');
+                }
+            } catch (e) {
+                console.error(e);
+                showToast('خطأ في الاتصال بالخادم', 'error');
+            }
+        }
+
+        function formatTimestampRelative(isoStr) {
+            if (!isoStr) return 'مؤخراً';
+            try {
+                const d = new Date(isoStr);
+                const now = new Date();
+                const diffMs = now - d;
+                const diffMins = Math.floor(diffMs / 60000);
+                if (diffMins < 1) return 'الآن';
+                if (diffMins < 60) return `منذ ${diffMins} دقيقة`;
+                const diffHours = Math.floor(diffMins / 60);
+                if (diffHours < 24) return `منذ ${diffHours} ساعة`;
+                const diffDays = Math.floor(diffHours / 24);
+                if (diffDays < 7) return `منذ ${diffDays} يوم`;
+                return d.toLocaleDateString('ar-EG', {month: 'short', day: 'numeric', year: 'numeric'});
+            } catch (e) {
+                return 'مؤخراً';
+            }
+        }
+
+        function escapeHTML(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
-            lucide.createIcons();
+            if (window.lucide) lucide.createIcons();
             loadNotifications();
         });
     </script>
-
-    <!-- ==================== FLOATING QUICK ACTIONS (TELEGRAM + AI ASSISTANT) ==================== -->
-    <aside class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3 pointer-events-none">
-        
-        <!-- Floating Telegram Button (Above AI Assistant) -->
-        <div class="pointer-events-auto group relative flex items-center gap-2.5">
-            <!-- Tooltip -->
-            <div class="pointer-events-none opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-300 shadow-xl rounded-xl px-3 py-1.5 bg-slate-900/95 dark:bg-slate-800/95 text-white border border-slate-700/60 backdrop-blur-md hidden sm:flex items-center gap-1.5 text-xs font-bold whitespace-nowrap">
-                <span>قناة المنح الدراسية</span>
-                <i data-lucide="arrow-up-right" class="w-3.5 h-3.5 text-sky-400"></i>
-            </div>
-            
-            <!-- Telegram Button Link -->
-            <a href="https://t.me/ScholarPilot" target="_blank" rel="noopener noreferrer" aria-label="قناة المنح الدراسية"
-               class="relative w-12 h-12 rounded-2xl bg-[#0088cc] hover:bg-[#0077b5] text-white flex items-center justify-center shadow-lg shadow-sky-500/30 hover:shadow-sky-500/50 hover:scale-105 active:scale-95 transition-all duration-300 border border-white/20 cursor-pointer">
-                <!-- Subtle Pulse Animation -->
-                <span class="absolute inset-0 rounded-2xl bg-sky-400/40 animate-ping opacity-35 pointer-events-none"></span>
-                <!-- Official Telegram Paper Plane SVG -->
-                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.52 2.77-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
-                </svg>
-            </a>
-        </div>
-
-        <!-- Floating AI Assistant Button -->
-        <div class="pointer-events-auto group relative flex items-center gap-3">
-            <!-- Modern Floating Tooltip -->
-            <div class="pointer-events-none opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-300 shadow-xl rounded-xl px-3.5 py-2 bg-slate-900/95 dark:bg-slate-800/95 text-white border border-slate-700/60 backdrop-blur-md hidden sm:flex flex-col text-right">
-                <span class="text-xs font-bold flex items-center gap-1.5 text-blue-400">
-                    <i data-lucide="sparkles" class="w-3.5 h-3.5 text-cyan-400"></i>
-                    <span>المستشار الذكي</span>
-                </span>
-                <span class="text-[10px] text-slate-300">مساعدك للتقديم والقبول 24/7</span>
-            </div>
-
-            <!-- Floating Button -->
-            <a href="/assistant" aria-label="Ask ScholarPilot AI"
-               class="relative w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-500 text-white flex items-center justify-center shadow-lg shadow-blue-500/30 hover:shadow-cyan-500/50 hover:scale-105 active:scale-95 transition-all duration-300 border border-white/20 group">
-                <span class="absolute inset-0 rounded-2xl bg-blue-500/40 animate-ping opacity-40 pointer-events-none"></span>
-                <i data-lucide="sparkles" class="w-6 h-6 text-white group-hover:rotate-12 transition-transform duration-300"></i>
-                <span class="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-slate-900"></span>
-            </a>
-        </div>
-    </aside>
 </body>
 </html>

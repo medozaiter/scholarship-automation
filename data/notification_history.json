@@ -1,5 +1,109 @@
 [
   {
+    "recipient": "@testchannel",
+    "notification_type": "telegram_channel_post",
+    "target_id": "tg_post_test_unique_57a00863",
+    "subject": "Telegram Post #54321",
+    "sent_at": "2026-10-31T12:01:51.978291",
+    "status": "sent",
+    "details": {
+      "scholarship_id": "test_unique_57a00863",
+      "telegram_message_id": "54321",
+      "published_at": "2026-10-31T12:01:51.977762"
+    }
+  },
+  {
+    "recipient": "@scholarpilot",
+    "notification_type": "telegram_channel_post",
+    "target_id": "tg_post_test_gks_d86eb12d",
+    "subject": "Telegram Post #987654",
+    "sent_at": "2026-10-31T12:01:51.928820",
+    "status": "sent",
+    "details": {
+      "scholarship_id": "test_gks_d86eb12d",
+      "telegram_message_id": "987654",
+      "published_at": "2026-10-31T12:01:51.928369"
+    }
+  },
+  {
+    "recipient": "@testchannel",
+    "notification_type": "telegram_channel_post",
+    "target_id": "tg_post_test_unique_f5bf04e5",
+    "subject": "Telegram Post #54321",
+    "sent_at": "2026-10-31T11:32:32.875915",
+    "status": "sent",
+    "details": {
+      "scholarship_id": "test_unique_f5bf04e5",
+      "telegram_message_id": "54321",
+      "published_at": "2026-10-31T11:32:32.875462"
+    }
+  },
+  {
+    "recipient": "@scholarpilot",
+    "notification_type": "telegram_channel_post",
+    "target_id": "tg_post_test_gks_789dba46",
+    "subject": "Telegram Post #987654",
+    "sent_at": "2026-10-31T11:32:32.829067",
+    "status": "sent",
+    "details": {
+      "scholarship_id": "test_gks_789dba46",
+      "telegram_message_id": "987654",
+      "published_at": "2026-10-31T11:32:32.828647"
+    }
+  },
+  {
+    "recipient": "@testchannel",
+    "notification_type": "telegram_channel_post",
+    "target_id": "tg_post_test_unique_87f30923",
+    "subject": "Telegram Post #54321",
+    "sent_at": "2026-10-31T11:30:50.095503",
+    "status": "sent",
+    "details": {
+      "scholarship_id": "test_unique_87f30923",
+      "telegram_message_id": "54321",
+      "published_at": "2026-10-31T11:30:50.094959"
+    }
+  },
+  {
+    "recipient": "@scholarpilot",
+    "notification_type": "telegram_channel_post",
+    "target_id": "tg_post_test_gks_ef228cea",
+    "subject": "Telegram Post #987654",
+    "sent_at": "2026-10-31T11:30:50.048180",
+    "status": "sent",
+    "details": {
+      "scholarship_id": "test_gks_ef228cea",
+      "telegram_message_id": "987654",
+      "published_at": "2026-10-31T11:30:50.047659"
+    }
+  },
+  {
+    "recipient": "@testchannel",
+    "notification_type": "telegram_channel_post",
+    "target_id": "tg_post_test_unique_ed45aa6a",
+    "subject": "Telegram Post #54321",
+    "sent_at": "2026-10-30T23:31:32.459634",
+    "status": "sent",
+    "details": {
+      "scholarship_id": "test_unique_ed45aa6a",
+      "telegram_message_id": "54321",
+      "published_at": "2026-10-30T23:31:32.458907"
+    }
+  },
+  {
+    "recipient": "@scholarpilot",
+    "notification_type": "telegram_channel_post",
+    "target_id": "tg_post_test_gks_895883a0",
+    "subject": "Telegram Post #987654",
+    "sent_at": "2026-10-30T23:31:32.422990",
+    "status": "sent",
+    "details": {
+      "scholarship_id": "test_gks_895883a0",
+      "telegram_message_id": "987654",
+      "published_at": "2026-10-30T23:31:32.422178"
+    }
+  },
+  {
     "recipient": "test@example.com",
     "notification_type": "test_type",
     "target_id": "test_key_1",
@@ -7,5 +111,17 @@
     "sent_at": "2026-10-29T01:26:18.802870",
     "status": "sent",
     "details": {}
+  },
+  {
+    "recipient": "@ScholarPilot",
+    "notification_type": "telegram_channel_post",
+    "target_id": "tg_news_news_chevening_extension_2026",
+    "subject": "Telegram News Broadcast: news_chevening_extension_2026",
+    "sent_at": "2026-10-31T11:28:12.740630",
+    "status": "sent",
+    "details": {
+      "news_id": "news_chevening_extension_2026",
+      "message_id": "770001"
+    }
   }
 ]

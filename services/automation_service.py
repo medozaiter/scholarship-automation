@@ -506,6 +506,18 @@ class AutomationService:
                             "link": link
                         }
                     )
+                    try:
+                        from services.notification_service import notification_service
+                        notification_service.notify_scholarship_match(
+                            user_email=email,
+                            scholarship_id=sch_id,
+                            scholarship_name=sch_name,
+                            match_score=int(score),
+                            country=sch.get('country', ''),
+                            deadline=sch.get('deadline_display', sch.get('deadline', ''))
+                        )
+                    except Exception as ne:
+                        logger.warning(f"Unified notification error: {ne}")
 
                     # 2. Queue Email Notification if user preference is ON
                     if email_enabled:
@@ -712,6 +724,17 @@ class AutomationService:
                                 "link": matched.get("link")
                             }
                         )
+                        try:
+                            from services.notification_service import notification_service
+                            notification_service.notify_scholarship_deadline(
+                                user_email=email,
+                                scholarship_id=str(matched.get("id") or sch_name),
+                                scholarship_name=sch_name,
+                                days_left=days_remaining,
+                                deadline_date=dl_str
+                            )
+                        except Exception as ne:
+                            logger.warning(f"Unified deadline notification error: {ne}")
 
                         prefs = get_user_preferences(email)
                         # 2. Enqueue Email notification if enabled

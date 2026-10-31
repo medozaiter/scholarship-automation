@@ -33,6 +33,8 @@ COMMUNITY_REPORTS_JSON = os.path.join(DATA_DIR, "community_reports.json")
 COMMUNITY_NOTIFICATIONS_JSON = os.path.join(DATA_DIR, "community_notifications.json")
 NEWS_ARTICLES_JSON = os.path.join(DATA_DIR, "news_articles.json")
 NEWS_COMMENTS_JSON = os.path.join(DATA_DIR, "news_comments.json")
+UNIFIED_NOTIFICATIONS_JSON = os.path.join(DATA_DIR, "unified_notifications.json")
+NOTIFICATION_PREFERENCES_JSON = os.path.join(DATA_DIR, "notification_preferences.json")
 
 # Try importing SQLAlchemy
 HAS_SQLALCHEMY = False
@@ -53,6 +55,7 @@ CommunityReportDB = None
 CommunityNotificationDB = None
 NewsArticleDB = None
 NewsCommentDB = None
+UnifiedNotificationDB = None
 
 try:
     from sqlalchemy import (
@@ -650,6 +653,54 @@ try:
                 "content": self.content,
                 "likes_count": self.likes_count or 0,
                 "liked_by": self.liked_by or [],
+                "created_at": self.created_at,
+                "updated_at": self.updated_at
+            }
+
+    class UnifiedNotificationDB(Base):
+        __tablename__ = "unified_notifications"
+
+        id = Column(String(100), primary_key=True)
+        recipient_email = Column(String(150), index=True, nullable=False)
+        category = Column(String(50), index=True, nullable=False) # scholarship, community, news, system, group, chat, mentorship, event
+        action_type = Column(String(80), index=True, nullable=False)
+        title = Column(String(255), nullable=False)
+        message = Column(Text, nullable=False)
+        actor_name = Column(String(150), default="")
+        actor_username = Column(String(100), default="")
+        actor_avatar = Column(Text, default="")
+        target_type = Column(String(50), default="")
+        target_id = Column(String(100), default="")
+        link = Column(String(500), default="")
+        is_read = Column(Boolean, default=False, index=True)
+        is_archived = Column(Boolean, default=False, index=True)
+        priority = Column(String(30), default="normal") # low, normal, high, urgent
+        group_key = Column(String(100), nullable=True, index=True)
+        count = Column(Integer, default=1)
+        meta = Column(JSON, default=dict)
+        created_at = Column(String(50), default=lambda: datetime.now().isoformat())
+        updated_at = Column(String(50), default=lambda: datetime.now().isoformat())
+
+        def to_dict(self) -> Dict[str, Any]:
+            return {
+                "id": self.id,
+                "recipient_email": self.recipient_email,
+                "category": self.category,
+                "action_type": self.action_type,
+                "title": self.title,
+                "message": self.message,
+                "actor_name": self.actor_name or "",
+                "actor_username": self.actor_username or "",
+                "actor_avatar": self.actor_avatar or "",
+                "target_type": self.target_type or "",
+                "target_id": self.target_id or "",
+                "link": self.link or "",
+                "is_read": bool(self.is_read),
+                "is_archived": bool(self.is_archived),
+                "priority": self.priority or "normal",
+                "group_key": self.group_key or "",
+                "count": self.count or 1,
+                "meta": self.meta or {},
                 "created_at": self.created_at,
                 "updated_at": self.updated_at
             }
@@ -3469,6 +3520,452 @@ def get_all_scholarships():
     if os.path.exists(SCHOLARSHIPS_JSON):
         try:
             with open(SCHOLARSHIPS_JSON, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return []
+
+
+# =====================================================================
+# UNIFIED NOTIFICATION ENGINE (SCHOLARSHIPS, COMMUNITY, NEWS, SYSTEM)
+# =====================================================================
+
+DEFAULT_NOTIFICATION_PREFERENCES = {
+    "scholarship_enabled": True,
+    "community_enabled": True,
+    "news_enabled": True,
+    "system_enabled": True,
+    "email_enabled": True,
+    "browser_enabled": True,
+    "subscribed_countries": [],
+    "subscribed_majors": [],
+    "subscribed_degrees": [],
+    "email_frequency": "daily_digest"
+}
+
+
+def get_user_notification_preferences(email: str) -> Dict[str, Any]:
+    """Retrieves notification settings & subscriptions for a student."""
+    clean_email = (email or "").strip().lower()
+    prefs = dict(DEFAULT_NOTIFICATION_PREFERENCES)
+
+    if os.path.exists(NOTIFICATION_PREFERENCES_JSON):
+        try:
+            with open(NOTIFICATION_PREFERENCES_JSON, "r", encoding="utf-8") as f:
+                all_prefs = json.load(f)
+            if clean_email in all_prefs:
+                prefs.update(all_prefs[clean_email])
+        except Exception:
+            pass
+
+    return prefs
+
+
+def update_user_notification_preferences(email: str, new_prefs: Dict[str, Any]) -> Dict[str, Any]:
+    """Updates and persists notification preferences for a student."""
+    clean_email = (email or "").strip().lower()
+    current = get_user_notification_preferences(clean_email)
+    current.update(new_prefs)
+
+    try:
+        os.makedirs(DATA_DIR, exist_ok=True)
+        all_prefs = {}
+        if os.path.exists(NOTIFICATION_PREFERENCES_JSON):
+            try:
+                with open(NOTIFICATION_PREFERENCES_JSON, "r", encoding="utf-8") as f:
+                    all_prefs = json.load(f)
+            except Exception:
+                all_prefs = {}
+        all_prefs[clean_email] = current
+        temp_file = NOTIFICATION_PREFERENCES_JSON + ".tmp"
+        with open(temp_file, "w", encoding="utf-8") as f:
+            json.dump(all_prefs, f, ensure_ascii=False, indent=2)
+        os.replace(temp_file, NOTIFICATION_PREFERENCES_JSON)
+    except Exception as e:
+        logger.error(f"Error persisting notification preferences: {e}")
+
+    return current
+
+
+def create_unified_notification(notif_data: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Creates or intelligently groups a notification.
+    If group_key is provided and an unread notification with that key exists,
+    it updates the message and increments the counter instead of spamming.
+    """
+    import uuid
+    clean_rec = (notif_data.get("recipient_email") or notif_data.get("recipient") or "").strip().lower()
+    notif_data["recipient_email"] = clean_rec
+    group_key = notif_data.get("group_key") or ""
+    now_iso = datetime.now().isoformat()
+
+    # 1. Check for intelligent grouping in JSON store
+    updated_existing = False
+    try:
+        os.makedirs(DATA_DIR, exist_ok=True)
+        items = []
+        if os.path.exists(UNIFIED_NOTIFICATIONS_JSON):
+            try:
+                with open(UNIFIED_NOTIFICATIONS_JSON, "r", encoding="utf-8") as f:
+                    items = json.load(f)
+            except Exception:
+                items = []
+
+        if group_key:
+            for it in items:
+                if it.get("recipient_email") == clean_rec and it.get("group_key") == group_key and not it.get("is_read", False) and not it.get("is_archived", False):
+                    # Intelligent grouping match!
+                    it["count"] = it.get("count", 1) + 1
+                    it["updated_at"] = now_iso
+                    it["title"] = notif_data.get("title", it.get("title"))
+                    it["message"] = notif_data.get("message", it.get("message"))
+                    it["actor_name"] = notif_data.get("actor_name", it.get("actor_name"))
+                    it["actor_avatar"] = notif_data.get("actor_avatar", it.get("actor_avatar"))
+                    notif_data = it
+                    updated_existing = True
+                    break
+
+        if not updated_existing:
+            notif_id = notif_data.get("id") or f"ntf_{uuid.uuid4().hex[:12]}"
+            notif_data["id"] = notif_id
+            notif_data["is_read"] = bool(notif_data.get("is_read", False))
+            notif_data["is_archived"] = bool(notif_data.get("is_archived", False))
+            notif_data["priority"] = notif_data.get("priority", "normal")
+            notif_data["count"] = notif_data.get("count", 1)
+            notif_data["type"] = notif_data.get("action_type", notif_data.get("type", ""))
+            notif_data["meta"] = notif_data.get("meta", {})
+            notif_data["created_at"] = notif_data.get("created_at") or now_iso
+            notif_data["updated_at"] = now_iso
+            items.insert(0, notif_data)
+
+        temp_file = UNIFIED_NOTIFICATIONS_JSON + ".tmp"
+        with open(temp_file, "w", encoding="utf-8") as f:
+            json.dump(items[:1500], f, ensure_ascii=False, indent=2)
+        os.replace(temp_file, UNIFIED_NOTIFICATIONS_JSON)
+    except Exception as je:
+        logger.error(f"Error persisting unified notification to JSON: {je}")
+
+    # Also record in DB if available
+    if is_db_available() and UnifiedNotificationDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    db.add(UnifiedNotificationDB(
+                        id=notif_data["id"],
+                        recipient_email=clean_rec,
+                        category=notif_data.get("category", "system"),
+                        action_type=notif_data.get("action_type", "announcement"),
+                        title=notif_data.get("title", ""),
+                        message=notif_data.get("message", ""),
+                        actor_name=notif_data.get("actor_name", ""),
+                        actor_username=notif_data.get("actor_username", ""),
+                        actor_avatar=notif_data.get("actor_avatar", ""),
+                        target_type=notif_data.get("target_type", ""),
+                        target_id=notif_data.get("target_id", ""),
+                        link=notif_data.get("link", ""),
+                        is_read=notif_data["is_read"],
+                        is_archived=notif_data["is_archived"],
+                        priority=notif_data["priority"],
+                        group_key=group_key,
+                        count=notif_data["count"],
+                        meta=notif_data["meta"],
+                        created_at=notif_data["created_at"],
+                        updated_at=notif_data["updated_at"]
+                    ))
+        except Exception as dbe:
+            logger.debug(f"DB save unified notification error: {dbe}")
+
+    return notif_data
+
+
+def get_unified_notifications(
+    recipient_email: str,
+    category: Optional[str] = None,
+    unread_only: bool = False,
+    archived_only: bool = False,
+    limit: int = 50,
+    page: int = 1
+) -> Dict[str, Any]:
+    """Retrieves paginated notifications filtered by category, read status, or archived status."""
+    clean_rec = (recipient_email or "").strip().lower()
+    items: List[Dict[str, Any]] = []
+
+    if is_db_available() and UnifiedNotificationDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    q = db.query(UnifiedNotificationDB).filter(UnifiedNotificationDB.recipient_email == clean_rec)
+                    if archived_only:
+                        q = q.filter(UnifiedNotificationDB.is_archived == True)
+                    else:
+                        q = q.filter(UnifiedNotificationDB.is_archived == False)
+                        if unread_only:
+                            q = q.filter(UnifiedNotificationDB.is_read == False)
+                    if category and category.strip() and category != "all":
+                        q = q.filter(UnifiedNotificationDB.category == category.strip().lower())
+                    total = q.count()
+                    rows = q.order_by(UnifiedNotificationDB.created_at.desc()).offset((page - 1) * limit).limit(limit).all()
+                    return {
+                        "notifications": [r.to_dict() for r in rows],
+                        "total": total,
+                        "page": page,
+                        "pages": (total + limit - 1) // limit if limit > 0 else 1
+                    }
+        except Exception as e:
+            logger.debug(f"DB load unified notifications error: {e}")
+
+    # Fallback to JSON file
+    if os.path.exists(UNIFIED_NOTIFICATIONS_JSON):
+        try:
+            with open(UNIFIED_NOTIFICATIONS_JSON, "r", encoding="utf-8") as f:
+                items = json.load(f)
+        except Exception:
+            items = []
+
+    filtered = [it for it in items if it.get("recipient_email", "").lower() == clean_rec]
+
+    if archived_only:
+        filtered = [it for it in filtered if it.get("is_archived", False)]
+    else:
+        filtered = [it for it in filtered if not it.get("is_archived", False)]
+        if unread_only:
+            filtered = [it for it in filtered if not it.get("is_read", False)]
+
+    if category and category.strip() and category != "all":
+        clean_cat = category.strip().lower()
+        filtered = [it for it in filtered if it.get("category", "").lower() == clean_cat]
+
+    filtered.sort(key=lambda x: x.get("created_at", ""), reverse=True)
+    total = len(filtered)
+    start_idx = (page - 1) * limit
+    paged = filtered[start_idx:start_idx + limit]
+
+    return {
+        "notifications": paged,
+        "total": total,
+        "page": page,
+        "pages": (total + limit - 1) // limit if limit > 0 else 1
+    }
+
+
+def mark_unified_notification_read(notification_id: str, recipient_email: str) -> bool:
+    """Marks a single notification as read."""
+    clean_id = str(notification_id).strip()
+    clean_rec = (recipient_email or "").strip().lower()
+    updated = False
+
+    if is_db_available() and UnifiedNotificationDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    row = db.query(UnifiedNotificationDB).filter(
+                        UnifiedNotificationDB.id == clean_id,
+                        UnifiedNotificationDB.recipient_email == clean_rec
+                    ).first()
+                    if row:
+                        row.is_read = True
+                        row.updated_at = datetime.now().isoformat()
+                        updated = True
+        except Exception as e:
+            logger.debug(f"DB mark notification read error: {e}")
+
+    if os.path.exists(UNIFIED_NOTIFICATIONS_JSON):
+        try:
+            with open(UNIFIED_NOTIFICATIONS_JSON, "r", encoding="utf-8") as f:
+                items = json.load(f)
+            for it in items:
+                if str(it.get("id")) == clean_id and it.get("recipient_email", "").lower() == clean_rec:
+                    it["is_read"] = True
+                    it["updated_at"] = datetime.now().isoformat()
+                    updated = True
+                    break
+            if updated:
+                temp_file = UNIFIED_NOTIFICATIONS_JSON + ".tmp"
+                with open(temp_file, "w", encoding="utf-8") as f:
+                    json.dump(items, f, ensure_ascii=False, indent=2)
+                os.replace(temp_file, UNIFIED_NOTIFICATIONS_JSON)
+        except Exception:
+            pass
+
+    return updated
+
+
+def mark_all_unified_notifications_read(recipient_email: str, category: Optional[str] = None) -> int:
+    """Marks all notifications as read for a student, optionally filtered by category."""
+    clean_rec = (recipient_email or "").strip().lower()
+    count = 0
+
+    if is_db_available() and UnifiedNotificationDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    q = db.query(UnifiedNotificationDB).filter(
+                        UnifiedNotificationDB.recipient_email == clean_rec,
+                        UnifiedNotificationDB.is_read == False
+                    )
+                    if category and category.strip() and category != "all":
+                        q = q.filter(UnifiedNotificationDB.category == category.strip().lower())
+                    rows = q.all()
+                    for r in rows:
+                        r.is_read = True
+                        r.updated_at = datetime.now().isoformat()
+                        count += 1
+        except Exception as e:
+            logger.debug(f"DB mark all read error: {e}")
+
+    if os.path.exists(UNIFIED_NOTIFICATIONS_JSON):
+        try:
+            with open(UNIFIED_NOTIFICATIONS_JSON, "r", encoding="utf-8") as f:
+                items = json.load(f)
+            for it in items:
+                if it.get("recipient_email", "").lower() == clean_rec and not it.get("is_read", False):
+                    if not category or category == "all" or it.get("category", "").lower() == category.strip().lower():
+                        it["is_read"] = True
+                        it["updated_at"] = datetime.now().isoformat()
+                        count += 1
+            if count > 0:
+                temp_file = UNIFIED_NOTIFICATIONS_JSON + ".tmp"
+                with open(temp_file, "w", encoding="utf-8") as f:
+                    json.dump(items, f, ensure_ascii=False, indent=2)
+                os.replace(temp_file, UNIFIED_NOTIFICATIONS_JSON)
+        except Exception:
+            pass
+
+    return count
+
+
+def archive_unified_notification(notification_id: str, recipient_email: str) -> bool:
+    """Archives a notification so it is removed from active views."""
+    clean_id = str(notification_id).strip()
+    clean_rec = (recipient_email or "").strip().lower()
+    updated = False
+
+    if is_db_available() and UnifiedNotificationDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    row = db.query(UnifiedNotificationDB).filter(
+                        UnifiedNotificationDB.id == clean_id,
+                        UnifiedNotificationDB.recipient_email == clean_rec
+                    ).first()
+                    if row:
+                        row.is_archived = True
+                        row.updated_at = datetime.now().isoformat()
+                        updated = True
+        except Exception as e:
+            logger.debug(f"DB archive notification error: {e}")
+
+    if os.path.exists(UNIFIED_NOTIFICATIONS_JSON):
+        try:
+            with open(UNIFIED_NOTIFICATIONS_JSON, "r", encoding="utf-8") as f:
+                items = json.load(f)
+            for it in items:
+                if str(it.get("id")) == clean_id and it.get("recipient_email", "").lower() == clean_rec:
+                    it["is_archived"] = True
+                    it["updated_at"] = datetime.now().isoformat()
+                    updated = True
+                    break
+            if updated:
+                temp_file = UNIFIED_NOTIFICATIONS_JSON + ".tmp"
+                with open(temp_file, "w", encoding="utf-8") as f:
+                    json.dump(items, f, ensure_ascii=False, indent=2)
+                os.replace(temp_file, UNIFIED_NOTIFICATIONS_JSON)
+        except Exception:
+            pass
+
+    return updated
+
+
+def delete_unified_notification(notification_id: str, recipient_email: str) -> bool:
+    """Permanently deletes a notification."""
+    clean_id = str(notification_id).strip()
+    clean_rec = (recipient_email or "").strip().lower()
+    deleted = False
+
+    if is_db_available() and UnifiedNotificationDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    row = db.query(UnifiedNotificationDB).filter(
+                        UnifiedNotificationDB.id == clean_id,
+                        UnifiedNotificationDB.recipient_email == clean_rec
+                    ).first()
+                    if row:
+                        db.delete(row)
+                        deleted = True
+        except Exception as e:
+            logger.debug(f"DB delete notification error: {e}")
+
+    if os.path.exists(UNIFIED_NOTIFICATIONS_JSON):
+        try:
+            with open(UNIFIED_NOTIFICATIONS_JSON, "r", encoding="utf-8") as f:
+                items = json.load(f)
+            orig_len = len(items)
+            items = [it for it in items if not (str(it.get("id")) == clean_id and it.get("recipient_email", "").lower() == clean_rec)]
+            if len(items) < orig_len:
+                deleted = True
+                temp_file = UNIFIED_NOTIFICATIONS_JSON + ".tmp"
+                with open(temp_file, "w", encoding="utf-8") as f:
+                    json.dump(items, f, ensure_ascii=False, indent=2)
+                os.replace(temp_file, UNIFIED_NOTIFICATIONS_JSON)
+        except Exception:
+            pass
+
+    return deleted
+
+
+def get_unified_unread_counts(recipient_email: str) -> Dict[str, int]:
+    """Returns total unread count and category breakdown for a student."""
+    clean_rec = (recipient_email or "").strip().lower()
+    res = {
+        "total": 0,
+        "scholarship": 0,
+        "community": 0,
+        "news": 0,
+        "system": 0,
+        "group": 0,
+        "chat": 0
+    }
+
+    if is_db_available() and UnifiedNotificationDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    rows = db.query(UnifiedNotificationDB).filter(
+                        UnifiedNotificationDB.recipient_email == clean_rec,
+                        UnifiedNotificationDB.is_read == False,
+                        UnifiedNotificationDB.is_archived == False
+                    ).all()
+                    for r in rows:
+                        res["total"] += 1
+                        cat = (r.category or "").lower()
+                        if cat in res:
+                            res[cat] += 1
+                    return res
+        except Exception as e:
+            logger.debug(f"DB unread counts error: {e}")
+
+    if os.path.exists(UNIFIED_NOTIFICATIONS_JSON):
+        try:
+            with open(UNIFIED_NOTIFICATIONS_JSON, "r", encoding="utf-8") as f:
+                items = json.load(f)
+            for it in items:
+                if it.get("recipient_email", "").lower() == clean_rec and not it.get("is_read", False) and not it.get("is_archived", False):
+                    res["total"] += 1
+                    cat = (it.get("category") or "").lower()
+                    if cat in res:
+                        res[cat] += 1
+        except Exception:
+            pass
+
+    return res
+
+
+def get_all_users():
+    import os, json
+    if os.path.exists(USERS_JSON):
+        try:
+            with open(USERS_JSON, 'r', encoding='utf-8') as f:
                 return json.load(f)
         except Exception:
             pass

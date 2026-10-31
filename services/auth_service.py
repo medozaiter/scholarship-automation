@@ -571,6 +571,14 @@ class AuthService:
         user["verification_code"] = ""
         save_or_update_user(user)
         logger.info(f"Email verified for {email_clean}")
+
+        # Dispatch account verification notification
+        try:
+            from services.notification_service import notification_service
+            notification_service.notify_account_verification(email_clean)
+        except Exception as ne:
+            logger.warning(f"Verification notification error: {ne}")
+
         return True
 
     def calculate_profile_completeness(self, user_dict: Dict[str, Any]) -> Dict[str, Any]:
@@ -772,6 +780,14 @@ class AuthService:
         normalized = self._normalize_user_dict(user)
         completeness = self.calculate_profile_completeness(normalized)
         normalized["completeness"] = completeness
+
+        # Dispatch profile completion milestone notification
+        try:
+            from services.notification_service import notification_service
+            notification_service.notify_profile_completion(email_clean, completeness.get("percentage", 0))
+        except Exception as ne:
+            logger.warning(f"Profile completion notification error: {ne}")
+
         normalized.pop("salt", None)
         normalized.pop("password_hash", None)
         normalized.pop("verification_code", None)

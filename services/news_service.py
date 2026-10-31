@@ -193,6 +193,14 @@ class NewsService:
             except Exception as te:
                 logger.warning(f"Telegram auto-broadcast notice: {te}")
 
+        # Dispatch news notifications to interested students
+        if saved.get("is_featured") or saved.get("is_trending") or saved.get("category") in {"scholarships", "funding", "announcements"}:
+            try:
+                from services.notification_service import notification_service
+                notification_service.notify_important_news(saved)
+            except Exception as ne:
+                logger.warning(f"Unified news notification notice: {ne}")
+
         return saved
 
     def check_and_enforce_deadlines(self) -> int:

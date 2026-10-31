@@ -394,6 +394,20 @@ class CommunityService:
 
         saved = save_community_post(post_record)
         logger.info(f"Community post published: {saved.get('id')} by @{saved.get('author_username')}")
+
+        # Parse and notify any @username mentions
+        try:
+            from services.notification_service import notification_service
+            notification_service.parse_and_notify_mentions(
+                content=content,
+                author_user=author_user,
+                entity_type="post",
+                entity_id=saved.get("id"),
+                entity_title=title or content[:60]
+            )
+        except Exception as ne:
+            logger.warning(f"Failed to dispatch mention notifications for post: {ne}")
+
         return saved
 
     def get_post_details(self, post_id: str, user_email: Optional[str] = None) -> Optional[Dict[str, Any]]:
@@ -459,6 +473,17 @@ class CommunityService:
                 "target_id": post["id"],
                 "message": f"أعجب بمنشورك: {post.get('title') or post.get('content')[:50]}..."
             })
+            # Dispatch to Unified Notification Center
+            try:
+                from services.notification_service import notification_service
+                notification_service.notify_post_like(
+                    author_email=post["author_id"],
+                    actor_user=liker_user,
+                    post_id=post["id"],
+                    post_title=post.get("title") or post.get("content")[:50]
+                )
+            except Exception as ne:
+                logger.warning(f"Failed to dispatch unified like notification: {ne}")
 
         return {
             "success": True,
@@ -563,6 +588,17 @@ class CommunityService:
                     "target_id": post_id,
                     "message": f"رد على تعليقك في المنشور الأكاديمي."
                 })
+                try:
+                    from services.notification_service import notification_service
+                    notification_service.notify_comment_reply(
+                        parent_author_email=parent_comment["author_id"],
+                        actor_user=author_user,
+                        post_id=post_id,
+                        comment_id=saved_comment["id"],
+                        reply_content=clean_content
+                    )
+                except Exception as ne:
+                    logger.warning(f"Failed to dispatch unified reply notification: {ne}")
         elif post.get("author_id") and post.get("author_id").lower() != clean_author_email:
             save_community_notification({
                 "recipient_email": post["author_id"],
@@ -573,6 +609,31 @@ class CommunityService:
                 "target_id": post_id,
                 "message": f"علق على منشورك: {post.get('title') or post.get('content')[:40]}..."
             })
+            try:
+                from services.notification_service import notification_service
+                notification_service.notify_post_comment(
+                    post_author_email=post["author_id"],
+                    actor_user=author_user,
+                    post_id=post_id,
+                    comment_id=saved_comment["id"],
+                    post_title=post.get("title") or post.get("content")[:40],
+                    comment_content=clean_content
+                )
+            except Exception as ne:
+                logger.warning(f"Failed to dispatch unified comment notification: {ne}")
+
+        # Parse and notify mentions inside comment
+        try:
+            from services.notification_service import notification_service
+            notification_service.parse_and_notify_mentions(
+                content=clean_content,
+                author_user=author_user,
+                entity_type="comment",
+                entity_id=post_id,
+                entity_title=post.get("title") or post.get("content")[:40]
+            )
+        except Exception as ne:
+            logger.warning(f"Failed to dispatch mention notification on comment: {ne}")
 
         return saved_comment
 
@@ -658,6 +719,14 @@ class CommunityService:
                 "target_id": follower_obj.get("username") or "",
                 "message": "بدأ بمتابعة نشاطك وملفك الأكاديمي."
             })
+            try:
+                from services.notification_service import notification_service
+                notification_service.notify_follow(
+                    target_email=target_email,
+                    follower_user=follower_obj
+                )
+            except Exception as ne:
+                logger.warning(f"Failed to dispatch unified follow notification: {ne}")
 
         return res
 

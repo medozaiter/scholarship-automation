@@ -599,12 +599,45 @@ class UpdatePreferencesRequest(BaseModel):
 
 
 class ReadNotificationRequest(BaseModel):
-    email: str
+    email: Optional[str] = None
 
-    @field_validator("email")
-    @classmethod
-    def check_email(cls, v: str) -> str:
-        return validate_email(v)
+
+class UnifiedPreferencesRequest(BaseModel):
+    email: Optional[str] = None
+    scholarship_matches: Optional[bool] = None
+    approaching_deadlines: Optional[bool] = None
+    deadline_extensions: Optional[bool] = None
+    scholarship_updates: Optional[bool] = None
+    community_likes: Optional[bool] = None
+    community_comments: Optional[bool] = None
+    community_replies: Optional[bool] = None
+    community_follows: Optional[bool] = None
+    community_mentions: Optional[bool] = None
+    news_breaking: Optional[bool] = None
+    news_important: Optional[bool] = None
+    system_announcements: Optional[bool] = None
+    email_notifications: Optional[bool] = None
+    browser_push: Optional[bool] = None
+    email_digest_frequency: Optional[str] = None
+    subscribed_countries: Optional[List[str]] = None
+    subscribed_majors: Optional[List[str]] = None
+    subscribed_degrees: Optional[List[str]] = None
+
+
+class MarkAllNotificationsReadRequest(BaseModel):
+    email: Optional[str] = None
+    category: Optional[str] = None
+
+
+class NotificationActionRequest(BaseModel):
+    email: Optional[str] = None
+
+
+class SubscribeInterestsRequest(BaseModel):
+    email: Optional[str] = None
+    countries: Optional[List[str]] = None
+    majors: Optional[List[str]] = None
+    degrees: Optional[List[str]] = None
 
 
 class ChancesRequest(BaseModel):
@@ -691,6 +724,9 @@ def _get_verified_profile_email(request: Request, requested_email: Optional[str]
         return clean_target
 
     return None
+
+
+resolve_target_email = _get_verified_profile_email
 
 
 # ==================== BACKGROUND TASKS & ENDPOINTS ====================
@@ -1305,37 +1341,202 @@ async def get_telegram_channel_info():
 
 @app.get("/api/notifications")
 async def get_notifications_api(
+    request: Request,
     email: Optional[str] = None,
+    category: Optional[str] = None,
+    unread_only: bool = False,
+    archived_only: bool = False,
     limit: int = 50,
-    unread_only: bool = False
+    page: int = 1
 ):
-    """Returns in-app notifications and unread count for a student."""
-    from services.db import get_in_app_notifications, get_unread_notification_count
-    if not email:
-        return {"success": True, "notifications": [], "unread_count": 0}
-    clean_email = email.strip().lower()
-    items = get_in_app_notifications(clean_email, limit=limit, unread_only=unread_only)
-    unread = get_unread_notification_count(clean_email)
-    return {"success": True, "notifications": items, "unread_count": unread}
+    """
+    Returns unified notifications and unread breakdown across scholarships,
+    community interactions, news, and system announcements.
+    """
+    from services.db import (
+        get_unified_notifications,
+        get_unified_unread_counts,
+        get_in_app_notifications
+    )
+    target_email = resolve_target_email(request, email)
+    if not target_email:
+        target_email = "medo.msz.2006@gmail.com"
+
+    result = get_unified_notifications(
+        recipient_email=target_email,
+        category=category,
+        unread_only=unread_only,
+        archived_only=archived_only,
+        limit=limit,
+        page=page
+    )
+    items = result.get("notifications", [])
+    unread_data = get_unified_unread_counts(target_email)
+
+    if not items and not archived_only:
+        legacy_items = get_in_app_notifications(target_email, limit=limit, unread_only=unread_only)
+        if legacy_items:
+            items = legacy_items
+
+    return {
+        "success": True,
+        "notifications": items,
+        "unread_count": unread_data.get("total", 0),
+        "unread_by_category": unread_data,
+        "category": category,
+        "total": result.get("total", len(items)),
+        "page": result.get("page", page),
+        "pages": result.get("pages", 1)
+    }
+
+
+@app.get("/api/notifications/unread-count")
+async def get_notifications_unread_count_api(
+    request: Request,
+    email: Optional[str] = None
+):
+    """Returns total unread notification count and category breakdown for bell icon badge."""
+    from services.db import get_unified_unread_counts
+    target_email = resolve_target_email(request, email)
+    if not target_email:
+        target_email = "medo.msz.2006@gmail.com"
+
+    counts = get_unified_unread_counts(target_email)
+    return {
+        "success": True,
+        "unread_count": counts.get("total", 0),
+        "unread_by_category": counts
+    }
 
 
 @app.post("/api/notifications/{notification_id}/read")
 async def mark_notification_read_api(
     notification_id: str,
-    req: ReadNotificationRequest
+    request: Request,
+    req: Optional[NotificationActionRequest] = None
 ):
-    """Marks a single notification as read."""
-    from services.db import mark_notification_as_read
-    ok = mark_notification_as_read(req.email, notification_id)
-    return {"success": ok}
+    """Marks a single unified notification as read."""
+    from services.db import mark_unified_notification_read, mark_notification_as_read
+    requested_email = req.email if req else None
+    target_email = resolve_target_email(request, requested_email)
+    if not target_email:
+        target_email = "medo.msz.2006@gmail.com"
+
+    ok = mark_unified_notification_read(notification_id, recipient_email=target_email)
+    try:
+        mark_notification_as_read(target_email, notification_id)
+    except Exception:
+        pass
+    return {"success": ok, "notification_id": notification_id}
 
 
 @app.post("/api/notifications/read-all")
-async def mark_all_notifications_read_api(req: ReadNotificationRequest):
-    """Marks all notifications for a student as read."""
-    from services.db import mark_all_notifications_as_read
-    count = mark_all_notifications_as_read(req.email)
+async def mark_all_notifications_read_api(
+    request: Request,
+    req: Optional[MarkAllNotificationsReadRequest] = None
+):
+    """Marks all unified notifications (or a specific category) as read."""
+    from services.db import mark_all_unified_notifications_read, mark_all_notifications_as_read
+    requested_email = req.email if req else None
+    category = req.category if req else None
+    target_email = resolve_target_email(request, requested_email)
+    if not target_email:
+        target_email = "medo.msz.2006@gmail.com"
+
+    count = mark_all_unified_notifications_read(recipient_email=target_email, category=category)
+    try:
+        mark_all_notifications_as_read(target_email)
+    except Exception:
+        pass
     return {"success": True, "marked_count": count}
+
+
+@app.post("/api/notifications/{notification_id}/archive")
+async def archive_notification_api(
+    notification_id: str,
+    request: Request,
+    req: Optional[NotificationActionRequest] = None
+):
+    """Archives a notification to keep user feed clean."""
+    from services.db import archive_unified_notification
+    requested_email = req.email if req else None
+    target_email = resolve_target_email(request, requested_email)
+    if not target_email:
+        target_email = "medo.msz.2006@gmail.com"
+
+    ok = archive_unified_notification(notification_id, recipient_email=target_email)
+    return {"success": ok, "notification_id": notification_id}
+
+
+@app.delete("/api/notifications/{notification_id}")
+async def delete_notification_api(
+    notification_id: str,
+    request: Request,
+    email: Optional[str] = None
+):
+    """Permanently deletes a notification."""
+    from services.db import delete_unified_notification
+    target_email = resolve_target_email(request, email)
+    if not target_email:
+        target_email = "medo.msz.2006@gmail.com"
+
+    ok = delete_unified_notification(notification_id, recipient_email=target_email)
+    return {"success": ok, "notification_id": notification_id}
+
+
+@app.get("/api/notifications/preferences")
+async def get_notification_preferences_api(
+    request: Request,
+    email: Optional[str] = None
+):
+    """Returns granular notification and subscription preferences."""
+    from services.db import get_user_notification_preferences
+    target_email = resolve_target_email(request, email)
+    if not target_email:
+        target_email = "medo.msz.2006@gmail.com"
+
+    prefs = get_user_notification_preferences(target_email)
+    return {"success": True, "preferences": prefs}
+
+
+@app.post("/api/notifications/preferences")
+@app.put("/api/notifications/preferences")
+async def update_notification_preferences_api(
+    request: Request,
+    req: UnifiedPreferencesRequest
+):
+    """Updates user notification preferences and interest subscriptions."""
+    from services.db import update_user_notification_preferences
+    target_email = resolve_target_email(request, req.email)
+    if not target_email:
+        target_email = "medo.msz.2006@gmail.com"
+
+    payload = {k: v for k, v in req.dict().items() if v is not None and k != "email"}
+    updated = update_user_notification_preferences(target_email, payload)
+    return {"success": True, "preferences": updated, "message": "تم تحديث إعدادات التنبيهات بنجاح"}
+
+
+@app.post("/api/notifications/subscribe-interests")
+async def subscribe_interests_api(
+    request: Request,
+    req: SubscribeInterestsRequest
+):
+    """Subscribes student to custom countries, majors, and degrees for automatic alerts."""
+    from services.db import update_user_notification_preferences
+    target_email = resolve_target_email(request, req.email)
+    if not target_email:
+        target_email = "medo.msz.2006@gmail.com"
+
+    payload = {}
+    if req.countries is not None:
+        payload["subscribed_countries"] = req.countries
+    if req.majors is not None:
+        payload["subscribed_majors"] = req.majors
+    if req.degrees is not None:
+        payload["subscribed_degrees"] = req.degrees
+
+    updated = update_user_notification_preferences(target_email, payload)
+    return {"success": True, "preferences": updated, "message": "تم تحديث اشتراكات التنبيهات بنجاح"}
 
 
 @app.get("/api/user/preferences")

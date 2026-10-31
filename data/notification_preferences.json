@@ -1,0 +1,51 @@
+{
+  "medo.msz.2006@gmail.com": {
+    "scholarship_enabled": true,
+    "community_enabled": true,
+    "news_enabled": true,
+    "system_enabled": true,
+    "email_enabled": true,
+    "browser_enabled": true,
+    "subscribed_countries": [
+      "Germany",
+      "UK",
+      "Canada"
+    ],
+    "subscribed_majors": [
+      "هندسة البرمجيات",
+      "الذكاء الاصطناعي",
+      "علوم الحاسوب"
+    ],
+    "subscribed_degrees": [
+      "ماجستير",
+      "بكالوريوس"
+    ],
+    "email_frequency": "daily_digest",
+    "browser_push": true,
+    "email_digest_frequency": "weekly"
+  },
+  "test_scholar_notif@scholarpilot.com": {
+    "scholarship_enabled": true,
+    "community_enabled": true,
+    "news_enabled": true,
+    "system_enabled": true,
+    "email_enabled": true,
+    "browser_enabled": true,
+    "subscribed_countries": [
+      "Sweden",
+      "Netherlands"
+    ],
+    "subscribed_majors": [
+      "Data Science"
+    ],
+    "subscribed_degrees": [
+      "Master's"
+    ],
+    "email_frequency": "daily_digest",
+    "scholarship_matches": true,
+    "community_likes": true,
+    "browser_push": true,
+    "email_digest_frequency": "daily",
+    "news_breaking": false
+  }
+}
