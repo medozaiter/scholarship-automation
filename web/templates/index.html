@@ -58,7 +58,7 @@
         }
     </script>
 </head>
-<body class="min-h-screen selection:bg-blue-600 selection:text-white relative bg-[#F4F1EA] dark:bg-[#0B1724] text-[#16324F] dark:text-[#F4F1EA] transition-colors duration-200">
+<body class="min-h-screen selection:bg-blue-600 selection:text-white relative bg-[#F4F1EA] dark:bg-[#0B1724] text-[#16324F] dark:text-[#F4F1EA] transition-colors duration-200 overflow-x-hidden max-w-full w-full">
 
     <!-- Toast Notification Container -->
     <div id="toastContainer" class="fixed top-5 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none flex flex-col items-center gap-2 max-w-md w-full px-4"></div>
@@ -121,31 +121,31 @@
                 <a href="#faqSection" class="px-3 py-2 rounded-lg hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">الأسئلة الشائعة</a>
             </nav>
 
-            <!-- Actions -->
-            <div class="flex items-center gap-2.5">
-                <!-- Quick Direct Community & News Shortcuts -->
-                <a href="/community" aria-label="المجتمع الطلابي" class="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 transition flex items-center justify-center group" title="المجتمع الطلابي">
+            <!-- Actions (Optimized for Mobile 320px - 768px: zero overflow) -->
+            <div class="flex items-center gap-1.5 sm:gap-2.5">
+                <!-- Quick Direct Community & News Shortcuts (Hidden on mobile < sm) -->
+                <a href="/community" aria-label="المجتمع الطلابي" class="hidden sm:flex p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 transition items-center justify-center group" title="المجتمع الطلابي">
                     <i data-lucide="users" class="w-4 h-4 text-blue-500 group-hover:scale-110 transition-transform"></i>
                 </a>
-                <a href="/news" aria-label="آخر الأخبار" class="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 transition flex items-center justify-center relative group" title="آخر الأخبار ومواعيد المنح">
+                <a href="/news" aria-label="آخر الأخبار" class="hidden sm:flex p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 transition items-center justify-center relative group" title="آخر الأخبار ومواعيد المنح">
                     <i data-lucide="newspaper" class="w-4 h-4 text-blue-500 group-hover:scale-110 transition-transform"></i>
                     <span class="absolute -top-1 -right-1 w-2 h-2 bg-blue-600 rounded-full animate-ping"></span>
                 </a>
-                <!-- Theme Toggle Button -->
-                <button type="button" onclick="toggleTheme()" aria-label="Toggle visual theme" class="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 transition">
+                <!-- Theme Toggle Button (Always visible) -->
+                <button type="button" onclick="toggleTheme()" aria-label="Toggle visual theme" class="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 transition shrink-0">
                     <span id="themeIcon">
                         <i data-lucide="moon" class="w-4 h-4 text-slate-400"></i>
                     </span>
                 </button>
 
-                <!-- Quick Scholarship Catalog Button (Instant One-Click Modal) -->
-                <button type="button" onclick="openRadarCatalogModal()" aria-label="دليل المنح السريع" class="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 transition flex items-center justify-center relative group" title="دليل المنح السريع">
+                <!-- Quick Scholarship Catalog Button (Hidden on mobile < md, accessible via menu drawer) -->
+                <button type="button" onclick="openRadarCatalogModal()" aria-label="دليل المنح السريع" class="hidden md:flex p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 transition items-center justify-center relative group" title="دليل المنح السريع">
                     <i data-lucide="graduation-cap" class="w-4 h-4 text-blue-500 group-hover:scale-110 transition-transform"></i>
                     <span id="quickCatalogBadge" class="hidden sm:inline-flex absolute -top-1 -right-1 w-4 h-4 bg-blue-600 text-white rounded-full text-[9px] font-bold items-center justify-center">31</span>
                 </button>
 
-                <!-- Unified Notification Center Dropdown -->
-                <div class="relative" id="navNotificationRoot">
+                <!-- Unified Notification Center Dropdown (Always visible) -->
+                <div class="relative shrink-0" id="navNotificationRoot">
                     <button type="button" id="notifBellBtn" onclick="toggleUnifiedNotifDropdown(event)" aria-label="التنبيهات" class="relative p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 transition flex items-center justify-center">
                         <i data-lucide="bell" class="w-4 h-4 text-blue-500"></i>
                         <span id="globalNotifBadge" class="hidden absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-rose-500 text-white rounded-full text-[9px] font-black flex items-center justify-center ring-2 ring-white dark:ring-slate-900 animate-pulse">0</span>
@@ -189,8 +189,8 @@
                     </div>
                 </div>
 
-                <!-- Student Dashboard Link -->
-                <a href="/dashboard" class="sp-btn-secondary px-3.5 py-2 text-xs font-semibold flex items-center gap-1.5">
+                <!-- Student Dashboard Link (Hidden on mobile < md, present in mobile menu drawer) -->
+                <a href="/dashboard" class="hidden md:flex sp-btn-secondary px-3.5 py-2 text-xs font-semibold items-center gap-1.5">
                     <i data-lucide="user" class="w-4 h-4 text-blue-600 dark:text-blue-400"></i>
                     <span>بوابة الطالب</span>
                 </a>
@@ -2240,19 +2240,24 @@
 
         function toggleAssistantSidePanel(forceState) {
             const panel = document.getElementById('assistantSidePanel');
+            const backdrop = document.getElementById('assistantSidePanelBackdrop');
             if (!panel) return;
-            const isClosed = panel.classList.contains('translate-x-full');
-            const shouldOpen = forceState !== undefined ? forceState : isClosed;
+            const isCurrentlyHidden = panel.classList.contains('hidden');
+            const shouldOpen = forceState !== undefined ? forceState : isCurrentlyHidden;
 
             if (shouldOpen) {
-                panel.classList.remove('translate-x-full');
-                panel.classList.add('translate-x-0');
+                panel.classList.remove('hidden');
+                panel.classList.add('flex');
+                if (backdrop) backdrop.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
                 const inp = document.getElementById('sidePanelInput');
-                if (inp) setTimeout(() => inp.focus(), 200);
+                if (inp) setTimeout(() => inp.focus(), 250);
                 updateSidePanelQuota();
             } else {
-                panel.classList.add('translate-x-full');
-                panel.classList.remove('translate-x-0');
+                panel.classList.add('hidden');
+                panel.classList.remove('flex');
+                if (backdrop) backdrop.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
             }
             if (window.lucide) lucide.createIcons();
         }
@@ -2540,8 +2545,11 @@
         </div>
     </div>
 
-    <!-- ==================== SPLIT SCREEN SIDE PANEL DRAWER (OPTION B) ==================== -->
-    <aside id="assistantSidePanel" class="fixed top-0 right-0 h-full w-full sm:w-[460px] lg:w-[480px] z-[60] bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col transition-transform duration-300 translate-x-full">
+    <!-- ==================== SPLIT SCREEN SIDE PANEL & MOBILE FULLSCREEN MODAL (OPTION B) ==================== -->
+    <!-- Backdrop Overlay for Mobile & Desktop -->
+    <div id="assistantSidePanelBackdrop" onclick="toggleAssistantSidePanel(false)" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-[59] transition-opacity duration-300"></div>
+
+    <aside id="assistantSidePanel" class="hidden fixed inset-0 md:inset-y-0 md:left-auto md:right-0 md:w-[460px] lg:md:w-[480px] w-full h-full z-[60] bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 shadow-2xl flex-col transition-all duration-300 max-w-full">
         <!-- Side Panel Header -->
         <header class="p-3.5 border-b border-slate-200 dark:border-slate-800 bg-slate-50/90 dark:bg-slate-900/90 backdrop-blur-md flex items-center justify-between shrink-0">
             <div class="flex items-center gap-2.5 min-w-0">
@@ -2553,7 +2561,7 @@
                     <div class="flex items-center gap-2 flex-wrap">
                         <h3 class="text-xs font-black text-slate-900 dark:text-white flex items-center gap-1.5 truncate">
                             <span>المستشار الذكي</span>
-                            <span class="text-[10px] font-latin font-bold text-blue-600 dark:text-blue-400 bg-blue-500/10 px-1.5 py-0.2 rounded">Split View</span>
+                            <span class="text-[10px] font-latin font-bold text-blue-600 dark:text-blue-400 bg-blue-500/10 px-1.5 py-0.2 rounded hidden sm:inline">Split View</span>
                         </h3>
                         <span id="sidePanelQuotaBadge" class="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold border border-blue-500/20">رصيد اليوم: 10/10 أسئلة</span>
                     </div>
@@ -2568,46 +2576,15 @@
 
             <!-- Header Action Controls -->
             <div class="flex items-center gap-1.5">
-                <button type="button" onclick="expandToDedicatedPage()" title="توسيع للشاشة الكاملة (Option A)" class="sp-btn-secondary px-2.5 py-1.5 text-xs font-bold flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:border-blue-500">
+                <button type="button" onclick="expandToDedicatedPage()" title="توسيع للشاشة الكاملة (Option A)" class="sp-btn-secondary px-2.5 py-1.5 text-xs font-bold hidden sm:flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:border-blue-500">
                     <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i>
-                    <span class="hidden sm:inline">شاشة كاملة</span>
+                    <span>شاشة كاملة</span>
                 </button>
-                <button type="button" onclick="toggleAssistantSidePanel(false)" title="إغلاق اللوحة الجانبية" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                <button type="button" onclick="toggleAssistantSidePanel(false)" title="إغلاق المستشار" class="p-2 rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 transition flex items-center justify-center">
                     <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
-        
-    <!-- Mobile Navigation Drawer -->
-    <div id="mobileNavDrawer" class="hidden fixed inset-x-0 top-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-2xl p-4 z-40 md:hidden space-y-2">
-        <div class="grid grid-cols-2 gap-2 text-xs font-bold">
-            <button type="button" onclick="openRadarCatalogModal(); toggleMobileNavDrawer();" class="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-900/40 flex items-center gap-2 text-right">
-                <i data-lucide="graduation-cap" class="w-4 h-4 text-blue-500"></i>
-                <span>دليل المنح</span>
-            </button>
-            <a href="/assistant" class="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-900/40 flex items-center gap-2">
-                <i data-lucide="bot" class="w-4 h-4 text-blue-500"></i>
-                <span>المستشار الذكي</span>
-            </a>
-            <a href="/community" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/60 text-slate-800 dark:text-slate-200 flex items-center gap-2">
-                <i data-lucide="users" class="w-4 h-4 text-blue-500"></i>
-                <span>مجتمع الطلاب</span>
-            </a>
-            <a href="/news" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/60 text-slate-800 dark:text-slate-200 flex items-center gap-2">
-                <i data-lucide="newspaper" class="w-4 h-4 text-blue-500"></i>
-                <span>أخبار المنح</span>
-            </a>
-            <a href="#matchSection" onclick="toggleMobileNavDrawer()" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/60 text-slate-800 dark:text-slate-200 flex items-center gap-2">
-                <i data-lucide="target" class="w-4 h-4 text-emerald-500"></i>
-                <span>مطابقة المنح</span>
-            </a>
-            <a href="/dashboard" class="p-2.5 rounded-xl bg-blue-600 text-white flex items-center justify-center gap-2 font-black shadow">
-                <i data-lucide="user" class="w-4 h-4"></i>
-                <span>بوابة الطالب</span>
-            </a>
-        </div>
-    </div>
-
-    </header>
+        </header>
 
         <!-- Messages Scroll Container -->
         <div id="sidePanelMessages" class="flex-1 overflow-y-auto chat-scroll p-4 space-y-3.5">
