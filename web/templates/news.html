@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أخبار المنح والتعليم العالي | ScholarPilot AI Newsroom</title>
+    <meta name="description" content="المركز الإخباري الأكاديمي المعتمد لمتابعة أحدث إعلانات المنح الدراسية، تحديثات المواعيد النهائية، فرص التمويل، وقبول الجامعات الدولية.">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%232563eb'/><stop offset='50%' stop-color='%234f46e5'/><stop offset='100%' stop-color='%2306b6d4'/></linearGradient></defs><rect width='100' height='100' rx='24' fill='url(%23g)'/><path d='M50 20 L82 36 L50 52 L18 36 Z' fill='%23ffffff'/><path d='M26 44 L26 62 Q50 78 74 62 L74 44 L50 56 Z' fill='%23e0e7ff'/><circle cx='82' cy='42' r='4' fill='%2338bdf8'/><path d='M82 46 L82 66' stroke='%2338bdf8' stroke-width='3' stroke-linecap='round'/></svg>">
+
+    <!-- Tailwind CSS with Dark Mode -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd',
+                            400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8',
+                            800: '#1e40af', 900: '#1e3a8a', 950: '#0f172a'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Tajawal', 'Cairo', 'Inter', 'sans-serif'],
+                        mono: ['Inter', 'Plus Jakarta Sans', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Design Tokens -->
+    <link rel="stylesheet" href="/static/css/scholarpilot.css">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        function applySavedTheme() {
+            try {
+                const saved = localStorage.getItem('theme');
+                if (saved === 'light') {
+                    document.documentElement.classList.remove('dark');
+                } else {
+                    document.documentElement.classList.add('dark');
+                }
+            } catch(e) {}
+        }
+        applySavedTheme();
+
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            try {
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            } catch(e) {}
+            updateThemeIcon();
+        }
+
+        function updateThemeIcon() {
+            const iconWrap = document.getElementById('themeIcon');
+            if (!iconWrap) return;
+            const isDark = document.documentElement.classList.contains('dark');
+            iconWrap.innerHTML = isDark
+                ? '<i data-lucide="sun" class="w-4 h-4 text-amber-400"></i>'
+                : '<i data-lucide="moon" class="w-4 h-4 text-slate-600"></i>';
+            if (window.lucide) lucide.createIcons();
+        }
+    </script>
+</head>
+<body class="min-h-screen selection:bg-blue-600 selection:text-white flex flex-col relative bg-slate-950 text-slate-100 font-sans">
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="fixed top-5 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none flex flex-col items-center gap-2 max-w-md w-full px-4"></div>
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-40 bg-slate-900/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            <!-- Brand Logo -->
+            <a href="/" class="flex items-center gap-2.5 group">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 flex items-center justify-center shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform">
+                    <i data-lucide="graduation-cap" class="w-5 h-5 text-white"></i>
+                </div>
+                <div class="flex flex-col">
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-base font-black tracking-tight text-slate-900 dark:text-white">ScholarPilot</span>
+                        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">News</span>
+                    </div>
+                    <span class="text-[10px] text-slate-500 dark:text-slate-400 -mt-0.5 font-medium">مركز أخبار المنح والتعليم العالي</span>
+                </div>
+            </a>
+
+            <!-- Desktop Navigation Menu -->
+            <nav class="hidden md:flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300">
+                <a href="/" class="px-3 py-2 rounded-lg hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">الرئيسية</a>
+                <a href="/#radarSection" class="px-3 py-2 rounded-lg hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition flex items-center gap-1.5">
+                    <i data-lucide="layers" class="w-3.5 h-3.5 text-blue-500"></i>
+                    <span>رادار المنح</span>
+                </a>
+                <a href="/assistant" class="px-3 py-2 rounded-lg hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition flex items-center gap-1.5">
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5 text-blue-500"></i>
+                    <span>المستشار الذكي</span>
+                </a>
+                <a href="/community" class="px-3 py-2 rounded-lg hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition flex items-center gap-1.5">
+                    <i data-lucide="users" class="w-3.5 h-3.5 text-blue-500"></i>
+                    <span>المجتمع الأكاديمي</span>
+                </a>
+                <a href="/news" class="px-3 py-2 rounded-lg text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 font-bold transition flex items-center gap-1.5 border border-blue-200 dark:border-blue-900/50">
+                    <i data-lucide="newspaper" class="w-3.5 h-3.5 text-blue-500"></i>
+                    <span>أخبار المنح</span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                </a>
+            </nav>
+
+            <!-- Actions & User Profile -->
+            <div class="flex items-center gap-2">
+                <!-- Theme Toggle -->
+                <button type="button" onclick="toggleTheme()" class="p-2 rounded-xl text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition" title="تبديل المظهر">
+                    <span id="themeIcon"><i data-lucide="sun" class="w-4 h-4 text-amber-400"></i></span>
+                </button>
+
+                <!-- Telegram Channel Shortcut -->
+                <a href="https://t.me/ScholarPilot" target="_blank" rel="noopener noreferrer" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-sky-400 bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 rounded-xl transition" title="قناة التلجرام الرسمية">
+                    <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                    <span>قناة التلجرام</span>
+                </a>
+
+                <!-- User Session Profile -->
+                {% if user %}
+                <div class="relative group">
+                    <a href="/profile/{{ user.username or '' }}" class="flex items-center gap-2 p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">
+                        <img src="{{ user.avatar_url or 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80' }}" alt="{{ user.full_name }}" class="w-8 h-8 rounded-lg object-cover ring-2 ring-blue-500/30">
+                        <span class="hidden lg:inline text-xs font-bold text-slate-700 dark:text-slate-200 max-w-[100px] truncate">{{ user.full_name }}</span>
+                    </a>
+                </div>
+                {% else %}
+                <a href="/#matchSection" class="px-3.5 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-sm transition flex items-center gap-1.5">
+                    <i data-lucide="log-in" class="w-3.5 h-3.5"></i>
+                    <span>تسجيل الدخول</span>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Breaking News Ticker Bar -->
+    <div class="bg-gradient-to-r from-blue-950 via-slate-900 to-indigo-950 border-b border-slate-800/80 py-2.5 px-4 overflow-hidden">
+        <div class="max-w-7xl mx-auto flex items-center gap-3">
+            <div class="flex items-center gap-1.5 text-xs font-black px-2.5 py-1 rounded-md bg-blue-600 text-white shrink-0 shadow-sm shadow-blue-500/20">
+                <i data-lucide="flame" class="w-3.5 h-3.5 text-amber-300"></i>
+                <span>عاجل المنح</span>
+            </div>
+            <div id="tickerTrack" class="text-xs text-slate-300 truncate flex-1 flex items-center gap-4">
+                <span class="inline-flex items-center gap-1.5 text-slate-300">
+                    <i data-lucide="check-circle-2" class="w-3 h-3 text-emerald-400"></i>
+                    <span>جاري تحميل أحدث المستجدات المعتمدة...</span>
+                </span>
+            </div>
+            <button type="button" onclick="loadNewsData()" class="text-slate-400 hover:text-blue-400 text-xs flex items-center gap-1 transition shrink-0" title="تحديث الأخبار">
+                <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+                <span class="hidden sm:inline">تحديث</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-8">
+
+        <!-- Newsroom Hero Spotlight Section -->
+        <section id="heroSection" class="relative rounded-3xl overflow-hidden border border-slate-800 bg-slate-900/60 p-6 sm:p-8 backdrop-blur-sm">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                <!-- Featured Article Hero Card -->
+                <div id="featuredHeroCard" class="lg:col-span-8 relative rounded-2xl overflow-hidden border border-slate-800/80 bg-slate-950/70 min-h-[340px] flex flex-col justify-end p-6 sm:p-8 group shadow-xl">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent z-10"></div>
+                    <img id="heroImage" src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&w=1200&q=80" alt="Featured News" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-60">
+                    
+                    <div class="relative z-20 space-y-3">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span id="heroCategoryBadge" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-blue-600 text-white flex items-center gap-1 shadow">
+                                <i data-lucide="award" class="w-3 h-3"></i>
+                                <span>منح دراسية</span>
+                            </span>
+                            <span id="heroDeadlineBadge" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                                <i data-lucide="clock" class="w-3 h-3 text-amber-400"></i>
+                                <span>الموعد: 2026-11-20</span>
+                            </span>
+                            <span class="px-2 py-0.5 text-[11px] font-medium rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
+                                <i data-lucide="shield-check" class="w-3 h-3"></i>
+                                <span>معتمد ورسمي</span>
+                            </span>
+                        </div>
+                        <h1 id="heroTitle" class="text-xl sm:text-2xl md:text-3xl font-black text-white leading-snug">
+                            تمديد الموعد النهائي للتقديم على منح تشيفنينغ البريطانية لعام 2026/2027
+                        </h1>
+                        <p id="heroSummary" class="text-sm text-slate-300 line-clamp-2 max-w-2xl leading-relaxed">
+                            أعلنت وزارة الخارجية والتنمية البريطانية رسمياً عن تمديد فترة التقديم لمنح ماجستير تشيفنينغ الممولة بالكامل لتمكين الطلاب الدوليين من استكمال وثائقهم.
+                        </p>
+                        <div class="pt-2 flex flex-wrap items-center gap-3">
+                            <button id="heroOpenBtn" type="button" class="px-4 py-2 text-xs font-bold rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/20 transition flex items-center gap-1.5">
+                                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                                <span>قراءة التفاصيل الكاملة والمناقشة</span>
+                            </button>
+                            <a id="heroOfficialLink" href="https://www.chevening.org/scholarships" target="_blank" rel="noopener noreferrer" class="px-3.5 py-2 text-xs font-semibold rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5">
+                                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                                <span>البوابة الرسمية للمنحة</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trending Side Panel -->
+                <div class="lg:col-span-4 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="flame" class="w-4 h-4 text-amber-400"></i>
+                            <h2 class="text-sm font-black text-white">الأكثر رواجاً في المنح</h2>
+                        </div>
+                        <span class="text-[11px] text-slate-400 font-latin">Live Radar</span>
+                    </div>
+
+                    <div id="trendingList" class="space-y-3">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Search, Filter & Categories Navigation Bar -->
+        <section class="space-y-4">
+            <!-- Search & Controls Bar -->
+            <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
+                <!-- Search Input -->
+                <div class="relative flex-1">
+                    <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2"></i>
+                    <input type="text" id="newsSearchInput" placeholder="ابحث في أخبار المنح، الجامعات، الدول، أو المواعيد..." class="w-full pr-10 pl-4 py-2.5 text-xs rounded-xl bg-slate-950/80 border border-slate-800 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500 transition">
+                </div>
+
+                <!-- Sort & Filter Dropdowns -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <!-- Sort Selection -->
+                    <div class="flex items-center gap-1.5 bg-slate-950/80 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs">
+                        <i data-lucide="filter" class="w-3.5 h-3.5 text-slate-400"></i>
+                        <select id="sortBySelect" onchange="applyFilters()" class="bg-transparent text-slate-300 focus:outline-none text-xs cursor-pointer">
+                            <option value="latest" class="bg-slate-900 text-slate-100">الأحدث نشراً</option>
+                            <option value="popular" class="bg-slate-900 text-slate-100">الأكثر تفاعلاً وقراءة</option>
+                            <option value="deadline" class="bg-slate-900 text-slate-100">الأقرب موعداً نهائياً</option>
+                        </select>
+                    </div>
+
+                    <!-- Deadline Protection Filter Toggle -->
+                    <div class="flex items-center gap-1.5 bg-slate-950/80 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs">
+                        <label class="flex items-center gap-1.5 cursor-pointer text-slate-300">
+                            <input type="checkbox" id="onlyActiveCheckbox" checked onchange="applyFilters()" class="rounded bg-slate-800 border-slate-700 text-blue-600 focus:ring-0">
+                            <span>الفرص النشطة فقط</span>
+                        </label>
+                    </div>
+
+                    <!-- Saved Items Filter -->
+                    <button type="button" id="savedFilterBtn" onclick="toggleSavedFilter()" class="px-3 py-1.5 text-xs font-semibold rounded-xl bg-slate-950/80 border border-slate-800 hover:border-slate-700 text-slate-300 transition flex items-center gap-1.5">
+                        <i data-lucide="bookmark" class="w-3.5 h-3.5 text-blue-400"></i>
+                        <span>محفوظاتي</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Categories Tabs -->
+            <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none" id="categoryTabsContainer">
+                <button type="button" onclick="selectCategory('all')" data-cat="all" class="category-tab active px-3.5 py-2 text-xs font-bold rounded-xl transition flex items-center gap-1.5 shrink-0 bg-blue-600 text-white shadow-sm shadow-blue-500/20">
+                    <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+                    <span>كافة الأخبار</span>
+                </button>
+                <button type="button" onclick="selectCategory('scholarships')" data-cat="scholarships" class="category-tab px-3.5 py-2 text-xs font-medium rounded-xl transition flex items-center gap-1.5 shrink-0 bg-slate-900/80 hover:bg-slate-800 text-slate-300 border border-slate-800">
+                    <i data-lucide="award" class="w-3.5 h-3.5 text-blue-400"></i>
+                    <span>منح دراسية</span>
+                    <span class="count-badge text-[10px] px-1.5 py-0.2 rounded-full bg-slate-800 text-slate-400 font-latin">0</span>
+                </button>
+                <button type="button" onclick="selectCategory('universities')" data-cat="universities" class="category-tab px-3.5 py-2 text-xs font-medium rounded-xl transition flex items-center gap-1.5 shrink-0 bg-slate-900/80 hover:bg-slate-800 text-slate-300 border border-slate-800">
+                    <i data-lucide="landmark" class="w-3.5 h-3.5 text-indigo-400"></i>
+                    <span>جامعات</span>
+                    <span class="count-badge text-[10px] px-1.5 py-0.2 rounded-full bg-slate-800 text-slate-400 font-latin">0</span>
+                </button>
+                <button type="button" onclick="selectCategory('study_abroad')" data-cat="study_abroad" class="category-tab px-3.5 py-2 text-xs font-medium rounded-xl transition flex items-center gap-1.5 shrink-0 bg-slate-900/80 hover:bg-slate-800 text-slate-300 border border-slate-800">
+                    <i data-lucide="plane-takeoff" class="w-3.5 h-3.5 text-cyan-400"></i>
+                    <span>دراسة بالخارج</span>
+                    <span class="count-badge text-[10px] px-1.5 py-0.2 rounded-full bg-slate-800 text-slate-400 font-latin">0</span>
+                </button>
+                <button type="button" onclick="selectCategory('admissions')" data-cat="admissions" class="category-tab px-3.5 py-2 text-xs font-medium rounded-xl transition flex items-center gap-1.5 shrink-0 bg-slate-900/80 hover:bg-slate-800 text-slate-300 border border-slate-800">
+                    <i data-lucide="file-check" class="w-3.5 h-3.5 text-emerald-400"></i>
+                    <span>قبول وتسجيل</span>
+                    <span class="count-badge text-[10px] px-1.5 py-0.2 rounded-full bg-slate-800 text-slate-400 font-latin">0</span>
+                </button>
+                <button type="button" onclick="selectCategory('research')" data-cat="research" class="category-tab px-3.5 py-2 text-xs font-medium rounded-xl transition flex items-center gap-1.5 shrink-0 bg-slate-900/80 hover:bg-slate-800 text-slate-300 border border-slate-800">
+                    <i data-lucide="microscope" class="w-3.5 h-3.5 text-purple-400"></i>
+                    <span>بحث علمي</span>
+                    <span class="count-badge text-[10px] px-1.5 py-0.2 rounded-full bg-slate-800 text-slate-400 font-latin">0</span>
+                </button>
+                <button type="button" onclick="selectCategory('funding_opportunities')" data-cat="funding_opportunities" class="category-tab px-3.5 py-2 text-xs font-medium rounded-xl transition flex items-center gap-1.5 shrink-0 bg-slate-900/80 hover:bg-slate-800 text-slate-300 border border-slate-800">
+                    <i data-lucide="coins" class="w-3.5 h-3.5 text-amber-400"></i>
+                    <span>فرص تمويل</span>
+                    <span class="count-badge text-[10px] px-1.5 py-0.2 rounded-full bg-slate-800 text-slate-400 font-latin">0</span>
+                </button>
+                <button type="button" onclick="selectCategory('international_programs')" data-cat="international_programs" class="category-tab px-3.5 py-2 text-xs font-medium rounded-xl transition flex items-center gap-1.5 shrink-0 bg-slate-900/80 hover:bg-slate-800 text-slate-300 border border-slate-800">
+                    <i data-lucide="globe" class="w-3.5 h-3.5 text-sky-400"></i>
+                    <span>برامج دولية</span>
+                    <span class="count-badge text-[10px] px-1.5 py-0.2 rounded-full bg-slate-800 text-slate-400 font-latin">0</span>
+                </button>
+                <button type="button" onclick="selectCategory('internship_opportunities')" data-cat="internship_opportunities" class="category-tab px-3.5 py-2 text-xs font-medium rounded-xl transition flex items-center gap-1.5 shrink-0 bg-slate-900/80 hover:bg-slate-800 text-slate-300 border border-slate-800">
+                    <i data-lucide="briefcase" class="w-3.5 h-3.5 text-rose-400"></i>
+                    <span>فرص تدريب</span>
+                    <span class="count-badge text-[10px] px-1.5 py-0.2 rounded-full bg-slate-800 text-slate-400 font-latin">0</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- News Cards Grid Section -->
+        <section class="space-y-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="newspaper" class="w-4 h-4 text-blue-500"></i>
+                    <h2 class="text-base font-black text-white" id="sectionHeading">أحدث المستجدات والإعلانات الرسمية</h2>
+                </div>
+                <span id="resultsCountBadge" class="text-xs text-slate-400 font-medium">8 أخبار متاحة</span>
+            </div>
+
+            <!-- Grid Container -->
+            <div id="newsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <!-- Populated by JavaScript -->
+            </div>
+
+            <!-- Loading Spinner -->
+            <div id="loadingState" class="hidden py-16 flex flex-col items-center justify-center gap-3 text-slate-400">
+                <i data-lucide="loader-2" class="w-8 h-8 animate-spin text-blue-500"></i>
+                <span class="text-xs font-medium">جاري فحص وتحديث الأخبار والمواعيد الرسمية...</span>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden py-16 text-center rounded-2xl border border-dashed border-slate-800 bg-slate-900/30 p-8 space-y-3">
+                <div class="w-12 h-12 rounded-2xl bg-slate-800/80 flex items-center justify-center mx-auto text-slate-400">
+                    <i data-lucide="newspaper" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-sm font-bold text-slate-200">لا توجد أخبار مطابقة لبحثك حالياً</h3>
+                <p class="text-xs text-slate-400 max-w-sm mx-auto">
+                    جرب البحث بكلمات مختلفة أو تفعيل خيار كافة الأخبار بما فيها الأرشيفية.
+                </p>
+            </div>
+        </section>
+
+        <!-- Automated Protection Notice Footer Card -->
+        <section class="rounded-2xl border border-slate-800/80 bg-slate-900/40 p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0">
+                    <i data-lucide="shield-check" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold text-slate-200">حماية وتدقيق المواعيد النهائية للمنح</h4>
+                    <p class="text-[11px] text-slate-400">يتم فحص وتدقيق حالة المواعيد بشكل دوري آلياً، وأرشفة الفرص المنتهية لحماية الطلاب من التقديم على برامج مغلقة.</p>
+                </div>
+            </div>
+            <a href="https://t.me/ScholarPilot" target="_blank" rel="noopener noreferrer" class="px-4 py-2 text-xs font-bold rounded-xl bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 text-sky-300 transition shrink-0 flex items-center gap-1.5">
+                <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                <span>انضم لقناة التلجرام الرسمية</span>
+            </a>
+        </section>
+
+    </main>
+
+    <!-- Article Detail & Community Discussion Modal -->
+    <div id="articleModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div class="relative w-full max-w-3xl bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl max-h-[90vh] flex flex-col overflow-hidden my-auto">
+            <!-- Modal Header -->
+            <div class="p-5 border-b border-slate-800 flex items-center justify-between gap-4 bg-slate-950/50 sticky top-0 z-10">
+                <div class="flex items-center gap-2">
+                    <span id="modalCategoryBadge" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-blue-600 text-white">منح دراسية</span>
+                    <span id="modalDateBadge" class="text-xs text-slate-400">قبل يومين</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button type="button" id="modalSaveBtn" onclick="toggleModalArticleSave()" class="p-2 rounded-xl text-slate-400 hover:text-blue-400 hover:bg-slate-800 transition" title="حفظ المقال">
+                        <i data-lucide="bookmark" class="w-4 h-4"></i>
+                    </button>
+                    <button type="button" id="modalShareBtn" onclick="shareCurrentArticle()" class="p-2 rounded-xl text-slate-400 hover:text-blue-400 hover:bg-slate-800 transition" title="مشاركة الرابط">
+                        <i data-lucide="share-2" class="w-4 h-4"></i>
+                    </button>
+                    <button type="button" onclick="closeArticleModal()" class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition" title="إغلاق">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Body Scrollable -->
+            <div class="p-6 overflow-y-auto space-y-6 flex-1">
+                <!-- Cover Image -->
+                <div class="relative rounded-2xl overflow-hidden border border-slate-800 max-h-[260px]">
+                    <img id="modalImage" src="" alt="Article Banner" class="w-full h-full object-cover">
+                </div>
+
+                <!-- Title & Facts Summary Card -->
+                <div class="space-y-4">
+                    <h2 id="modalTitle" class="text-xl sm:text-2xl font-black text-white leading-snug"></h2>
+
+                    <!-- Fact Badges Bar -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
+                            <span class="text-[10px] text-slate-400 block font-medium">المصدر الرسمي</span>
+                            <span id="modalSource" class="text-xs font-bold text-slate-200 truncate block"></span>
+                        </div>
+                        <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
+                            <span class="text-[10px] text-slate-400 block font-medium">الدولة / الوجهة</span>
+                            <span id="modalCountry" class="text-xs font-bold text-slate-200 truncate block"></span>
+                        </div>
+                        <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
+                            <span class="text-[10px] text-slate-400 block font-medium">المرحلة الدراسية</span>
+                            <span id="modalDegree" class="text-xs font-bold text-slate-200 truncate block"></span>
+                        </div>
+                        <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
+                            <span class="text-[10px] text-slate-400 block font-medium">الموعد النهائي</span>
+                            <span id="modalDeadline" class="text-xs font-bold text-amber-300 truncate block"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Full Article Content -->
+                <div class="prose prose-invert max-w-none text-xs sm:text-sm text-slate-300 leading-relaxed space-y-4 border-b border-slate-800 pb-6">
+                    <p id="modalSummary" class="font-bold text-slate-200 bg-blue-950/30 border-r-4 border-blue-500 p-3.5 rounded-lg"></p>
+                    <div id="modalContent" class="whitespace-pre-line"></div>
+                </div>
+
+                <!-- Official Link Action Banner -->
+                <div class="bg-gradient-to-r from-blue-900/30 to-indigo-900/30 border border-blue-500/20 p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <div class="text-right">
+                        <span class="text-xs font-bold text-white block">للتقديم الرسمي ومعاينة بوابة البرنامج:</span>
+                        <span class="text-[11px] text-slate-300">يتم التقديم حصراً عبر الرابط الرسمي المعتمد من قبل الجهة المانحة.</span>
+                    </div>
+                    <a id="modalOfficialLinkBtn" href="#" target="_blank" rel="noopener noreferrer" class="px-4 py-2 text-xs font-bold rounded-xl bg-blue-600 hover:bg-blue-700 text-white transition flex items-center gap-1.5 shrink-0 shadow">
+                        <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                        <span>الانتقال للبوابة الرسمية</span>
+                    </a>
+                </div>
+
+                <!-- Community Discussion & Comments Section -->
+                <div class="space-y-4 pt-2">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="message-square" class="w-4 h-4 text-blue-400"></i>
+                            <h3 class="text-sm font-black text-white">النقاش الأكاديمي واستفسارات الطلاب</h3>
+                        </div>
+                        <span id="modalCommentsCount" class="text-xs text-slate-400">0 تعليقات</span>
+                    </div>
+
+                    <!-- Comment Input Box -->
+                    {% if user %}
+                    <div class="space-y-2 bg-slate-950/60 p-3.5 rounded-2xl border border-slate-800">
+                        <textarea id="commentInput" rows="2" placeholder="أضف استفسارك أو تجربتك حول هذا الخبر..." class="w-full text-xs rounded-xl bg-slate-900 border border-slate-800 p-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500 transition resize-none"></textarea>
+                        <div class="flex items-center justify-between pt-1">
+                            <span id="replyingToIndicator" class="text-[11px] text-blue-400 hidden flex items-center gap-1">
+                                <span>الرد على تعليق محدد</span>
+                                <button type="button" onclick="cancelReply()" class="text-slate-400 hover:text-rose-400"><i data-lucide="x" class="w-3 h-3"></i></button>
+                            </span>
+                            <button type="button" onclick="submitComment()" class="mr-auto px-3.5 py-1.5 text-xs font-bold rounded-xl bg-blue-600 hover:bg-blue-700 text-white transition flex items-center gap-1.5 shadow">
+                                <i data-lucide="send" class="w-3 h-3"></i>
+                                <span>إرسال التعليق</span>
+                            </button>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="p-4 rounded-xl border border-dashed border-slate-800 text-center bg-slate-950/40">
+                        <p class="text-xs text-slate-400">
+                            سجل دخولك إلى حسابك الأكاديمي للمشاركة في النقاش وطرح استفساراتك على زملائك الطلاب.
+                        </p>
+                        <a href="/#matchSection" class="mt-2 inline-flex items-center gap-1.5 text-xs font-bold text-blue-400 hover:underline">
+                            <i data-lucide="log-in" class="w-3.5 h-3.5"></i>
+                            <span>تسجيل الدخول الآن</span>
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    <!-- Comments List -->
+                    <div id="modalCommentsList" class="space-y-3 pt-2">
+                        <!-- Loaded dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Frontend Logic Script -->
+    <script>
+        // State management
+        let currentArticles = [];
+        let activeCategory = 'all';
+        let activeSort = 'latest';
+        let showOnlySaved = false;
+        let selectedArticle = null;
+        let activeReplyParentId = null;
+
+        // Category icons map
+        const CATEGORY_ICONS = {
+            'scholarships': 'award',
+            'universities': 'landmark',
+            'study_abroad': 'plane-takeoff',
+            'admissions': 'file-check',
+            'research': 'microscope',
+            'funding_opportunities': 'coins',
+            'international_programs': 'globe',
+            'internship_opportunities': 'briefcase'
+        };
+
+        // Initialize on DOM load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCategories();
+            loadNewsData();
+            loadTrending();
+            setupSearch();
+            if (window.lucide) lucide.createIcons();
+        });
+
+        // Load Categories with counts
+        async function loadCategories() {
+            try {
+                const res = await fetch('/api/news/categories');
+                const json = await res.json();
+                if (json.success && json.categories) {
+                    for (const [catKey, data] of Object.entries(json.categories)) {
+                        const btn = document.querySelector(`.category-tab[data-cat="${catKey}"]`);
+                        if (btn) {
+                            const badge = btn.querySelector('.count-badge');
+                            if (badge) badge.textContent = data.count || 0;
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error("Categories load error:", e);
+            }
+        }
+
+        // Load News Articles with Filters
+        async function loadNewsData() {
+            const grid = document.getElementById('newsGrid');
+            const loading = document.getElementById('loadingState');
+            const empty = document.getElementById('emptyState');
+            const countBadge = document.getElementById('resultsCountBadge');
+
+            grid.innerHTML = '';
+            loading.classList.remove('hidden');
+            empty.classList.add('hidden');
+
+            const searchVal = document.getElementById('newsSearchInput').value.trim();
+            const sortBy = document.getElementById('sortBySelect').value;
+            const onlyActive = document.getElementById('onlyActiveCheckbox').checked;
+
+            let url = `/api/news?category=${activeCategory}&sort_by=${sortBy}&only_active=${onlyActive}&limit=50`;
+            if (searchVal) {
+                url += `&search=${encodeURIComponent(searchVal)}`;
+            }
+
+            try {
+                const res = await fetch(url);
+                const json = await res.json();
+                loading.classList.add('hidden');
+
+                if (json.success && json.data) {
+                    let articles = json.data.articles || [];
+                    if (showOnlySaved) {
+                        articles = articles.filter(a => a.is_saved);
+                    }
+                    currentArticles = articles;
+                    countBadge.textContent = `${articles.length} أخبار متاحة`;
+
+                    if (articles.length === 0) {
+                        empty.classList.remove('hidden');
+                        return;
+                    }
+
+                    renderNewsGrid(articles);
+                } else {
+                    empty.classList.remove('hidden');
+                }
+            } catch (e) {
+                loading.classList.add('hidden');
+                empty.classList.remove('hidden');
+                console.error("News load error:", e);
+            }
+        }
+
+        // Render News Grid
+        function renderNewsGrid(articles) {
+            const grid = document.getElementById('newsGrid');
+            grid.innerHTML = '';
+
+            articles.forEach(art => {
+                const iconName = CATEGORY_ICONS[art.category] || 'newspaper';
+                const deadlineTag = art.deadline ? `
+                    <div class="flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-md ${art.is_expired ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' : 'bg-amber-500/10 text-amber-300 border border-amber-500/20'}">
+                        <i data-lucide="clock" class="w-3 h-3"></i>
+                        <span>${art.is_expired ? 'منتهي الصلاحية (أرشيف)' : 'الموعد: ' + art.deadline}</span>
+                    </div>
+                ` : '';
+
+                const cardHtml = `
+                    <article class="bg-slate-900/70 border border-slate-800 rounded-2xl overflow-hidden hover:border-slate-700 transition duration-300 flex flex-col group shadow-lg">
+                        <!-- Card Media -->
+                        <div class="relative h-44 overflow-hidden bg-slate-950 cursor-pointer" onclick="openArticleModal('${art.id}')">
+                            <img src="${art.image_url || 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80'}" alt="${art.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-100">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
+                            
+                            <!-- Badges Overlay -->
+                            <div class="absolute top-3 right-3 flex items-center gap-1.5 z-10">
+                                <span class="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-blue-600 text-white flex items-center gap-1 shadow">
+                                    <i data-lucide="${iconName}" class="w-3 h-3"></i>
+                                    <span>${art.category_label || 'منح دراسية'}</span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Card Body -->
+                        <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
+                            <div class="space-y-2.5">
+                                ${deadlineTag}
+                                <h3 onclick="openArticleModal('${art.id}')" class="text-sm font-bold text-white hover:text-blue-400 transition cursor-pointer line-clamp-2 leading-snug">
+                                    ${art.title}
+                                </h3>
+                                <p class="text-xs text-slate-400 line-clamp-2 leading-relaxed">
+                                    ${art.summary}
+                                </p>
+                            </div>
+
+                            <!-- Meta details -->
+                            <div class="pt-3 border-t border-slate-800/80 space-y-3">
+                                <div class="flex items-center justify-between text-[11px] text-slate-400">
+                                    <span class="flex items-center gap-1 truncate max-w-[150px]">
+                                        <i data-lucide="landmark" class="w-3 h-3 text-slate-500"></i>
+                                        <span>${art.source_name || 'ScholarPilot'}</span>
+                                    </span>
+                                    <span class="flex items-center gap-1">
+                                        <i data-lucide="calendar" class="w-3 h-3 text-slate-500"></i>
+                                        <span>${formatDate(art.publish_date)}</span>
+                                    </span>
+                                </div>
+
+                                <!-- Action buttons -->
+                                <div class="flex items-center justify-between pt-1">
+                                    <button type="button" onclick="openArticleModal('${art.id}')" class="text-xs font-bold text-blue-400 hover:text-blue-300 transition flex items-center gap-1">
+                                        <span>التفاصيل والنقاش</span>
+                                        <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                                    </button>
+
+                                    <div class="flex items-center gap-2">
+                                        <button type="button" onclick="toggleSave('${art.id}', this)" class="p-1.5 rounded-lg text-slate-400 hover:text-blue-400 hover:bg-slate-800 transition ${art.is_saved ? 'text-blue-500' : ''}" title="حفظ المقال">
+                                            <i data-lucide="bookmark" class="w-3.5 h-3.5 ${art.is_saved ? 'fill-blue-500' : ''}"></i>
+                                        </button>
+                                        <button type="button" onclick="shareArticle('${art.id}')" class="p-1.5 rounded-lg text-slate-400 hover:text-blue-400 hover:bg-slate-800 transition" title="مشاركة">
+                                            <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                `;
+                grid.insertAdjacentHTML('beforeend', cardHtml);
+            });
+
+            if (window.lucide) lucide.createIcons();
+        }
+
+        // Load Trending and Featured news
+        async function loadTrending() {
+            try {
+                const res = await fetch('/api/news/trending');
+                const json = await res.json();
+                if (json.success && json.data) {
+                    const featured = json.data.featured || [];
+                    const trending = json.data.trending || [];
+
+                    // Populate Hero Spotlight if available
+                    if (featured.length > 0) {
+                        const feat = featured[0];
+                        document.getElementById('heroTitle').textContent = feat.title;
+                        document.getElementById('heroSummary').textContent = feat.summary;
+                        document.getElementById('heroCategoryBadge').innerHTML = `
+                            <i data-lucide="${CATEGORY_ICONS[feat.category] || 'award'}" class="w-3 h-3"></i>
+                            <span>${feat.category_label || 'منح دراسية'}</span>
+                        `;
+                        if (feat.deadline) {
+                            document.getElementById('heroDeadlineBadge').innerHTML = `
+                                <i data-lucide="clock" class="w-3 h-3 text-amber-400"></i>
+                                <span>الموعد: ${feat.deadline}</span>
+                            `;
+                        }
+                        if (feat.image_url) {
+                            document.getElementById('heroImage').src = feat.image_url;
+                        }
+                        document.getElementById('heroOpenBtn').onclick = () => openArticleModal(feat.id);
+                        if (feat.source_url) {
+                            document.getElementById('heroOfficialLink').href = feat.source_url;
+                        }
+                    }
+
+                    // Populate Trending Side List
+                    const trendContainer = document.getElementById('trendingList');
+                    trendContainer.innerHTML = '';
+                    trending.slice(0, 4).forEach((tr, i) => {
+                        const trHtml = `
+                            <div onclick="openArticleModal('${tr.id}')" class="flex items-center gap-3 p-2.5 rounded-xl bg-slate-950/40 hover:bg-slate-900 border border-slate-800/80 transition cursor-pointer group">
+                                <span class="w-6 h-6 rounded-lg bg-slate-800 group-hover:bg-blue-600 text-slate-400 group-hover:text-white text-xs font-latin font-bold flex items-center justify-center shrink-0 transition">
+                                    0${i + 1}
+                                </span>
+                                <div class="flex-1 truncate">
+                                    <h4 class="text-xs font-bold text-slate-200 group-hover:text-blue-400 transition truncate">${tr.title}</h4>
+                                    <span class="text-[10px] text-slate-400">${tr.category_label} | ${formatDate(tr.publish_date)}</span>
+                                </div>
+                            </div>
+                        `;
+                        trendContainer.insertAdjacentHTML('beforeend', trHtml);
+                    });
+
+                    // Populate Ticker Track
+                    const ticker = document.getElementById('tickerTrack');
+                    if (trending.length > 0) {
+                        ticker.innerHTML = trending.map(t => `
+                            <span onclick="openArticleModal('${t.id}')" class="inline-flex items-center gap-1.5 text-slate-300 hover:text-white cursor-pointer mr-6 truncate">
+                                <i data-lucide="check-circle-2" class="w-3 h-3 text-emerald-400 shrink-0"></i>
+                                <span class="font-bold text-blue-400">[${t.category_label}]:</span>
+                                <span>${t.title}</span>
+                            </span>
+                        `).join('');
+                    }
+
+                    if (window.lucide) lucide.createIcons();
+                }
+            } catch (e) {
+                console.error("Trending load error:", e);
+            }
+        }
+
+        // Category selection
+        function selectCategory(catKey) {
+            activeCategory = catKey;
+            document.querySelectorAll('.category-tab').forEach(t => {
+                if (t.getAttribute('data-cat') === catKey) {
+                    t.classList.add('active', 'bg-blue-600', 'text-white');
+                    t.classList.remove('bg-slate-900/80', 'text-slate-300');
+                } else {
+                    t.classList.remove('active', 'bg-blue-600', 'text-white');
+                    t.classList.add('bg-slate-900/80', 'text-slate-300');
+                }
+            });
+            loadNewsData();
+        }
+
+        // Apply filters
+        function applyFilters() {
+            loadNewsData();
+        }
+
+        // Toggle saved filter
+        function toggleSavedFilter() {
+            showOnlySaved = !showOnlySaved;
+            const btn = document.getElementById('savedFilterBtn');
+            if (showOnlySaved) {
+                btn.classList.add('bg-blue-600', 'text-white', 'border-blue-500');
+                btn.classList.remove('bg-slate-950/80', 'text-slate-300');
+            } else {
+                btn.classList.remove('bg-blue-600', 'text-white', 'border-blue-500');
+                btn.classList.add('bg-slate-950/80', 'text-slate-300');
+            }
+            loadNewsData();
+        }
+
+        // Search debounce
+        function setupSearch() {
+            let timeout = null;
+            const input = document.getElementById('newsSearchInput');
+            input.addEventListener('input', () => {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    loadNewsData();
+                }, 350);
+            });
+        }
+
+        // Open Article Modal & fetch single details
+        async function openArticleModal(articleId) {
+            const modal = document.getElementById('articleModal');
+            modal.classList.remove('hidden');
+
+            try {
+                const res = await fetch(`/api/news/${articleId}`);
+                const json = await res.json();
+                if (json.success && json.article) {
+                    const art = json.article;
+                    selectedArticle = art;
+
+                    document.getElementById('modalTitle').textContent = art.title;
+                    document.getElementById('modalSummary').textContent = art.summary;
+                    document.getElementById('modalContent').textContent = art.content;
+                    document.getElementById('modalSource').textContent = art.source_name || 'ScholarPilot';
+                    document.getElementById('modalCountry').textContent = art.country || 'دولي';
+                    document.getElementById('modalDegree').textContent = art.degree_level || 'كافة المراحل';
+                    document.getElementById('modalDeadline').textContent = art.deadline || 'غير محدد';
+                    document.getElementById('modalDateBadge').textContent = formatDate(art.publish_date);
+                    document.getElementById('modalCategoryBadge').textContent = art.category_label || 'منح دراسية';
+                    document.getElementById('modalImage').src = art.image_url || 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80';
+
+                    if (art.source_url) {
+                        document.getElementById('modalOfficialLinkBtn').href = art.source_url;
+                        document.getElementById('modalOfficialLinkBtn').classList.remove('hidden');
+                    } else {
+                        document.getElementById('modalOfficialLinkBtn').classList.add('hidden');
+                    }
+
+                    renderModalComments(art.comments || []);
+                    if (window.lucide) lucide.createIcons();
+                }
+            } catch (e) {
+                console.error("Modal article error:", e);
+            }
+        }
+
+        function closeArticleModal() {
+            document.getElementById('articleModal').classList.add('hidden');
+            selectedArticle = null;
+            activeReplyParentId = null;
+            cancelReply();
+        }
+
+        // Render Comments in modal
+        function renderModalComments(comments) {
+            const container = document.getElementById('modalCommentsList');
+            const countLabel = document.getElementById('modalCommentsCount');
+            countLabel.textContent = `${comments.length} تعليقات`;
+            container.innerHTML = '';
+
+            if (comments.length === 0) {
+                container.innerHTML = '<p class="text-xs text-slate-500 py-3 text-center">لا توجد تعليقات بعد. كن أول من يشارك في النقاش!</p>';
+                return;
+            }
+
+            comments.forEach(c => {
+                const repliesHtml = (c.replies || []).map(r => `
+                    <div class="mr-6 mt-2 p-3 rounded-xl bg-slate-900 border border-slate-800/80 space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <img src="${r.author_avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'}" class="w-5 h-5 rounded-full object-cover">
+                                <span class="text-xs font-bold text-slate-200">${r.author_name}</span>
+                                <span class="text-[10px] text-slate-500">@${r.author_username}</span>
+                            </div>
+                            <span class="text-[10px] text-slate-500">${formatDate(r.created_at)}</span>
+                        </div>
+                        <p class="text-xs text-slate-300 pr-7 leading-relaxed">${r.content}</p>
+                    </div>
+                `).join('');
+
+                const cHtml = `
+                    <div class="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <img src="${c.author_avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'}" class="w-6 h-6 rounded-full object-cover ring-1 ring-blue-500/30">
+                                <div>
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="text-xs font-bold text-slate-100">${c.author_name}</span>
+                                        <span class="text-[10px] text-slate-500">@${c.author_username}</span>
+                                    </div>
+                                    ${c.author_university ? `<span class="text-[10px] text-slate-400">${c.author_university}</span>` : ''}
+                                </div>
+                            </div>
+                            <span class="text-[10px] text-slate-500">${formatDate(c.created_at)}</span>
+                        </div>
+                        <p class="text-xs text-slate-300 pr-8 leading-relaxed">${c.content}</p>
+                        
+                        <div class="flex items-center gap-4 pr-8 pt-1 text-[11px] text-slate-400">
+                            <button type="button" onclick="likeComment('${c.id}', this)" class="flex items-center gap-1 hover:text-blue-400 transition">
+                                <i data-lucide="thumbs-up" class="w-3 h-3"></i>
+                                <span class="likes-counter">${c.likes_count || 0}</span>
+                            </button>
+                            <button type="button" onclick="startReply('${c.id}', '${c.author_name}')" class="flex items-center gap-1 hover:text-blue-400 transition">
+                                <i data-lucide="message-square" class="w-3 h-3"></i>
+                                <span>رد</span>
+                            </button>
+                        </div>
+
+                        ${repliesHtml}
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', cHtml);
+            });
+
+            if (window.lucide) lucide.createIcons();
+        }
+
+        // Submit comment
+        async function submitComment() {
+            if (!selectedArticle) return;
+            const input = document.getElementById('commentInput');
+            const content = input.value.trim();
+            if (!content) {
+                showToast("يرجى كتابة محتوى التعليق أولاً.", "warning");
+                return;
+            }
+
+            try {
+                const res = await fetch(`/api/news/${selectedArticle.id}/comments`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        content: content,
+                        parent_id: activeReplyParentId
+                    })
+                });
+                const json = await res.json();
+                if (res.status === 401) {
+                    showToast("يرجى تسجيل الدخول أولاً للمشاركة بالتعليق.", "warning");
+                    return;
+                }
+                if (json.success) {
+                    showToast("تم نشر تعليقك بنجاح!", "success");
+                    input.value = '';
+                    cancelReply();
+                    // Refresh comments
+                    openArticleModal(selectedArticle.id);
+                } else {
+                    showToast(json.detail || "تعذر نشر التعليق.", "error");
+                }
+            } catch (e) {
+                showToast("حدث خطأ في الاتصال.", "error");
+            }
+        }
+
+        // Reply handling
+        function startReply(commentId, authorName) {
+            activeReplyParentId = commentId;
+            const ind = document.getElementById('replyingToIndicator');
+            if (ind) {
+                ind.classList.remove('hidden');
+                ind.querySelector('span').textContent = `الرد على ${authorName}`;
+            }
+            document.getElementById('commentInput').focus();
+        }
+
+        function cancelReply() {
+            activeReplyParentId = null;
+            const ind = document.getElementById('replyingToIndicator');
+            if (ind) ind.classList.add('hidden');
+        }
+
+        // Like comment
+        async function likeComment(commentId, btn) {
+            try {
+                const res = await fetch(`/api/news/comments/${commentId}/like`, {method: 'POST'});
+                const json = await res.json();
+                if (res.status === 401) {
+                    showToast("يرجى تسجيل الدخول للتفاعل مع التعليقات.", "warning");
+                    return;
+                }
+                if (json.success) {
+                    const counter = btn.querySelector('.likes-counter');
+                    if (counter) counter.textContent = json.likes_count;
+                }
+            } catch (e) {}
+        }
+
+        // Toggle Save article
+        async function toggleSave(articleId, btn) {
+            try {
+                const res = await fetch(`/api/news/${articleId}/save`, {method: 'POST'});
+                const json = await res.json();
+                if (res.status === 401) {
+                    showToast("يرجى تسجيل الدخول لحفظ المقالات في قائمتك.", "warning");
+                    return;
+                }
+                if (json.success) {
+                    const icon = btn.querySelector('svg') || btn.querySelector('i');
+                    if (json.is_saved) {
+                        btn.classList.add('text-blue-500');
+                        showToast("تم حفظ المقال في قائمتك الأكاديمية.", "success");
+                    } else {
+                        btn.classList.remove('text-blue-500');
+                        showToast("تمت إزالة المقال من قائمتك.", "info");
+                    }
+                }
+            } catch (e) {}
+        }
+
+        function toggleModalArticleSave() {
+            if (!selectedArticle) return;
+            const btn = document.getElementById('modalSaveBtn');
+            toggleSave(selectedArticle.id, btn);
+        }
+
+        // Share article
+        async function shareArticle(articleId) {
+            const shareUrl = `${window.location.origin}/news?article=${articleId}`;
+            try {
+                await navigator.clipboard.writeText(shareUrl);
+                await fetch(`/api/news/${articleId}/share`, {method: 'POST'});
+                showToast("تم نسخ رابط الخبر بنجاح للمشاركة!", "success");
+            } catch (e) {
+                showToast(`الرابط: ${shareUrl}`, "info");
+            }
+        }
+
+        function shareCurrentArticle() {
+            if (selectedArticle) shareArticle(selectedArticle.id);
+        }
+
+        // Date formatter helper
+        function formatDate(isoStr) {
+            if (!isoStr) return '';
+            try {
+                const d = new Date(isoStr);
+                return d.toLocaleDateString('ar-EG', {month: 'short', day: 'numeric', year: 'numeric'});
+            } catch (e) {
+                return isoStr.substring(0, 10);
+            }
+        }
+
+        // Toast notifications
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+            const toast = document.createElement('div');
+            const bgClass = type === 'success' ? 'bg-emerald-600 text-white' :
+                            type === 'warning' ? 'bg-amber-600 text-white' :
+                            type === 'error' ? 'bg-rose-600 text-white' : 'bg-slate-800 text-slate-100';
+            toast.className = `${bgClass} px-4 py-2.5 rounded-xl shadow-xl text-xs font-bold transition-all duration-300 transform translate-y-2 opacity-0 pointer-events-auto flex items-center gap-2 border border-white/10`;
+            toast.innerHTML = `<span>${msg}</span>`;
+            container.appendChild(toast);
+
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            });
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3200);
+        }
+    </script>
+</body>
+</html>

@@ -1759,12 +1759,31 @@ Student in {major}
             if compressed_lines:
                 history_summary = "ملخص السياق الحواري السابق:\n" + "\n".join(compressed_lines) + "\n"
 
+                # 3.5 Active Verified Scholarship News Context Injection
+        active_news_text = ""
+        try:
+            from services.news_service import news_service
+            top_active_news = news_service.get_active_news_for_ai(limit=4)
+            if top_active_news:
+                news_lines = []
+                for n in top_active_news:
+                    dl_str = f" | الموعد: {n.get('deadline')}" if n.get("deadline") else ""
+                    news_lines.append(
+                        f"- [{n.get('category_label', 'خبر')}]: {n.get('title')} ({n.get('source_name', '')}){dl_str} -> {n.get('summary', '')[:120]}... [الرابط: {n.get('source_url', '')}]"
+                    )
+                active_news_text = "[أحدث الأخبار المعتمدة والفرص النشطة للمنح والتعليم العالي (محدثة وتتجاهل المنتهية)]:\n" + "\n".join(news_lines) + "\n"
+        except Exception:
+            pass
+
         # 4. Intent Detection
         canonical_intent, _ = normalize_query_intent(clean_query)
         intent = "general_consultation"
         task_instruction = "المطلوب: تقديم استشارة موجهة شخصياً للطالب، تشرح توافق الفرص المتاحة، شروط القبول، وترشده للخطوة العملية التالية."
 
-        if canonical_intent == "canonical_chances" or any(w in query_lower for w in ["فرص", "قبولي", "احتمال", "حظوظي", "نسبة", "chance", "probability"]):
+        if any(w in query_lower for w in ["أخبار", "جديد", "مستجدات", "تمديد", "أحدث", "news", "update", "latest"]):
+            intent = "news_updates"
+            task_instruction = "المطلوب: إحاطة الطالب بآخر الأخبار والفرص المعلنة وتمديدات المواعيد المعتمدة، مع روابط التقديم الرسمية، والتحذير من الفرص المنتهية."
+        elif canonical_intent == "canonical_chances" or any(w in query_lower for w in ["فرص", "قبولي", "احتمال", "حظوظي", "نسبة", "chance", "probability"]):
             intent = "chances"
             task_instruction = "المطلوب: تحليل دقيق وشامل لفرص ونسبة قبول الطالب التقديرية، مستويات التنافسية، نقاط القوة في ملفه، والنواقص الواجب تعويضها."
         elif any(w in query_lower for w in ["قارن", "مقارنة", "الفرق بين", "compare", "versus", "vs"]):
@@ -1790,7 +1809,8 @@ Student in {major}
             "1. التخصيص الكامل: خاطب الطالب باسمه وتخصصه ومعدله الأكاديمي المسجل فوراً بدون أن تسأله مجدداً عن معدله أو درجته أو بلده.\n"
             "2. الاستناد الحصري للحقائق المرفقة: اعتمد على بيانات المنح المستخرجة الحقيقية والروابط المرفقة، ويمنع منعاً باتاً اختلاق منح وهمية أو روابط زائفة.\n"
             "3. الروابط المباشرة: ضع روابط التقديم الرسمية المذكورة في السياق بتنسيق [اسم المنحة - رابط البوابة الرسمية](URL).\n"
-            "4. الأسلوب: احترافي، عملي، مدعم بنقاط مركزة وجداول Markdown واضحة، واختم دائماً بسؤال تفاعلي واحد لتوجيه الخطوة التالية."
+            "4. الأسلوب: احترافي، عملي، مدعم بنقاط مركزة وجداول Markdown واضحة، واختم دائماً بسؤال تفاعلي واحد لتوجيه الخطوة التالية.\n"
+            "5. مواكبة أخبار المنح وتحديثات المواعيد: إذا سأل الطالب عن آخر المستجدات أو التمديدات أو مواعيد فتح البرامج، استند مباشرة إلى قسم [أحدث الأخبار المعتمدة والفرص النشطة]، واذكر روابط المصادر الرسمية، وتجاهل تماماً أي فرص منتهية الصلاحية."
         )
 
         context_prompt = f"""
@@ -1800,6 +1820,7 @@ Student in {major}
 [بيانات المنح المعتمدة من النظام]:
 {catalog_matches_text}
 {history_summary}
+{active_news_text}
 [سؤال الطالب]:
 "{clean_query}"
 
@@ -1832,7 +1853,24 @@ Student in {major}
         m_info = first_sch.get("calculated_match") or self.calculate_smart_match(profile, first_sch)
         intent = context.get("intent", "general_consultation")
 
-        if intent == "chances":
+        if intent == "news_updates" or any(w in query.lower() for w in ["أخبار", "مستجدات", "تمديد", "جديد المنح"]):
+            from services.news_service import news_service
+            recent_news = news_service.get_active_news_for_ai(limit=3)
+            news_items_text = ""
+            for item in recent_news:
+                dl = f" | الموعد: **{item.get('deadline')}**" if item.get("deadline") else ""
+                news_items_text += f"\n• **{item.get('title')}**\n  - المصدر: {item.get('source_name')}{dl}\n  - [رابط التفاصيل والتقديم الرسمي]({item.get('source_url', '/news')})\n"
+            return f"""
+أهلاً بك **{name}**! إليك أحدث الأخبار والفرص المعتمدة وتحديثات المواعيد في مركز أخبار المنح:
+
+{news_items_text}
+
+⚠️ **تنويه موثوقية المواعيد:** يراقب نظامنا الأكاديمي حالة التقديم باستمرار ويستبعد تلقائياً كافة الفرص منتهية الصلاحية لضمان سلامة تقديمك.
+
+هل ترغب في معرفة شروط أي من هذه الفرص أو تجهيز ملف التقديم لها؟
+""".strip()
+
+        elif intent == "chances":
             chances = self.estimate_acceptance_chances(profile, first_sch["name"])
             strengths_list = "\n".join(["• " + s for s in chances.get("strengths", [])]) or "• ملف أكاديمي متوازن."
             weaknesses_list = "\n".join(["• " + w for w in chances.get("weaknesses", [])]) or "• لا توجد نواقص جوهرية مسجلة."

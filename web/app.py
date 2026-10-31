@@ -15,6 +15,7 @@ from services.advisor_service import AdvisorService
 from services.auth_service import AuthService
 from services.automation_service import AutomationService, start_automation_daemon
 from services.community_service import community_service
+from services.news_service import news_service
 from services.db import init_db_and_migrate, is_db_available, get_notification_history
 from services.email_service import get_email_provider_info, dispatch_email, get_last_dispatch_meta
 from services.security_utils import (
@@ -41,6 +42,7 @@ ASSISTANT_HTML_PATH = os.path.join(TEMPLATES_DIR, "assistant.html")
 NOTIFICATIONS_HTML_PATH = os.path.join(TEMPLATES_DIR, "notifications.html")
 PROFILE_HTML_PATH = os.path.join(TEMPLATES_DIR, "profile.html")
 COMMUNITY_HTML_PATH = os.path.join(TEMPLATES_DIR, "community.html")
+NEWS_HTML_PATH = os.path.join(TEMPLATES_DIR, "news.html")
 CSS_PATH = os.path.join(os.path.dirname(__file__), "static", "css", "scholarpilot.css")
 
 app = FastAPI(
@@ -529,6 +531,11 @@ class CreateCommunityPostRequest(BaseModel):
     scholarship_name: Optional[str] = None
     is_success_story: Optional[bool] = False
     success_details: Optional[Dict[str, Any]] = {}
+
+class NewsCommentCreateRequest(BaseModel):
+    content: str
+    parent_id: Optional[str] = None
+
 
 class AddCommunityCommentRequest(BaseModel):
     content: str
@@ -1986,6 +1993,137 @@ async def get_scholarship_community_highlights_endpoint(scholarship_id: str):
         "success": bool(tips is not None),
         "highlight": tips
     }
+
+
+
+# ==============================================================================
+# SCHOLARSHIP NEWS CENTER (أخبار المنح) ROUTES & API ENDPOINTS
+# ==============================================================================
+
+@app.get("/news", response_class=HTMLResponse)
+async def serve_news_page():
+    """Serves the Scholarship News Center page."""
+    if os.path.exists(NEWS_HTML_PATH):
+        with open(NEWS_HTML_PATH, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    raise HTTPException(status_code=404, detail="News page template not found")
+
+
+@app.get("/api/news")
+async def get_news_list(
+    request: Request,
+    category: Optional[str] = None,
+    search: Optional[str] = None,
+    sort_by: str = "latest",
+    only_active: bool = True,
+    page: int = 1,
+    limit: int = 12
+):
+    """Retrieves paginated news articles with category filtering, search, and deadline protection."""
+    user = get_authenticated_user(request)
+    data = news_service.list_news(
+        category=category,
+        search=search,
+        sort_by=sort_by,
+        only_active=only_active,
+        page=page,
+        limit=limit
+    )
+    user_email = user.get("email", "").lower() if user else ""
+    for art in data.get("articles", []):
+        art["is_saved"] = user_email in [e.lower() for e in art.get("saved_by", [])]
+    return {"success": True, "data": data}
+
+
+@app.get("/api/news/categories")
+async def get_news_categories_endpoint():
+    """Returns all 8 designated categories with active article counts."""
+    return {"success": True, "categories": news_service.get_categories()}
+
+
+@app.get("/api/news/trending")
+async def get_news_trending_endpoint():
+    """Returns featured and trending news items for the newsroom spotlight."""
+    return {"success": True, "data": news_service.get_trending_and_featured()}
+
+
+@app.get("/api/news/{article_id}")
+async def get_news_article_endpoint(article_id: str, request: Request):
+    """Retrieves single article details with comments and increments views."""
+    user = get_authenticated_user(request)
+    art = news_service.get_article(article_id, increment_views=True)
+    if not art:
+        raise HTTPException(status_code=404, detail="المقال الإخباري غير موجود.")
+    user_email = user.get("email", "").lower() if user else ""
+    art["is_saved"] = user_email in [e.lower() for e in art.get("saved_by", [])]
+    return {"success": True, "article": art}
+
+
+@app.post("/api/news/{article_id}/comments")
+async def add_news_comment_endpoint(article_id: str, req: NewsCommentCreateRequest, request: Request):
+    """Authenticated user submits a comment or reply on a news article."""
+    user = get_authenticated_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="يرجى تسجيل الدخول أولاً للتعليق على الأخبار.")
+    try:
+        comment = news_service.add_comment(
+            article_id=article_id,
+            user=user,
+            content=req.content,
+            parent_id=req.parent_id
+        )
+        return {"success": True, "comment": comment}
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+
+
+@app.get("/api/news/{article_id}/comments")
+async def get_news_comments_endpoint(article_id: str):
+    """Retrieves nested comments for a news article."""
+    from services.db import get_news_comments
+    comments = get_news_comments(article_id)
+    return {"success": True, "comments": comments}
+
+
+@app.post("/api/news/comments/{comment_id}/like")
+async def like_news_comment_endpoint(comment_id: str, request: Request):
+    """Authenticated user toggles like on a comment."""
+    user = get_authenticated_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="يرجى تسجيل الدخول أولاً للتفاعل مع التعليق.")
+    res = news_service.toggle_like_comment(comment_id, user.get("email", ""))
+    return res
+
+
+@app.post("/api/news/{article_id}/save")
+async def save_news_article_endpoint(article_id: str, request: Request):
+    """Authenticated user toggles saving an article to reading list."""
+    user = get_authenticated_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="يرجى تسجيل الدخول أولاً لحفظ المقال.")
+    res = news_service.toggle_save_article(article_id, user.get("email", ""))
+    return res
+
+
+@app.post("/api/news/{article_id}/share")
+async def share_news_article_endpoint(article_id: str):
+    """Increments the share count of an article."""
+    shares = news_service.increment_share_count(article_id)
+    return {"success": True, "shares_count": shares}
+
+
+@app.post("/api/news/sync")
+async def sync_news_aggregation_endpoint():
+    """Triggers automated news aggregation and discovery engine."""
+    res = news_service.discover_and_aggregate_news()
+    return {"success": True, "result": res}
+
+
+@app.post("/api/news/{article_id}/publish-telegram")
+async def publish_news_telegram_endpoint(article_id: str):
+    """Publishes a verified news article to the official Telegram channel @ScholarPilot."""
+    msg_id = await news_service.broadcast_news_to_telegram_async(article_id)
+    return {"success": bool(msg_id), "telegram_message_id": msg_id}
 
 
 if __name__ == "__main__":

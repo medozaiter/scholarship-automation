@@ -31,6 +31,8 @@ COMMUNITY_COMMENTS_JSON = os.path.join(DATA_DIR, "community_comments.json")
 COMMUNITY_FOLLOWS_JSON = os.path.join(DATA_DIR, "community_follows.json")
 COMMUNITY_REPORTS_JSON = os.path.join(DATA_DIR, "community_reports.json")
 COMMUNITY_NOTIFICATIONS_JSON = os.path.join(DATA_DIR, "community_notifications.json")
+NEWS_ARTICLES_JSON = os.path.join(DATA_DIR, "news_articles.json")
+NEWS_COMMENTS_JSON = os.path.join(DATA_DIR, "news_comments.json")
 
 # Try importing SQLAlchemy
 HAS_SQLALCHEMY = False
@@ -49,6 +51,8 @@ CommunityCommentDB = None
 CommunityFollowDB = None
 CommunityReportDB = None
 CommunityNotificationDB = None
+NewsArticleDB = None
+NewsCommentDB = None
 
 try:
     from sqlalchemy import (
@@ -556,6 +560,98 @@ try:
                 "message": self.message,
                 "is_read": bool(self.is_read),
                 "created_at": self.created_at
+            }
+
+    class NewsArticleDB(Base):
+        __tablename__ = "news_articles"
+
+        id = Column(String(100), primary_key=True)
+        title = Column(String(255), nullable=False)
+        summary = Column(Text, nullable=False)
+        content = Column(Text, nullable=False)
+        category = Column(String(100), index=True, nullable=False)
+        category_label = Column(String(100), default="منح دراسية")
+        publish_date = Column(String(50), default=lambda: datetime.now().isoformat())
+        source_name = Column(String(150), default="ScholarPilot Newsroom")
+        source_url = Column(String(500), nullable=True)
+        image_url = Column(String(500), nullable=True)
+        country = Column(String(100), default="")
+        degree_level = Column(String(100), default="")
+        scholarship_id = Column(String(100), index=True, nullable=True)
+        deadline = Column(String(50), nullable=True)
+        is_expired = Column(Boolean, default=False, index=True)
+        is_featured = Column(Boolean, default=False, index=True)
+        is_trending = Column(Boolean, default=False, index=True)
+        views_count = Column(Integer, default=0)
+        shares_count = Column(Integer, default=0)
+        comments_count = Column(Integer, default=0)
+        saved_by = Column(JSON, default=list)
+        telegram_message_id = Column(String(50), nullable=True)
+        telegram_published_at = Column(String(50), nullable=True)
+        created_at = Column(String(50), default=lambda: datetime.now().isoformat())
+        updated_at = Column(String(50), default=lambda: datetime.now().isoformat())
+
+        def to_dict(self) -> Dict[str, Any]:
+            return {
+                "id": self.id,
+                "title": self.title,
+                "summary": self.summary,
+                "content": self.content,
+                "category": self.category,
+                "category_label": self.category_label,
+                "publish_date": self.publish_date,
+                "source_name": self.source_name,
+                "source_url": self.source_url or "",
+                "image_url": self.image_url or "",
+                "country": self.country or "",
+                "degree_level": self.degree_level or "",
+                "scholarship_id": self.scholarship_id,
+                "deadline": self.deadline,
+                "is_expired": bool(self.is_expired),
+                "is_featured": bool(self.is_featured),
+                "is_trending": bool(self.is_trending),
+                "views_count": self.views_count or 0,
+                "shares_count": self.shares_count or 0,
+                "comments_count": self.comments_count or 0,
+                "saved_by": self.saved_by or [],
+                "telegram_message_id": self.telegram_message_id,
+                "telegram_published_at": self.telegram_published_at,
+                "created_at": self.created_at,
+                "updated_at": self.updated_at
+            }
+
+    class NewsCommentDB(Base):
+        __tablename__ = "news_comments"
+
+        id = Column(String(100), primary_key=True)
+        article_id = Column(String(100), index=True, nullable=False)
+        parent_id = Column(String(100), index=True, nullable=True)
+        author_id = Column(String(150), index=True, nullable=False)
+        author_name = Column(String(150), nullable=False)
+        author_username = Column(String(100), nullable=False)
+        author_avatar = Column(Text, default="")
+        author_university = Column(String(255), default="")
+        content = Column(Text, nullable=False)
+        likes_count = Column(Integer, default=0)
+        liked_by = Column(JSON, default=list)
+        created_at = Column(String(50), default=lambda: datetime.now().isoformat())
+        updated_at = Column(String(50), default=lambda: datetime.now().isoformat())
+
+        def to_dict(self) -> Dict[str, Any]:
+            return {
+                "id": self.id,
+                "article_id": self.article_id,
+                "parent_id": self.parent_id,
+                "author_id": self.author_id,
+                "author_name": self.author_name,
+                "author_username": self.author_username,
+                "author_avatar": self.author_avatar or "",
+                "author_university": self.author_university or "",
+                "content": self.content,
+                "likes_count": self.likes_count or 0,
+                "liked_by": self.liked_by or [],
+                "created_at": self.created_at,
+                "updated_at": self.updated_at
             }
 
     # Connect to PostgreSQL (Neon) or fallback to SQLite
@@ -2684,3 +2780,696 @@ def mark_community_notifications_read(user_email: str) -> bool:
             pass
 
     return True
+
+
+# =====================================================================
+# SCHOLARSHIP NEWS CENTER PERSISTENCE & DEADLINE PROTECTION
+# =====================================================================
+
+def enforce_news_deadlines() -> int:
+    """
+    Checks all news articles for deadline validity against today's date.
+    Automatically marks expired scholarship news opportunities with is_expired = True.
+    Ensures expired items are never presented as active opportunities.
+    """
+    today_str = datetime.now().date().isoformat()
+    updated_count = 0
+
+    # 1. Update in SQL DB if available
+    if is_db_available() and NewsArticleDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    articles = db.query(NewsArticleDB).all()
+                    for art in articles:
+                        if art.deadline:
+                            clean_dl = str(art.deadline).strip()
+                            if len(clean_dl) >= 10:
+                                dl_date = clean_dl[:10]
+                                should_expire = dl_date < today_str
+                                if art.is_expired != should_expire:
+                                    art.is_expired = should_expire
+                                    updated_count += 1
+        except Exception as e:
+            logger.debug(f"DB enforce deadlines error: {e}")
+
+    # 2. Update JSON fallback
+    if os.path.exists(NEWS_ARTICLES_JSON):
+        try:
+            with open(NEWS_ARTICLES_JSON, "r", encoding="utf-8") as f:
+                articles = json.load(f)
+            changed = False
+            for art in articles:
+                dl = art.get("deadline")
+                if dl:
+                    clean_dl = str(dl).strip()
+                    if len(clean_dl) >= 10:
+                        dl_date = clean_dl[:10]
+                        should_expire = dl_date < today_str
+                        if art.get("is_expired") != should_expire:
+                            art["is_expired"] = should_expire
+                            changed = True
+                            updated_count += 1
+            if changed:
+                temp_file = NEWS_ARTICLES_JSON + ".tmp"
+                with open(temp_file, "w", encoding="utf-8") as f:
+                    json.dump(articles, f, ensure_ascii=False, indent=2)
+                os.replace(temp_file, NEWS_ARTICLES_JSON)
+        except Exception as je:
+            logger.debug(f"JSON enforce deadlines error: {je}")
+
+    return updated_count
+
+
+def get_news_articles(
+    category: Optional[str] = None,
+    search: Optional[str] = None,
+    sort_by: str = "latest",
+    only_active: bool = True,
+    page: int = 1,
+    limit: int = 20
+) -> Dict[str, Any]:
+    """
+    Retrieves filtered, searched, and sorted news articles.
+    If only_active=True, strictly excludes expired scholarship opportunities.
+    """
+    # Enforce real-time deadline checks
+    enforce_news_deadlines()
+
+    articles: List[Dict[str, Any]] = []
+
+    # 1. Query from SQL DB if available
+    if is_db_available() and NewsArticleDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    q = db.query(NewsArticleDB)
+                    if only_active:
+                        q = q.filter(NewsArticleDB.is_expired == False)
+                    if category and category.strip() and category != "all":
+                        q = q.filter(NewsArticleDB.category == category.strip().lower())
+                    if search and search.strip():
+                        s = f"%{search.strip().lower()}%"
+                        q = q.filter(
+                            (NewsArticleDB.title.ilike(s)) |
+                            (NewsArticleDB.summary.ilike(s)) |
+                            (NewsArticleDB.content.ilike(s)) |
+                            (NewsArticleDB.source_name.ilike(s)) |
+                            (NewsArticleDB.country.ilike(s))
+                        )
+                    
+                    if sort_by == "popular":
+                        q = q.order_by((NewsArticleDB.views_count + NewsArticleDB.shares_count * 2 + NewsArticleDB.comments_count * 3).desc())
+                    elif sort_by == "deadline":
+                        q = q.order_by(NewsArticleDB.deadline.asc().nulls_last())
+                    else: # latest
+                        q = q.order_by(NewsArticleDB.publish_date.desc())
+                    
+                    total = q.count()
+                    rows = q.offset((page - 1) * limit).limit(limit).all()
+                    articles = [r.to_dict() for r in rows]
+                    return {
+                        "articles": articles,
+                        "total": total,
+                        "page": page,
+                        "pages": (total + limit - 1) // limit if limit > 0 else 1,
+                        "limit": limit
+                    }
+        except Exception as e:
+            logger.debug(f"DB load news articles error: {e}")
+
+    # 2. Query from JSON file
+    if os.path.exists(NEWS_ARTICLES_JSON):
+        try:
+            with open(NEWS_ARTICLES_JSON, "r", encoding="utf-8") as f:
+                articles = json.load(f)
+        except Exception:
+            articles = []
+
+    # Filter only_active
+    if only_active:
+        articles = [a for a in articles if not a.get("is_expired", False)]
+
+    # Filter by category
+    if category and category.strip() and category != "all":
+        clean_cat = category.strip().lower()
+        articles = [a for a in articles if a.get("category", "").lower() == clean_cat]
+
+    # Filter by search
+    if search and search.strip():
+        q_clean = search.strip().lower()
+        articles = [
+            a for a in articles
+            if q_clean in a.get("title", "").lower()
+            or q_clean in a.get("summary", "").lower()
+            or q_clean in a.get("content", "").lower()
+            or q_clean in a.get("source_name", "").lower()
+            or q_clean in a.get("country", "").lower()
+        ]
+
+    # Sort
+    if sort_by == "popular":
+        articles.sort(key=lambda x: (x.get("views_count", 0) + x.get("shares_count", 0) * 2 + x.get("comments_count", 0) * 3), reverse=True)
+    elif sort_by == "deadline":
+        articles.sort(key=lambda x: x.get("deadline") or "9999-99-99")
+    else: # latest
+        articles.sort(key=lambda x: x.get("publish_date", ""), reverse=True)
+
+    total = len(articles)
+    start_idx = (page - 1) * limit
+    paged_articles = articles[start_idx:start_idx + limit]
+
+    return {
+        "articles": paged_articles,
+        "total": total,
+        "page": page,
+        "pages": (total + limit - 1) // limit if limit > 0 else 1,
+        "limit": limit
+    }
+
+
+def get_news_article_by_id(article_id: str, increment_views: bool = False) -> Optional[Dict[str, Any]]:
+    """Retrieves a single news article by ID, optionally incrementing view count."""
+    clean_id = article_id.strip()
+
+    if is_db_available() and NewsArticleDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    art = db.query(NewsArticleDB).filter(NewsArticleDB.id == clean_id).first()
+                    if art:
+                        if increment_views:
+                            art.views_count = (art.views_count or 0) + 1
+                        return art.to_dict()
+        except Exception as e:
+            logger.debug(f"DB get news article error: {e}")
+
+    if os.path.exists(NEWS_ARTICLES_JSON):
+        try:
+            with open(NEWS_ARTICLES_JSON, "r", encoding="utf-8") as f:
+                articles = json.load(f)
+            for a in articles:
+                if a.get("id") == clean_id:
+                    if increment_views:
+                        a["views_count"] = a.get("views_count", 0) + 1
+                        temp_file = NEWS_ARTICLES_JSON + ".tmp"
+                        with open(temp_file, "w", encoding="utf-8") as wf:
+                            json.dump(articles, wf, ensure_ascii=False, indent=2)
+                        os.replace(temp_file, NEWS_ARTICLES_JSON)
+                    return a
+        except Exception:
+            pass
+
+    return None
+
+
+def save_news_article(article_data: Dict[str, Any]) -> Dict[str, Any]:
+    """Inserts or updates a verified news article in the database and JSON store."""
+    import uuid
+    art_id = article_data.get("id") or f"news_{uuid.uuid4().hex[:12]}"
+    article_data["id"] = art_id
+    if "publish_date" not in article_data:
+        article_data["publish_date"] = datetime.now().isoformat()
+    if "created_at" not in article_data:
+        article_data["created_at"] = datetime.now().isoformat()
+    article_data["updated_at"] = datetime.now().isoformat()
+    if "views_count" not in article_data:
+        article_data["views_count"] = 0
+    if "shares_count" not in article_data:
+        article_data["shares_count"] = 0
+    if "comments_count" not in article_data:
+        article_data["comments_count"] = 0
+    if "saved_by" not in article_data:
+        article_data["saved_by"] = []
+
+    # Deadline check
+    dl = article_data.get("deadline")
+    if dl and len(str(dl).strip()) >= 10:
+        article_data["is_expired"] = str(dl).strip()[:10] < datetime.now().date().isoformat()
+    elif "is_expired" not in article_data:
+        article_data["is_expired"] = False
+
+    # 1. DB Save
+    if is_db_available() and NewsArticleDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    existing = db.query(NewsArticleDB).filter(NewsArticleDB.id == art_id).first()
+                    if existing:
+                        for k, v in article_data.items():
+                            if hasattr(existing, k):
+                                setattr(existing, k, v)
+                    else:
+                        db.add(NewsArticleDB(
+                            id=art_id,
+                            title=article_data.get("title", ""),
+                            summary=article_data.get("summary", ""),
+                            content=article_data.get("content", ""),
+                            category=article_data.get("category", "scholarships"),
+                            category_label=article_data.get("category_label", "منح دراسية"),
+                            publish_date=article_data.get("publish_date"),
+                            source_name=article_data.get("source_name", "ScholarPilot Newsroom"),
+                            source_url=article_data.get("source_url"),
+                            image_url=article_data.get("image_url"),
+                            country=article_data.get("country", ""),
+                            degree_level=article_data.get("degree_level", ""),
+                            scholarship_id=article_data.get("scholarship_id"),
+                            deadline=article_data.get("deadline"),
+                            is_expired=article_data.get("is_expired", False),
+                            is_featured=article_data.get("is_featured", False),
+                            is_trending=article_data.get("is_trending", False),
+                            views_count=article_data.get("views_count", 0),
+                            shares_count=article_data.get("shares_count", 0),
+                            comments_count=article_data.get("comments_count", 0),
+                            saved_by=article_data.get("saved_by", []),
+                            telegram_message_id=article_data.get("telegram_message_id"),
+                            telegram_published_at=article_data.get("telegram_published_at"),
+                            created_at=article_data.get("created_at"),
+                            updated_at=article_data.get("updated_at")
+                        ))
+        except Exception as e:
+            logger.error(f"DB save news article error: {e}")
+
+    # 2. JSON Save
+    try:
+        os.makedirs(DATA_DIR, exist_ok=True)
+        articles = []
+        if os.path.exists(NEWS_ARTICLES_JSON):
+            try:
+                with open(NEWS_ARTICLES_JSON, "r", encoding="utf-8") as f:
+                    articles = json.load(f)
+            except Exception:
+                articles = []
+
+        idx = next((i for i, a in enumerate(articles) if a.get("id") == art_id), None)
+        if idx is not None:
+            articles[idx] = article_data
+        else:
+            articles.insert(0, article_data)
+
+        temp_file = NEWS_ARTICLES_JSON + ".tmp"
+        with open(temp_file, "w", encoding="utf-8") as f:
+            json.dump(articles, f, ensure_ascii=False, indent=2)
+        os.replace(temp_file, NEWS_ARTICLES_JSON)
+    except Exception as je:
+        logger.error(f"JSON save news article error: {je}")
+
+    return article_data
+
+
+def get_news_comments(article_id: str) -> List[Dict[str, Any]]:
+    """Retrieves all comments and nested replies for an article."""
+    clean_id = article_id.strip()
+    comments: List[Dict[str, Any]] = []
+
+    if is_db_available() and NewsCommentDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    rows = db.query(NewsCommentDB).filter(
+                        NewsCommentDB.article_id == clean_id
+                    ).order_by(NewsCommentDB.created_at.asc()).all()
+                    if rows:
+                        comments = [r.to_dict() for r in rows]
+        except Exception as e:
+            logger.debug(f"DB load news comments error: {e}")
+
+    if not comments and os.path.exists(NEWS_COMMENTS_JSON):
+        try:
+            with open(NEWS_COMMENTS_JSON, "r", encoding="utf-8") as f:
+                all_comments = json.load(f)
+            comments = [c for c in all_comments if c.get("article_id") == clean_id]
+            comments.sort(key=lambda x: x.get("created_at", ""))
+        except Exception:
+            comments = []
+
+    # Structure into top-level comments with replies list
+    top_level = []
+    comment_map = {}
+    for c in comments:
+        c["replies"] = []
+        comment_map[c["id"]] = c
+
+    for c in comments:
+        parent_id = c.get("parent_id")
+        if parent_id and parent_id in comment_map:
+            comment_map[parent_id]["replies"].append(c)
+        else:
+            top_level.append(c)
+
+    return top_level
+
+
+def save_news_comment(comment_data: Dict[str, Any]) -> Dict[str, Any]:
+    """Persists a new comment or reply and increments comments_count on the article."""
+    import uuid
+    c_id = comment_data.get("id") or f"ncomm_{uuid.uuid4().hex[:12]}"
+    comment_data["id"] = c_id
+    if "created_at" not in comment_data:
+        comment_data["created_at"] = datetime.now().isoformat()
+    comment_data["updated_at"] = datetime.now().isoformat()
+    if "likes_count" not in comment_data:
+        comment_data["likes_count"] = 0
+    if "liked_by" not in comment_data:
+        comment_data["liked_by"] = []
+
+    art_id = comment_data.get("article_id")
+
+    # 1. DB Save
+    if is_db_available() and NewsCommentDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    db.add(NewsCommentDB(
+                        id=c_id,
+                        article_id=art_id,
+                        parent_id=comment_data.get("parent_id"),
+                        author_id=comment_data.get("author_id", ""),
+                        author_name=comment_data.get("author_name", "Student"),
+                        author_username=comment_data.get("author_username", "student"),
+                        author_avatar=comment_data.get("author_avatar", ""),
+                        author_university=comment_data.get("author_university", ""),
+                        content=comment_data.get("content", ""),
+                        likes_count=comment_data.get("likes_count", 0),
+                        liked_by=comment_data.get("liked_by", []),
+                        created_at=comment_data.get("created_at"),
+                        updated_at=comment_data.get("updated_at")
+                    ))
+                    if NewsArticleDB is not None and art_id:
+                        art = db.query(NewsArticleDB).filter(NewsArticleDB.id == art_id).first()
+                        if art:
+                            art.comments_count = (art.comments_count or 0) + 1
+        except Exception as e:
+            logger.error(f"DB save news comment error: {e}")
+
+    # 2. JSON Save
+    try:
+        os.makedirs(DATA_DIR, exist_ok=True)
+        comments = []
+        if os.path.exists(NEWS_COMMENTS_JSON):
+            try:
+                with open(NEWS_COMMENTS_JSON, "r", encoding="utf-8") as f:
+                    comments = json.load(f)
+            except Exception:
+                comments = []
+        comments.append(comment_data)
+        temp_file = NEWS_COMMENTS_JSON + ".tmp"
+        with open(temp_file, "w", encoding="utf-8") as f:
+            json.dump(comments, f, ensure_ascii=False, indent=2)
+        os.replace(temp_file, NEWS_COMMENTS_JSON)
+
+        # Increment article comments count in JSON
+        if art_id and os.path.exists(NEWS_ARTICLES_JSON):
+            try:
+                with open(NEWS_ARTICLES_JSON, "r", encoding="utf-8") as af:
+                    articles = json.load(af)
+                for a in articles:
+                    if a.get("id") == art_id:
+                        a["comments_count"] = a.get("comments_count", 0) + 1
+                temp_art = NEWS_ARTICLES_JSON + ".tmp"
+                with open(temp_art, "w", encoding="utf-8") as af:
+                    json.dump(articles, af, ensure_ascii=False, indent=2)
+                os.replace(temp_art, NEWS_ARTICLES_JSON)
+            except Exception:
+                pass
+    except Exception as je:
+        logger.error(f"JSON save news comment error: {je}")
+
+    return comment_data
+
+
+def like_news_comment(comment_id: str, user_email: str) -> Dict[str, Any]:
+    """Toggles like on a news comment."""
+    clean_id = comment_id.strip()
+    clean_email = user_email.strip().lower()
+    is_liked = False
+    likes_count = 0
+
+    if is_db_available() and NewsCommentDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    row = db.query(NewsCommentDB).filter(NewsCommentDB.id == clean_id).first()
+                    if row:
+                        liked_by = list(row.liked_by or [])
+                        if clean_email in liked_by:
+                            liked_by.remove(clean_email)
+                            is_liked = False
+                        else:
+                            liked_by.append(clean_email)
+                            is_liked = True
+                        row.liked_by = liked_by
+                        row.likes_count = len(liked_by)
+                        likes_count = row.likes_count
+        except Exception as e:
+            logger.error(f"DB like comment error: {e}")
+
+    if os.path.exists(NEWS_COMMENTS_JSON):
+        try:
+            with open(NEWS_COMMENTS_JSON, "r", encoding="utf-8") as f:
+                comments = json.load(f)
+            for c in comments:
+                if c.get("id") == clean_id:
+                    liked_by = list(c.get("liked_by", []))
+                    if clean_email in liked_by:
+                        liked_by.remove(clean_email)
+                        is_liked = False
+                    else:
+                        liked_by.append(clean_email)
+                        is_liked = True
+                    c["liked_by"] = liked_by
+                    c["likes_count"] = len(liked_by)
+                    likes_count = c["likes_count"]
+            temp_file = NEWS_COMMENTS_JSON + ".tmp"
+            with open(temp_file, "w", encoding="utf-8") as f:
+                json.dump(comments, f, ensure_ascii=False, indent=2)
+            os.replace(temp_file, NEWS_COMMENTS_JSON)
+        except Exception:
+            pass
+
+    return {"success": True, "is_liked": is_liked, "likes_count": likes_count}
+
+
+def toggle_save_news_article(article_id: str, user_email: str) -> Dict[str, Any]:
+    """Toggles saving a news article to a student's reading list."""
+    clean_id = article_id.strip()
+    clean_email = user_email.strip().lower()
+    is_saved = False
+
+    if is_db_available() and NewsArticleDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    row = db.query(NewsArticleDB).filter(NewsArticleDB.id == clean_id).first()
+                    if row:
+                        saved_by = list(row.saved_by or [])
+                        if clean_email in saved_by:
+                            saved_by.remove(clean_email)
+                            is_saved = False
+                        else:
+                            saved_by.append(clean_email)
+                            is_saved = True
+                        row.saved_by = saved_by
+        except Exception as e:
+            logger.error(f"DB toggle save news article error: {e}")
+
+    if os.path.exists(NEWS_ARTICLES_JSON):
+        try:
+            with open(NEWS_ARTICLES_JSON, "r", encoding="utf-8") as f:
+                articles = json.load(f)
+            for a in articles:
+                if a.get("id") == clean_id:
+                    saved_by = list(a.get("saved_by", []))
+                    if clean_email in saved_by:
+                        saved_by.remove(clean_email)
+                        is_saved = False
+                    else:
+                        saved_by.append(clean_email)
+                        is_saved = True
+                    a["saved_by"] = saved_by
+            temp_file = NEWS_ARTICLES_JSON + ".tmp"
+            with open(temp_file, "w", encoding="utf-8") as f:
+                json.dump(articles, f, ensure_ascii=False, indent=2)
+            os.replace(temp_file, NEWS_ARTICLES_JSON)
+        except Exception:
+            pass
+
+    return {"success": True, "is_saved": is_saved}
+
+
+def increment_news_shares(article_id: str) -> int:
+    """Increments the share count for a news article."""
+    clean_id = article_id.strip()
+    shares_count = 0
+
+    if is_db_available() and NewsArticleDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    row = db.query(NewsArticleDB).filter(NewsArticleDB.id == clean_id).first()
+                    if row:
+                        row.shares_count = (row.shares_count or 0) + 1
+                        shares_count = row.shares_count
+        except Exception as e:
+            logger.error(f"DB increment shares error: {e}")
+
+    if os.path.exists(NEWS_ARTICLES_JSON):
+        try:
+            with open(NEWS_ARTICLES_JSON, "r", encoding="utf-8") as f:
+                articles = json.load(f)
+            for a in articles:
+                if a.get("id") == clean_id:
+                    a["shares_count"] = a.get("shares_count", 0) + 1
+                    shares_count = a["shares_count"]
+            temp_file = NEWS_ARTICLES_JSON + ".tmp"
+            with open(temp_file, "w", encoding="utf-8") as f:
+                json.dump(articles, f, ensure_ascii=False, indent=2)
+            os.replace(temp_file, NEWS_ARTICLES_JSON)
+        except Exception:
+            pass
+
+    return shares_count
+
+
+def is_news_published_to_telegram(article_id: str) -> bool:
+    """Checks whether a news article was already published to the Telegram channel."""
+    clean_id = str(article_id).strip()
+    target_key = f"tg_news_{clean_id}"
+
+    if is_db_available():
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    if NewsArticleDB is not None:
+                        row = db.query(NewsArticleDB).filter(NewsArticleDB.id == clean_id).first()
+                        if row and row.telegram_message_id and len(str(row.telegram_message_id).strip()) > 0:
+                            return True
+                    if NotificationHistoryDB is not None:
+                        n_row = db.query(NotificationHistoryDB).filter(
+                            NotificationHistoryDB.notification_type == "telegram_channel_post",
+                            NotificationHistoryDB.target_id == target_key
+                        ).first()
+                        if n_row:
+                            return True
+        except Exception as e:
+            logger.debug(f"DB check telegram news error: {e}")
+
+    if os.path.exists(NOTIFICATION_HISTORY_JSON):
+        try:
+            with open(NOTIFICATION_HISTORY_JSON, "r", encoding="utf-8") as f:
+                logs = json.load(f)
+            if any(l.get("notification_type") == "telegram_channel_post" and l.get("target_id") == target_key for l in logs):
+                return True
+        except Exception:
+            pass
+
+    if os.path.exists(NEWS_ARTICLES_JSON):
+        try:
+            with open(NEWS_ARTICLES_JSON, "r", encoding="utf-8") as f:
+                articles = json.load(f)
+            for a in articles:
+                if a.get("id") == clean_id and a.get("telegram_message_id"):
+                    return True
+        except Exception:
+            pass
+
+    return False
+
+
+def save_news_telegram_post(article_id: str, telegram_message_id: Any, channel_id: str = "telegram_channel") -> bool:
+    """Records the Telegram message ID for a published news article to prevent duplicates."""
+    clean_id = str(article_id).strip()
+    msg_id = str(telegram_message_id).strip()
+    target_key = f"tg_news_{clean_id}"
+
+    if is_db_available() and NewsArticleDB is not None:
+        try:
+            with get_db_session() as db:
+                if db is not None:
+                    row = db.query(NewsArticleDB).filter(NewsArticleDB.id == clean_id).first()
+                    if row:
+                        row.telegram_message_id = msg_id
+                        row.telegram_published_at = datetime.now().isoformat()
+                    if NotificationHistoryDB is not None:
+                        db.add(NotificationHistoryDB(
+                            recipient=channel_id,
+                            notification_type="telegram_channel_post",
+                            target_id=target_key,
+                            subject=f"Telegram News Broadcast: {clean_id}",
+                            sent_at=datetime.now().isoformat(),
+                            status="sent",
+                            details={"news_id": clean_id, "message_id": msg_id}
+                        ))
+        except Exception as e:
+            logger.error(f"DB save telegram news post error: {e}")
+
+    try:
+        os.makedirs(DATA_DIR, exist_ok=True)
+        if os.path.exists(NEWS_ARTICLES_JSON):
+            with open(NEWS_ARTICLES_JSON, "r", encoding="utf-8") as f:
+                articles = json.load(f)
+            for a in articles:
+                if a.get("id") == clean_id:
+                    a["telegram_message_id"] = msg_id
+                    a["telegram_published_at"] = datetime.now().isoformat()
+            temp_file = NEWS_ARTICLES_JSON + ".tmp"
+            with open(temp_file, "w", encoding="utf-8") as f:
+                json.dump(articles, f, ensure_ascii=False, indent=2)
+            os.replace(temp_file, NEWS_ARTICLES_JSON)
+
+        # Log into notification history
+        logs = []
+        if os.path.exists(NOTIFICATION_HISTORY_JSON):
+            try:
+                with open(NOTIFICATION_HISTORY_JSON, "r", encoding="utf-8") as f:
+                    logs = json.load(f)
+            except Exception:
+                logs = []
+        logs.append({
+            "recipient": channel_id,
+            "notification_type": "telegram_channel_post",
+            "target_id": target_key,
+            "subject": f"Telegram News Broadcast: {clean_id}",
+            "sent_at": datetime.now().isoformat(),
+            "status": "sent",
+            "details": {"news_id": clean_id, "message_id": msg_id}
+        })
+        temp_notif = NOTIFICATION_HISTORY_JSON + ".tmp"
+        with open(temp_notif, "w", encoding="utf-8") as f:
+            json.dump(logs, f, ensure_ascii=False, indent=2)
+        os.replace(temp_notif, NOTIFICATION_HISTORY_JSON)
+        return True
+    except Exception as je:
+        logger.error(f"JSON save telegram news post error: {je}")
+        return False
+
+
+def get_news_category_counts() -> Dict[str, int]:
+    """Returns the count of active news articles across all categories."""
+    res = {
+        "scholarships": 0,
+        "universities": 0,
+        "study_abroad": 0,
+        "admissions": 0,
+        "research": 0,
+        "funding_opportunities": 0,
+        "international_programs": 0,
+        "internship_opportunities": 0
+    }
+    articles_data = get_news_articles(only_active=True, limit=500)
+    for a in articles_data.get("articles", []):
+        cat = a.get("category", "")
+        if cat in res:
+            res[cat] += 1
+    return res
+
+
+def get_all_scholarships():
+    import os, json
+    if os.path.exists(SCHOLARSHIPS_JSON):
+        try:
+            with open(SCHOLARSHIPS_JSON, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return []
