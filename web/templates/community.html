@@ -95,7 +95,7 @@
         }
     </style>
 </head>
-<body class="min-h-screen selection:bg-blue-600 selection:text-white flex flex-col relative bg-slate-950 text-slate-100 font-sans">
+<body class="min-h-screen selection:bg-blue-600 selection:text-white flex flex-col relative bg-[#F4F1EA] dark:bg-[#0B1724] text-[#16324F] dark:text-[#F4F1EA] font-sans transition-colors duration-200">
 
     <!-- Toast Notifications -->
     <div id="toastContainer" class="fixed top-5 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none flex flex-col items-center gap-2 max-w-md w-full px-4"></div>
@@ -142,12 +142,12 @@
                 </a>
                 <a href="/community" class="px-3 py-2 rounded-lg text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 font-bold transition flex items-center gap-1.5 border border-blue-200 dark:border-blue-900/50">
                     <i data-lucide="users" class="w-3.5 h-3.5 text-blue-500"></i>
-                    <span>ملتقى المستكشفين</span>
+                    <span>المجتمع الطلابي</span>
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                 </a>
                 <a href="/news" class="px-3 py-2 rounded-lg hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition flex items-center gap-1.5 font-bold">
                     <i data-lucide="newspaper" class="w-3.5 h-3.5 text-blue-500"></i>
-                    <span>مرصد الأخبار</span>
+                    <span>آخر الأخبار</span>
                 </a>
             </nav>
 
@@ -841,9 +841,9 @@
                             const tip = (st.key_advice && st.key_advice.length > 0) ? st.key_advice[0] : st.title;
                             return `
                                 <div class="p-3 rounded-xl bg-amber-500/5 hover:bg-amber-500/10 border border-amber-500/20 transition space-y-1.5 cursor-pointer" onclick="filterByCategory('success_stories')">
-                                    <div class="flex items-center justify-between text-[10px]">
-                                        <span class="font-bold text-amber-500 truncate">${escapeHtml(st.scholarship_name || 'منحة دولية')}</span>
-                                        <span class="text-slate-400 font-mono">${escapeHtml(st.acceptance_year || '2025/2026')}</span>
+                                    <div class="flex items-center justify-between text-[10px] gap-2">
+                                        <span class="font-bold text-amber-500 truncate min-w-0 flex-1">${escapeHtml(st.scholarship_name || 'منحة دولية')}</span>
+                                        <span class="text-slate-500 dark:text-slate-400 font-mono text-[9px] shrink-0 bg-amber-500/10 px-1.5 py-0.5 rounded">${escapeHtml(st.acceptance_year || '2025/2026')}</span>
                                     </div>
                                     <h4 class="font-bold text-slate-800 dark:text-slate-200 line-clamp-2 text-xs leading-snug">${escapeHtml(st.title)}</h4>
                                     <p class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2">${escapeHtml(tip)}</p>

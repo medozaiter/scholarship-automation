@@ -626,3 +626,85 @@ def sanitize_llm_output(output_text: str) -> str:
         sanitized = sanitized.replace(marker, "[REDACTED]")
 
     return sanitized
+
+def validate_uploaded_image(filename: str, content_bytes: bytes, max_size_mb: int = 5) -> Tuple[str, str, bytes]:
+    """
+    Validates uploaded images against malicious payloads, polyglots, and invalid headers.
+    Returns: (safe_filename, content_type, clean_bytes)
+    """
+    import uuid
+    import io
+    if not filename:
+        raise ValueError("اسم ملف الصورة غير محدد.")
+
+    safe_name = os.path.basename(filename).strip()
+    safe_name = BIDI_AND_INVISIBLE_CHARS.sub("", safe_name)
+    safe_name = re.sub(r"[^\w\.\-\s؀-ۿ]", "", safe_name)
+    ext = os.path.splitext(safe_name)[1].lower()
+
+    allowed_extensions = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
+    if ext not in allowed_extensions:
+        raise ValueError(f"صيغة الصورة غير مدعومة ({ext}). الصيغ المسموحة هي: JPG, PNG, WEBP, GIF فقط.")
+
+    if len(content_bytes) > max_size_mb * 1024 * 1024:
+        raise ValueError(f"حجم الصورة يتجاوز الحد الأقصى المسموح به ({max_size_mb} ميجابايت).")
+
+    if len(content_bytes) < 32:
+        raise ValueError("ملف الصورة فارغ أو تالف.")
+
+    # Block executable and script signatures
+    if (
+        content_bytes.startswith(b"MZ") or
+        content_bytes.startswith(bytes([0x7f, 0x45, 0x4c, 0x46])) or
+        content_bytes.startswith(b"<?php") or
+        b"<script" in content_bytes[:1024].lower()
+    ):
+        raise ValueError("تم رفض الملف: محتوى غير مصرح به أو يحتوي على شفرات خبيثة.")
+
+    # Strict magic bytes verification using integer byte arrays to avoid encoding issues
+    is_jpeg = content_bytes.startswith(bytes([0xff, 0xd8, 0xff]))
+    is_png = content_bytes.startswith(bytes([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))
+    is_webp = content_bytes.startswith(b"RIFF") and len(content_bytes) > 12 and content_bytes[8:12] == b"WEBP"
+    is_gif = content_bytes.startswith(b"GIF87a") or content_bytes.startswith(b"GIF89a")
+
+    if not (is_jpeg or is_png or is_webp or is_gif):
+        raise ValueError("الملف المرفوع ليس صورة صالحة أو تم التلاعب ببيانات الترويسة.")
+
+    # Verify and sanitize with Pillow
+    try:
+        from PIL import Image
+        img = Image.open(io.BytesIO(content_bytes))
+        img.verify()
+        
+        img = Image.open(io.BytesIO(content_bytes))
+        out_buf = io.BytesIO()
+        
+        if img.format in ["JPEG", "JPG"]:
+            img = img.convert("RGB")
+            img.save(out_buf, format="JPEG", quality=88, optimize=True)
+            content_type = "image/jpeg"
+            final_ext = ".jpg"
+        elif img.format == "PNG":
+            img.save(out_buf, format="PNG", optimize=True)
+            content_type = "image/png"
+            final_ext = ".png"
+        elif img.format == "WEBP":
+            img.save(out_buf, format="WEBP", quality=88)
+            content_type = "image/webp"
+            final_ext = ".webp"
+        else:
+            img.save(out_buf, format=img.format)
+            content_type = f"image/{img.format.lower()}"
+            final_ext = ext
+
+        clean_bytes = out_buf.getvalue()
+        stem = re.sub(r"[^a-zA-Z0-9_-]", "", os.path.splitext(safe_name)[0]) or "img"
+        final_filename = f"{stem[:20]}_{uuid.uuid4().hex[:10]}{final_ext}"
+        return final_filename, content_type, clean_bytes
+    except Exception as img_err:
+        logger.warning(f"PIL verification warning: {img_err}")
+        content_type = "image/jpeg" if ext in [".jpg", ".jpeg"] else f"image/{ext.replace('.', '')}"
+        stem = re.sub(r"[^a-zA-Z0-9_-]", "", os.path.splitext(safe_name)[0]) or "img"
+        final_filename = f"{stem[:20]}_{uuid.uuid4().hex[:10]}{ext}"
+        return final_filename, content_type, content_bytes
+

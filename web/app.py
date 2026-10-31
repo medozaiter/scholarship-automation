@@ -4,6 +4,7 @@ import asyncio
 import logging
 from typing import List, Optional, Dict, Any
 from fastapi import FastAPI, BackgroundTasks, HTTPException, Query, Request, Response, UploadFile, File, Form
+from fastapi.staticfiles import StaticFiles
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -27,6 +28,7 @@ from services.security_utils import (
     sanitize_advisor_query,
     validate_talents_experience,
     validate_uploaded_file,
+    validate_uploaded_image,
     sanitize_uploaded_text,
     security_rate_limiter,
     verify_session_token
@@ -50,6 +52,11 @@ app = FastAPI(
     description="EduAtlas: Cartographic Academic Navigation, Global Scholarship Discovery & Opportunity System",
     version="2.5.0"
 )
+STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
+os.makedirs(os.path.join(STATIC_DIR, "uploads", "avatars"), exist_ok=True)
+os.makedirs(os.path.join(STATIC_DIR, "uploads", "covers"), exist_ok=True)
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
 
 # Secure CORS Middleware
 allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "").strip()
@@ -434,6 +441,54 @@ class UpdateProfileRequest(BaseModel):
     @classmethod
     def check_email(cls, v: str) -> str:
         return validate_email(v)
+
+    @field_validator("username")
+    @classmethod
+    def check_username(cls, v: Optional[str]) -> Optional[str]:
+        if v:
+            return sanitize_text(v, max_length=50)
+        return v
+
+    @field_validator("full_name")
+    @classmethod
+    def check_fullname(cls, v: Optional[str]) -> Optional[str]:
+        if v:
+            return validate_name(v)
+        return v
+
+    @field_validator("gpa")
+    @classmethod
+    def check_gpa(cls, v: Optional[str]) -> Optional[str]:
+        if v:
+            return validate_gpa(v)
+        return v
+
+    @field_validator("city", "university", "degree", "graduation_year", "bio", "english_level", "country", "avatar_url", "cover_url")
+    @classmethod
+    def sanitize_profile_strings(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None:
+            max_len = 500 if ("url" in str(v).lower() or "/" in str(v)) else 150
+            if len(str(v)) > 200:
+                max_len = 2000
+            return sanitize_text(v, max_length=max_len)
+        return v
+
+    @field_validator("majors", "skills", "interests", "target_countries", "scholarship_interests")
+    @classmethod
+    def sanitize_profile_lists(cls, v: Optional[List[str]]) -> Optional[List[str]]:
+        if v is not None:
+            return [sanitize_text(item, max_length=80) for item in v if item and str(item).strip()][:30]
+        return v
+
+    @field_validator("social_links")
+    @classmethod
+    def sanitize_social_links(cls, v: Optional[Dict[str, str]]) -> Optional[Dict[str, str]]:
+        if v is not None and isinstance(v, dict):
+            clean_links = {}
+            for k, val in v.items():
+                clean_links[sanitize_text(k, max_length=50)] = sanitize_text(val, max_length=300)
+            return clean_links
+        return v
 
 
 class ChangePasswordRequest(BaseModel):
@@ -1019,6 +1074,76 @@ async def get_user_profile_endpoint(request: Request, email: Optional[str] = Non
     return {"success": True, "profile": user}
 
 
+
+@app.post("/api/user/upload-avatar")
+async def upload_user_avatar_endpoint(request: Request, file: UploadFile = File(...)):
+    """Uploads and verifies a student profile avatar image file (JPG, PNG, WebP)."""
+    user = get_authenticated_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="يرجى تسجيل الدخول لرفع الصورة الشخصية.")
+    try:
+        content = await file.read()
+        safe_name, content_type, clean_bytes = validate_uploaded_image(
+            file.filename or "avatar.jpg", content, max_size_mb=5
+        )
+        uploads_dir = os.path.join(STATIC_DIR, "uploads", "avatars")
+        os.makedirs(uploads_dir, exist_ok=True)
+        file_path = os.path.join(uploads_dir, safe_name)
+        with open(file_path, "wb") as f:
+            f.write(clean_bytes)
+
+        relative_url = f"/static/uploads/avatars/{safe_name}"
+        user_email = user.get("email", "")
+        updated = auth_service.update_profile(user_email, {"avatar_url": relative_url})
+
+        return {
+            "success": True,
+            "message": "تم رفع وتحديث صورتك الشخصية بنجاح.",
+            "avatar_url": relative_url,
+            "profile": updated
+        }
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        logger.error(f"Avatar upload error: {e}")
+        raise HTTPException(status_code=500, detail="تعذر رفع الصورة الشخصية حالياً.")
+
+
+@app.post("/api/user/upload-cover")
+async def upload_user_cover_endpoint(request: Request, file: UploadFile = File(...)):
+    """Uploads and verifies a student profile cover banner image file (JPG, PNG, WebP)."""
+    user = get_authenticated_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="يرجى تسجيل الدخول لرفع صورة الغلاف.")
+    try:
+        content = await file.read()
+        safe_name, content_type, clean_bytes = validate_uploaded_image(
+            file.filename or "cover.jpg", content, max_size_mb=5
+        )
+        uploads_dir = os.path.join(STATIC_DIR, "uploads", "covers")
+        os.makedirs(uploads_dir, exist_ok=True)
+        file_path = os.path.join(uploads_dir, safe_name)
+        with open(file_path, "wb") as f:
+            f.write(clean_bytes)
+
+        relative_url = f"/static/uploads/covers/{safe_name}"
+        user_email = user.get("email", "")
+        updated = auth_service.update_profile(user_email, {"cover_url": relative_url})
+
+        return {
+            "success": True,
+            "message": "تم رفع وتحديث صورة الغلاف بنجاح.",
+            "cover_url": relative_url,
+            "profile": updated
+        }
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        logger.error(f"Cover upload error: {e}")
+        raise HTTPException(status_code=500, detail="تعذر رفع صورة الغلاف حالياً.")
+
+
+@app.post("/api/user/profile")
 @app.put("/api/user/profile")
 async def update_user_profile_endpoint(req: UpdateProfileRequest, request: Request):
     """Updates student profile info, skills, languages, social links, and privacy settings."""
