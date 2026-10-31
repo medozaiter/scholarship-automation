@@ -31,7 +31,10 @@ from services.security_utils import (
     validate_uploaded_image,
     sanitize_uploaded_text,
     security_rate_limiter,
-    verify_session_token
+    verify_session_token,
+    verify_recaptcha,
+    validate_sql_safe,
+    detect_sql_injection
 )
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -71,12 +74,14 @@ app.add_middleware(
 )
 
 # Application Rate Limiting Middleware with Anti-Spoofing Defense
+# Application Rate Limiting Middleware with Anti-Spoofing Defense and RFC Metrics
 @app.middleware("http")
 async def rate_limiting_middleware(request: Request, call_next):
     path = request.url.path
     if path.startswith("/api/"):
-        peer_ip = request.client.host if request.client else "127.0.0.1"
         forwarded = request.headers.get("x-forwarded-for")
+        peer_ip = request.client.host if request.client else "127.0.0.1"
+
         # Anti-spoofing: only trust X-Forwarded-For if direct peer is local reverse proxy or testclient
         if forwarded and peer_ip in ["127.0.0.1", "::1", "localhost", "testclient"]:
             client_ip = forwarded.split(",")[0].strip()
@@ -86,14 +91,18 @@ async def rate_limiting_middleware(request: Request, call_next):
         category = "general"
         if path.startswith("/api/auth/"):
             category = "auth"
-        elif path.startswith("/api/advisor/upload-"):
+        elif path.startswith("/api/advisor/upload-") or path.startswith("/api/user/upload-"):
             category = "upload"
         elif path.startswith("/api/advisor/"):
             category = "advisor"
         elif path == "/api/subscribe":
             category = "subscribe"
+        elif path.startswith("/api/community/") or "/comments" in path:
+            category = "community"
 
-        allowed, retry_after = security_rate_limiter.check_rate_limit(client_ip, category)
+        allowed, retry_after, limit, remaining = security_rate_limiter.get_rate_limit_metrics(client_ip, category)
+        security_rate_limiter.check_rate_limit(client_ip, category)
+
         if not allowed:
             logger.warning(f"Rate limit exceeded for IP {client_ip} on category '{category}'")
             return JSONResponse(
@@ -103,32 +112,71 @@ async def rate_limiting_middleware(request: Request, call_next):
                     "detail": f"تم تجاوز عدد الطلبات المسموح به. يرجى الانتظار {retry_after} ثانية والمحاولة مجدداً.",
                     "retry_after": retry_after
                 },
-                headers={"Retry-After": str(retry_after)}
+                headers={
+                    "Retry-After": str(retry_after),
+                    "X-RateLimit-Limit": str(limit),
+                    "X-RateLimit-Remaining": "0",
+                    "X-RateLimit-Reset": "60"
+                }
             )
+
+        response = await call_next(request)
+        response.headers["X-RateLimit-Limit"] = str(limit)
+        response.headers["X-RateLimit-Remaining"] = str(remaining)
+        response.headers["X-RateLimit-Reset"] = "60"
+        return response
+
     return await call_next(request)
 
-# Hardened Security Headers Middleware
+
+# Hardened Helmet-Style Security Headers Middleware
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next):
     response = await call_next(request)
+
+    # 1. MIME Sniffing Prevention
     response.headers["X-Content-Type-Options"] = "nosniff"
+    # 2. Clickjacking Prevention
     response.headers["X-Frame-Options"] = "DENY"
+    # 3. Cross-Site Scripting (XSS) Legacy Shield
     response.headers["X-XSS-Protection"] = "1; mode=block"
+    # 4. Strict Referrer Policy
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    # 5. HTTP Strict Transport Security (HSTS)
     response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
+    # 6. Restricted Permissions Policy
     response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=(), payment=()"
+    # 7. Cross-Origin Isolation Policies (Helmet standard)
+    response.headers["Cross-Origin-Opener-Policy"] = "same-origin-allow-popups"
+    response.headers["Cross-Origin-Resource-Policy"] = "cross-origin"
+    response.headers["X-Permitted-Cross-Domain-Policies"] = "none"
+    response.headers["X-DNS-Prefetch-Control"] = "off"
+
+    # 8. Server Fingerprinting Suppression
+    if "Server" in response.headers:
+        del response.headers["Server"]
+    if "server" in response.headers:
+        del response.headers["server"]
+    if "X-Powered-By" in response.headers:
+        del response.headers["X-Powered-By"]
+    if "x-powered-by" in response.headers:
+        del response.headers["x-powered-by"]
+
+    # 9. Content Security Policy (allows Tailwind CDN, Lucide, Fonts, and Google reCAPTCHA)
     response.headers["Content-Security-Policy"] = (
         "default-src 'self'; "
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com https://cdn.jsdelivr.net; "
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com https://cdn.jsdelivr.net https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/; "
+        "frame-src 'self' https://www.google.com/recaptcha/ https://recaptcha.google.com/; "
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
         "font-src 'self' https://fonts.gstatic.com data:; "
-        "img-src 'self' data: https:; "
+        "img-src 'self' data: https: blob:; "
         "connect-src 'self' https:; "
         "frame-ancestors 'none'; "
         "object-src 'none'; "
         "base-uri 'self';"
     )
     return response
+
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
@@ -308,6 +356,7 @@ class RegisterRequest(BaseModel):
     scholarship_interests: Optional[List[str]] = None
     social_links: Optional[Dict[str, str]] = None
     privacy_settings: Optional[Dict[str, Any]] = None
+    recaptcha_token: Optional[str] = None
 
     @field_validator("email")
     @classmethod
@@ -322,7 +371,8 @@ class RegisterRequest(BaseModel):
     @field_validator("full_name")
     @classmethod
     def check_name(cls, v: str) -> str:
-        return validate_name(v)
+        safe = validate_sql_safe(v, "الاسم الكامل")
+        return validate_name(safe)
 
     @field_validator("gpa")
     @classmethod
@@ -332,18 +382,21 @@ class RegisterRequest(BaseModel):
     @field_validator("talents_experience")
     @classmethod
     def check_talents(cls, v: Optional[str]) -> str:
-        return validate_talents_experience(v or "")
+        clean = validate_talents_experience(v or "")
+        return validate_sql_safe(clean, "المهارات والخبرات")
 
-    @field_validator("degree", "english_level", "country")
+    @field_validator("degree", "english_level", "country", "city", "university")
     @classmethod
     def clean_text(cls, v: Optional[str]) -> str:
-        return sanitize_text(v, max_length=60)
+        clean = sanitize_text(v, max_length=120)
+        return validate_sql_safe(clean, "المعلومات الأكاديمية")
 
 
 class LoginRequest(BaseModel):
     email: str
     password: str
     remember_me: Optional[bool] = False
+    recaptcha_token: Optional[str] = None
 
     @field_validator("email")
     @classmethod
@@ -358,6 +411,7 @@ class LoginRequest(BaseModel):
 
 class ForgotPasswordRequest(BaseModel):
     email: str
+    recaptcha_token: Optional[str] = None
 
     @field_validator("email")
     @classmethod
@@ -389,20 +443,16 @@ class ResetPasswordRequest(BaseModel):
 
 
 class VerificationCodeRequest(BaseModel):
-    email: str
-    code: str
+    email: Optional[str] = None
+    code: Optional[str] = None
+    token: Optional[str] = None
 
     @field_validator("email")
     @classmethod
-    def check_email(cls, v: str) -> str:
-        return validate_email(v)
-
-    @field_validator("code")
-    @classmethod
-    def check_code(cls, v: str) -> str:
-        if not v or not v.strip():
-            raise ValueError("كود التحقق مطلوب.")
-        return v.strip()
+    def check_email(cls, v: Optional[str]) -> Optional[str]:
+        if v and v.strip():
+            return validate_email(v)
+        return None
 
 
 class SendVerificationRequest(BaseModel):
@@ -970,9 +1020,14 @@ async def register_account(req: RegisterRequest, response: Response):
 
 
 @app.post("/api/auth/login")
-async def login_account(req: LoginRequest, response: Response):
-    """Authenticates student with PBKDF2 verification, lockout protection, remember-me support, and cookie."""
+async def login_account(req: LoginRequest, request: Request, response: Response):
+    """Authenticates student with bcrypt verification, lockout protection, remember-me support, and cookie."""
     try:
+        # reCAPTCHA Verification
+        client_ip = request.client.host if request.client else "127.0.0.1"
+        captcha_ok, captcha_msg = verify_recaptcha(req.recaptcha_token, client_ip)
+        if not captcha_ok:
+            raise HTTPException(status_code=400, detail=captcha_msg)
         user = auth_service.login(req.email, req.password, remember_me=bool(req.remember_me))
         if not user:
             raise HTTPException(status_code=401, detail="البريد الإلكتروني أو كلمة المرور غير صحيحة.")
@@ -1040,15 +1095,69 @@ async def send_verification_endpoint(req: SendVerificationRequest):
 
 @app.post("/api/auth/verify-email")
 async def verify_email_endpoint(req: VerificationCodeRequest):
-    """Validates 6-digit email verification code."""
+    """Validates 6-digit email verification code or HMAC verification token."""
     try:
-        success = auth_service.verify_email(req.email, req.code)
-        return {"success": success, "message": "تم توثيق بريدك الإلكتروني بنجاح!"}
+        success = auth_service.verify_email(email=req.email, code=req.code, token=req.token)
+        return {"success": success, "message": "تم توثيق وتفعيل بريدك الأكاديمي بنجاح!"}
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:
         logger.error(f"Verify email error: {e}")
         raise HTTPException(status_code=500, detail="تعذر توثيق البريد الإلكتروني.")
+
+
+@app.get("/api/auth/verify-email")
+async def verify_email_get_endpoint(token: str):
+    """Direct 1-click verification from email link."""
+    try:
+        success = auth_service.verify_email(token=token)
+        return HTMLResponse(
+            """
+            <!DOCTYPE html>
+            <html lang="ar" dir="rtl">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>EduAtlas | تم تفعيل بريدك الأكاديمي</title>
+                <script src="https://cdn.tailwindcss.com"></script>
+                <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&display=swap" rel="stylesheet">
+            </head>
+            <body class="bg-[#F4F1EA] text-[#16324F] font-['Cairo'] min-h-screen flex items-center justify-center p-4">
+                <div class="max-w-md w-full bg-white p-8 sm:p-10 rounded-3xl shadow-2xl text-center border border-slate-200">
+                    <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-5 text-3xl font-black shadow-inner">✓</div>
+                    <div class="text-xl sm:text-2xl font-black mb-1">Edu<span class="text-[#C86446]">Atlas</span></div>
+                    <h1 class="text-lg sm:text-xl font-bold mb-3 text-slate-800">تم توثيق وتفعيل بريدك الأكاديمي بنجاح!</h1>
+                    <p class="text-xs sm:text-sm text-slate-600 mb-8 leading-relaxed">حسابك أصبح موثقاً ومعتمداً في المنصة، وستصلك تنبيهات المنح المؤكدة المطابقة لمؤهلاتك فور صدورها.</p>
+                    <a href="/dashboard" class="w-full inline-block py-3 px-6 bg-[#C86446] hover:bg-[#B35337] text-white font-bold rounded-xl shadow-lg transition">الدخول إلى لوحة التحكم</a>
+                </div>
+            </body>
+            </html>
+            """
+        )
+    except ValueError as ve:
+        return HTMLResponse(
+            f"""
+            <!DOCTYPE html>
+            <html lang="ar" dir="rtl">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>EduAtlas | تعذر التوثيق</title>
+                <script src="https://cdn.tailwindcss.com"></script>
+                <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;800&display=swap" rel="stylesheet">
+            </head>
+            <body class="bg-[#F4F1EA] text-[#16324F] font-['Cairo'] min-h-screen flex items-center justify-center p-4">
+                <div class="max-w-md w-full bg-white p-8 rounded-3xl shadow-xl text-center border border-rose-200">
+                    <div class="w-16 h-16 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl font-bold">✕</div>
+                    <h1 class="text-lg font-bold text-rose-700 mb-2">تعذر تفعيل البريد الأكاديمي</h1>
+                    <p class="text-sm text-slate-600 mb-6">{str(ve)}</p>
+                    <a href="/" class="inline-block px-6 py-2.5 bg-[#16324F] text-white font-bold rounded-xl text-xs">العودة للصفحة الرئيسية</a>
+                </div>
+            </body>
+            </html>
+            """,
+            status_code=400
+        )
 
 
 @app.get("/api/user/profile")

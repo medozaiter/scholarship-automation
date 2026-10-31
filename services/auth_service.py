@@ -19,6 +19,8 @@ from services.security_utils import (
     compute_dummy_pbkdf2,
     create_session_token,
     verify_session_token,
+    create_email_verification_token,
+    verify_email_verification_token,
     security_rate_limiter,
     atomic_json_write
 )
@@ -362,6 +364,12 @@ class AuthService:
         save_or_update_user(new_user)
         logger.info(f"Registered student user: {email_clean} with handle @{final_username}")
 
+        # Automatically dispatch email verification code and link
+        try:
+            self.send_verification_email(email_clean)
+        except Exception as ve_err:
+            logger.warning(f"Initial email verification dispatch error: {ve_err}")
+
         # Issue 24-hour default session token
         token = create_session_token(email=email_clean, role="student", expires_in_seconds=86400)
         safe_copy = self.get_by_email(email_clean) or new_user
@@ -516,8 +524,8 @@ class AuthService:
         logger.info(f"Password reset successful for {email_clean}")
         return True
 
-    def send_verification_email(self, email: str) -> Dict[str, Any]:
-        """Issues 6-digit code for student email verification."""
+    def send_verification_email(self, email: str, base_url: str = "") -> Dict[str, Any]:
+        """Issues 6-digit code and HMAC verification token for student email verification."""
         email_clean = validate_email(email)
         user = get_user_by_email(email_clean)
         if not user:
@@ -527,22 +535,36 @@ class AuthService:
             return {"success": True, "message": "البريد الإلكتروني موثق بالفعل."}
 
         code = str(secrets.randbelow(900000) + 100000)
+        token = create_email_verification_token(email_clean)
         user["verification_code"] = code
+        user["verification_token"] = token
         save_or_update_user(user)
 
-        subject = "تأكيد وتوثيق بريدك الأكاديمي - ScholarPilot AI"
+        base = base_url.rstrip("/") if base_url else os.getenv("APP_BASE_URL", "https://scholarpilot-ai-mkac.onrender.com")
+        verify_link = f"{base}/api/auth/verify-email?token={token}"
+
+        subject = "تأكيد وتوثيق بريدك الأكاديمي - EduAtlas"
         html_msg = f"""
-        <div dir="rtl" style="font-family: Arial, sans-serif; padding: 20px; color: #1e293b;">
-            <h2>رمز تأكيد البريد الإلكتروني</h2>
-            <p>مرحباً {user.get('full_name', 'طالبنا العزيز')},</p>
-            <p>لتأكيد بريدك الإلكتروني وتفعيل الإشعارات وتوثيق ملفك الأكاديمي، أدخل الرمز التالي:</p>
-            <div style="background: #eff6ff; padding: 15px; border-radius: 8px; margin: 20px 0; text-align: center;">
-                <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #2563eb;">{code}</span>
+        <div dir="rtl" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding: 28px; background-color: #F4F1EA; color: #16324F; max-width: 600px; margin: 0 auto; border-radius: 16px; border: 1px solid #dcd7cc;">
+            <div style="text-align: center; margin-bottom: 24px;">
+                <h1 style="color: #16324F; font-size: 24px; font-weight: 800; margin: 0;">Edu<span style="color: #C86446;">Atlas</span></h1>
+                <p style="color: #556B82; font-size: 13px; margin: 4px 0 0 0;">نظام ملاحة الفرص والمنح الأكاديمية</p>
             </div>
-            <p style="font-size: 12px; color: #64748b;">ينتهي الرمز خلال 24 ساعة.</p>
+            <div style="background-color: #ffffff; padding: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #ebe6dc;">
+                <h2 style="font-size: 18px; color: #16324F; margin-top: 0;">تأكيد وتفعيل بريدك الأكاديمي</h2>
+                <p style="font-size: 14px; line-height: 1.6; color: #334E68;">مرحباً {user.get('full_name', 'طالبنا العزيز')},</p>
+                <p style="font-size: 14px; line-height: 1.6; color: #334E68;">لتفعيل حسابك الأكاديمي في EduAtlas واستقبال تنبيهات المنح المتوافقة مع مؤهلاتك، أدخل الرمز التالي أو اضغط مباشرة على زر التفعيل:</p>
+                <div style="background: #F4F1EA; padding: 16px; border-radius: 8px; margin: 20px 0; text-align: center; border: 1px dashed #C86446;">
+                    <span style="font-size: 32px; font-weight: 900; letter-spacing: 6px; color: #16324F;">{code}</span>
+                </div>
+                <div style="text-align: center; margin: 24px 0;">
+                    <a href="{verify_link}" style="background-color: #C86446; color: #ffffff; padding: 12px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 14px; display: inline-block;">تأكيد البريد بنقرة واحدة</a>
+                </div>
+                <p style="font-size: 12px; color: #829AB1; margin-top: 20px;">ينتهي هذا الرمز والرابط تلقائياً خلال 48 ساعة من تاريخ الإصدار.</p>
+            </div>
         </div>
         """
-        plain_msg = f"رمز تأكيد بريدك في ScholarPilot AI هو: {code}"
+        plain_msg = f"رمز تأكيد بريدك في EduAtlas هو: {code}\nأو اضغط على الرابط التالي: {verify_link}"
         try:
             _safe_dispatch_email(email_clean, subject, html_msg, plain_msg)
         except Exception as e:
@@ -550,25 +572,37 @@ class AuthService:
 
         return {
             "success": True,
-            "message": "تم إرسال كود التحقق إلى بريدك الإلكتروني.",
-            "code": code
+            "message": "تم إرسال كود ورابط التحقق إلى بريدك الإلكتروني.",
+            "code": code,
+            "token": token
         }
 
-    def verify_email(self, email: str, code: str) -> bool:
-        """Verifies 6-digit email code and marks account as verified."""
-        email_clean = validate_email(email)
-        clean_code = (code or "").strip()
+    def verify_email(self, email: Optional[str] = None, code: Optional[str] = None, token: Optional[str] = None) -> bool:
+        """Verifies email via either HMAC token or 6-digit code and marks account as verified."""
+        if token:
+            verified_email = verify_email_verification_token(token)
+            if not verified_email:
+                raise ValueError("رابط التحقق غير صالح أو انتهت صلاحيته.")
+            email_clean = verified_email
+            user = get_user_by_email(email_clean)
+            if not user:
+                raise ValueError("الحساب المرتبط برابط التحقق غير موجود.")
+        else:
+            if not email:
+                raise ValueError("البريد الإلكتروني مطلوب.")
+            email_clean = validate_email(email)
+            clean_code = (code or "").strip()
+            user = get_user_by_email(email_clean)
+            if not user:
+                raise ValueError("الحساب غير مسجل.")
 
-        user = get_user_by_email(email_clean)
-        if not user:
-            raise ValueError("الحساب غير مسجل.")
-
-        stored_code = str(user.get("verification_code") or "").strip()
-        if not stored_code or stored_code != clean_code:
-            raise ValueError("كود التحقق غير صحيح. يرجى التأكد من الرمز المدخل.")
+            stored_code = str(user.get("verification_code") or "").strip()
+            if not stored_code or stored_code != clean_code:
+                raise ValueError("كود التحقق غير صحيح. يرجى التأكد من الرمز المدخل.")
 
         user["email_verified"] = True
         user["verification_code"] = ""
+        user["verification_token"] = ""
         save_or_update_user(user)
         logger.info(f"Email verified for {email_clean}")
 

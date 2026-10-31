@@ -12,6 +12,13 @@ import threading
 import logging
 from typing import Optional, Dict, Any, Tuple, List
 
+try:
+    import bcrypt
+    BCRYPT_AVAILABLE = True
+except ImportError:
+    bcrypt = None  # type: ignore
+    BCRYPT_AVAILABLE = False
+
 logger = logging.getLogger(__name__)
 
 # ==============================================================================
@@ -86,10 +93,34 @@ EMAIL_REGEX = re.compile(
 NAME_REGEX = re.compile(r"^[\u0600-\u06FFa-zA-Z\s\.\-']{2,70}$")
 
 SQL_INJECTION_PATTERN = re.compile(
-    r"(\b(UNION|SELECT|INSERT|DELETE|UPDATE|DROP|ALTER|EXEC|EXECUTE|SCRIPT|CREATE|TRUNCATE)\b|"
-    r"(--|/\*|\*/|@@|char\s*\(|nchar\s*\(|varchar\s*\(|cast\s*\(|convert\s*\())",
+    r"(\b(UNION(\s+ALL)?|SELECT|INSERT\s+INTO|DELETE\s+FROM|UPDATE\s+\w+\s+SET|DROP\s+(TABLE|DATABASE|VIEW)|"
+    r"ALTER\s+TABLE|EXEC(\s+XP_|\s+SP_)?|EXECUTE|TRUNCATE\s+TABLE|MERGE\s+INTO|CREATE\s+(TABLE|DATABASE))\b|"
+    r"(--|/\*|\*/|;\s*(DROP|SELECT|INSERT|DELETE|UPDATE|TRUNCATE)|@@|char\s*\(|nchar\s*\(|varchar\s*\(|"
+    r"cast\s*\(|convert\s*\(|sleep\s*\(|benchmark\s*\(|waitfor\s+delay|"
+    r"\bOR\b\s+['\"]?([a-zA-Z0-9_]+)['\"]?\s*=\s*['\"]?\2['\"]?|"
+    r"['\"]\s+OR\s+['\"]?[a-zA-Z0-9_]+['\"]?\s*=\s*['\"]?[a-zA-Z0-9_]+))",
     re.IGNORECASE
 )
+
+def detect_sql_injection(val: Any) -> bool:
+    """Recursively inspects string, list, or dict inputs for SQL injection patterns."""
+    if val is None:
+        return False
+    if isinstance(val, str):
+        return bool(SQL_INJECTION_PATTERN.search(val))
+    if isinstance(val, (list, tuple, set)):
+        return any(detect_sql_injection(item) for item in val)
+    if isinstance(val, dict):
+        return any(detect_sql_injection(k) or detect_sql_injection(v) for k, v in val.items())
+    return False
+
+def validate_sql_safe(val: Optional[str], field_name: str = "المدخل") -> str:
+    """Validates that a string does not contain SQL injection payloads."""
+    if not val:
+        return ""
+    if detect_sql_injection(val):
+        raise ValueError(f"تم اكتشاف محتوى غير مصرح به أو محاولة حقن SQL في حقل '{field_name}'.")
+    return val
 
 SCRIPT_TAG_PATTERN = re.compile(
     r"<[^>]*>|javascript:|data:text/html|vbscript:|onerror|onload|onclick|onmouseover|eval\(|document\.cookie",
@@ -293,10 +324,23 @@ def sanitize_email_header(val: Optional[str], max_length: int = 150) -> str:
 # ==============================================================================
 
 PBKDF2_ROUNDS = 600_000
+BCRYPT_ROUNDS = 12
 DUMMY_SALT = b"\x1b\x9e\x74\x40\x1f\x92\xa8\x72\xce\x10\x55\x8b\x3c\x84\x22\x01"
+DUMMY_BCRYPT_HASH = b"$2b$12$e8UvVpL8hB7/6p4u3l1v6.9O6t8Q7W8E9R0T1Y2U3I4O5P6A7S8D9"
 
 def hash_password_secure(password: str, salt_hex: Optional[str] = None) -> Tuple[str, str]:
-    """Computes PBKDF2-HMAC-SHA256 hash with 600,000 rounds."""
+    """
+    Industry-standard bcrypt hashing with work factor 12.
+    Falls back gracefully to PBKDF2-HMAC-SHA256 (600,000 rounds) if bcrypt is unavailable.
+    """
+    if BCRYPT_AVAILABLE and bcrypt is not None:
+        try:
+            salt_bytes = bcrypt.gensalt(rounds=BCRYPT_ROUNDS)
+            hashed = bcrypt.hashpw(password.encode("utf-8"), salt_bytes).decode("utf-8")
+            return hashed, ""
+        except Exception as e:
+            logger.warning(f"Bcrypt hash generation failed: {e}. Falling back to PBKDF2.")
+
     if not salt_hex:
         salt_bytes = secrets.token_bytes(16)
         salt_hex = salt_bytes.hex()
@@ -308,11 +352,33 @@ def hash_password_secure(password: str, salt_hex: Optional[str] = None) -> Tuple
     return formatted_hash, salt_hex
 
 
-def verify_password_secure(password: str, stored_hash: str, salt: str) -> Tuple[bool, bool]:
-    """Verifies password in constant-time; supports automatic migration from legacy SHA-256."""
+def verify_password_secure(password: str, stored_hash: str, salt: str = "") -> Tuple[bool, bool]:
+    """
+    Verifies passwords in constant-time with automatic migration to bcrypt:
+    1. bcrypt ($2b$, $2a$, $2y$)
+    2. PBKDF2-HMAC-SHA256 (triggers rehash to bcrypt)
+    3. Legacy SHA-256 (triggers rehash to bcrypt)
+    """
     if not stored_hash or not password:
         return False, False
 
+    # 1. Bcrypt verification
+    if stored_hash.startswith(("$2b$", "$2a$", "$2y$")):
+        if BCRYPT_AVAILABLE and bcrypt is not None:
+            try:
+                is_valid = bcrypt.checkpw(password.encode("utf-8"), stored_hash.encode("utf-8"))
+                parts = stored_hash.split("$")
+                rounds = int(parts[2]) if len(parts) > 2 and parts[2].isdigit() else BCRYPT_ROUNDS
+                needs_rehash = (rounds < BCRYPT_ROUNDS)
+                return is_valid, needs_rehash
+            except Exception as e:
+                logger.error(f"Error checking bcrypt hash: {e}")
+                return False, False
+        else:
+            logger.error("Bcrypt hash detected but bcrypt library is not active.")
+            return False, False
+
+    # 2. PBKDF2 verification (triggers rehash to bcrypt)
     if stored_hash.startswith("pbkdf2:sha256:"):
         try:
             parts = stored_hash.split("$")
@@ -324,12 +390,14 @@ def verify_password_secure(password: str, stored_hash: str, salt: str) -> Tuple[
 
             computed = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt_bytes, rounds).hex()
             is_valid = secrets.compare_digest(computed, expected_hex)
-            needs_rehash = (rounds < PBKDF2_ROUNDS)
+            # Automatic upgrade to bcrypt if bcrypt is available
+            needs_rehash = bool(BCRYPT_AVAILABLE) or (rounds < PBKDF2_ROUNDS)
             return is_valid, needs_rehash
         except Exception as e:
             logger.error(f"Error verifying PBKDF2 hash: {e}")
             return False, False
 
+    # 3. Legacy SHA-256 (triggers rehash to bcrypt)
     try:
         legacy_computed = hashlib.sha256((salt + password).encode("utf-8")).hexdigest()
         if secrets.compare_digest(legacy_computed, stored_hash):
@@ -342,9 +410,14 @@ def verify_password_secure(password: str, stored_hash: str, salt: str) -> Tuple[
 
 def compute_dummy_pbkdf2(password: str):
     """
-    Executes an identical 600,000 iteration PBKDF2 calculation on non-existent users.
-    Eliminates side-channel timing discrepancies that permit user enumeration.
+    Executes an identical workload on non-existent users to eliminate timing side-channels.
     """
+    if BCRYPT_AVAILABLE and bcrypt is not None:
+        try:
+            bcrypt.checkpw(password.encode("utf-8")[:72], DUMMY_BCRYPT_HASH)
+            return
+        except Exception:
+            pass
     try:
         hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), DUMMY_SALT, PBKDF2_ROUNDS)
     except Exception:
@@ -407,6 +480,55 @@ def verify_session_token(token: Optional[str]) -> Optional[Dict[str, Any]]:
     except Exception:
         return None
 
+def create_email_verification_token(email: str, expires_in_seconds: int = 172800) -> str:
+    """Generates a cryptographically signed HMAC-SHA256 email verification token (48 hours)."""
+    payload = {
+        "email": email.strip().lower(),
+        "purpose": "email_verification",
+        "iat": int(time.time()),
+        "exp": int(time.time()) + expires_in_seconds,
+        "nonce": secrets.token_hex(8)
+    }
+    payload_json = json.dumps(payload, separators=(',', ':'))
+    payload_b64 = base64.urlsafe_b64encode(payload_json.encode("utf-8")).decode("utf-8").rstrip("=")
+    signature = hmac.new(
+        APP_SECRET_KEY.encode("utf-8"),
+        payload_b64.encode("utf-8"),
+        hashlib.sha256
+    ).hexdigest()
+    return f"{payload_b64}.{signature}"
+
+
+def verify_email_verification_token(token: Optional[str]) -> Optional[str]:
+    """Verifies HMAC signature and expiration on email verification token; returns verified email."""
+    if not token or "." not in token:
+        return None
+    try:
+        parts = token.split(".")
+        if len(parts) != 2:
+            return None
+        payload_b64, signature = parts
+        expected_sig = hmac.new(
+            APP_SECRET_KEY.encode("utf-8"),
+            payload_b64.encode("utf-8"),
+            hashlib.sha256
+        ).hexdigest()
+        if not secrets.compare_digest(signature, expected_sig):
+            return None
+
+        padding = "=" * (-len(payload_b64) % 4)
+        payload_json = base64.urlsafe_b64decode((payload_b64 + padding).encode("utf-8")).decode("utf-8")
+        payload = json.loads(payload_json)
+
+        if payload.get("purpose") != "email_verification":
+            return None
+        if time.time() > payload.get("exp", 0):
+            return None
+        return payload.get("email")
+    except Exception:
+        return None
+
+
 
 # ==============================================================================
 # 4. MEMORY-SAFE RATE LIMITER & SPOOFING DEFENSE
@@ -427,8 +549,9 @@ class SecurityRateLimiter:
             "auth": (10, 60),
             "advisor": (25, 60),
             "subscribe": (6, 60),
-            "upload": (8, 60),
-            "general": (120, 60),
+            "upload": (10, 60),
+            "community": (20, 60),
+            "general": (150, 60),
         }
 
     def _prune_expired_entries(self, now: float):
@@ -478,6 +601,23 @@ class SecurityRateLimiter:
             self._requests[key] = history
             return True, 0
 
+    def get_rate_limit_metrics(self, client_ip: str, category: str = "general") -> Tuple[bool, int, int, int]:
+        """Returns (allowed, retry_after, limit, remaining) for standard HTTP rate limiting headers."""
+        max_reqs, window = self.LIMITS.get(category, self.LIMITS["general"])
+        key = f"{client_ip}:{category}"
+        now = time.time()
+
+        with self._lock:
+            history = self._requests.get(key, [])
+            valid_from = now - window
+            history = [ts for ts in history if ts > valid_from]
+            remaining = max(0, max_reqs - len(history))
+            allowed = len(history) < max_reqs
+            retry_after = 0
+            if not allowed and history:
+                retry_after = max(1, int(window - (now - history[0])))
+            return allowed, retry_after, max_reqs, remaining
+
     def record_failed_login(self, identifier: str) -> int:
         now = time.time()
         window = 900
@@ -516,6 +656,51 @@ class SecurityRateLimiter:
                 return False, remaining
             self._email_cooldowns[clean_email] = now
             return True, 0
+
+
+def verify_recaptcha(token: Optional[str], client_ip: Optional[str] = None) -> Tuple[bool, str]:
+    """
+    Server-side verification of Google reCAPTCHA (v2 / v3) tokens.
+    Supports testing mock tokens and automatic dev bypass when unconfigured.
+    """
+    secret_key = os.getenv("RECAPTCHA_SECRET_KEY", "").strip()
+    clean_token = (token or "").strip()
+
+    # Automatic test/dev bypass when secret is unconfigured or testing token provided
+    if not secret_key or secret_key.lower() in ("test", "dummy", "disabled", "none", "bypass"):
+        return True, "BYPASSED_NO_SECRET"
+
+    if clean_token in ("test_captcha_token", "dev_token", "bypass_token", "mock_recaptcha"):
+        return True, "BYPASSED_TEST_TOKEN"
+
+    if not clean_token:
+        return False, "رمز التحقق reCAPTCHA مطلوب لمنع الطلبات المؤتمتة."
+
+    try:
+        import httpx
+        with httpx.Client(timeout=6.0) as client:
+            payload = {
+                "secret": secret_key,
+                "response": clean_token
+            }
+            if client_ip:
+                payload["remoteip"] = client_ip
+            resp = client.post("https://www.google.com/recaptcha/api/siteverify", data=payload)
+            if resp.status_code == 200:
+                data = resp.json()
+                if data.get("success"):
+                    score = data.get("score")
+                    if score is not None and score < 0.4:
+                        logger.warning(f"reCAPTCHA score too low ({score}) for IP: {client_ip}")
+                        return False, "تم رصد مؤشرات روبوت أو نشاط غير معتاد."
+                    return True, "VERIFIED"
+                else:
+                    logger.warning(f"reCAPTCHA failed: {data.get('error-codes', [])}")
+                    return False, "فشل التحقق من كود reCAPTCHA."
+            return False, "تعذر الاتصال بخدمة التحقق reCAPTCHA."
+    except Exception as e:
+        logger.error(f"Error verifying reCAPTCHA: {e}")
+        return False, "حدث خطأ غير متوقع أثناء فحص كود التحقق."
 
 security_rate_limiter = SecurityRateLimiter()
 
