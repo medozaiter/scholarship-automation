@@ -645,15 +645,15 @@ class AdvisorService:
         clean_email = (email or "").strip().lower()
 
         profile: Dict[str, Any] = {
-            "full_name": "طالب مبادر",
+            "full_name": "عزيزي الطالب",
             "email": clean_email,
-            "degree": "Undergraduate (Bachelor's)",
-            "majors": ["Software Engineering"],
-            "gpa": "85%",
-            "gpa_numeric": 85.0,
-            "english_level": "IELTS 6.5 / Intermediate",
-            "country": "Palestine",
-            "target_destinations": ["Europe", "Canada", "Turkey", "Any"],
+            "degree": "كافة المراحل (بكالوريوس / ماجستير / دكتوراه)",
+            "majors": ["كافة التخصصات الأكاديمية"],
+            "gpa": "غير محدد",
+            "gpa_numeric": 80.0,
+            "english_level": "غير محدد",
+            "country": "دولي",
+            "target_destinations": ["كافة الوجهات العالمية"],
             "talents_experience": "",
             "saved_scholarships": [],
             "recent_searches": []
@@ -1803,10 +1803,16 @@ Student in {major}
             task_instruction = "المطلوب: ترشيح أفضل المنح المتوافقة مع ملفه مع ذكر نسبة التوافق (Match Score) لكل منها، ونوع التغطية، ورابط التقديم."
 
         # 5. Grounded System Persona Instructions
+        is_authenticated = bool(student_profile.get("email"))
+        if is_authenticated and name and name != "عزيزي الطالب":
+            persona_rule_1 = f"1. التخصيص الكامل: خاطب الطالب باسمه ({name}) وتخصصه ومعدله الأكاديمي المسجل فوراً بدون أن تسأله مجدداً عن بياناته.\n"
+        else:
+            persona_rule_1 = "1. الترحيب العام: خاطب المستخدم بلطف بـ 'عزيزي الطالب'، وقدم له إجابات استشارية وافية وشاملة، وانصحه بلطف بإنشاء حساب أو تسجيل الدخول لحفظ المنح وتخصيص التوصيات بدقة حسب معدله وتخصصه.\n"
+
         system_instruction = (
-            "أنت 'المستشار الأكاديمي لمنصة ScholarPilot AI' - مستشار قبول جامعي دولي ومنح دراسية معتمد.\n"
+            "أنت 'المستشار الأكاديمي لمنصة EduAtlas' - منصة الملاحة الأكاديمية ورصد المنح الدراسية العالمية.\n"
             "القواعد الصارمة لإجابتك:\n"
-            "1. التخصيص الكامل: خاطب الطالب باسمه وتخصصه ومعدله الأكاديمي المسجل فوراً بدون أن تسأله مجدداً عن معدله أو درجته أو بلده.\n"
+            f"{persona_rule_1}"
             "2. الاستناد الحصري للحقائق المرفقة: اعتمد على بيانات المنح المستخرجة الحقيقية والروابط المرفقة، ويمنع منعاً باتاً اختلاق منح وهمية أو روابط زائفة.\n"
             "3. الروابط المباشرة: ضع روابط التقديم الرسمية المذكورة في السياق بتنسيق [اسم المنحة - رابط البوابة الرسمية](URL).\n"
             "4. الأسلوب: احترافي، عملي، مدعم بنقاط مركزة وجداول Markdown واضحة، واختم دائماً بسؤال تفاعلي واحد لتوجيه الخطوة التالية.\n"
@@ -2053,7 +2059,7 @@ Student in {major}
                 "zero_token_direct": True,
                 "duplicate_detected": False,
                 "similarity_score": 1.0,
-                "model": "scholarpilot-grounded-catalog-engine",
+                "model": "eduatlas-grounded-catalog-engine",
                 "intent": canonical_intent,
                 "student": {
                     "name": prof.get("full_name"),
@@ -2062,12 +2068,14 @@ Student in {major}
                     "major": prof.get("majors", ["Software Engineering"])[0] if prof.get("majors") else "Software Engineering"
                 },
                 "advice": advice_md,
-                "follow_ups": follow_ups
+                "follow_ups": follow_ups,
+            "user_scope": user_scope
             }
 
-        # 4. QUESTION CACHE: Check Exact Canonical & Normalized Keys
-        cache_intent_key = f"{target_sch_ref}::{canonical_intent}" if canonical_intent != "canonical_general" else None
-        cache_exact_key = f"{target_sch_ref}::{normalized_q}"
+        # 4. QUESTION CACHE: Check Exact Canonical & Normalized Keys (Scoped per user/guest for privacy)
+        user_scope = (prof.get("email") or "guest").lower()
+        cache_intent_key = f"{user_scope}::{target_sch_ref}::{canonical_intent}" if canonical_intent != "canonical_general" else None
+        cache_exact_key = f"{user_scope}::{target_sch_ref}::{normalized_q}"
 
         for test_key in [cache_intent_key, cache_exact_key]:
             if test_key and test_key in _advisor_response_cache:
@@ -2080,7 +2088,7 @@ Student in {major}
                         "zero_token_direct": False,
                         "duplicate_detected": True,
                         "similarity_score": 1.0,
-                        "model": "scholarpilot-response-cache",
+                        "model": "eduatlas-response-cache",
                         "intent": entry["intent"],
                         "student": {
                             "name": prof.get("full_name"),
@@ -2097,6 +2105,9 @@ Student in {major}
         for cache_k, entry in _advisor_response_cache.items():
             if now_ts - entry.get("timestamp", 0) > CACHE_TTL_SECONDS:
                 continue
+            entry_user = entry.get("user_scope", "guest")
+            if entry_user != user_scope:
+                continue  # Never cross-serve cached responses between different users!
             entry_sch = entry.get("scholarship_id", "")
             if target_sch_ref and entry_sch and target_sch_ref != entry_sch:
                 continue
@@ -2112,7 +2123,7 @@ Student in {major}
                     "zero_token_direct": False,
                     "duplicate_detected": True,
                     "similarity_score": round(sim_score, 2),
-                    "model": "scholarpilot-semantic-similarity-cache",
+                    "model": "eduatlas-semantic-similarity-cache",
                     "intent": entry["intent"],
                     "student": {
                         "name": prof.get("full_name"),
@@ -2178,7 +2189,7 @@ Student in {major}
             "cached": False,
             "duplicate_detected": False,
             "similarity_score": 0.0,
-            "model": "scholarpilot-profile-aware-advisor",
+            "model": "eduatlas-profile-aware-advisor",
             "intent": ctx["intent"],
             "student": {
                 "name": prof.get("full_name"),

@@ -1619,8 +1619,6 @@ async def get_notifications_api(
         get_in_app_notifications
     )
     target_email = resolve_target_email(request, email)
-    if not target_email:
-        target_email = "medo.msz.2006@gmail.com"
 
     result = get_unified_notifications(
         recipient_email=target_email,
@@ -1658,8 +1656,6 @@ async def get_notifications_unread_count_api(
     """Returns total unread notification count and category breakdown for bell icon badge."""
     from services.db import get_unified_unread_counts
     target_email = resolve_target_email(request, email)
-    if not target_email:
-        target_email = "medo.msz.2006@gmail.com"
 
     counts = get_unified_unread_counts(target_email)
     return {
@@ -1679,8 +1675,6 @@ async def mark_notification_read_api(
     from services.db import mark_unified_notification_read, mark_notification_as_read
     requested_email = req.email if req else None
     target_email = resolve_target_email(request, requested_email)
-    if not target_email:
-        target_email = "medo.msz.2006@gmail.com"
 
     ok = mark_unified_notification_read(notification_id, recipient_email=target_email)
     try:
@@ -1700,8 +1694,6 @@ async def mark_all_notifications_read_api(
     requested_email = req.email if req else None
     category = req.category if req else None
     target_email = resolve_target_email(request, requested_email)
-    if not target_email:
-        target_email = "medo.msz.2006@gmail.com"
 
     count = mark_all_unified_notifications_read(recipient_email=target_email, category=category)
     try:
@@ -1721,8 +1713,6 @@ async def archive_notification_api(
     from services.db import archive_unified_notification
     requested_email = req.email if req else None
     target_email = resolve_target_email(request, requested_email)
-    if not target_email:
-        target_email = "medo.msz.2006@gmail.com"
 
     ok = archive_unified_notification(notification_id, recipient_email=target_email)
     return {"success": ok, "notification_id": notification_id}
@@ -1737,8 +1727,6 @@ async def delete_notification_api(
     """Permanently deletes a notification."""
     from services.db import delete_unified_notification
     target_email = resolve_target_email(request, email)
-    if not target_email:
-        target_email = "medo.msz.2006@gmail.com"
 
     ok = delete_unified_notification(notification_id, recipient_email=target_email)
     return {"success": ok, "notification_id": notification_id}
@@ -1752,8 +1740,6 @@ async def get_notification_preferences_api(
     """Returns granular notification and subscription preferences."""
     from services.db import get_user_notification_preferences
     target_email = resolve_target_email(request, email)
-    if not target_email:
-        target_email = "medo.msz.2006@gmail.com"
 
     prefs = get_user_notification_preferences(target_email)
     return {"success": True, "preferences": prefs}
@@ -1768,8 +1754,6 @@ async def update_notification_preferences_api(
     """Updates user notification preferences and interest subscriptions."""
     from services.db import update_user_notification_preferences
     target_email = resolve_target_email(request, req.email)
-    if not target_email:
-        target_email = "medo.msz.2006@gmail.com"
 
     payload = {k: v for k, v in req.model_dump().items() if v is not None and k != "email"}
     updated = update_user_notification_preferences(target_email, payload)
@@ -1784,8 +1768,6 @@ async def subscribe_interests_api(
     """Subscribes student to custom countries, majors, and degrees for automatic alerts."""
     from services.db import update_user_notification_preferences
     target_email = resolve_target_email(request, req.email)
-    if not target_email:
-        target_email = "medo.msz.2006@gmail.com"
 
     payload = {}
     if req.countries is not None:

@@ -2281,7 +2281,7 @@
             // Show Typing Indicator
             if (typing) typing.classList.remove('hidden');
 
-            const savedEmail = localStorage.getItem('scholarpilot_user_email') || 'medo.msz.2006@gmail.com';
+            const savedEmail = localStorage.getItem('scholarpilot_user_email') || null;
             const schId = currentSidePanelScholarship ? currentSidePanelScholarship.id : null;
 
             try {
@@ -2347,8 +2347,9 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             loadLiveScholarships();
-            const savedEmail = localStorage.getItem('scholarpilot_user_email') || 'medo.msz.2006@gmail.com';
-            fetch(`/api/notifications?email=${encodeURIComponent(savedEmail)}&unread_only=true&limit=1`)
+            const savedEmail = localStorage.getItem('scholarpilot_user_email') || null;
+            if (savedEmail) {
+                fetch(`/api/notifications?email=${encodeURIComponent(savedEmail)}&unread_only=true&limit=1`)
                 .then(r => r.json())
                 .then(d => {
                     if (d.success && d.unread_count > 0) {
@@ -2359,6 +2360,7 @@
                         }
                     }
                 }).catch(() => {});
+            }
             if (window.lucide) lucide.createIcons();
             updateRadarViewToggleUI();
         });
@@ -2496,7 +2498,7 @@
                 </div>
                 <div class="min-w-0">
                     <h3 class="text-xs font-black text-slate-900 dark:text-white flex items-center gap-1.5 truncate">
-                        <span>مرشد الفرص</span>
+                        <span>المستشار الذكي</span>
                         <span class="text-[10px] font-latin font-bold text-blue-600 dark:text-blue-400 bg-blue-500/10 px-1.5 py-0.2 rounded">Split View</span>
                     </h3>
                     <!-- Context Pill -->
@@ -2632,7 +2634,7 @@
             <div class="pointer-events-none opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-300 shadow-xl rounded-xl px-3.5 py-2 bg-slate-900/95 dark:bg-slate-800/95 text-white border border-slate-700/60 backdrop-blur-md hidden sm:flex flex-col text-right">
                 <span class="text-xs font-bold flex items-center gap-1.5 text-blue-400">
                     <i data-lucide="sparkles" class="w-3.5 h-3.5 text-cyan-400"></i>
-                    <span>مرشد الفرص</span>
+                    <span>المستشار الذكي</span>
                 </span>
                 <span class="text-[10px] text-slate-300">مساعدك للتقديم والقبول 24/7</span>
             </div>
