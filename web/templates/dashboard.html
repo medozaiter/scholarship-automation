@@ -562,37 +562,6 @@
                         </div>
                     </div>
 
-                    <!-- Skills & Extracurricular Card -->
-                    <div class="sp-card p-6 sm:p-7 space-y-4">
-                        <div class="border-b border-slate-200 dark:border-slate-800 pb-3 flex items-center gap-2">
-                            <i data-lucide="code" class="w-4 h-4 text-indigo-500"></i>
-                            <h2 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white">المهارات، اللغات، واهتمامات المنح</h2>
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المهارات التقنية والبحثية (مفصولة بفواصل)</label>
-                                <input type="text" id="editSkills" class="sp-input text-xs w-full" placeholder="Python, Cybersecurity, Machine Learning, Data Analysis">
-                                <p class="text-[10px] text-slate-400 mt-0.5">افصل بين المهارات بفاصلة (,)</p>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">اللغات ومستوياتها</label>
-                                <input type="text" id="editLanguages" class="sp-input text-xs w-full" placeholder="العربية (اللغة الأم)، English (Advanced)">
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">وجهات الابتعاث المستهدفة (Target Countries)</label>
-                                <input type="text" id="editTargetCountries" class="sp-input text-xs w-full" placeholder="Germany, Canada, Turkey, United Kingdom">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المنح المهتم بها (Scholarship Interests)</label>
-                                <input type="text" id="editSchInterests" class="sp-input text-xs w-full" placeholder="DAAD, Chevening, Stipendium Hungaricum">
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Professional & Social Networks Card (9 Platforms) -->
                     <div class="sp-card p-6 sm:p-7 space-y-4">
                         <div class="border-b border-slate-200 dark:border-slate-800 pb-3 flex items-center justify-between">
@@ -1304,14 +1273,13 @@
             document.getElementById('editMajor').value = (u.majors && u.majors.join(', ')) || '';
             document.getElementById('editGpa').value = u.gpa || '';
             document.getElementById('editEnglish').value = u.english_level || '';
-            document.getElementById('editSkills').value = (u.skills && u.skills.join(', ')) || '';
-            
-            // Languages
-            const langStr = (u.languages || []).map(l => typeof l === 'object' ? `${l.name} (${l.level || 'متقدم'})` : l).join('، ');
-            document.getElementById('editLanguages').value = langStr;
-
-            document.getElementById('editTargetCountries').value = (u.target_countries && u.target_countries.join(', ')) || '';
-            document.getElementById('editSchInterests').value = (u.scholarship_interests && u.scholarship_interests.join(', ')) || '';
+            if (document.getElementById('editSkills')) document.getElementById('editSkills').value = (u.skills && u.skills.join(', ')) || '';
+            if (document.getElementById('editLanguages')) {
+                const langStr = (u.languages || []).map(l => typeof l === 'object' ? `${l.name} (${l.level || 'متقدم'})` : l).join('، ');
+                document.getElementById('editLanguages').value = langStr;
+            }
+            if (document.getElementById('editTargetCountries')) document.getElementById('editTargetCountries').value = (u.target_countries && u.target_countries.join(', ')) || '';
+            if (document.getElementById('editSchInterests')) document.getElementById('editSchInterests').value = (u.scholarship_interests && u.scholarship_interests.join(', ')) || '';
 
             // Socials
             const s = u.social_links || {};
@@ -1459,17 +1427,22 @@
             btn.disabled = true;
             btn.innerHTML = `<span>جارٍ الحفظ...</span>`;
 
-            // Parse skills & languages
-            const skills = document.getElementById('editSkills').value.split(',').map(s => s.trim()).filter(Boolean);
-            const rawLangs = document.getElementById('editLanguages').value.split(/[,،]/).map(l => l.trim()).filter(Boolean);
-            const langs = rawLangs.map(str => {
+            // Parse skills & languages (safe fallback)
+            const skillsEl = document.getElementById('editSkills');
+            const skills = skillsEl ? skillsEl.value.split(',').map(s => s.trim()).filter(Boolean) : (currentUser.skills || []);
+
+            const langsEl = document.getElementById('editLanguages');
+            const langs = langsEl ? langsEl.value.split(/[,،]/).map(l => l.trim()).filter(Boolean).map(str => {
                 const match = str.match(/^(.+?)\s*\((.+?)\)$/);
                 if (match) return { name: match[1].trim(), level: match[2].trim() };
                 return { name: str, level: "متقدم" };
-            });
+            }) : (currentUser.languages || []);
 
-            const targetCountries = document.getElementById('editTargetCountries').value.split(',').map(c => c.trim()).filter(Boolean);
-            const schInterests = document.getElementById('editSchInterests').value.split(',').map(s => s.trim()).filter(Boolean);
+            const targetEl = document.getElementById('editTargetCountries');
+            const targetCountries = targetEl ? targetEl.value.split(',').map(c => c.trim()).filter(Boolean) : (currentUser.target_countries || []);
+
+            const schEl = document.getElementById('editSchInterests');
+            const schInterests = schEl ? schEl.value.split(',').map(s => s.trim()).filter(Boolean) : (currentUser.scholarship_interests || []);
             const majors = document.getElementById('editMajor').value.split(',').map(m => m.trim()).filter(Boolean);
 
             const payload = {
