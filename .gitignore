@@ -20,4 +20,10 @@ node_modules/
 .eslintcache
 scratch/
 
+# User uploaded media
+web/static/uploads/avatars/*
+!web/static/uploads/avatars/.gitkeep
+web/static/uploads/covers/*
+!web/static/uploads/covers/.gitkeep
+
 
