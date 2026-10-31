@@ -1,0 +1,36 @@
+{
+  "name": "edualtas-platform",
+  "version": "2.5.0",
+  "description": "EduAtlas - Academic Navigation & Opportunity Discovery System",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "audit": "npm audit",
+    "audit:fix": "npm audit fix",
+    "lint": "eslint web/static/js/**/*.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/medozaiter/scholarship-automation.git"
+  },
+  "keywords": [
+    "scholarships",
+    "education",
+    "academic-navigation",
+    "edualtas"
+  ],
+  "author": "Mustafa AbuZaiter",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "eslint": "^10.14.0",
+    "typescript": "^7.0.2"
+  },
+  "overrides": {
+    "minimatch": "^11.0.1"
+  }
+}

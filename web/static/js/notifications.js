@@ -1,5 +1,5 @@
 /**
- * ScholarPilot AI - Unified Notification Center Engine (Navbar Bell & Dropdown)
+ * EduAtlas - Unified Notification Center Engine (Navbar Bell & Dropdown)
  * Zero Emojis Constraint: Strictly Lucide SVG icons.
  */
 
@@ -17,12 +17,15 @@ async function fetchNotificationUnreadCount() {
     }
 }
 
+/**
+ * @param {number} count
+ */
 function updateBadgeUI(count) {
     const badges = document.querySelectorAll('#globalNotifBadge, #notifBadge');
     badges.forEach(badge => {
         if (!badge) return;
         if (count > 0) {
-            badge.textContent = count > 99 ? '99+' : count;
+            badge.textContent = count > 99 ? '99+' : String(count);
             badge.classList.remove('hidden');
         } else {
             badge.textContent = '0';
@@ -36,6 +39,9 @@ function updateBadgeUI(count) {
     }
 }
 
+/**
+ * @param {Event} [e]
+ */
 function toggleUnifiedNotifDropdown(e) {
     if (e) {
         e.preventDefault();
@@ -56,6 +62,9 @@ function toggleUnifiedNotifDropdown(e) {
     }
 }
 
+/**
+ * @param {string} [category]
+ */
 async function loadDropdownNotifs(category = 'all') {
     const list = document.getElementById('unifiedDropdownList') || document.getElementById('notificationsList');
     if (!list) return;
@@ -66,7 +75,7 @@ async function loadDropdownNotifs(category = 'all') {
             <p class="text-xs">جاري تحميل أحدث التنبيهات...</p>
         </div>
     `;
-    if (window.lucide) lucide.createIcons();
+    if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
 
     try {
         let url = '/api/notifications?limit=6';
@@ -86,23 +95,26 @@ async function loadDropdownNotifs(category = 'all') {
                     <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">لا توجد تنبيهات حالية في هذا القسم.</p>
                 </div>
             `;
-            if (window.lucide) lucide.createIcons();
+            if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
             return;
         }
 
-        list.innerHTML = items.map(n => renderDropdownItem(n)).join('');
-        if (window.lucide) lucide.createIcons();
-    } catch (e) {
+        list.innerHTML = items.map(renderDropdownItem).join('');
+        if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
+    } catch (_e) {
         list.innerHTML = `
             <div class="py-6 text-center text-rose-500 text-xs">
                 <i data-lucide="alert-triangle" class="w-5 h-5 mx-auto mb-1 text-rose-500"></i>
                 <p>تعذر تحميل التنبيهات حالياً.</p>
             </div>
         `;
-        if (window.lucide) lucide.createIcons();
+        if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
     }
 }
 
+/**
+ * @param {Record<string, any>} n
+ */
 function renderDropdownItem(n) {
     const isUnread = !n.is_read;
     const cat = n.category || 'system';
@@ -155,6 +167,10 @@ function renderDropdownItem(n) {
     `;
 }
 
+/**
+ * @param {string} cat
+ * @param {Event} [e]
+ */
 function filterDropdownNotifs(cat, e) {
     if (e) {
         e.preventDefault();
@@ -174,6 +190,9 @@ function filterDropdownNotifs(cat, e) {
     loadDropdownNotifs(cat);
 }
 
+/**
+ * @param {Event} [e]
+ */
 async function quickMarkAllRead(e) {
     if (e) {
         e.preventDefault();
@@ -196,7 +215,11 @@ async function quickMarkAllRead(e) {
     }
 }
 
-async function quickMarkSingleRead(id, e) {
+/**
+ * @param {string} id
+ * @param {Event} [_e]
+ */
+async function quickMarkSingleRead(id, _e) {
     try {
         await fetch(`/api/notifications/${id}/read`, {
             method: 'POST',
@@ -215,12 +238,16 @@ async function quickMarkSingleRead(id, e) {
     }
 }
 
+/**
+ * @param {string|null|undefined} isoStr
+ * @returns {string}
+ */
 function formatTimestampRelative(isoStr) {
     if (!isoStr) return '';
     try {
         const d = new Date(isoStr);
         const now = new Date();
-        const diffMs = now - d;
+        const diffMs = now.getTime() - d.getTime();
         const diffMins = Math.floor(diffMs / 60000);
         if (diffMins < 1) return 'الآن';
         if (diffMins < 60) return `منذ ${diffMins} دقيقة`;
@@ -229,11 +256,15 @@ function formatTimestampRelative(isoStr) {
         const diffDays = Math.floor(diffHours / 24);
         if (diffDays < 7) return `منذ ${diffDays} يوم`;
         return d.toLocaleDateString('ar-EG', {month: 'short', day: 'numeric'});
-    } catch (e) {
+    } catch (_e) {
         return '';
     }
 }
 
+/**
+ * @param {string|null|undefined} str
+ * @returns {string}
+ */
 function escapeHTML(str) {
     if (!str) return '';
     return String(str)
@@ -250,7 +281,7 @@ document.addEventListener('click', (e) => {
     const menu = document.getElementById('unifiedNotifDropdown') || document.getElementById('notificationsMenu');
     if (!menu || menu.classList.contains('hidden')) return;
 
-    if (root && !root.contains(e.target)) {
+    if (root && e.target instanceof Node && !root.contains(e.target)) {
         menu.classList.add('hidden');
     }
 });
@@ -261,3 +292,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Refresh unread count every 60 seconds
     setInterval(fetchNotificationUnreadCount, 60000);
 });
+
+// Expose global functions for inline HTML event handlers
+window.toggleUnifiedNotifDropdown = toggleUnifiedNotifDropdown;
+window.filterDropdownNotifs = filterDropdownNotifs;
+window.quickMarkAllRead = quickMarkAllRead;
+window.quickMarkSingleRead = quickMarkSingleRead;

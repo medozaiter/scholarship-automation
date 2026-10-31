@@ -1513,7 +1513,7 @@ async def update_notification_preferences_api(
     if not target_email:
         target_email = "medo.msz.2006@gmail.com"
 
-    payload = {k: v for k, v in req.dict().items() if v is not None and k != "email"}
+    payload = {k: v for k, v in req.model_dump().items() if v is not None and k != "email"}
     updated = update_user_notification_preferences(target_email, payload)
     return {"success": True, "preferences": updated, "message": "تم تحديث إعدادات التنبيهات بنجاح"}
 
@@ -1907,7 +1907,7 @@ async def create_community_post_endpoint(req: CreateCommunityPostRequest, reques
     if not user:
         raise HTTPException(status_code=401, detail="يرجى تسجيل الدخول لنشر منشور في المجتمع الأكاديمي.")
     try:
-        post = community_service.create_post(user, req.dict())
+        post = community_service.create_post(user, req.model_dump())
         return {"success": True, "message": "تم نشر مساهمتك الأكاديمية بنجاح.", "post": post}
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=str(ve))

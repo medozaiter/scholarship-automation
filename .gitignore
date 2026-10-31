@@ -16,3 +16,8 @@ ENV/
 .vscode/
 *.log
 *.csv
+node_modules/
+.eslintcache
+scratch/
+
+
