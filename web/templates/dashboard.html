@@ -273,7 +273,7 @@
                                 oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9_-]/g, '')"
                                 class="sp-input pr-9 font-latin text-xs">
                         </div>
-                        <p class="text-[10px] text-slate-400 mt-0.5">سيكون رابط ملفك العام: scholarpilot.com/profile/username</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5">سيكون رابط ملفك العام: eduatlas.org/profile/username</p>
                     </div>
 
                     <div>
@@ -299,9 +299,12 @@
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المعدل التراكمي</label>
-                            <input type="text" id="regGpa" maxlength="15" placeholder="مثال: 90% أو 3.8"
+                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المعدل التراكمي (GPA)</label>
+                            <input type="text" id="regGpa" maxlength="8" placeholder="3.75 أو 85.5"
+                                onkeypress="return /[0-9.%/]/.test(event.key)"
+                                oninput="this.value = this.value.replace(/[^0-9.%/]/g, '')"
                                 class="sp-input text-xs font-latin tabular-nums">
+                            <p class="text-[10px] text-slate-400 mt-0.5">من 4 أو نسبة مئوية بحد أقصى منزلتين عشريتين</p>
                         </div>
                     </div>
 
@@ -542,18 +545,27 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">سنة التخرج المتوقعة</label>
-                                <input type="text" id="editGradYear" class="sp-input text-xs font-latin w-full" placeholder="2027">
+                                <input type="number" id="editGradYear" min="1970" max="2040" step="1" class="sp-input text-xs font-latin w-full" placeholder="2027">
+                                <p class="text-[10px] text-slate-400 mt-0.5">سنة واقعية بين 1970 و 2040</p>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">التخصص الأكاديمي</label>
                                 <input type="text" id="editMajor" class="sp-input text-xs w-full" placeholder="Software Engineering">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المعدل التراكمي (GPA)</label>
-                                <input type="text" id="editGpa" class="sp-input text-xs font-latin tabular-nums w-full" placeholder="90%">
+                                <input type="text" id="editGpa" maxlength="8" class="sp-input text-xs font-latin tabular-nums w-full" placeholder="3.75 أو 85.5"
+                                    onkeypress="return /[0-9.%/]/.test(event.key)"
+                                    oninput="this.value = this.value.replace(/[^0-9.%/]/g, '')">
+                                <p class="text-[10px] text-slate-400 mt-0.5">من 4 أو نسبة مئوية (حد أقصى منزلتين)</p>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">العمر (سنوات)</label>
+                                <input type="number" id="editAge" min="10" max="100" step="1" class="sp-input text-xs font-latin w-full" placeholder="21">
+                                <p class="text-[10px] text-slate-400 mt-0.5">أرقام فقط (10 - 100 سنة)</p>
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">مستوى اللغة الإنجليزية</label>
@@ -576,9 +588,10 @@
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1.5">
                                     <i data-lucide="phone-call" class="w-3.5 h-3.5 text-emerald-500"></i>
-                                    <span>WhatsApp</span>
+                                    <span>WhatsApp / الهاتف</span>
                                 </label>
-                                <input type="text" id="socWhatsapp" class="sp-input text-xs font-latin w-full" placeholder="+970590000000">
+                                <input type="tel" id="socWhatsapp" class="sp-input text-xs font-latin w-full" placeholder="+970590000000" maxlength="20">
+                                <p class="text-[10px] text-slate-400 mt-0.5">رمز الدولة الدولي مع الأرقام (أرقام فقط)</p>
                             </div>
 
                             <div>
@@ -587,6 +600,7 @@
                                     <span>LinkedIn</span>
                                 </label>
                                 <input type="url" id="socLinkedin" class="sp-input text-xs font-latin w-full" placeholder="https://linkedin.com/in/username">
+                                <p class="text-[10px] text-slate-400 mt-0.5">رابط حسابك على linkedin.com</p>
                             </div>
 
                             <div>
@@ -595,6 +609,7 @@
                                     <span>GitHub</span>
                                 </label>
                                 <input type="url" id="socGithub" class="sp-input text-xs font-latin w-full" placeholder="https://github.com/username">
+                                <p class="text-[10px] text-slate-400 mt-0.5">رابط حسابك على github.com</p>
                             </div>
 
                             <div>
@@ -603,6 +618,7 @@
                                     <span>Facebook</span>
                                 </label>
                                 <input type="url" id="socFacebook" class="sp-input text-xs font-latin w-full" placeholder="https://facebook.com/username">
+                                <p class="text-[10px] text-slate-400 mt-0.5">رابط صفحتك على فيسبوك</p>
                             </div>
 
                             <div>
@@ -611,6 +627,7 @@
                                     <span>Instagram</span>
                                 </label>
                                 <input type="url" id="socInstagram" class="sp-input text-xs font-latin w-full" placeholder="https://instagram.com/username">
+                                <p class="text-[10px] text-slate-400 mt-0.5">رابط حسابك على انستغرام</p>
                             </div>
 
                             <div>
@@ -619,6 +636,7 @@
                                     <span>X (Twitter)</span>
                                 </label>
                                 <input type="url" id="socTwitter" class="sp-input text-xs font-latin w-full" placeholder="https://x.com/username">
+                                <p class="text-[10px] text-slate-400 mt-0.5">رابط حسابك على x.com أو twitter.com</p>
                             </div>
 
                             <div>
@@ -627,6 +645,7 @@
                                     <span>Telegram</span>
                                 </label>
                                 <input type="text" id="socTelegram" class="sp-input text-xs font-latin w-full" placeholder="@username أو رابط">
+                                <p class="text-[10px] text-slate-400 mt-0.5">معرف أو رابط تيليجرام</p>
                             </div>
 
                             <div>
@@ -635,6 +654,7 @@
                                     <span>معرض الأعمال (Portfolio)</span>
                                 </label>
                                 <input type="url" id="socPortfolio" class="sp-input text-xs font-latin w-full" placeholder="https://myportfolio.dev">
+                                <p class="text-[10px] text-slate-400 mt-0.5">رابط معرض أعمالك ومشاريعك</p>
                             </div>
 
                             <div>
@@ -643,6 +663,7 @@
                                     <span>الموقع الشخصي (Website)</span>
                                 </label>
                                 <input type="url" id="socWebsite" class="sp-input text-xs font-latin w-full" placeholder="https://mywebsite.com">
+                                <p class="text-[10px] text-slate-400 mt-0.5">رابط موقعك الإلكتروني الشخصي</p>
                             </div>
                         </div>
                     </div>
@@ -957,7 +978,7 @@
 
     <!-- ==================== FOOTER ==================== -->
     <footer class="py-6 border-t border-slate-200/80 dark:border-slate-800/80 text-center text-xs text-slate-500 dark:text-slate-400">
-        <p class="font-latin">ScholarPilot AI &copy; 2026 | Verified Student Identity & Autonomous Scholarship Intelligence</p>
+        <p class="font-latin">EduAtlas &copy; 2026 | Verified Student Identity & Autonomous Scholarship Intelligence</p>
     </footer>
 
     <!-- ==================== DASHBOARD JAVASCRIPT LOGIC ==================== -->
@@ -1128,7 +1149,7 @@
                     localStorage.setItem('minha_user', JSON.stringify(currentUser));
                     if (data.token) localStorage.setItem('minha_token', data.token);
                     renderDashboard(currentUser);
-                    showToast("success", "تم إنشاء الحساب بنجاح!", "أهلاً بك في منصة ScholarPilot AI، تم تفعيل هويتك الأكاديمية وتتبع المنح فوراً.");
+                    showToast("success", "تم إنشاء الحساب بنجاح!", "أهلاً بك في منصة EduAtlas، تم تفعيل هويتك الأكاديمية وتتبع المنح فوراً.");
                     confetti({ particleCount: 80, spread: 60 });
                 } else {
                     alertBox.className = "mt-4 p-3 rounded-xl text-xs font-bold sp-badge-danger block";
@@ -1267,6 +1288,8 @@
                 }
             }
             document.getElementById('editBio').value = u.bio || '';
+            const ageEl = document.getElementById('editAge');
+            if (ageEl) ageEl.value = u.age || '';
             document.getElementById('editUniversity').value = u.university || '';
             if (u.degree) document.getElementById('editDegree').value = u.degree;
             document.getElementById('editGradYear').value = u.graduation_year || '';
@@ -1418,12 +1441,216 @@
             if (window.lucide) lucide.createIcons();
         }
 
+        
+        // Avatar File Upload Handler
+        async function handleAvatarFileSelect(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+
+            const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+            if (!allowed.includes(file.type)) {
+                showToast("error", "صيغة غير مدعومة", "يسمح فقط برفع صور بصيغ JPG, PNG, WebP, GIF.");
+                event.target.value = '';
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                showToast("error", "الملف كبير جداً", "الحد الأقصى المسموح به لحجم الصورة هو 5 ميجابايت.");
+                event.target.value = '';
+                return;
+            }
+
+            const statusEl = document.getElementById('avatarUploadStatus');
+            if (statusEl) statusEl.textContent = 'جارٍ رفع الصورة والتحقق منها...';
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const token = localStorage.getItem('minha_token');
+            const headers = {};
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
+            try {
+                const res = await fetch('/api/user/upload-avatar', {
+                    method: 'POST',
+                    headers: headers,
+                    body: formData
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    document.getElementById('editAvatarUrl').value = data.avatar_url;
+                    const prev = document.getElementById('avatarPreviewImg');
+                    const icon = document.getElementById('avatarPlaceholderIcon');
+                    if (prev) {
+                        prev.src = data.avatar_url;
+                        prev.classList.remove('hidden');
+                    }
+                    if (icon) icon.classList.add('hidden');
+
+                    const dashImg = document.getElementById('dashAvatarImg');
+                    const dashInit = document.getElementById('dashAvatarInitials');
+                    if (dashImg) {
+                        dashImg.src = data.avatar_url;
+                        dashImg.classList.remove('hidden');
+                    }
+                    if (dashInit) dashInit.classList.add('hidden');
+
+                    if (currentUser) {
+                        currentUser.avatar_url = data.avatar_url;
+                        localStorage.setItem('minha_user', JSON.stringify(currentUser));
+                    }
+
+                    if (statusEl) statusEl.textContent = 'تم رفع الصورة بنجاح!';
+                    showToast("success", "تم تحديث الصورة", "تم رفع وحفظ صورتك الشخصية بنجاح.");
+                } else {
+                    throw new Error(data.detail || "تعذر رفع الصورة الشخصية.");
+                }
+            } catch(err) {
+                if (statusEl) statusEl.textContent = 'فشل الرفع. حاول مجدداً.';
+                showToast("error", "خطأ في الرفع", err.message);
+            } finally {
+                event.target.value = '';
+            }
+        }
+
+        // Cover Banner File Upload Handler
+        async function handleCoverFileSelect(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+
+            const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+            if (!allowed.includes(file.type)) {
+                showToast("error", "صيغة غير مدعومة", "يسمح فقط برفع صور بصيغ JPG, PNG, WebP, GIF.");
+                event.target.value = '';
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                showToast("error", "الملف كبير جداً", "الحد الأقصى المسموح به لحجم الصورة هو 5 ميجابايت.");
+                event.target.value = '';
+                return;
+            }
+
+            const statusEl = document.getElementById('coverUploadStatus');
+            if (statusEl) statusEl.textContent = 'جارٍ رفع الغلاف...';
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const token = localStorage.getItem('minha_token');
+            const headers = {};
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
+            try {
+                const res = await fetch('/api/user/upload-cover', {
+                    method: 'POST',
+                    headers: headers,
+                    body: formData
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    document.getElementById('editCoverUrl').value = data.cover_url;
+                    const prev = document.getElementById('coverPreviewImg');
+                    const icon = document.getElementById('coverPlaceholderIcon');
+                    if (prev) {
+                        prev.src = data.cover_url;
+                        prev.classList.remove('hidden');
+                    }
+                    if (icon) icon.classList.add('hidden');
+
+                    if (currentUser) {
+                        currentUser.cover_url = data.cover_url;
+                        localStorage.setItem('minha_user', JSON.stringify(currentUser));
+                    }
+
+                    if (statusEl) statusEl.textContent = 'تم رفع الغلاف بنجاح!';
+                    showToast("success", "تم تحديث الغلاف", "تم رفع وحفظ صورة غلاف حسابك بنجاح.");
+                } else {
+                    throw new Error(data.detail || "تعذر رفع صورة الغلاف.");
+                }
+            } catch(err) {
+                if (statusEl) statusEl.textContent = 'فشل الرفع. حاول مجدداً.';
+                showToast("error", "خطأ في الرفع", err.message);
+            } finally {
+                event.target.value = '';
+            }
+        }
+
         async function saveAcademicProfile(e) {
             e.preventDefault();
             if (!currentUser || !currentUser.email) return;
 
             const btn = document.getElementById('saveProfileBtn');
             const orig = btn.innerHTML;
+
+            // Strict Client-Side Input Validation
+            const gpaVal = document.getElementById('editGpa').value.trim();
+            if (gpaVal) {
+                if (gpaVal.length > 8) {
+                    showToast("error", "معدل غير منطقي", "المعدل المدخل طويل جداً (حد أقصى 8 خانات).");
+                    document.getElementById('editGpa').focus();
+                    return;
+                }
+                const num = parseFloat(gpaVal.replace('%', '').split('/')[0]);
+                if (isNaN(num) || num < 0 || num > 100) {
+                    showToast("error", "معدل غير صالح", "يرجى إدخال معدل تراكمي صحيح بين 0 و 100 أو بين 0 و 4.");
+                    document.getElementById('editGpa').focus();
+                    return;
+                }
+            }
+
+            const ageEl = document.getElementById('editAge');
+            const ageVal = ageEl ? ageEl.value.trim() : '';
+            if (ageVal) {
+                const ageNum = parseInt(ageVal, 10);
+                if (isNaN(ageNum) || ageNum < 10 || ageNum > 100) {
+                    showToast("error", "عمر غير منطقي", "يرجى إدخال عمر واقعي بين 10 و 100 سنة.");
+                    if (ageEl) ageEl.focus();
+                    return;
+                }
+            }
+
+            const gradYrVal = document.getElementById('editGradYear').value.trim();
+            if (gradYrVal) {
+                const yr = parseInt(gradYrVal, 10);
+                if (isNaN(yr) || yr < 1970 || yr > 2040) {
+                    showToast("error", "سنة تخرج غير منطقية", "يرجى إدخال سنة تخرج بين 1970 و 2040.");
+                    document.getElementById('editGradYear').focus();
+                    return;
+                }
+            }
+
+            const phoneVal = document.getElementById('socWhatsapp').value.trim();
+            if (phoneVal) {
+                const cleanPhone = phoneVal.replace(/[\s\-\(\)]/g, '');
+                if (!/^(\+|00)?[0-9]{7,15}$/.test(cleanPhone)) {
+                    showToast("error", "رقم هاتف غير صالح", "رقم الهاتف يجب أن يتكون من 7 إلى 15 رقماً مع رمز الدولة الدولي.");
+                    document.getElementById('socWhatsapp').focus();
+                    return;
+                }
+            }
+
+            const linkedinVal = document.getElementById('socLinkedin').value.trim();
+            if (linkedinVal && !linkedinVal.toLowerCase().includes('linkedin.com')) {
+                showToast("error", "رابط LinkedIn غير صحيح", "يجب أن يكون الرابط من موقع linkedin.com.");
+                document.getElementById('socLinkedin').focus();
+                return;
+            }
+
+            const githubVal = document.getElementById('socGithub').value.trim();
+            if (githubVal && !githubVal.toLowerCase().includes('github.com')) {
+                showToast("error", "رابط GitHub غير صحيح", "يجب أن يكون الرابط من موقع github.com.");
+                document.getElementById('socGithub').focus();
+                return;
+            }
+
+            const twitterVal = document.getElementById('socTwitter').value.trim();
+            if (twitterVal && !twitterVal.toLowerCase().includes('x.com') && !twitterVal.toLowerCase().includes('twitter.com')) {
+                showToast("error", "رابط X/Twitter غير صحيح", "يجب أن يكون الرابط من موقع x.com أو twitter.com.");
+                document.getElementById('socTwitter').focus();
+                return;
+            }
+
             btn.disabled = true;
             btn.innerHTML = `<span>جارٍ الحفظ...</span>`;
 
@@ -1457,6 +1684,7 @@
                 university: document.getElementById('editUniversity').value.trim(),
                 degree: document.getElementById('editDegree').value,
                 graduation_year: document.getElementById('editGradYear').value.trim(),
+                age: document.getElementById('editAge') ? (document.getElementById('editAge').value.trim() || null) : null,
                 majors: majors.length ? majors : [document.getElementById('editDegree').value],
                 gpa: document.getElementById('editGpa').value.trim(),
                 english_level: document.getElementById('editEnglish').value.trim(),
@@ -1983,7 +2211,7 @@
                 <span class="text-[10px] text-slate-300">مساعدك للتقديم والقبول 24/7</span>
             </div>
 
-            <a href="/assistant" aria-label="Ask ScholarPilot AI"
+            <a href="/assistant" aria-label="Ask EduAtlas AI"
                class="relative w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-500 text-white flex items-center justify-center shadow-lg shadow-blue-500/30 hover:shadow-cyan-500/50 hover:scale-105 active:scale-95 transition-all duration-300 border border-white/20 group">
                 <span class="absolute inset-0 rounded-2xl bg-blue-500/40 animate-ping opacity-40 pointer-events-none"></span>
                 <i data-lucide="sparkles" class="w-6 h-6 text-white group-hover:rotate-12 transition-transform duration-300"></i>

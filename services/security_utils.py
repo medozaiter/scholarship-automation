@@ -11,6 +11,7 @@ import secrets
 import threading
 import logging
 from typing import Optional, Dict, Any, Tuple, List
+from datetime import datetime
 
 try:
     import bcrypt
@@ -241,41 +242,144 @@ def slugify_username(full_name: str, email: str) -> str:
 
 
 def validate_gpa(gpa_str: str) -> str:
-    """Validates academic GPA strictly to prevent any code or arbitrary text."""
+    """
+    Validates academic GPA strictly:
+    - Max 10 chars to reject overflows (e.g. 10000000000000).
+    - Percentage scale: 0.00 to 100.00 (max 2 decimals).
+    - GPA scale: 0.00 to 4.00 (or 5.00) (max 2 decimals).
+    - Rejects letters, symbols, negative numbers, or irrational values.
+    """
     if not gpa_str:
         return "85%"
 
-    clean = BIDI_AND_INVISIBLE_CHARS.sub("", gpa_str).strip()
+    clean = BIDI_AND_INVISIBLE_CHARS.sub("", str(gpa_str)).strip()
 
     if SCRIPT_TAG_PATTERN.search(clean) or SQL_INJECTION_PATTERN.search(clean):
         raise ValueError("حقل المعدل يحتوي على رموز غير مسموح بها أمنياً.")
+
+    # Guard against overflow numbers like 10000000000000
+    if len(clean) > 10:
+        raise ValueError("المعدل المدخل طويل جداً وغير منطقي. يرجى إدخال قيمة صحيحة بحد أقصى منزلتين عشريتين.")
 
     accepted_terms = ["امتياز", "جيد جدا", "جيد جداً", "ممتاز", "جيد", "مقبول"]
     if clean in accepted_terms:
         return clean
 
-    if re.search(r"[a-zA-Z\u0600-\u06FF]", clean):
-        raise ValueError("حقل المعدل يجب أن يحتوي على أرقام فقط (مثلاً: 88% أو 3.6/4.0) ويمنع إدخال نصوص أو أحرف عشوائية.")
+    if re.search(r"[a-zA-Z؀-ۿ]", clean):
+        raise ValueError("حقل المعدل يجب أن يحتوي على أرقام فقط (مثال: 3.75 أو 88.5) ويمنع إدخال أحرف أو نصوص عشوائية.")
 
     if not re.match(r"^[0-9\.\s%/]+$", clean):
-        raise ValueError("حقل المعدل يحتوي على رموز خاصة غير مقبولة.")
+        raise ValueError("حقل المعدل يحتوي على رموز غير مقبولة.")
 
-    pct_match = re.search(r"^(\d{2,3}(?:\.\d{1,2})?)\s*%?$", clean)
-    if pct_match:
-        val = float(pct_match.group(1))
-        if 40.0 <= val <= 100.0:
-            return f"{val:.1f}%".replace(".0%", "%")
+    # 1. Scale with explicit slash e.g. 3.75/4 or 4.5/5
+    slash_match = re.search(r"^([0-5](?:\.\d{1,2})?)\s*/\s*([45](?:\.0)?)$", clean)
+    if slash_match:
+        val = float(slash_match.group(1))
+        scale = float(slash_match.group(2))
+        if 0.0 <= val <= scale:
+            formatted = f"{val:.2f}".rstrip("0").rstrip(".")
+            return f"{formatted}/{int(scale)}"
+        raise ValueError(f"المعدل ({val}/{int(scale)}) غير منطقي. يجب ألا يتجاوز {int(scale)}.")
+
+    # 2. Explicit percentage with '%'
+    if "%" in clean:
+        pct_match = re.search(r"^(\d{1,3}(?:\.\d{1,2})?)\s*%$", clean)
+        if pct_match:
+            val = float(pct_match.group(1))
+            if 0.0 <= val <= 100.0:
+                formatted = f"{val:.2f}".rstrip("0").rstrip(".")
+                return f"{formatted}%"
+            raise ValueError(f"المعدل المئوي ({val}%) غير منطقي. يجب أن يكون بين 0% و 100%.")
+
+    # 3. Numeric value without explicit sign
+    num_match = re.search(r"^(\d{1,3}(?:\.\d{1,2})?)$", clean)
+    if num_match:
+        val = float(num_match.group(1))
+        if 0.0 <= val <= 5.0:
+            scale = 5.0 if val > 4.0 else 4.0
+            formatted = f"{val:.2f}".rstrip("0").rstrip(".")
+            return f"{formatted}/{int(scale)}"
+        elif 5.0 < val <= 100.0:
+            formatted = f"{val:.2f}".rstrip("0").rstrip(".")
+            return f"{formatted}%"
         else:
-            raise ValueError(f"المعدل المئوي ({val}%) غير منطقي. يجب أن يكون بين 40% و 100%.")
+            raise ValueError(f"المعدل المدخل ({val}) غير منطقي. يجب أن يكون بين 0 و 100 أو بين 0 و 4.")
 
-    scale_match = re.search(r"^([1-5](?:\.\d{1,2})?)(?:\s*/\s*([45](?:\.0)?))?$", clean)
-    if scale_match:
-        val = float(scale_match.group(1))
-        scale = float(scale_match.group(2)) if scale_match.group(2) else 4.0
-        if 1.5 <= val <= scale:
-            return f"{val}/{int(scale)}"
+    raise ValueError("صيغة المعدل غير صحيحة. يرجى إدخال رقم بين 0 و 100 أو بين 0 و 4 بحد أقصى منزلتين عشريتين (مثال: 3.75 أو 88.5).")
 
-    raise ValueError("صيغة المعدل غير صحيحة. يرجى إدخال أرقام فقط (مثال: 88% أو 3.6/4.0).")
+
+def validate_age(age_val: Any) -> int:
+    """Validates student age strictly between 10 and 100."""
+    if age_val is None or str(age_val).strip() == "":
+        return 20
+    clean = str(age_val).strip()
+    if not clean.isdigit():
+        raise ValueError("حقل العمر يجب أن يتكون من أرقام فقط ويمنع إدخال نصوص أو قيم سالبة.")
+    val = int(clean)
+    if val < 10 or val > 100:
+        raise ValueError(f"العمر ({val}) غير منطقي. يجب أن يكون بين 10 و 100 سنة.")
+    return val
+
+
+def validate_graduation_year(year_val: Any) -> int:
+    """Validates graduation year strictly between 1970 and 2040."""
+    if year_val is None or str(year_val).strip() == "":
+        return 2027
+    clean = str(year_val).strip()
+    if not clean.isdigit():
+        raise ValueError("سنة التخرج يجب أن تحتوي على 4 أرقام فقط.")
+    val = int(clean)
+    if val < 1970 or val > 2040:
+        raise ValueError(f"سنة التخرج ({val}) غير واقعية. يرجى إدخال سنة بين 1970 و 2040.")
+    return val
+
+
+def validate_phone_number(phone_str: str) -> str:
+    """Validates international phone numbers with optional country code."""
+    if not phone_str:
+        return ""
+    clean = re.sub(r"[\s\-\(\)]", "", str(phone_str)).strip()
+    if not re.match(r"^(\+|00)?[0-9]{7,15}$", clean):
+        raise ValueError("رقم الهاتف غير صحيح. يجب أن يتكون من 7 إلى 15 رقماً مع رمز الدولة الدولي (مثال: +970590000000).")
+    return clean
+
+
+SSRF_BLOCKED_HOSTS = {
+    "localhost", "127.0.0.1", "0.0.0.0", "169.254.169.254", "::1",
+    "metadata.google.internal", "10.", "192.168.", "172.16."
+}
+
+def validate_social_url(url_str: str, platform: Optional[str] = None) -> str:
+    """Validates social media and portfolio URLs, preventing SSRF, javascript: and data: schemes."""
+    if not url_str:
+        return ""
+    clean = str(url_str).strip()
+    clean_lower = clean.lower()
+
+    if clean_lower.startswith("javascript:") or clean_lower.startswith("data:") or clean_lower.startswith("file:"):
+        raise ValueError("الرابط يحتوي على بروتوكول غير آمن.")
+
+    if not (clean_lower.startswith("http://") or clean_lower.startswith("https://")):
+        clean = "https://" + clean
+        clean_lower = clean.lower()
+
+    for blocked in SSRF_BLOCKED_HOSTS:
+        if blocked in clean_lower:
+            raise ValueError("الرابط يشير إلى نطاق داخلي غير مسموح به.")
+
+    if len(clean) > 300:
+        raise ValueError("الرابط طويل جداً (الحد الأقصى 300 حرف).")
+
+    if platform:
+        p_lower = platform.lower()
+        if "github" in p_lower and "github.com" not in clean_lower:
+            raise ValueError("رابط GitHub يجب أن يكون على نطاق github.com (مثال: https://github.com/username).")
+        if "linkedin" in p_lower and "linkedin.com" not in clean_lower:
+            raise ValueError("رابط LinkedIn يجب أن يكون على نطاق linkedin.com (مثال: https://linkedin.com/in/username).")
+        if ("twitter" in p_lower or "x" in p_lower) and not ("x.com" in clean_lower or "twitter.com" in clean_lower):
+            raise ValueError("رابط X/Twitter يجب أن يكون على نطاق x.com أو twitter.com.")
+
+    return html.escape(clean, quote=True)
 
 
 def validate_talents_experience(val: Optional[str]) -> str:
@@ -553,6 +657,8 @@ class SecurityRateLimiter:
             "community": (20, 60),
             "general": (150, 60),
         }
+        self._daily_advisor_quotas: Dict[str, int] = {}
+        self.DAILY_ADVISOR_LIMIT: int = 10
 
     def _prune_expired_entries(self, now: float):
         """Sweeps stale buckets to prevent memory accumulation / Slowloris memory leaks."""
@@ -656,6 +762,37 @@ class SecurityRateLimiter:
                 return False, remaining
             self._email_cooldowns[clean_email] = now
             return True, 0
+
+
+    def check_daily_advisor_quota(self, identifier: str) -> Tuple[bool, int, int]:
+        """
+        Enforces maximum 10 questions per user/IP per calendar day.
+        Returns: (allowed: bool, used_today: int, remaining: int)
+        """
+        date_str = datetime.now().strftime("%Y-%m-%d")
+        clean_id = (identifier or "anonymous").strip().lower()
+        key = f"advisor_daily:{clean_id}:{date_str}"
+
+        with self._lock:
+            used = self._daily_advisor_quotas.get(key, 0)
+            remaining = max(0, self.DAILY_ADVISOR_LIMIT - used)
+            allowed = used < self.DAILY_ADVISOR_LIMIT
+            return allowed, used, remaining
+
+    def consume_daily_advisor_question(self, identifier: str) -> Tuple[int, int]:
+        """
+        Consumes one question from the daily quota.
+        Returns: (used_today: int, remaining: int)
+        """
+        date_str = datetime.now().strftime("%Y-%m-%d")
+        clean_id = (identifier or "anonymous").strip().lower()
+        key = f"advisor_daily:{clean_id}:{date_str}"
+
+        with self._lock:
+            used = self._daily_advisor_quotas.get(key, 0) + 1
+            self._daily_advisor_quotas[key] = used
+            remaining = max(0, self.DAILY_ADVISOR_LIMIT - used)
+            return used, remaining
 
 
 def verify_recaptcha(token: Optional[str], client_ip: Optional[str] = None) -> Tuple[bool, str]:

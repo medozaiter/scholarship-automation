@@ -7,6 +7,10 @@ from datetime import datetime, timedelta
 from typing import Dict, Any, Optional, List, Tuple
 
 from services.security_utils import (
+    validate_age,
+    validate_graduation_year,
+    validate_phone_number,
+    validate_social_url,
     validate_email,
     validate_name,
     validate_username,
@@ -270,7 +274,8 @@ class AuthService:
         target_countries: Optional[List[str]] = None,
         scholarship_interests: Optional[List[str]] = None,
         social_links: Optional[Dict[str, str]] = None,
-        privacy_settings: Optional[Dict[str, Any]] = None
+        privacy_settings: Optional[Dict[str, Any]] = None,
+        age: Optional[Any] = None
     ) -> Dict[str, Any]:
         """Registers a new student with complete academic profile and session token."""
         email_clean = validate_email(email)
@@ -459,12 +464,12 @@ class AuthService:
         save_or_update_user(user)
 
         # Dispatch reset email
-        subject = "استعادة كلمة المرور - ScholarPilot AI"
+        subject = "استعادة كلمة المرور - EduAtlas"
         html_msg = f"""
         <div dir="rtl" style="font-family: Arial, sans-serif; padding: 20px; color: #1e293b;">
             <h2>طلب استعادة كلمة المرور</h2>
             <p>مرحباً {user.get('full_name', 'طالبنا العزيز')},</p>
-            <p>تلقينا طلباً لإعادة تعيين كلمة المرور لحسابك في ScholarPilot AI.</p>
+            <p>تلقينا طلباً لإعادة تعيين كلمة المرور لحسابك في EduAtlas.</p>
             <div style="background: #f1f5f9; padding: 15px; border-radius: 8px; margin: 20px 0;">
                 <p style="margin: 0; font-size: 14px; font-weight: bold;">رمز استعادة كلمة المرور الخاص بك:</p>
                 <p style="font-size: 24px; font-weight: bold; letter-spacing: 2px; color: #2563eb; margin: 10px 0;">{reset_token}</p>
@@ -473,7 +478,7 @@ class AuthService:
             <p>إذا لم تكن أنت من طلب ذلك، يمكنك تجاهل هذه الرسالة وسيبقى حسابك آمناً.</p>
         </div>
         """
-        plain_msg = f"رمز استعادة كلمة المرور لحسابك في ScholarPilot AI هو: {reset_token}\nصالح لمدة 60 دقيقة."
+        plain_msg = f"رمز استعادة كلمة المرور لحسابك في EduAtlas هو: {reset_token}\nصالح لمدة 60 دقيقة."
         try:
             _safe_dispatch_email(email_clean, subject, html_msg, plain_msg)
         except Exception as e:
@@ -750,7 +755,14 @@ class AuthService:
         if "degree" in profile_data and profile_data["degree"]:
             user["degree"] = sanitize_text(profile_data["degree"], max_length=60)
         if "graduation_year" in profile_data:
-            user["graduation_year"] = sanitize_text(str(profile_data["graduation_year"]), max_length=20)
+            gy_val = str(profile_data["graduation_year"] or "").strip()
+            user["graduation_year"] = str(validate_graduation_year(gy_val)) if gy_val else ""
+        if "age" in profile_data:
+            age_val = profile_data["age"]
+            if age_val is not None and str(age_val).strip():
+                user["age"] = validate_age(age_val)
+            else:
+                user["age"] = None
         if "bio" in profile_data:
             user["bio"] = sanitize_text(profile_data["bio"], max_length=600)
         if "country" in profile_data and profile_data["country"]:
@@ -797,7 +809,14 @@ class AuthService:
             for k in allowed:
                 if k in profile_data["social_links"]:
                     val = str(profile_data["social_links"][k] or "").strip()
-                    current_socials[k] = sanitize_text(val, max_length=200)
+                    if not val:
+                        current_socials[k] = ""
+                    elif k in ["whatsapp", "phone"]:
+                        current_socials[k] = validate_phone_number(val)
+                    elif k in ["linkedin", "github", "twitter", "portfolio", "website"]:
+                        current_socials[k] = validate_social_url(val, platform=k)
+                    else:
+                        current_socials[k] = sanitize_text(val, max_length=200)
             user["social_links"] = current_socials
 
         # Privacy settings

@@ -2,7 +2,7 @@ import os
 import re
 import asyncio
 import logging
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Union
 from fastapi import FastAPI, BackgroundTasks, HTTPException, Query, Request, Response, UploadFile, File, Form
 from fastapi.staticfiles import StaticFiles
 from fastapi.exceptions import RequestValidationError
@@ -34,7 +34,11 @@ from services.security_utils import (
     verify_session_token,
     verify_recaptcha,
     validate_sql_safe,
-    detect_sql_injection
+    detect_sql_injection,
+    validate_age,
+    validate_graduation_year,
+    validate_phone_number,
+    validate_social_url
 )
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -348,6 +352,7 @@ class RegisterRequest(BaseModel):
     city: Optional[str] = ""
     university: Optional[str] = ""
     graduation_year: Optional[str] = ""
+    age: Optional[Union[int, str]] = None
     bio: Optional[str] = ""
     languages: Optional[List[Any]] = None
     skills: Optional[List[str]] = None
@@ -378,6 +383,20 @@ class RegisterRequest(BaseModel):
     @classmethod
     def check_gpa(cls, v: Optional[str]) -> str:
         return validate_gpa(v or "85%")
+
+    @field_validator("graduation_year")
+    @classmethod
+    def check_reg_grad_year(cls, v: Optional[str]) -> Optional[str]:
+        if v and str(v).strip():
+            return str(validate_graduation_year(v))
+        return v
+
+    @field_validator("age")
+    @classmethod
+    def check_reg_age(cls, v: Optional[Union[int, str]]) -> Optional[int]:
+        if v is not None and str(v).strip():
+            return validate_age(v)
+        return None
 
     @field_validator("talents_experience")
     @classmethod
@@ -475,6 +494,7 @@ class UpdateProfileRequest(BaseModel):
     degree: Optional[str] = None
     majors: Optional[List[str]] = None
     graduation_year: Optional[str] = None
+    age: Optional[Union[int, str]] = None
     bio: Optional[str] = None
     gpa: Optional[str] = None
     english_level: Optional[str] = None
@@ -523,6 +543,21 @@ class UpdateProfileRequest(BaseModel):
             return sanitize_text(v, max_length=max_len)
         return v
 
+    @field_validator("graduation_year")
+    @classmethod
+    def check_grad_year(cls, v: Optional[str]) -> Optional[str]:
+        if v and str(v).strip():
+            yr = validate_graduation_year(v)
+            return str(yr)
+        return v
+
+    @field_validator("age")
+    @classmethod
+    def check_profile_age(cls, v: Optional[Union[int, str]]) -> Optional[int]:
+        if v is not None and str(v).strip():
+            return validate_age(v)
+        return None
+
     @field_validator("majors", "skills", "interests", "target_countries", "scholarship_interests")
     @classmethod
     def sanitize_profile_lists(cls, v: Optional[List[str]]) -> Optional[List[str]]:
@@ -536,7 +571,17 @@ class UpdateProfileRequest(BaseModel):
         if v is not None and isinstance(v, dict):
             clean_links = {}
             for k, val in v.items():
-                clean_links[sanitize_text(k, max_length=50)] = sanitize_text(val, max_length=300)
+                k_clean = sanitize_text(k, max_length=50).lower()
+                val_str = str(val or "").strip()
+                if not val_str:
+                    clean_links[k_clean] = ""
+                    continue
+                if "whatsapp" in k_clean or "phone" in k_clean:
+                    clean_links[k_clean] = validate_phone_number(val_str)
+                elif any(p in k_clean for p in ["github", "linkedin", "twitter", "portfolio", "website"]):
+                    clean_links[k_clean] = validate_social_url(val_str, platform=k_clean)
+                else:
+                    clean_links[k_clean] = sanitize_text(val_str, max_length=300)
             return clean_links
         return v
 
@@ -1825,12 +1870,39 @@ async def get_queue_status_api():
     return {"success": True, "queue": get_queue_status()}
 
 
+@app.get("/api/advisor/quota")
+async def get_advisor_quota_api(request: Request, email: Optional[str] = None):
+    """Returns the current daily question quota and remaining balance for the user or IP."""
+    safe_email = _get_verified_profile_email(request, email)
+    client_ip = request.client.host if request.client else "127.0.0.1"
+    client_id = safe_email or client_ip
+    allowed, used_today, remaining = security_rate_limiter.check_daily_advisor_quota(client_id)
+    return {
+        "success": True,
+        "daily_limit": 10,
+        "used_today": used_today,
+        "remaining": remaining,
+        "is_exhausted": not allowed
+    }
+
+
 @app.post("/api/advisor/chat")
 @app.post("/api/advisor/consult")
 async def consult_advisor(req: AdvisorChatRequest, request: Request):
-    """Real-time AI Scholarship Advisor answering concisely with multi-turn dialect understanding, token optimization, and profile/scholarship awareness."""
+    """Real-time AI Scholarship Advisor with daily 10-question quota enforcement and profile awareness."""
     try:
         safe_email = _get_verified_profile_email(request, req.email)
+        client_ip = request.client.host if request.client else "127.0.0.1"
+        client_id = safe_email or client_ip
+
+        # Enforce 10-Question Daily Quota per User / IP
+        allowed, used_today, remaining = security_rate_limiter.check_daily_advisor_quota(client_id)
+        if not allowed:
+            raise HTTPException(
+                status_code=429,
+                detail="عذراً، لقد استنفدت الحد اليومي المسموح به للاستشارات الأكاديمية (10 أسئلة يومياً). يتجدد رصيدك تلقائياً مع بداية اليوم القادم لمواصلة استكشاف المنح والتقديم."
+            )
+
         profile = advisor_service.resolve_student_profile(email=safe_email, explicit_profile=req.profile)
         res = await advisor_service.consult_ai_advisor(
             student_query=req.query,
@@ -1839,7 +1911,16 @@ async def consult_advisor(req: AdvisorChatRequest, request: Request):
             email=safe_email,
             scholarship_id=req.scholarship_id
         )
+
+        used_today, remaining = security_rate_limiter.consume_daily_advisor_question(client_id)
+        res["daily_quota"] = {
+            "limit": 10,
+            "used": used_today,
+            "remaining": remaining
+        }
         return res
+    except HTTPException:
+        raise
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:

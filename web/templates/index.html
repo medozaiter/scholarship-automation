@@ -727,12 +727,12 @@
                                 <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
                                     <i data-lucide="award" class="w-4 h-4"></i>
                                 </span>
-                                <input type="text" id="gpaInput" required maxlength="15" placeholder="مثال: 90% أو 3.8"
+                                <input type="text" id="gpaInput" required maxlength="8" placeholder="3.75 أو 85.5"
                                     onkeypress="return /[0-9.%/]/.test(event.key)"
                                     oninput="this.value = this.value.replace(/[^0-9.%/]/g, '')"
                                     class="sp-input pr-9 font-latin tabular-nums">
                             </div>
-                            <span class="text-[11px] text-slate-400 mt-1 block">يقبل النسبة المئوية أو المعدل التراكمي (GPA)</span>
+                            <span class="text-[11px] text-slate-400 mt-1 block">أدخل المعدل التراكمي الحقيقي بحد أقصى منزلتين عشريتين (نظام 4 أو نسبة مئوية 0-100%)</span>
                         </div>
 
                         <div>
@@ -978,7 +978,7 @@
                         <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-open:rotate-180 transition"></i>
                     </summary>
                     <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-3 leading-relaxed border-t border-slate-200 dark:border-slate-800 pt-3">
-                        نعم، منصة ScholarPilot AI مجانية 100% للطلاب في فلسطين وحول العالم. هدفها تسهيل الوصول للفرص الأكاديمية العالمية وتمكين الطلاب المتميزين من الحصول على التمويل الكامل لدراستهم.
+                        نعم، منصة EduAtlas مجانية 100% للطلاب في فلسطين وحول العالم. هدفها تسهيل الوصول للفرص الأكاديمية العالمية وتمكين الطلاب المتميزين من الحصول على التمويل الكامل لدراستهم.
                     </p>
                 </details>
 
@@ -1152,6 +1152,40 @@
             if (customVal) {
                 const extras = customVal.split(/[,،]/).map(s => s.trim()).filter(Boolean);
                 finalMajors.push(...extras);
+            }
+
+            const emailVal = document.getElementById('email').value.trim();
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailRegex.test(emailVal)) {
+                alertBox.className = "p-4 rounded-xl text-xs sm:text-sm font-bold sp-badge-danger block";
+                alertBox.textContent = "يرجى إدخال عنوان بريد إلكتروني صالح (مثال: name@example.com).";
+                alertBox.classList.remove('hidden');
+                document.getElementById('email').focus();
+                return;
+            }
+
+            const gpaRaw = document.getElementById('gpaInput').value.trim();
+            if (!gpaRaw) {
+                alertBox.className = "p-4 rounded-xl text-xs sm:text-sm font-bold sp-badge-danger block";
+                alertBox.textContent = "حقل المعدل التراكمي مطلوب.";
+                alertBox.classList.remove('hidden');
+                document.getElementById('gpaInput').focus();
+                return;
+            }
+            if (gpaRaw.length > 8) {
+                alertBox.className = "p-4 rounded-xl text-xs sm:text-sm font-bold sp-badge-danger block";
+                alertBox.textContent = "المعدل المدخل طويل جداً وغير منطقي. يرجى إدخال قيمة صحيحة.";
+                alertBox.classList.remove('hidden');
+                document.getElementById('gpaInput').focus();
+                return;
+            }
+            const gpaNum = parseFloat(gpaRaw.replace('%', '').split('/')[0]);
+            if (isNaN(gpaNum) || gpaNum < 0 || gpaNum > 100) {
+                alertBox.className = "p-4 rounded-xl text-xs sm:text-sm font-bold sp-badge-danger block";
+                alertBox.textContent = "قيمة المعدل غير صحيحة. يجب أن تكون بين 0 و 100 أو بين 0 و 4.";
+                alertBox.classList.remove('hidden');
+                document.getElementById('gpaInput').focus();
+                return;
             }
 
             if (finalMajors.length === 0) {
@@ -2191,7 +2225,20 @@
         }
     }
     
-    function toggleAssistantSidePanel(forceState) {
+            async function updateSidePanelQuota() {
+            try {
+                const res = await fetch('/api/advisor/quota');
+                if (res.ok) {
+                    const d = await res.json();
+                    const qBadge = document.getElementById('sidePanelQuotaBadge');
+                    if (qBadge && d.remaining !== undefined) {
+                        qBadge.textContent = `رصيد اليوم: ${d.remaining}/10 أسئلة`;
+                    }
+                }
+            } catch(e) {}
+        }
+
+        function toggleAssistantSidePanel(forceState) {
             const panel = document.getElementById('assistantSidePanel');
             if (!panel) return;
             const isClosed = panel.classList.contains('translate-x-full');
@@ -2202,6 +2249,7 @@
                 panel.classList.add('translate-x-0');
                 const inp = document.getElementById('sidePanelInput');
                 if (inp) setTimeout(() => inp.focus(), 200);
+                updateSidePanelQuota();
             } else {
                 panel.classList.add('translate-x-full');
                 panel.classList.remove('translate-x-0');
@@ -2321,7 +2369,7 @@
                         </div>
                         <div class="p-4 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 max-w-[88%] text-xs shadow-xs space-y-2">
                             <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-700/50 pb-1.5">
-                                <span class="font-bold text-slate-900 dark:text-white">ScholarPilot AI</span>
+                                <span class="font-bold text-slate-900 dark:text-white">EduAtlas AI</span>
                                 ${badgeHtml}
                             </div>
                             <div class="markdown-body leading-relaxed text-slate-700 dark:text-slate-200 space-y-2">
@@ -2497,10 +2545,13 @@
                     <span class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 border border-white dark:border-slate-900"></span>
                 </div>
                 <div class="min-w-0">
-                    <h3 class="text-xs font-black text-slate-900 dark:text-white flex items-center gap-1.5 truncate">
-                        <span>المستشار الذكي</span>
-                        <span class="text-[10px] font-latin font-bold text-blue-600 dark:text-blue-400 bg-blue-500/10 px-1.5 py-0.2 rounded">Split View</span>
-                    </h3>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <h3 class="text-xs font-black text-slate-900 dark:text-white flex items-center gap-1.5 truncate">
+                            <span>المستشار الذكي</span>
+                            <span class="text-[10px] font-latin font-bold text-blue-600 dark:text-blue-400 bg-blue-500/10 px-1.5 py-0.2 rounded">Split View</span>
+                        </h3>
+                        <span id="sidePanelQuotaBadge" class="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold border border-blue-500/20">رصيد اليوم: 10/10 أسئلة</span>
+                    </div>
                     <!-- Context Pill -->
                     <div id="sidePanelContextPill" class="hidden items-center gap-1 text-[11px] text-blue-600 dark:text-blue-400 font-bold truncate">
                         <i data-lucide="target" class="w-3.5 h-3.5 text-blue-500"></i>
@@ -2640,7 +2691,7 @@
             </div>
 
             <!-- Floating Button (Toggles Split Screen Mode Option B) -->
-            <button type="button" onclick="toggleAssistantSidePanel()" aria-label="Ask ScholarPilot AI"
+            <button type="button" onclick="toggleAssistantSidePanel()" aria-label="Ask EduAtlas AI"
                class="relative w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-500 text-white flex items-center justify-center shadow-lg shadow-blue-500/30 hover:shadow-cyan-500/50 hover:scale-105 active:scale-95 transition-all duration-300 border border-white/20 cursor-pointer">
                 <!-- Pulsing Halo Animation -->
                 <span class="absolute inset-0 rounded-2xl bg-blue-500/40 animate-ping opacity-40 pointer-events-none"></span>
